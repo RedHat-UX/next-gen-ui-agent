@@ -1,0 +1,14 @@
+# Pants workspace files
+/.pants.d/
+/dist
+/.pids
+/.pants.workdir.file_lock*
+
+# Python files
+__pycache__/
+*.pyc
+.venv/
+
+# Editors
+.idea/
+*.iml
