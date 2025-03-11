@@ -2,7 +2,7 @@
 python_sources(
     name="lib",
     dependencies=[
-        "next_gen_ui_agent/next_gen_ui_agent:lib",
+        "libs/next_gen_ui_agent:lib",
     ],
 )
 
@@ -10,7 +10,7 @@ python_sources(
 python_tests(
     name="tests",
     dependencies=[
-        "next_gen_ui_agent/next_gen_ui_agent:lib",
+        "libs/next_gen_ui_agent:lib",
     ],
 )
 
