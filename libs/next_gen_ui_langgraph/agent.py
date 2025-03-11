@@ -1,5 +1,5 @@
 from langgraph.graph import MessagesState, StateGraph
-from next_gen_ui_agent.agent import NextGenUIAgent
+from next_gen_ui_agent import NextGenUIAgent
 
 workflow = StateGraph(MessagesState)
 

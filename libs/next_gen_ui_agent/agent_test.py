@@ -1,6 +1,6 @@
 # import pytest
 
-from .agent import NextGenUIAgent
+from . import NextGenUIAgent
 
 
 def test_say_hello() -> None:

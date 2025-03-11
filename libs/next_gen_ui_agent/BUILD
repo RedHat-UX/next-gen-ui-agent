@@ -8,6 +8,10 @@ python_tests(
     name="tests",
 )
 
+python_requirements(
+    name="reqs",
+)
+
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
 #  `setup.py`. See https://www.pantsbuild.org/docs/python-distributions.
 #

@@ -1,6 +1,6 @@
 # import pytest
 
-from .agent import NextGenUILangGraphAgent
+from . import NextGenUILangGraphAgent
 
 
 def test_say_hello() -> None:
