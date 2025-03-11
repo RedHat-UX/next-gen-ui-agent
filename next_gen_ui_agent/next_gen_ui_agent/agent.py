@@ -1,5 +1,5 @@
 class NextGenUIAgent:
-    """Next Gen UI Agent"""
+    """Next Gen UI Agent."""
 
     def say_hello(self) -> str:
         print("Hallo from main next_gen_ui_agent.NextGenUIAgent")

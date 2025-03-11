@@ -1,11 +1,12 @@
-from next_gen_ui_agent.agent import NextGenUIAgent
+from langgraph.graph import MessagesState, StateGraph
 
-from langgraph.graph import StateGraph, MessagesState, START, END
+from next_gen_ui_agent.agent import NextGenUIAgent
 
 workflow = StateGraph(MessagesState)
 
+
 class NextGenUILangGraphAgent:
-    """Next Gen UI Agent in LangGraph"""
+    """Next Gen UI Agent in LangGraph."""
 
     def say_hello(self) -> str:
         print("Hallo from LangGraph")
