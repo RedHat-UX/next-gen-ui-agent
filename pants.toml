@@ -22,14 +22,15 @@ root_patterns = ["/libs"]
 # Modify this if you don't have Python 3.9 on your machine.
 # This can be a range, such as [">=3.8,<3.11"], but it's usually recommended to restrict
 # to a single minor version.
-interpreter_constraints = ["==3.9.*"]
+interpreter_constraints = ["==3.11.*"]
 
 # Enable the "resolves" mechanism, which turns on lockfiles for user code. See
 # https://www.pantsbuild.org/docs/python-third-party-dependencies. This also adds the
 # `generate-lockfiles` goal for Pants to generate the lockfile for you.
 enable_resolves = true
 
-resolves = { python-default = "python-default.lock"}
+[python.resolves]
+python-default = "python-default.lock"
 
 [python-bootstrap]
 # We search for interpreters both on the $PATH and in the `$(pyenv root)/versions` folder.
@@ -37,3 +38,14 @@ resolves = { python-default = "python-default.lock"}
 #  problematic system Pythons. See
 #  https://www.pantsbuild.org/docs/python-interpreter-compatibility#changing-the-interpreter-search-path.
 search_path = ["<PATH>", "<PYENV>"]
+
+[pytest]
+args = ["--no-header", "-vv"]
+execution_slot_var = "TEST_EXECUTION_SLOT"
+requirements = ["//libs/3rdparty/python:pytest"]
+
+[test]
+use_coverage = true
+
+[coverage-py]
+interpreter_constraints = ["==3.11.*"]
