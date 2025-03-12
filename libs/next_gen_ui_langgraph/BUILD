@@ -11,6 +11,8 @@ python_tests(
     name="tests",
     dependencies=[
         "libs/next_gen_ui_agent:lib",
+        "libs/3rdparty/python:pytest",
+        "libs/3rdparty/python:langchain",
     ],
 )
 
