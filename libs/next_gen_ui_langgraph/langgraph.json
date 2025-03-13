@@ -1,0 +1,9 @@
+{
+    "dependencies": [
+        "./"
+    ],
+    "graphs": {
+        "next-gen-ui-agent": "./agent_dev.py:graph"
+    },
+    "env": "./.env"
+}
