@@ -12,3 +12,6 @@ __pycache__/
 # Editors
 .idea/
 *.iml
+
+# LangGraph
+.langgraph_api

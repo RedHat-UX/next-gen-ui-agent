@@ -1,13 +1,11 @@
-import pytest
 import asyncio
 
-from langchain_core.messages import HumanMessage, ToolMessage
+import pytest
 from langchain_core.language_models import FakeMessagesListChatModel
-
-from next_gen_ui_agent.model import LangChainModelInference
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from next_gen_ui_agent import UIComponentMetadata
-from . import NextGenUILangGraphAgent
 
+from . import NextGenUILangGraphAgent
 
 
 @pytest.mark.asyncio
@@ -69,7 +67,7 @@ async def test_agent() -> None:
     #     "temperature": 0,
     # }
     # llm = ChatOpenAI(**llm_settings, disable_streaming=True)
-    msg = {"type": "assistant", "content": response}
+    msg = AIMessage(content=response)
     llm = FakeMessagesListChatModel(responses=[msg])
 
     agent = NextGenUILangGraphAgent(model=llm)
@@ -101,7 +99,6 @@ async def test_agent() -> None:
     print("\n--RESULT---")
     print(c.component)
     assert "one-card" == c.component
-
 
 
 if __name__ == "__main__":
