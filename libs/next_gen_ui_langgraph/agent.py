@@ -82,9 +82,10 @@ class NextGenUILangGraphAgent:
                 # and (m.status and m.status == "success")
                 # and (m.name and not m.name.startswith("genie"))
             ):
-                backend_data.append({"id": m.tool_call_id, "data": m.content})
+                # TODO: Handle m.content as list and remove type: ignore
+                backend_data.append({"id": m.tool_call_id, "data": m.content})  # type: ignore
             if m.type == "human" and not user_prompt:
-                user_prompt = m.content
+                user_prompt = m.content  # type: ignore
             if user_prompt != "" and len(backend_data) > 0:
                 break
 
@@ -100,9 +101,9 @@ class NextGenUILangGraphAgent:
         print("\n\n---CALL component_selection---")
 
         user_prompt = state["user_prompt"]
-        input_data = [
+        input_data = {
             InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
-        ]
+        }
         input = AgentInput(user_prompt=user_prompt, input_data=input_data)
         components = await ngui_agent.component_selection(
             inference=self.inference,
@@ -114,7 +115,7 @@ class NextGenUILangGraphAgent:
         self, state: AgentInputState, config: RunnableConfig
     ) -> Command[Literal["design_system_handler", "__end__"]]:
         print("\n\n---CALL component_generation---")
-        cfg: AgentConfig = config.get("configurable", {})
+        cfg: AgentConfig = config.get("configurable", {})  # type: ignore
         component_system = cfg.get("component_system", "rhds")
         if component_system and component_system != "none":
             return Command(goto="design_system_handler")
