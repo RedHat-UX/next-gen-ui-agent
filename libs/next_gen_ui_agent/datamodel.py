@@ -10,7 +10,7 @@ class InputData:
 @dataclass
 class AgentInput:
     user_prompt: str
-    input_data: set[InputData]
+    input_data: list[InputData]
 
 
 @dataclass(eq=False)
