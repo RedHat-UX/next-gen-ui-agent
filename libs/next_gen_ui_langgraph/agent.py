@@ -101,9 +101,9 @@ class NextGenUILangGraphAgent:
         print("\n\n---CALL component_selection---")
 
         user_prompt = state["user_prompt"]
-        input_data = {
+        input_data = [
             InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
-        }
+        ]
         input = AgentInput(user_prompt=user_prompt, input_data=input_data)
         components = await ngui_agent.component_selection(
             inference=self.inference,
