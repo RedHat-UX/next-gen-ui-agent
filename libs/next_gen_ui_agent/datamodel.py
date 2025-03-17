@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -17,7 +18,7 @@ class AgentInput:
 class DataPath:
     name: str
     data_path: str
-    data: list[str]
+    data: Optional[list[str]] = None
 
     def __eq__(self, other):
         return self.data_path == other.data_path
@@ -30,7 +31,7 @@ class UIComponentMetadata:
     reasonForTheComponentSelection: str
     confidenceScore: str
     component: str
-    fields: set[DataPath]
+    fields: list[DataPath]
 
     def __eq__(self, other):
         return self.id == other.id

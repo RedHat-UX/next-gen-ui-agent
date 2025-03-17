@@ -109,13 +109,22 @@ class NextGenUILangGraphAgent:
             inference=self.inference,
             input=input,
         )
+        # TODO: TypeDict or Data Class ???
         return {"components": components}
 
     async def choose_system(
-        self, state: AgentInputState, config: RunnableConfig
+        self, state: AgentState, config: RunnableConfig
     ) -> Command[Literal["design_system_handler", "__end__"]]:
         print("\n\n---CALL component_generation---")
         cfg: AgentConfig = config.get("configurable", {})  # type: ignore
+
+        # TODO: Resolve TypeDict vs Data class first. Then you can call the data_transformation
+        # input_data = [
+        #     InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
+        # ]
+        # components = state["components"]
+        # ngui_agent.data_transformation(input_data=input_data, components=components)
+
         component_system = cfg.get("component_system", "rhds")
         if component_system and component_system != "none":
             return Command(goto="design_system_handler")

@@ -36,5 +36,9 @@ class NextGenUILlamaStackAgent:
     async def turn_from_steps(self, user_prompt, steps: list[Step]):
         tool_data_list = self._data_selection(steps)
         components = await self._component_selection(user_prompt, tool_data_list)
+        # TODO: Investigate TypeDict error
+        # self.ngui_agent.data_transformation(
+        #     input_data=tool_data_list, components=components
+        # )
         # TODO: Create turns and support Streaming of those turns. Same way as llama-stack client
         return components
