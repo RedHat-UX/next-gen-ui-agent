@@ -1,7 +1,7 @@
 from next_gen_ui_agent.agent import NextGenUIAgent
-from next_gen_ui_agent.datamodel import (
+from next_gen_ui_agent.types import (
     AgentInput,
-    DataPath,
+    DataField,
     InputData,
     UIComponentMetadata,
 )
@@ -9,7 +9,7 @@ from next_gen_ui_agent.datamodel import (
 __all__ = [
     "NextGenUIAgent",
     "AgentInput",
-    "DataPath",
+    "DataField",
     "InputData",
     "UIComponentMetadata",
 ]

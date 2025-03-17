@@ -2,8 +2,8 @@ import asyncio
 import json
 import traceback
 
-from .datamodel import AgentInput, InputData, UIComponentMetadata
 from .model import InferenceBase
+from .types import AgentInput, InputData, UIComponentMetadata
 
 ui_components_description = """
 * none - component to use when the data are not appropriate to be shown for user's query.
@@ -23,8 +23,8 @@ async def component_selection(
     print("\n\n---CALL component_selection---")
     components = await asyncio.gather(
         *[
-            component_selection_run(input.user_prompt, inference, data)
-            for data in input.input_data
+            component_selection_run(input["user_prompt"], inference, data)
+            for data in input["input_data"]
         ]
     )
     print(components)
@@ -39,9 +39,9 @@ async def component_selection_run(
 ) -> UIComponentMetadata:
     """Run Component Selection task."""
 
-    print(f"\n\n---CALL component_selection_run--- id: {id}")
-    print(user_prompt)
-    print(input_data)
+    print(f"\n\n---CALL component_selection_run--- id: {input_data['id']}")
+    # print(user_prompt)
+    # print(input_data)
 
     sys_msg_content = f"""
         You are helpful and advanced user interface design assistant. Based on the user query and JSON formatted data, select the best one component to visualize the data to the user.
@@ -87,17 +87,17 @@ async def component_selection_run(
         {user_prompt}
 
         === Data ===
-        {input_data.data}
+        {input_data['data']}
     """
 
     response = await inference.call_model(sys_msg_content, prompt)
-    print(f"Response from Model: {response}")
+    print("Component metadata:")
+    print(response)
 
     try:
-        result_json = json.loads(response)
+        result: UIComponentMetadata = json.loads(response)
         # TODO Validate response
-        result_json["id"] = input_data.id
-        result = UIComponentMetadata(**result_json)
+        result["id"] = input_data["id"]
         return result
     except json.JSONDecodeError as e:
         print("Cannot decode the json", e)

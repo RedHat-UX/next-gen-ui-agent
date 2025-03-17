@@ -48,7 +48,7 @@ async def test_component_selection_run():
     }
     ]
     """
-    input_data = InputData("1", movies_data)
+    input_data = InputData({"id": "1", "data": movies_data})
 
     response = """
     {
@@ -76,7 +76,7 @@ async def test_component_selection_run():
     iference = LangChainModelInference(llm)
 
     result = await component_selection_run(user_input, iference, input_data)
-    assert result.component == "one-card"
+    assert result["component"] == "one-card"
 
 
 if __name__ == "__main__":

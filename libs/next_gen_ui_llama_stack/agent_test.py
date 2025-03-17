@@ -1,5 +1,6 @@
 import asyncio
 import json
+import pprint
 
 import pytest
 from llama_stack_client import LlamaStackClient
@@ -84,8 +85,8 @@ async def test_agent_turn_from_steps() -> None:
     ngui_agent = NextGenUILlamaStackAgent(client, INFERENCE_MODEL)
     steps = [step1, step2, step3]
     result = await ngui_agent.turn_from_steps(user_input, steps=steps)  # type: ignore
-    print(result)
-    assert result[0].component == "one-card"
+    pprint.pp(result)
+    assert result[0]["component"] == "one-card"
 
 
 @client_tool

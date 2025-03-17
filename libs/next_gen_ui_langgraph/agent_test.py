@@ -97,8 +97,12 @@ async def test_agent() -> None:
     c: UIComponentMetadata = components[0]
     result["messages"] = ["removed"]
     print("\n--RESULT---")
-    print(c.component)
-    assert "one-card" == c.component
+    print(c["component"])
+    assert "one-card" == c["component"]
+    assert c["fields"]
+    field = c["fields"][0]
+    assert field["name"] == "Title"
+    assert field["data"] == ["Toy Story"]
 
 
 if __name__ == "__main__":
