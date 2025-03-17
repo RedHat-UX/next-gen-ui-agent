@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import pytest
 from langchain_core.language_models import FakeMessagesListChatModel
@@ -80,4 +81,6 @@ async def test_component_selection_run():
 
 
 if __name__ == "__main__":
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.DEBUG)
     asyncio.run(test_component_selection_run())

@@ -1,6 +1,6 @@
 import asyncio
 import json
-import traceback
+import logging
 
 from .model import InferenceBase
 from .types import AgentInput, InputData, UIComponentMetadata
@@ -20,14 +20,14 @@ ui_components_description = """
 async def component_selection(
     inference: InferenceBase, input: AgentInput
 ) -> list[UIComponentMetadata]:
-    print("\n\n---CALL component_selection---")
+    logging.info("---CALL component_selection---")
     components = await asyncio.gather(
         *[
             component_selection_run(input["user_prompt"], inference, data)
             for data in input["input_data"]
         ]
     )
-    print(components)
+    logging.debug(components)
 
     return components
 
@@ -39,9 +39,9 @@ async def component_selection_run(
 ) -> UIComponentMetadata:
     """Run Component Selection task."""
 
-    print(f"\n\n---CALL component_selection_run--- id: {input_data['id']}")
-    # print(user_prompt)
-    # print(input_data)
+    logging.debug(f"---CALL component_selection_run--- id: {input_data['id']}")
+    # logging.debug(user_prompt)
+    # logging.debug(input_data)
 
     sys_msg_content = f"""
         You are helpful and advanced user interface design assistant. Based on the user query and JSON formatted data, select the best one component to visualize the data to the user.
@@ -91,8 +91,7 @@ async def component_selection_run(
     """
 
     response = await inference.call_model(sys_msg_content, prompt)
-    print("Component metadata:")
-    print(response)
+    logging.debug("Component metadata: %s", response)
 
     try:
         result: UIComponentMetadata = json.loads(response)
@@ -100,6 +99,5 @@ async def component_selection_run(
         result["id"] = input_data["id"]
         return result
     except json.JSONDecodeError as e:
-        print("Cannot decode the json", e)
-        traceback.print_exc()
+        logging.error("Cannot decode the json", e)
         raise e
