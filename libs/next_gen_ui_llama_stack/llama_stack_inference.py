@@ -1,5 +1,9 @@
+import logging
+from typing import Iterator
+
 from llama_stack_client import LlamaStackClient
 from llama_stack_client.lib.agents.agent import Agent
+from llama_stack_client.types.agents.turn import Turn
 from llama_stack_client.types.shared import UserMessage
 from next_gen_ui_agent.model import InferenceBase
 
@@ -29,14 +33,14 @@ class LlamaStackAgentInference(InferenceBase):
             stream=False,
         )
 
-        # print("Inputs:")
-        # print(response.input_messages)
-        # print("Output:")
-        # print(response.output_message.content)
-        # print("Steps:")
-        # print(response.steps)
-        result = response.output_message.content  # type: ignore
-
-        if isinstance(result, str):
-            return result
-        return str(result)
+        if isinstance(response, Turn):
+            logging.debug("Inputs: %s", response.input_messages)
+            logging.debug("Output: %s", response.output_message.content)
+            logging.debug("Steps: %s", response.steps)
+            result = response.output_message.content
+            if isinstance(result, str):
+                return result
+            return str(result)
+        if isinstance(response, Iterator):
+            # Should not happen because of `stream=False`
+            raise NotImplementedError("stream=False set on agent.create_turn")

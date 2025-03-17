@@ -1,12 +1,12 @@
+import logging
 from typing import Literal, Optional, TypedDict
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables.config import RunnableConfig
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Command
-from next_gen_ui_agent import NextGenUIAgent
+from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_agent.model import LangChainModelInference
-from next_gen_ui_agent.types import AgentInput, InputData, UIComponentMetadata
 
 ngui_agent = NextGenUIAgent()
 
@@ -44,20 +44,19 @@ class NextGenUILangGraphAgent:
 
     # Nodes
     async def data_selection(self, state: AgentInputState, config: RunnableConfig):
-        print("\n\n---CALL data_selection---")
         backend_data = state.get("backend_data", [])
         user_prompt = state.get("user_prompt", "")
 
         if user_prompt and len(backend_data) > 0:
-            print("User_prompt and backend_data taken from state directly")
+            logging.info("User_prompt and backend_data taken from state directly")
             return
 
         messages = state["messages"]
-        # print(messages)
+        # logging.debug(messages)
 
         messagesReversed = list(reversed(messages))
         for m in messagesReversed:
-            # print(m.content)
+            # logging.debug(m.content)
             # TODO: Handle better success/error messages
             if (
                 m.type
@@ -72,7 +71,7 @@ class NextGenUILangGraphAgent:
             if user_prompt != "" and len(backend_data) > 0:
                 break
 
-        print(
+        logging.info(
             f"User_prompt and backend_data taken HumanMessage and ToolMessages. count={len(backend_data)}"
         )
         return {
@@ -81,8 +80,6 @@ class NextGenUILangGraphAgent:
         }
 
     async def component_selection(self, state: AgentState, config: RunnableConfig):
-        print("\n\n---CALL component_selection---")
-
         user_prompt = state["user_prompt"]
         input_data = [
             InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
@@ -97,7 +94,6 @@ class NextGenUILangGraphAgent:
     async def choose_system(
         self, state: AgentState, config: RunnableConfig
     ) -> Command[Literal["design_system_handler", "__end__"]]:
-        print("\n\n---CALL component_generation---")
         cfg: AgentConfig = config.get("configurable", {})  # type: ignore
 
         input_data = [
@@ -113,7 +109,7 @@ class NextGenUILangGraphAgent:
         return Command(goto=END)
 
     def design_system_handler(self, state: AgentState, config: RunnableConfig):
-        print("\n\n---CALL design_system_handler---")
+        logging.debug("\n\n---CALL design_system_handler---")
         # TODO design_system_handler
 
     def build_graph(self):

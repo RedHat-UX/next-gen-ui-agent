@@ -1,3 +1,5 @@
+import logging
+
 from llama_stack_client import LlamaStackClient
 from llama_stack_client.types.agents.turn import Step
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent
@@ -25,7 +27,6 @@ class NextGenUILlamaStackAgent:
         return data
 
     async def _component_selection(self, user_prompt, input_data: list[InputData]):
-        print("\n\n---CALL data_selection---")
         input = AgentInput(user_prompt=user_prompt, input_data=input_data)
         components = await self.ngui_agent.component_selection(
             inference=self.inference,
@@ -39,7 +40,7 @@ class NextGenUILlamaStackAgent:
         components = self.ngui_agent.data_transformation(
             input_data=tool_data_list, components=components
         )
-        print(f"tool_data_list: ${tool_data_list}")
-        print(f"comps: ${components}")
+        logging.debug("tool_data_list: %s", tool_data_list)
+        logging.debug("components: %s", components)
         # TODO: Create turns and support Streaming of those turns. Same way as llama-stack client
         return components

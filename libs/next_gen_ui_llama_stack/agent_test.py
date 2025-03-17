@@ -1,6 +1,6 @@
 import asyncio
 import json
-import pprint
+import logging
 
 import pytest
 from llama_stack_client import LlamaStackClient
@@ -85,7 +85,7 @@ async def test_agent_turn_from_steps() -> None:
     ngui_agent = NextGenUILlamaStackAgent(client, INFERENCE_MODEL)
     steps = [step1, step2, step3]
     result = await ngui_agent.turn_from_steps(user_input, steps=steps)  # type: ignore
-    pprint.pp(result)
+    logging.info("Result: %s", result)
     assert result[0]["component"] == "one-card"
 
 
@@ -96,9 +96,9 @@ def movies(title: str = "Toy Story") -> str:
     :param title: movie title e.g. Toy Story
     :returns: detail about movie
     """
-    print("Get movie, title:", title)
+    logging.debug("Get movie, title: %s", title)
     response = step2.tool_responses[0].content
-    print("returning:", response)
+    logging.debug("returning: %s", response)
     return str(response)
 
 
@@ -126,9 +126,11 @@ def run_movies_agent():
 
     for step in response.steps:
         steps_dump = step.model_dump_json(indent=2).replace("\\", "\\\\")
-        print(f"\nSTEP {type(step).__name__}:\n", steps_dump)
+        logging.debug(f"\nSTEP {type(step).__name__}:\n", steps_dump)
 
 
 if __name__ == "__main__":
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.INFO)
     # run_movies_agent()
     asyncio.run(test_agent_turn_from_steps())

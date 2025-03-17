@@ -1,4 +1,5 @@
 import json
+import logging
 
 from jsonpath_ng import parse  # type: ignore
 
@@ -17,7 +18,9 @@ def enhance_component_by_input_data(
             try:
                 je = parse(dp)
             except Exception as e:
-                print(f"Failed JSONPath expression parsing for {dp} exception={e}")
+                logging.error(
+                    f"Failed JSONPath expression parsing for {dp} exception={e}"
+                )
                 break
             for data in input_data:
                 if data["id"] != component["id"]:
@@ -30,7 +33,7 @@ def enhance_component_by_input_data(
                     if field["data"] != []:
                         break
                 except Exception as e:
-                    print(
+                    logging.error(
                         f"Cannot match data and component JSONPath dp={dp} data={data_content} exception={e}"
                     )
                     break
