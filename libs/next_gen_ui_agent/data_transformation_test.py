@@ -1,5 +1,5 @@
 from .data_transformation import enhance_component_by_input_data
-from .datamodel import DataPath, InputData, UIComponentMetadata
+from .types import InputData, UIComponentMetadata
 
 
 def test_enhance_component_by_input_data():
@@ -39,25 +39,32 @@ def test_enhance_component_by_input_data():
 ]
 """
     id = "test_id_1"
-    input_data = InputData(id, movie1)
+    input_data = InputData({"id": id, "data": movie1})
 
     component1 = UIComponentMetadata(
-        id=id,
-        title="Toy Story Details",
-        reasonForTheComponentSelection="One item available in the data",
-        confidenceScore="100%",
-        component="one-card",
-        fields=[
-            DataPath(name="Title", data_path="movie.title"),
-            DataPath(name="Year", data_path="movie.year"),
-            DataPath(name="Actors", data_path="actors[*]"),
-        ],
+        {
+            "id": id,
+            "title": "Toy Story Details",
+            "reasonForTheComponentSelection": "One item available in the data",
+            "confidenceScore": "100%",
+            "component": "one-card",
+            "fields": [
+                {"name": "Title", "data_path": "movie.title"},
+                {"name": "Year", "data_path": "movie.year"},
+                {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
+                {"name": "Release Date", "data_path": "movie.released"},
+                {"name": "Actors", "data_path": "actors[*]"},
+            ],
+        }
     )
 
     enhance_component_by_input_data(input_data=[input_data], components=[component1])
-    assert component1.fields[0].data == ["Toy Story"]
-    assert component1.fields[1].data == [1995]
-    assert component1.fields[2].data == [
+    fields = component1["fields"]
+    assert fields[0]["data"] == ["Toy Story"]
+    assert fields[1]["data"] == [1995]
+    assert fields[2]["data"] == [8.3]
+    assert fields[3]["data"] == ["1995-11-22"]  # TODO: Date time formatting
+    assert fields[4]["data"] == [
         "Jim Varney",
         "Tim Allen",
         "Tom Hanks",

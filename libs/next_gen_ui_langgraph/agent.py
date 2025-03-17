@@ -4,44 +4,27 @@ from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables.config import RunnableConfig
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Command
-from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent
+from next_gen_ui_agent import NextGenUIAgent
 from next_gen_ui_agent.model import LangChainModelInference
+from next_gen_ui_agent.types import AgentInput, InputData, UIComponentMetadata
 
 ngui_agent = NextGenUIAgent()
 
 
-class DataPath(TypedDict):
-    name: str
-    data_path: str
-    data: list[str]
-
-
-class BackendData(TypedDict):
-    id: str
-    data: str
-
-
-class UIComponent(TypedDict):
-    id: str
-    title: str
-    component: str
-    fields: list[DataPath]
-
-
 # Graph State Schema
 class AgentState(MessagesState):
-    backend_data: list[BackendData]
+    backend_data: list[InputData]
     user_prompt: str
-    components: list[UIComponent]
+    components: list[UIComponentMetadata]
 
 
 class AgentInputState(MessagesState):
-    backend_data: list[BackendData]
+    backend_data: list[InputData]
     user_prompt: str
 
 
 class AgentOutputState(MessagesState):
-    components: list[UIComponent]
+    components: list[UIComponentMetadata]
 
 
 # Graph Config Schema
@@ -109,7 +92,6 @@ class NextGenUILangGraphAgent:
             inference=self.inference,
             input=input,
         )
-        # TODO: TypeDict or Data Class ???
         return {"components": components}
 
     async def choose_system(
@@ -118,12 +100,11 @@ class NextGenUILangGraphAgent:
         print("\n\n---CALL component_generation---")
         cfg: AgentConfig = config.get("configurable", {})  # type: ignore
 
-        # TODO: Resolve TypeDict vs Data class first. Then you can call the data_transformation
-        # input_data = [
-        #     InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
-        # ]
-        # components = state["components"]
-        # ngui_agent.data_transformation(input_data=input_data, components=components)
+        input_data = [
+            InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
+        ]
+        components = state["components"]
+        ngui_agent.data_transformation(input_data=input_data, components=components)
 
         component_system = cfg.get("component_system", "rhds")
         if component_system and component_system != "none":

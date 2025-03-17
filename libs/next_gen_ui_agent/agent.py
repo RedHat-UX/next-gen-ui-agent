@@ -1,7 +1,7 @@
 from .component_selection import component_selection as comp_sel
 from .data_transformation import enhance_component_by_input_data
-from .datamodel import AgentInput, InputData, UIComponentMetadata
 from .model import InferenceBase
+from .types import AgentInput, InputData, UIComponentMetadata
 
 
 class NextGenUIAgent:
