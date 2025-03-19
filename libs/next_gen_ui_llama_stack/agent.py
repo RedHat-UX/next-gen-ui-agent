@@ -1,16 +1,28 @@
 import logging
+from typing import AsyncIterator, Optional
 
 from llama_stack_client import LlamaStackClient
 from llama_stack_client.types.agents.turn import Step
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent
+from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAgentInference
+from next_gen_ui_llama_stack.types import ResponseEvent
 
 
 class NextGenUILlamaStackAgent:
     """Next Gen UI Agen as Llama stack agen."""
 
-    def __init__(self, client: LlamaStackClient, model: str):
-        self.inference = LlamaStackAgentInference(client, model)
+    def __init__(
+        self,
+        client: LlamaStackClient,
+        model: str,
+        inference: Optional[InferenceBase] = None,
+    ):
+        if inference:
+            self.inference = inference
+        else:
+            self.inference = LlamaStackAgentInference(client, model)
+
         self.client = client
         self.ngui_agent = NextGenUIAgent()
 
@@ -34,13 +46,15 @@ class NextGenUILlamaStackAgent:
         )
         return components
 
-    async def turn_from_steps(self, user_prompt, steps: list[Step]):
+    async def create_turn(
+        self, user_prompt, steps: list[Step]
+    ) -> AsyncIterator[ResponseEvent]:
+        logging.debug("create_turn. user_prompt: %s", user_prompt)
         tool_data_list = self._data_selection(steps)
         components = await self._component_selection(user_prompt, tool_data_list)
+        yield ResponseEvent(event_type="component_metadata", payload=components)
+
         components = self.ngui_agent.data_transformation(
             input_data=tool_data_list, components=components
         )
-        logging.debug("tool_data_list: %s", tool_data_list)
-        logging.debug("components: %s", components)
-        # TODO: Create turns and support Streaming of those turns. Same way as llama-stack client
-        return components
+        yield ResponseEvent(event_type="output_json", payload=components)

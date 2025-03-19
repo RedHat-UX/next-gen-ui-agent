@@ -36,7 +36,5 @@ INFO:     Uvicorn running on http://['::', '0.0.0.0']:5001 (Press CTRL+C to quit
 
 ## Run Example
 
-```sh
-pants run libs/next_gen_ui_llama_stack/agent_test.py
-```
-
+Navigate to selected example.py
+In VSCode switch to `Run and debug` view and hit `Python Debugger: Current File`
