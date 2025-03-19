@@ -9,8 +9,8 @@ from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 
 user_input = "Tell me brief details of Toy Story"
-# user_input = "play trailer for movie Toy Story"
-
+# user_input = "Play Toy Story trailer"
+# user_input = "Get me the poster for movie Toy Story"
 
 LLAMA_STACK_HOST = "127.0.0.1"
 LLAMA_STACK_PORT = 5001
@@ -24,7 +24,7 @@ client = LlamaStackClient(
 
 # Movies Agent
 @client_tool
-def movies(title: str = "Toy Story"):
+def movies(title: str):
     """Get details of movie.
 
     :param title: movie title e.g. Toy Story
@@ -48,6 +48,7 @@ ngui_agent = NextGenUILlamaStackAgent(client, INFERENCE_MODEL)
 
 
 async def run_movies_agent():
+    print(f"------MOVIES Assistent, prompt='{user_input}'")
     session_id = movies_agent.create_session("test-session")
 
     # Send a query to the AI agent to get a movie
