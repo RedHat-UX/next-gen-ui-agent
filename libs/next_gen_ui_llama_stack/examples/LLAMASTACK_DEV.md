@@ -6,8 +6,10 @@ Install [Ollama](https://ollama.com/download)
 
 Run model
 
+Tested models: `granite3.1-dense:2b` or `llama3.2:latest`
+
 ```sh
-ollama run llama3.2:3b-instruct-fp16 --keepalive 60m 
+ollama run llama3.2:latest --keepalive 60m 
 ```
 
 Start [LlamaStack Ollama distribution](https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/ollama.html#ollama-distribution
@@ -19,7 +21,7 @@ podman run -it --rm \
   -v ~/.llama:/root/.llama \
   llamastack/distribution-ollama:0.1.5.1 \
   --port 5001 \
-  --env INFERENCE_MODEL="meta-llama/Llama-3.2-3B-Instruct" \
+  --env INFERENCE_MODEL="llama3.2:latest" \
   --env OLLAMA_URL=http://host.containers.internal:11434
 ```
 Output:
