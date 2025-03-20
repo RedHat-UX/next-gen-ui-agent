@@ -11,16 +11,18 @@ from next_gen_ui_agent.base_renderer import (
 )
 from next_gen_ui_agent.types import UIComponentMetadata
 
+# TODO: fix path to work in both monorepo but also as external package
 templates_env = Environment(
-    loader=FileSystemLoader("./genie_agent/utils"), trim_blocks=True
+    loader=FileSystemLoader(
+        "./libs/next_gen_ui_rhds_renderer/templates"
+    ),  # pants: no-infer-dep
+    trim_blocks=True,
 )
 
 
 class RhdsStrategyBase(RenderStrategy):
     def generate_output(self, component):
-        template = templates_env.get_template(
-            f'rhds_templates/{component["component"]}.jinja'
-        )
+        template = templates_env.get_template(f'/{component["component"]}.jinja')
         return template.render(self._rendering_context)
 
 
