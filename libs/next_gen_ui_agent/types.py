@@ -1,4 +1,4 @@
-from typing import Optional, TypedDict
+from typing import NotRequired, TypedDict
 
 
 class InputData(TypedDict):
@@ -20,7 +20,7 @@ class DataField(TypedDict):
 
     name: str
     data_path: str
-    data: Optional[list[str]]
+    data: NotRequired[list[str]]
     """Data matching `data_path` from `input_data`"""
 
 
@@ -33,3 +33,4 @@ class UIComponentMetadata(TypedDict):
     confidenceScore: str
     component: str
     fields: list[DataField]
+    rendition: NotRequired[str]

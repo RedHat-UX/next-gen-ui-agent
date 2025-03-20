@@ -1,0 +1,34 @@
+{# TODO: Layout choice not yet supported  #}
+{% if image %}
+<rh-audio-player id="player"
+                 layout="full"
+                 poster="{{image}}">
+{% else %}
+<rh-audio-player id="player"
+                 layout="full">
+{% endif %}
+  {# TODO: Series name not yet supported e.g. <p slot="series">Code Comments</p> #}
+  <h3 slot="title">{{title}}</h3>
+  {# TOOD: About option not yet supported #}
+  <audio crossorigin="anonymous"
+         slot="media"
+         controls>
+    <source type="audio/mp3"
+            srclang="en"
+            src="{{audio}}">
+  </audio>
+  {# TODO: Subscribe option not yet supported #}
+  {# TODO: Transcript not yet supported #}
+</rh-audio-player>
+
+<link rel="stylesheet" href="../rh-audio-player-lightdom.css">
+
+<script type="module">
+  import '@rhds/elements/rh-audio-player/rh-audio-player.js';
+</script>
+
+<style>
+  rh-audio-player {
+    margin: var(--rh-space-xl, 24px);
+  }
+</style>

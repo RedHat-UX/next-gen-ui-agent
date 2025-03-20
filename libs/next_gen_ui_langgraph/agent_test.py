@@ -4,8 +4,7 @@ import pytest
 from langchain_core.language_models import FakeMessagesListChatModel
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from next_gen_ui_agent import UIComponentMetadata
-
-from . import NextGenUILangGraphAgent
+from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 
 
 @pytest.mark.asyncio

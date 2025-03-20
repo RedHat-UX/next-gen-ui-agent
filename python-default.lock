@@ -11,6 +11,7 @@
 //   "generated_with_requirements": [
 //     "ansicolors==1.1.8",
 //     "ipdb",
+//     "jinja2",
 //     "jsonpath-ng",
 //     "langchain-core",
 //     "langchain-openai",
@@ -971,19 +972,19 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374",
-              "url": "https://files.pythonhosted.org/packages/ef/a6/62565a6e1cf69e10f5727360368e451d4b7f58beeac6173dc9db836a5b46/iniconfig-2.0.0-py3-none-any.whl"
+              "hash": "9deba5723312380e77435581c6bf4935c94cbfab9b1ed33ef8d238ea168eb760",
+              "url": "https://files.pythonhosted.org/packages/2c/e1/e6716421ea10d38022b952c159d5161ca1193197fb744506875fbb87ea7b/iniconfig-2.1.0-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "2d91e135bf72d31a410b17c16da610a82cb55f6b0477d1a902134b24a455b8b3",
-              "url": "https://files.pythonhosted.org/packages/d7/4b/cbd8e699e64a6f16ca3a8220661b5f83792b3017d0f79807cb8708d33913/iniconfig-2.0.0.tar.gz"
+              "hash": "3abbd2e30b36733fee78f9c7f7308f2d0050e88f0087fd25c2645f63c773e1c7",
+              "url": "https://files.pythonhosted.org/packages/f2/97/ebf4da567aa6827c909642694d71c9fcf53e5b504f2d96afea02718862f3/iniconfig-2.1.0.tar.gz"
             }
           ],
           "project_name": "iniconfig",
           "requires_dists": [],
-          "requires_python": ">=3.7",
-          "version": "2.0.0"
+          "requires_python": ">=3.8",
+          "version": "2.1.0"
         },
         {
           "artifacts": [
@@ -1406,13 +1407,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "fe560d644c102c3f5dcfb44eb5295e26d22deab259fdd084f6b1b55a0350b77c",
-              "url": "https://files.pythonhosted.org/packages/b6/8b/c41dbe55a502b71d84734be75c40d5a62fd6024dd8417c9ca2417e308782/langchain_core-0.3.45-py3-none-any.whl"
+              "hash": "28b5689fc347975ea520b5364ab4aee5567e661553bbee5e97cabf4596c28ce0",
+              "url": "https://files.pythonhosted.org/packages/00/8a/dbc9ad2e3511355ea3f13c70c8022018e0fed57d5422f94f86f23499c538/langchain_core-0.3.46-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "a39b8446495d1ea97311aa726478c0a13ef1d77cb7644350bad6d9d3c0141a0c",
-              "url": "https://files.pythonhosted.org/packages/38/85/4c896de87bc20915c5bf7be32fd325f4dfdbd0b262b4e49597a11d909ef7/langchain_core-0.3.45.tar.gz"
+              "hash": "5fca010eeb0a427be5aa8a8525e2112995dde790c584cef165be7c5e0ee1c2b5",
+              "url": "https://files.pythonhosted.org/packages/43/83/1f43d13cb0bf0738e47dde401b898d1da75aac98a10ad4a242013fff03e2/langchain_core-0.3.46.tar.gz"
             }
           ],
           "project_name": "langchain-core",
@@ -1427,41 +1428,41 @@
             "typing-extensions>=4.7"
           ],
           "requires_python": "<4.0,>=3.9",
-          "version": "0.3.45"
+          "version": "0.3.46"
         },
         {
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "9004dc8ef853aece0d8f0feca7753dc97f710fa3e53874c8db66466520436dbb",
-              "url": "https://files.pythonhosted.org/packages/a5/43/9c6a1101bcd751d52a3328a06956f85122f9aaa31da1b15a8e0f99a70317/langchain_openai-0.3.8-py3-none-any.whl"
+              "hash": "1ad95c09a620910c39a8eb826eb146bd96bfbc55e4fca78b1e28ffd5e4f5b261",
+              "url": "https://files.pythonhosted.org/packages/db/8c/1b1328863f3e123bc5122853ba7d8d8e79aea078f8d597a33601b7224b47/langchain_openai-0.3.9-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "4d73727eda8102d1d07a2ca036278fccab0bb5e0abf353cec9c3973eb72550ec",
-              "url": "https://files.pythonhosted.org/packages/2e/04/ae071af0b04d1c3a8040498714091afd21149f6f8ae1dbab584317d9dfd7/langchain_openai-0.3.8.tar.gz"
+              "hash": "a2897d15765a435eff3fed7043235c25ec1e192e6c45a81e9e4fae2951335fb3",
+              "url": "https://files.pythonhosted.org/packages/df/3e/c8e532abe6f3443b3707b3fb40ee2fe03aa1659427ae0256372bf69d05b3/langchain_openai-0.3.9.tar.gz"
             }
           ],
           "project_name": "langchain-openai",
           "requires_dists": [
-            "langchain-core<1.0.0,>=0.3.42",
-            "openai<2.0.0,>=1.58.1",
+            "langchain-core<1.0.0,>=0.3.45",
+            "openai<2.0.0,>=1.66.3",
             "tiktoken<1,>=0.7"
           ],
           "requires_python": "<4.0,>=3.9",
-          "version": "0.3.8"
+          "version": "0.3.9"
         },
         {
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "b7b5b8a07ed37649d6b928b46462a06911b5bc89b5ee329d53a41ad2f33d56a8",
-              "url": "https://files.pythonhosted.org/packages/90/66/f456f1a4d01abbebaf8dc2b41123bc8c17806c4f61940a4bef424ca084c2/langgraph-0.3.11-py3-none-any.whl"
+              "hash": "6f6baee7f0914329113fdb33fc5c7f24ef8b657eb664edee58ab1250bd38fa08",
+              "url": "https://files.pythonhosted.org/packages/3a/dd/d91012b1cd569b51bebf2b072785f80811576db4e34d9d073ae929861560/langgraph-0.3.18-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "bcbc78e7b4b584c858f42362734d2190802a7c75966faf1f603057f296f358bc",
-              "url": "https://files.pythonhosted.org/packages/65/fc/4c124ae44327442678141141db163f77a454d164534bdc41fd1b943fb6c4/langgraph-0.3.11.tar.gz"
+              "hash": "432fb4fcda95b27921b7069b4425eca525d6e03418fdc1082a34265c136d272d",
+              "url": "https://files.pythonhosted.org/packages/4b/b3/59eef17eb411ce97703dcbc673e64fe78aad5e0956a3ddc52c025bdd0a21/langgraph-0.3.18.tar.gz"
             }
           ],
           "project_name": "langgraph",
@@ -1472,19 +1473,19 @@
             "langgraph-sdk<0.2.0,>=0.1.42"
           ],
           "requires_python": "<4.0,>=3.9.0",
-          "version": "0.3.11"
+          "version": "0.3.18"
         },
         {
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "e211c396fafa3c62d2ca4f9fe1537b5a1e04e0b61482a261b85065c0efeb2e2e",
-              "url": "https://files.pythonhosted.org/packages/30/82/1e65e93eb06af892f81785081f66bed80a9db25d2d315606005eef8b8adf/langgraph_checkpoint-2.0.20-py3-none-any.whl"
+              "hash": "ca89c2090cd9729f83f9782226935dc5ff9fe7756c24936f484ccb0ce367f87b",
+              "url": "https://files.pythonhosted.org/packages/c2/84/a7ffbac796aea76f8536f72f640d4be4e006af4172ec08f14e125c90bd06/langgraph_checkpoint-2.0.21-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "86815c3cf9d07dd6bfbe5a99575b818287a22c3cdb40be2260452c81c5afba6e",
-              "url": "https://files.pythonhosted.org/packages/86/6e/731abd5200dfe156b7feb8f7688c36e1203b896af400cfe3c10f78aa78c3/langgraph_checkpoint-2.0.20.tar.gz"
+              "hash": "52beeb6dc1bd8c487b8315466cab271093b65eb97f54a0942dfe105cd20b237f",
+              "url": "https://files.pythonhosted.org/packages/38/40/6919e8b4f773e0a94df882f99e1778b1d6be82f5fc6547adaa514201ab08/langgraph_checkpoint-2.0.21.tar.gz"
             }
           ],
           "project_name": "langgraph-checkpoint",
@@ -1493,7 +1494,7 @@
             "msgpack<2.0.0,>=1.1.0"
           ],
           "requires_python": "<4.0.0,>=3.9.0",
-          "version": "2.0.20"
+          "version": "2.0.21"
         },
         {
           "artifacts": [
@@ -1520,13 +1521,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "fd35dd4b1bb4ac935d2d196080b282be3d2cbb92c460d8de1297b069f45a169e",
-              "url": "https://files.pythonhosted.org/packages/5f/9a/95a2c04c876f9622dc36b8be185323c49fffa094aeafbcfb233718b008f3/langgraph_sdk-0.1.57-py3-none-any.whl"
+              "hash": "65f88cf5582da0c316714dc475126fa03c5f74d72bc0b9221dd42649de8e23d4",
+              "url": "https://files.pythonhosted.org/packages/19/b3/20c2e01ac338daca2bef4a937a93b914e51e8afc79b5537c337abc5b11e4/langgraph_sdk-0.1.58-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "d15d137793cb6a2202c046553624f872fd0b70997fc6f97845a5cd3f746a9137",
-              "url": "https://files.pythonhosted.org/packages/d1/a2/d7a1b8a62b602e3aa67b07fa7bc789961ff03365fcd4e9a6ab4efe60be99/langgraph_sdk-0.1.57.tar.gz"
+              "hash": "ef8b0e4c08af8c7efd3919497879c87a3627806b51e4ba5e8b06e0717e3d44cd",
+              "url": "https://files.pythonhosted.org/packages/86/34/d924fbb53da5d6d9448f7ee3d38dee5d213a23eaba7b956cb320b0e32172/langgraph_sdk-0.1.58.tar.gz"
             }
           ],
           "project_name": "langgraph-sdk",
@@ -1535,19 +1536,19 @@
             "orjson>=3.10.1"
           ],
           "requires_python": "<4.0.0,>=3.9.0",
-          "version": "0.1.57"
+          "version": "0.1.58"
         },
         {
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "eb0304b477189106f60758ddd3b55fb09a18be5cb2d586d76ffcaeb5170d2807",
-              "url": "https://files.pythonhosted.org/packages/05/5b/c4146662d2fee181b02ae56bd55615e0564fe3d8d4cf66db18186b942a29/langsmith-0.3.15-py3-none-any.whl"
+              "hash": "7ad65ec26084312a039885ef625ae72a69ad089818b64bacf7ce6daff672353a",
+              "url": "https://files.pythonhosted.org/packages/cd/78/a114e3697aa7a161b2b1a4ec4162b1ef15f97e7fe4cbd981781211dfca5a/langsmith-0.3.18-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "b4fcd78926cdf310a882081ead95541fce911636fcffbb0d087fa1974994c4c7",
-              "url": "https://files.pythonhosted.org/packages/26/5a/1558905df323208f9128eb3abcdc0237b9b830e805cc5416badcb35d7d53/langsmith-0.3.15.tar.gz"
+              "hash": "18ff2d8f2e77b375485e4fb3d0dbf7b30fabbd438c7347c3534470e9b7d187b8",
+              "url": "https://files.pythonhosted.org/packages/bc/1e/642ad730f8b1960e777a199c371c2f4607b1e411ea61516e90dba56912a6/langsmith-0.3.18.tar.gz"
             }
           ],
           "project_name": "langsmith",
@@ -1555,6 +1556,9 @@
             "httpx<1,>=0.23.0",
             "langsmith-pyo3<0.2.0,>=0.1.0rc2; extra == \"langsmith-pyo3\"",
             "openai-agents<0.0.4,>=0.0.3; extra == \"openai-agents\"",
+            "opentelemetry-api<2.0.0,>=1.30.0; extra == \"otel\"",
+            "opentelemetry-exporter-otlp-proto-http<2.0.0,>=1.30.0; extra == \"otel\"",
+            "opentelemetry-sdk<2.0.0,>=1.30.0; extra == \"otel\"",
             "orjson<4.0.0,>=3.9.14; platform_python_implementation != \"PyPy\"",
             "packaging>=23.2",
             "pydantic<3,>=1; python_full_version < \"3.12.4\"",
@@ -1566,7 +1570,7 @@
             "zstandard<0.24.0,>=0.23.0"
           ],
           "requires_python": "<4.0,>=3.9",
-          "version": "0.3.15"
+          "version": "0.3.18"
         },
         {
           "artifacts": [
@@ -2181,13 +2185,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "a427c920f727711877ab17c11b95f1230b27767ba7a01e5b66102945141ceca9",
-              "url": "https://files.pythonhosted.org/packages/78/5a/e20182f7b6171642d759c548daa0ba20a1d3ac10d2bd0a13fd75704a9ac3/openai-1.66.3-py3-none-any.whl"
+              "hash": "dbbb144f38739fc0e1d951bc67864647fca0b9ffa05aef6b70eeea9f71d79663",
+              "url": "https://files.pythonhosted.org/packages/42/de/b42ddabe211411645105ae99ad93f4f3984f53be7ced2ad441378c27f62e/openai-1.67.0-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "8dde3aebe2d081258d4159c4cb27bdc13b5bb3f7ea2201d9bd940b9a89faf0c9",
-              "url": "https://files.pythonhosted.org/packages/a3/77/5172104ca1df35ed2ed8fb26dbc787f721c39498fc51d666c4db07756a0c/openai-1.66.3.tar.gz"
+              "hash": "3b386a866396daa4bf80e05a891c50a7746ecd7863b8a27423b62136e3b8f6bc",
+              "url": "https://files.pythonhosted.org/packages/a7/63/6fd027fa4cb7c3b6bee4c3150f44803b3a7e4335f0b6e49e83a0c51c321b/openai-1.67.0.tar.gz"
             }
           ],
           "project_name": "openai",
@@ -2206,7 +2210,7 @@
             "websockets<15,>=13; extra == \"realtime\""
           ],
           "requires_python": ">=3.8",
-          "version": "1.66.3"
+          "version": "1.67.0"
         },
         {
           "artifacts": [
@@ -4525,6 +4529,7 @@
   "requirements": [
     "ansicolors==1.1.8",
     "ipdb",
+    "jinja2",
     "jsonpath-ng",
     "langchain-core",
     "langchain-openai",

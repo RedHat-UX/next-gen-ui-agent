@@ -1,0 +1,20 @@
+import React from 'react';
+import { Card, CardTitle, CardBody, CardFooter } from '@patternfly/react-core';
+
+
+function ImageCard() {
+return (
+<Card ouiaId="ImageCard">
+    <CardTitle>{{ title }}</CardTitle>
+    <CardBody>
+        {% if image %}
+        <div className="img">
+            <img src="{{image}}" alt="{{title}}" />
+        </div>
+        {% endif %}
+    </CardBody>
+</Card>
+)
+}
+
+export default ImageCard;

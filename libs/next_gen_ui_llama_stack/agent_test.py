@@ -79,9 +79,9 @@ async def test_agent_turn_from_steps() -> None:
         "confidenceScore": "100%",
         "component": "one-card",
         "fields": [
-            {"name": "Title", "data_path": "movie.title"},  # type: ignore
-            {"name": "Year", "data_path": "movie.year"},  # type: ignore
-            {"name": "IMDB Rating", "data_path": "movie.imdbRating"},  # type: ignore
+            {"name": "Title", "data_path": "movie.title"},
+            {"name": "Year", "data_path": "movie.year"},
+            {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
         ],
         "id": "2ff0f4bd-6b66-4b22-a7eb-8bb0365f52b1",
     }

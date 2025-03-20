@@ -1,0 +1,30 @@
+import React from 'react';
+import { Card, CardTitle, CardBody, CardFooter } from '@patternfly/react-core';
+
+
+function VideoCard() {
+return (
+<Card ouiaId="VideoCard">
+    <CardTitle>{{ title }}</CardTitle>
+    <CardBody>
+        {% if video_img %}
+        <div className="img">
+            <img src="{{ video_img }}" alt="{{title}}" />
+        </div>
+        {% endif %}
+
+        {% if video %}
+        {# Embedded YouTube Video #}
+        <div style={ { position: 'relative' , paddingBottom: '56.25%' , height: 0, overflow: 'hidden' , maxWidth: '100%'
+            , background: '#000' , borderRadius: '5px' } }>
+            <iframe title="{{ title }}" width="100%" height="100%" src="{{ video }}" frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin" allowFullScreen></iframe>
+        </div>
+        {% endif %}
+    </CardBody>
+</Card>
+)
+}
+
+export default VideoCard;

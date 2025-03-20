@@ -1,0 +1,52 @@
+import React from 'react';
+import { Card, CardBody, CardTitle, DescriptionList, DescriptionListGroup,
+DescriptionListTerm, DescriptionListDescription } from '@patternfly/react-core';
+
+function SetOfCards() {
+return (
+<div style={ { display: "flex" , gap: "1rem" , flexWrap: "wrap" } }>
+    {% for i in range(data_length) %}
+    <Card key="{{ i }}">
+        <CardTitle component="h2">{{ title }}</CardTitle>
+
+        {# Safety check in case one of fields' lenght is shorter than others #}
+        {% if subtitle_field and subtitle_field["data"]|length > i %}
+        <CardTitle component="h4">
+            {{subtitle_field["data"][i]}}
+        </CardTitle>
+        {% endif %}
+
+        <CardBody>
+            <div>
+                {% if fields|length > 1 %}
+                <DescriptionList>
+                    {% for field in fields %}
+                    {% if field["data"]|length > i %}
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{{field["name"]}}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {{field["data"][i]}}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                    {% endif %}
+                    {% endfor %}
+                </DescriptionList>
+                {% elif fields|length == 1 and fields[0]["data"]|length > i %}
+                <DescriptionList>
+                    <DescriptionListGroup>
+                        <DescriptionListTerm>{{fields[0]["name"]}}</DescriptionListTerm>
+                        <DescriptionListDescription>
+                            {{fields[0]["data"][i]}}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>
+                </DescriptionList>
+                {% endif %}
+            </div>
+        </CardBody>
+    </Card>
+    {% endfor %}
+</div>
+)
+}
+
+export default SetOfCards;

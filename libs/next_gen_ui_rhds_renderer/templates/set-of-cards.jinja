@@ -1,0 +1,43 @@
+{# RHDS Table component from https://ux.redhat.com/elements/card/ #}
+{# TODO: We're currently not using call to action link #}
+
+{% for i in range(data_length) %}
+<rh-card>
+  {% if image_field %}
+  <div><img src="{{image_field['data'][i]}}" slot="image"></div>
+  {% endif %}
+  {# Safety check in case one of fields' lenght is shorter than others #}
+  {% if subtitle_field and subtitle_field["data"]|length > i %}
+    <h2 slot="header">{{subtitle_field["data"][i]}}</h2>
+  {% endif %}
+
+  <div>
+  {% if fields|length > 1 %}
+    {% for field in fields %}
+      {% if field["data"]|length > i %}
+        <h4>{{field["name"]}}</h4>
+        <p>{{field["data"][i]}}</p>
+      {% endif %}
+    {% endfor %}
+  {% elif fields|length == 1 and field["data"]|length > i %}
+      {{fields[0]["data"][i]}}
+  {% endif %}
+  </div>
+  {#<rh-cta slot="footer" priority="primary">
+      <a href="#">Call to action</a>
+  </rh-cta>#}
+</rh-card>
+{% endfor %}
+
+<style>
+  rh-card {
+    & h2 {
+      font-size: initial;
+    }
+  }
+</style>
+
+<script type="module">
+  import '@rhds/elements/rh-cta/rh-cta.js';
+  import '@rhds/elements/rh-card/rh-card.js';
+</script>
