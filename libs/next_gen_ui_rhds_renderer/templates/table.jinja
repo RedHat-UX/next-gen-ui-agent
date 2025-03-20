@@ -1,0 +1,43 @@
+{# RHDS Table component from https://ux.redhat.com/elements/table/ #}
+{# TODO: We're currently not using summary capability of the table component #}
+
+<rh-table>
+  <table>
+    {% if title %}
+    <caption>{{title}}</caption>
+    {% endif %}
+    <colgroup>
+      {% for field in fields %}
+      <col>
+      {% endfor %}
+    </colgroup>
+    <thead>
+      <tr>
+        {% for field in fields %}
+        <th scope="col">{{ field.get("name") }}<rh-sort-button></rh-sort-button>
+        {% endfor %}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for i in range(data_length) %}
+      <tr>
+      {% for field in fields %}
+        {# Safety check in case one of fields' lenght is shorter than others #}
+        {% if field.get("data")|length > i %}
+        <td>{{ field.get("data")[i] }}</td>
+        {% else  %}
+          <td>-</td>
+        {% endif %}
+      {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</rh-table>
+
+<link rel="stylesheet" href="../rh-table-lightdom.css">
+
+<script type="module">
+  import '@rhds/elements/rh-table/rh-table.js';
+</script>

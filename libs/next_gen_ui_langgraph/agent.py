@@ -1,10 +1,13 @@
 import logging
 from typing import Literal, Optional, TypedDict
+import uuid
+import pprint
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.runnables.config import RunnableConfig
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Command
+from langchain_core.messages import ToolMessage, AIMessage
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_agent.model import LangChainModelInference
 
@@ -110,7 +113,26 @@ class NextGenUILangGraphAgent:
 
     def design_system_handler(self, state: AgentState, config: RunnableConfig):
         logging.debug("\n\n---CALL design_system_handler---")
-        # TODO design_system_handler
+        cfg: AgentConfig = config.get("configurable", {})
+        component_system = cfg.get("component_system","rhds")
+
+        ngui_agent.design_system_handler(state["components"], component_system)
+        
+        messages = []
+        for component in state["components"]:
+            pprint.pp(f"\n\n---CALL {component_system}--- id: {component['id']}, component rendition: {component['rendition']}")
+
+            tm = ToolMessage(
+                name=f"genie_{component_system}",
+                tool_call_id=component["id"] + uuid.uuid4().hex,
+                content=component["rendition"],
+            )
+            ai = AIMessage(content="", name=f"genie_{component_system}", id=uuid.uuid4().hex)
+            ai.tool_calls.append({"id": tm.tool_call_id, "name": f"genie_{component_system}", "args": {}})
+            messages.append(ai)
+            messages.append(tm)
+        return {"messages": messages}
+    
 
     def build_graph(self):
         """Build NextGenUI Agent as Langgraph graph."""

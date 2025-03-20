@@ -1,0 +1,41 @@
+import React from 'react';
+import { Card, CardHeader, CardBody, Button } from '@patternfly/react-core';
+
+function OneCard() {
+// Counter state
+const [count, setCount] = React.useState(0);
+
+return (
+<Card>
+    <CardHeader>{{title}}</CardHeader>
+    <CardBody>
+        {% if image %}
+        <div className="img"><img src="{{image}}" alt="{{title}}" /></div>
+        {% endif %}
+        {% if fields|length > 1 %}
+        <div>
+            {% for f in fields %}
+            <h4>{{f.get("name")}}</h4>
+            <p>{{f.get("data") if f.get("data")|length > 1 else f.get("data")[0]}}</p>
+            {% endfor %}
+        </div>
+        {% elif fields|length == 1 %}
+        <p>{{fields[0].get("data") if fields[0].get("data")|length > 1 else fields[0].get("data")[0]}}</p>
+        {% endif %}
+        <div style={ { marginTop: "16px" } }>
+            <strong>Counter:</strong> {count}
+            <div style={ { marginTop: "8px" , display: "flex" , gap: "8px" } }>
+                <Button variant="primary" onClick={()=> setCount(count + 1)}>
+                    Increment
+                </Button>
+                <Button variant="secondary" onClick={()=> setCount(count - 1)}>
+                    Decrement
+                </Button>
+            </div>
+        </div>
+    </CardBody>
+</Card>
+);
+}
+
+export default OneCard;

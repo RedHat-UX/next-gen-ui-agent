@@ -33,3 +33,4 @@ class UIComponentMetadata(TypedDict):
     confidenceScore: str
     component: str
     fields: list[DataField]
+    rendition: str
