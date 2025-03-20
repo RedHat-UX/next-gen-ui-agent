@@ -22,9 +22,10 @@ class NextGenUIAgent:
         """Transform components to Agent Data Output."""
         enhance_component_by_input_data(input_data=input_data, components=components)
         return components
-    
+
     def design_system_handler(
-           self, components: list[UIComponentMetadata], component_system: str = None
+        self, components: list[UIComponentMetadata], component_system: str
     ) -> list[UIComponentMetadata]:
-        """ Handle rendering of the component with the chosen component system """
+        """Handle rendering of the component with the chosen component
+        system."""
         return _design_system_handler(components, component_system)

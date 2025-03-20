@@ -1,6 +1,9 @@
 # This target sets the metadata for all the Python non-test files in this directory.
 python_sources(
     name="lib",
+    dependencies=[
+        "libs/next_gen_ui_agent:lib",
+    ],
 )
 
 # This target sets the metadata for all the Python test files in this directory.
@@ -31,8 +34,8 @@ python_distribution(
         version="0.0.1",
         description="Next Gen UI Patternfly Renderer",
         entry_points={
-            'next_gen_ui.agent.renderer_factory': [
-                'patternfly = next_gen_ui_patternfly_renderer:PatternflyStrategyFactory'
+            "next_gen_ui.agent.renderer_factory": [
+                "patternfly = next_gen_ui_patternfly_renderer:PatternflyStrategyFactory"
             ],
         },
     ),

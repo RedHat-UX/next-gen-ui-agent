@@ -1,10 +1,12 @@
-from .base_renderer import RendererContext, JsonStrategyFactory, StrategyFactory
-from .types import UIComponentMetadata
 import pprint
 
-### Nodes
-def design_system_handler(components: list[UIComponentMetadata], component_system: str = None) -> list[UIComponentMetadata]:
+from .base_renderer import JsonStrategyFactory, RendererContext
+from .types import UIComponentMetadata
 
+
+def design_system_handler(
+    components: list[UIComponentMetadata], component_system: str
+) -> list[UIComponentMetadata]:
     # WORK IN PROGRESS CODE
 
     # setuptools.setup(name="next_gen_ui_rhds_renderer",
@@ -24,12 +26,14 @@ def design_system_handler(components: list[UIComponentMetadata], component_syste
 
     # Hardocded JSON factory till we make plugins work
     renderer_strategy_factory = JsonStrategyFactory()
-    
+
     for component in components:
         print(f"\n\n---CALL {component_system}--- id: {component['id']}")
         output = "There was an internal issue while rendering.\n"
         try:
-            renderer = RendererContext(renderer_strategy_factory.get_render_strategy(component))
+            renderer = RendererContext(
+                renderer_strategy_factory.get_render_strategy(component)
+            )
             output = renderer.render(component)
         except ValueError as e:
             print("Component selection used non-supported component name\n", e)
