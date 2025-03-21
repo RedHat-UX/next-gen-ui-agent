@@ -48,4 +48,4 @@ requirements = ["//libs/3rdparty/python:pytest"]
 use_coverage = true
 
 [coverage-py]
-interpreter_constraints = ["==3.11.*"]
+interpreter_constraints = [">=3.11"]
