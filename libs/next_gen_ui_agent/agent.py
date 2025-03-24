@@ -22,6 +22,7 @@ class NextGenUIAgent:
         self._extension_manager = ExtensionManager(
             namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
         )
+        logging.info("Registered renderers: %s", self._extension_manager.names())
 
     async def component_selection(
         self,
@@ -39,7 +40,7 @@ class NextGenUIAgent:
         return components
 
     def design_system_handler(
-        self, components: list[UIComponentMetadata], component_system: str
+        self, components: list[UIComponentMetadata], component_system: str = ""
     ) -> list[UIComponentMetadata]:
         """Handle rendering of the component with the chosen component
         system."""

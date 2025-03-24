@@ -10,3 +10,8 @@ remote_cache_write = false
 
 [pytest]
 args = ["-vv", "--no-header"]
+
+[tailor]
+ignore_paths = [
+    'tests/distribution-all/**',
+]

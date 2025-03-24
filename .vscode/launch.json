@@ -13,6 +13,16 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/libs"
             },
+        },
+        {
+            "name": "Python Debugger: distribution-all",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/tests/distribution-all"
+            },
         }
     ]
 }

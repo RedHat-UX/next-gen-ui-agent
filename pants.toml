@@ -39,6 +39,11 @@ python-default = "python-default.lock"
 #  https://www.pantsbuild.org/docs/python-interpreter-compatibility#changing-the-interpreter-search-path.
 search_path = ["<PATH>", "<PYENV>"]
 
+[tailor]
+ignore_paths = [
+    'tests/distribution-all/**',
+]
+
 [pytest]
 args = ["--no-header", "-vv"]
 execution_slot_var = "TEST_EXECUTION_SLOT"
