@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger(__name__)
 
 from next_gen_ui_agent.base_renderer import (
     PLUGGABLE_RENDERERS_NAMESPACE,
@@ -46,8 +47,8 @@ class NextGenUIAgent:
         if not component_system:
             factory = JsonStrategyFactory()
         elif component_system not in self._extension_manager.names():
-            logging.error(
-                f"Chosen component system {component_system} has not been configured with NextGenUI. The default JSON output will be used instead"
+            logger.exception(
+                "Chosen component system %s has not been configured with NextGenUI. The default JSON output will be used instead", component_system
             )
             factory = JsonStrategyFactory()
         else:
