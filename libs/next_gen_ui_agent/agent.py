@@ -22,7 +22,7 @@ class NextGenUIAgent:
         self._extension_manager = ExtensionManager(
             namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
         )
-        logging.info("Registered renderers: %s", self._extension_manager.names())
+        logger.info("Registered renderers: %s", self._extension_manager.names())
 
     async def component_selection(
         self,
@@ -49,7 +49,7 @@ class NextGenUIAgent:
         if not component_system:
             factory = JsonStrategyFactory()
         elif component_system not in self._extension_manager.names():
-            logger.exception(
+            logger.error(
                 "Chosen component system %s has not been configured with NextGenUI. The default JSON output will be used instead",
                 component_system,
             )

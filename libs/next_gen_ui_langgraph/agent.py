@@ -12,6 +12,7 @@ from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponent
 from next_gen_ui_agent.model import LangChainModelInference
 
 ngui_agent = NextGenUIAgent()
+logger = logging.getLogger(__name__)
 
 
 # Graph State Schema
@@ -51,15 +52,15 @@ class NextGenUILangGraphAgent:
         user_prompt = state.get("user_prompt", "")
 
         if user_prompt and len(backend_data) > 0:
-            logging.info("User_prompt and backend_data taken from state directly")
+            logger.info("User_prompt and backend_data taken from state directly")
             return
 
         messages = state["messages"]
-        # logging.debug(messages)
+        # logger.debug(messages)
 
         messagesReversed = list(reversed(messages))
         for m in messagesReversed:
-            # logging.debug(m.content)
+            # logger.debug(m.content)
             # TODO: Handle better success/error messages
             if (
                 m.type
@@ -74,8 +75,9 @@ class NextGenUILangGraphAgent:
             if user_prompt != "" and len(backend_data) > 0:
                 break
 
-        logging.info(
-            f"User_prompt and backend_data taken HumanMessage and ToolMessages. count={len(backend_data)}"
+        logger.info(
+            "User_prompt and backend_data taken HumanMessage and ToolMessages. count=%s",
+            len(backend_data),
         )
         return {
             "backend_data": backend_data,
@@ -112,7 +114,7 @@ class NextGenUILangGraphAgent:
         return Command(goto=END)
 
     def design_system_handler(self, state: AgentState, config: RunnableConfig):
-        logging.debug("\n\n---CALL design_system_handler---")
+        logger.debug("\n\n---CALL design_system_handler---")
         cfg = config.get("configurable", {})
         component_system = cfg.get("component_system", "rhds")
 

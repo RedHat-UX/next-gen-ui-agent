@@ -7,6 +7,8 @@ from llama_stack_client.types.agents.turn import Turn
 from llama_stack_client.types.shared import UserMessage
 from next_gen_ui_agent.model import InferenceBase
 
+logger = logging.getLogger(__name__)
+
 
 class LlamaStackAgentInference(InferenceBase):
     """Class wrapping Langchain langchain_core.language_models.BaseChatModel
@@ -34,9 +36,9 @@ class LlamaStackAgentInference(InferenceBase):
         )
 
         if isinstance(response, Turn):
-            logging.debug("Inputs: %s", response.input_messages)
-            logging.debug("Output: %s", response.output_message.content)
-            logging.debug("Steps: %s", response.steps)
+            logger.debug("Inputs: %s", response.input_messages)
+            logger.debug("Output: %s", response.output_message.content)
+            logger.debug("Steps: %s", response.steps)
             result = response.output_message.content
             if isinstance(result, str):
                 return result

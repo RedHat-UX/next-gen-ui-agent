@@ -8,6 +8,9 @@ from llama_stack_client.lib.agents.react.agent import ReActAgent
 from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 
+logger = logging.getLogger(__name__)
+
+
 user_input = "Tell me brief details of Toy Story"
 # user_input = "Play Toy Story trailer"
 # user_input = "Get me the poster for movie Toy Story"
@@ -30,9 +33,9 @@ def movies(title: str):
     :param title: movie title e.g. Toy Story
     :returns: detail about movie
     """
-    logging.debug("Get movie, title: %s", title)
+    logger.debug("Get movie, title: %s", title)
     response = find_movie(title)
-    logging.debug("returning: %s", response)
+    logger.debug("returning: %s", response)
     return response
 
 

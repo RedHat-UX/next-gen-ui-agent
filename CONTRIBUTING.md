@@ -13,7 +13,7 @@ On Linux, you can run `./get-pants.sh` available in the repo root, as described/
 Create virtual env
 
 ```sh
-$ pants export --py-resolve-format=symlinked_immutable_virtualenv --resolve=python-default
+$ pants export
 $ 14:52:09.05 [INFO] Completed: Get interpreter version
 $ 14:52:14.52 [INFO] Completed: Build pex for resolve `python-default`
 $ Wrote symlink to immutable virtualenv for python-default (using Python 3.11.11) to dist/export/python/virtualenvs/python-default/3.11.11
@@ -29,7 +29,7 @@ Point our IDE to the venv `dist/export/python/virtualenvs/python-default/3.11.11
 # show dependencies
 pants dependencies ::
 # Regenerate lock file (after changing deps)
-pants generate-lockfiles --resolve=python-default
+pants generate-lockfiles
 
 # Run all tests
 pants test ::

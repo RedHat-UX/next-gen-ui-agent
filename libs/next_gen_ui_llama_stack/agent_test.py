@@ -11,6 +11,8 @@ from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedInference
 
+logger = logging.getLogger(__name__)
+
 user_input = "Tell me brief details of Toy Story"
 
 step1_InferenceStep = """
@@ -96,7 +98,7 @@ async def test_agent_turn_from_steps() -> None:
         user_input, steps=[step1, step2, step3]
     ):
         if ng_event["event_type"] == "component_metadata":
-            logging.info("Result: %s", ng_event["payload"])
+            logger.info("Result: %s", ng_event["payload"])
             assert ng_event["payload"][0]["component"] == "one-card"
 
 

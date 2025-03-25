@@ -8,6 +8,8 @@ from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAgentInference
 from next_gen_ui_llama_stack.types import ResponseEvent
 
+logger = logging.getLogger(__name__)
+
 
 class NextGenUILlamaStackAgent:
     """Next Gen UI Agen as Llama stack agen."""
@@ -49,7 +51,7 @@ class NextGenUILlamaStackAgent:
     async def create_turn(
         self, user_prompt, steps: list[Step]
     ) -> AsyncIterator[ResponseEvent]:
-        logging.debug("create_turn. user_prompt: %s", user_prompt)
+        logger.debug("create_turn. user_prompt: %s", user_prompt)
         tool_data_list = self._data_selection(steps)
         components = await self._component_selection(user_prompt, tool_data_list)
         yield ResponseEvent(event_type="component_metadata", payload=components)

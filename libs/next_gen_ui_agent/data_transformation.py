@@ -5,6 +5,8 @@ from jsonpath_ng import parse  # type: ignore
 
 from .types import InputData, UIComponentMetadata
 
+logger = logging.getLogger(__name__)
+
 
 def enhance_component_by_input_data(
     input_data: list[InputData], components: list[UIComponentMetadata]
@@ -17,10 +19,8 @@ def enhance_component_by_input_data(
             je = None
             try:
                 je = parse(dp)
-            except Exception as e:
-                logging.error(
-                    f"Failed JSONPath expression parsing for {dp} exception={e}"
-                )
+            except Exception:
+                logger.exception("Failed JSONPath expression parsing for %s", dp)
                 break
             for data in input_data:
                 if data["id"] != component["id"]:
@@ -32,8 +32,10 @@ def enhance_component_by_input_data(
                     field["data"] = [match.value for match in je.find(json_data)]
                     if field["data"] != []:
                         break
-                except Exception as e:
-                    logging.error(
-                        f"Cannot match data and component JSONPath dp={dp} data={data_content} exception={e}"
+                except Exception:
+                    logger.exception(
+                        "Cannot match data and component JSONPath dp=%s data=%s",
+                        dp,
+                        data_content,
                     )
                     break
