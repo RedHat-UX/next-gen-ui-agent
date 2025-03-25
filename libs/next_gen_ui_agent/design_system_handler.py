@@ -1,46 +1,34 @@
-import pprint
+import logging
 
-from .base_renderer import JsonStrategyFactory, RendererContext
+from .base_renderer import RendererContext, StrategyFactory
 from .types import UIComponentMetadata
+
+logger = logging.getLogger(__name__)
 
 
 def design_system_handler(
-    components: list[UIComponentMetadata], component_system: str
+    components: list[UIComponentMetadata],
+    factory: StrategyFactory,
 ) -> list[UIComponentMetadata]:
-    # WORK IN PROGRESS CODE
-
-    # setuptools.setup(name="next_gen_ui_rhds_renderer",
-    #     version="0.0.1",
-    #     description="Next Gen UI Red Hat Design System Renderer",
-    #     entry_points={
-    #         'next_gen_ui.agent.renderer_factory': [
-    #             'rhds = next_gen_ui_rhds_renderer.rhds_renderer:RhdsStrategyFactory'
-    #         ],
-    #     })
-    # driver.NamedExtensionManager.make_test_instance()
-    # driver.DriverManager.make_test_instance()
-    # renderer_strategy_factory = driver.DriverManager(
-    #     namespace = 'next_gen_ui.agent.renderer_factory',
-    #     name = component_system,
-    #     invoke_on_load = False) if component_system else JsonStrategyFactory()
-
-    # Hardocded JSON factory till we make plugins work
-    renderer_strategy_factory = JsonStrategyFactory()
-
     for component in components:
-        print(f"\n\n---CALL {component_system}--- id: {component['id']}")
+        logger.debug(
+            "\n\n---design_system_handler processing component id: %s with %s renderer",
+            component["id"],
+            factory.__class__.__name__,
+        )
         output = "There was an internal issue while rendering.\n"
         try:
-            renderer = RendererContext(
-                renderer_strategy_factory.get_render_strategy(component)
-            )
+            renderer = RendererContext(factory.get_render_strategy(component))
             output = renderer.render(component)
         except ValueError as e:
-            print("Component selection used non-supported component name\n", e)
+            logger.exception(
+                "Component selection used non-supported component name\n", e
+            )
         except Exception as e:
-            print("There was an issue while rendering component template\n", e)
+            logger.exception(
+                "There was an issue while rendering component template\n", e
+            )
 
-        pprint.pp(f"{component['id']}={output}")
+        logger.info("%s=%s", component["id"], output)
         component["rendition"] = output
-        print(f"Generated component: {output}")
     return components

@@ -3,6 +3,7 @@ python_sources(
     name="lib",
     dependencies=[
         "libs/next_gen_ui_agent:lib",
+        ":templates",
     ],
 )
 
@@ -11,11 +12,17 @@ python_tests(
     name="tests",
     dependencies=[
         "libs/3rdparty/python:pytest",
+        "libs/next_gen_ui_testing:tests",
     ],
 )
 
 python_requirements(
     name="reqs",
+)
+
+resources(
+    name="templates",
+    sources=["**/*.jinja"],
 )
 
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
@@ -35,7 +42,7 @@ python_distribution(
         description="Next Gen UI Red Hat Design System Renderer",
         entry_points={
             "next_gen_ui.agent.renderer_factory": [
-                "rhds = next_gen_ui_rhds_renderer.rhds_renderer:RhdsStrategyFactory"
+                "rhds = next_gen_ui_rhds_renderer:RhdsStrategyFactory"
             ],
         },
     ),

@@ -3,6 +3,7 @@ python_sources(
     name="lib",
     dependencies=[
         "libs/next_gen_ui_agent:lib",
+        ":templates",
     ],
 )
 
@@ -11,11 +12,17 @@ python_tests(
     name="tests",
     dependencies=[
         "libs/3rdparty/python:pytest",
+        "libs/next_gen_ui_testing:tests",
     ],
 )
 
 python_requirements(
     name="reqs",
+)
+
+resources(
+    name="templates",
+    sources=["**/*.jinja"],
 )
 
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
