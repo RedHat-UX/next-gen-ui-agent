@@ -30,15 +30,20 @@ def test_design_system_handler_default_json() -> None:
 def test_design_system_handler_rhds() -> None:
     agent = NextGenUIAgent()
     agent.design_system_handler([test_component], "rhds")
-    # TODO: This is failing. no plugins are registered because of:
-    # DEBUG:stevedore.extension:found extension EntryPoint(name='rhds', value='next_gen_ui_rhds_renderer:RhdsStrategyFactory', group='next_gen_ui.agent.renderer_factory')
-    # ERROR:stevedore.extension:Could not load 'rhds': No module named 'jinja2'
+    rendition = test_component["rendition"]
+    assert "<rh-card" in rendition
 
-    # rendition = test_component["rendition"]
-    # assert "" == rendition
+
+def test_design_system_handler_patternfly() -> None:
+    agent = NextGenUIAgent()
+    agent.design_system_handler([test_component], "patternfly")
+    rendition = test_component["rendition"]
+    assert "<Card>" in rendition
 
 
 if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
+    test_design_system_handler_default_json()
     test_design_system_handler_rhds()
+    test_design_system_handler_patternfly()

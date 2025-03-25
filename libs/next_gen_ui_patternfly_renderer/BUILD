@@ -3,6 +3,7 @@ python_sources(
     name="lib",
     dependencies=[
         "libs/next_gen_ui_agent:lib",
+        ":jinja2",
         ":templates",
     ],
 )
@@ -16,8 +17,11 @@ python_tests(
     ],
 )
 
-python_requirements(
-    name="reqs",
+python_requirement(
+    name="jinja2",
+    requirements=[
+        "jinja2",
+    ],
 )
 
 resources(
