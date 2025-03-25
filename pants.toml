@@ -31,6 +31,14 @@ enable_resolves = true
 
 [python.resolves]
 python-default = "python-default.lock"
+flake8 = "libs/3rdparty/python/flake8.lock"
+
+[export]
+py_resolve_format = "symlinked_immutable_virtualenv"
+resolve = [
+    'flake8',
+    'python-default',
+]
 
 [python-bootstrap]
 # We search for interpreters both on the $PATH and in the `$(pyenv root)/versions` folder.
@@ -54,3 +62,8 @@ use_coverage = true
 
 [coverage-py]
 interpreter_constraints = [">=3.11"]
+
+[flake8]
+install_from_resolve = "flake8"
+requirements = ["//libs/3rdparty/python:flake8"]
+
