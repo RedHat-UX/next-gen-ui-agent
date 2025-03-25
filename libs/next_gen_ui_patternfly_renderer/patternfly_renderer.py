@@ -1,4 +1,4 @@
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader
 from next_gen_ui_agent.base_renderer import (
     ImageRenderStrategy,
     OneCardRenderStrategy,
@@ -9,11 +9,8 @@ from next_gen_ui_agent.base_renderer import (
 )
 from next_gen_ui_agent.types import UIComponentMetadata
 
-# TODO: fix path to work in both monorepo but also as external package
 templates_env = Environment(
-    loader=FileSystemLoader(
-        "./libs/next_gen_ui_patternfly_renderer/templates"
-    ),  # pants: no-infer-dep
+    loader=PackageLoader("next_gen_ui_patternfly_renderer", "templates"),
     trim_blocks=True,
 )
 

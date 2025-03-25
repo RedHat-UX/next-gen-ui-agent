@@ -5,6 +5,7 @@ from typing import Sized
 from .types import UIComponentMetadata
 
 IMAGE_SUFFIXES = ("jpg", "png", "gif", "jpeg", "bmp")
+PLUGGABLE_RENDERERS_NAMESPACE = "next_gen_ui.agent.renderer_factory"
 
 
 class RenderStrategy(ABC):
