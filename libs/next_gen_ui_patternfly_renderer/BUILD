@@ -29,6 +29,9 @@ resources(
     sources=["**/*.jinja"],
 )
 
+resource(name="pyproject", source="pyproject.toml")
+resource(name="readme", source="README.md")
+
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
 #  `setup.py`. See https://www.pantsbuild.org/docs/python-distributions.
 #
@@ -37,17 +40,19 @@ resources(
 #  their dependencies.
 python_distribution(
     name="dist",
-    dependencies=[":lib"],
-    wheel=True,
-    sdist=True,
-    provides=setup_py(
+    dependencies=[
+        ":pyproject",
+        ":readme",
+        ":lib",
+    ],
+    provides=python_artifact(
         name="next_gen_ui_patternfly_renderer",
-        version="0.0.1",
-        description="Next Gen UI Patternfly Renderer",
+        version=env("VERSION"),
         entry_points={
             "next_gen_ui.agent.renderer_factory": [
                 "patternfly = next_gen_ui_patternfly_renderer:PatternflyStrategyFactory"
             ],
         },
     ),
+    generate_setup=True,
 )

@@ -1,0 +1,4 @@
+#!/bin/sh
+
+VERSION="${VERSION:-$(git describe --tags --dirty --match "[0-9\.]*" || echo 0.0.1)}"
+export VERSION

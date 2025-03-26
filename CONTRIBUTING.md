@@ -59,3 +59,10 @@ TOOD: Explain versioning
 ## Release
 
 TODO: Add release steps
+
+Build packages:
+```sh
+cp README.md libs/next_gen_ui_agent
+export VERSION=0.0.1
+pants package :: 
+```

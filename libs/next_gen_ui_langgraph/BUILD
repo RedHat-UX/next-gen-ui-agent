@@ -20,6 +20,9 @@ python_requirements(
     name="reqs",
 )
 
+resource(name="pyproject", source="pyproject.toml")
+resource(name="readme", source="README.md")
+
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
 #  `setup.py`. See https://www.pantsbuild.org/docs/python-distributions.
 #
@@ -28,12 +31,15 @@ python_requirements(
 #  their dependencies.
 python_distribution(
     name="dist",
-    dependencies=[":lib"],
-    wheel=True,
-    sdist=True,
-    provides=setup_py(
+    dependencies=[
+        ":pyproject",
+        ":readme",
+        ":lib",
+        ":reqs",
+    ],
+    provides=python_artifact(
         name="next_gen_ui_langgraph",
-        version="0.0.1",
-        description="Next Gen UI LangGraph Agent",
+        version=env("VERSION"),
     ),
+    generate_setup=True,
 )
