@@ -9,6 +9,9 @@ backend_packages.add = [
   "pants.backend.python.lint.isort",
   "pants.backend.python.typecheck.mypy",
 ]
+pants_ignore = [
+  "requirements_dev.txt"
+]
 
 [source]
 # The Python source root is the repo root. See https://www.pantsbuild.org/docs/source-roots.
