@@ -8,7 +8,8 @@ Here are some things to keep in mind for all types of contributions:
 * Follow the ["fork and pull request"](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) workflow.
 * Ensure your PR passes formatting, linting, and testing checks before requesting a review. Run `pants fmt lint check ::`
 * Keep scope as isolated as possible. As a general rule, your changes should not affect more than one package at a time.
-
+* Use always conventional commits message style.
+* Install `pre-commit` hooks.
 
 ## Setup
 
@@ -33,6 +34,32 @@ taken from previous step output (python version may differ here)
 
 ## Developer guide
 
+### Prerequisities
+
+Install dev deps
+
+```sh
+pip3 install -r requirements_dev.txt
+```
+
+Install pre commit hook
+
+```sh
+pre-commit install
+```
+
+### Commit Message Guidelines
+
+Follows the [Angular guidline types](https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#type) to ensure the commit will appear in changelog.
+Also use NGUI JIRA next to the change type.
+
+These types goes to changelog and control the version bump:
+* feat -> MINOR
+* fix -> MICRO
+* refactor -> MICRO
+
+Example: `refactor(NGUI-123): refactoring agent tests`
+
 ### Useful Pants commands
 
 ```sh
@@ -54,11 +81,28 @@ pants fmt lint check ::
 
 ## Versioning
 
-TOOD: Explain versioning
+Version is managed by commitizen and stored in [cz.toml](./cz.toml) and tagged in git.
+All libraries has the same version.
+
+### Bump version
+
+Dry Run first and check output (changelog, version bump):
+```sh
+cz changelog --dry-run --unreleased-version="1.0.0"
+cz bump --dry-run
+```
+
+Perform version bump (release)
+
+```sh
+cz bump
+git push --tags
+```
+
 
 ## Release
 
-TODO: Add release steps
+TODO: Should be automatically pushed by github CI/CD
 
 Build packages:
 ```sh

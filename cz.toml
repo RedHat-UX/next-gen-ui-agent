@@ -1,0 +1,10 @@
+[tool.commitizen]
+version = "0.0.1"
+update_changelog_on_bump = true
+version_files = ["cz.toml"]
+
+# JIRA integration
+name = "cz_github_jira_conventional"
+jira_prefix = "NGUI-"
+jira_base_url = "https://issues.redhat.com"
+github_repo = "RedHat-UX/next-gen-ui-agent"
