@@ -29,9 +29,6 @@ resources(
     sources=["**/*.jinja"],
 )
 
-resource(name="pyproject", source="pyproject.toml")
-resource(name="readme", source="README.md")
-
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
 #  `setup.py`. See https://www.pantsbuild.org/docs/python-distributions.
 #
@@ -41,8 +38,6 @@ resource(name="readme", source="README.md")
 python_distribution(
     name="dist",
     dependencies=[
-        ":pyproject",
-        ":readme",
         ":lib",
     ],
     provides=python_artifact(
@@ -53,6 +48,18 @@ python_distribution(
                 "patternfly = next_gen_ui_patternfly_renderer:PatternflyStrategyFactory"
             ],
         },
+        license="Apache-2.0",
+        description="PatternFly Extension for Next Gen UI Agent",
+        long_description_content_type="text/markdown",
+        classifiers=[
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
+            "Programming Language :: Python :: 3.13",
+            "License :: OSI Approved :: Apache Software License",
+        ],
+        url="https://github.com/RedHat-UX/next-gen-ui-agent",
     ),
+    long_description_path="libs/next_gen_ui_patternfly_renderer/README.md",
     generate_setup=True,
 )
