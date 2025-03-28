@@ -16,9 +16,6 @@ python_requirements(
     name="reqs",
 )
 
-resource(name="pyproject", source="pyproject.toml")
-resource(name="readme", source="README.md")
-
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
 #  `setup.py`. See https://www.pantsbuild.org/docs/python-distributions.
 #
@@ -28,14 +25,24 @@ resource(name="readme", source="README.md")
 python_distribution(
     name="dist",
     dependencies=[
-        ":pyproject",
-        ":readme",
         ":lib",
         ":reqs",
     ],
     provides=python_artifact(
         name="next_gen_ui_agent",
         version=env("VERSION"),
+        license="Apache-2.0",
+        description="Empower your UI by AI Agent",
+        long_description_content_type="text/markdown",
+        classifiers=[
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
+            "Programming Language :: Python :: 3.13",
+            "License :: OSI Approved :: Apache Software License",
+        ],
+        url="https://github.com/RedHat-UX/next-gen-ui-agent",
     ),
+    long_description_path="README.md",
     generate_setup=True,
 )
