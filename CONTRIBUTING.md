@@ -90,23 +90,21 @@ Dry Run first and check output (changelog, version bump):
 ```sh
 cz changelog --dry-run --unreleased-version="1.0.0"
 cz bump --dry-run
+# or with verion
+cz bump 0.1.0 --dry-run
 ```
 
 Perform version bump (release)
 
 ```sh
-cz bump
+cz bump 0.1.0
 git push --tags
 ```
 
 
 ## Release
 
-TODO: Should be automatically pushed by github CI/CD
+Github Ci/CD pipeline automatically publish all packages. During every git push it pushes to [Test PyPI](https://test.pypi.org/project/next-gen-ui-agent/).
+On Tag the pipeline build and pushes packages to [PyPI](https://pypi.org/project/next-gen-ui-agent/).
 
-Build packages:
-```sh
-cp README.md libs/next_gen_ui_agent
-export VERSION=0.0.1
-pants package :: 
-```
+To perform actual release bump the version (see above).
