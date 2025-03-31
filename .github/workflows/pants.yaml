@@ -4,6 +4,9 @@ name: Pants
 
 on: [push, pull_request]
 
+env:
+  PYTHON_VERSION: "3.11" # For deploy
+
 jobs:
   build:
     name: Perform CI Checks
@@ -64,3 +67,65 @@ jobs:
         name: pants-log
         path: .pants.d/workdir/pants.log
       if: always()  # We want the log even on failures.
+  # Bump version, build and upload artifacts
+  bump_version:
+    if: ${{!contains(github.ref, 'main')}}
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    name: "Bump version and build"
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - id: cz
+        name: Bump
+        uses: commitizen-tools/commitizen-action@master
+        with:
+          push: "false"
+          commit: "false"
+          prerelease: "beta"
+          extra_requirements: "cz_github_jira_conventional"
+      - name: Print Version
+        run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: pantsbuild/actions/init-pants@v8
+        with:
+          gha-cache-key: v0
+          named-caches-hash: ${{ hashFiles('python-default.lock') }}
+          cache-lmdb-store: 'true'  # defaults to 'false'
+      - name: Package / Run
+        env:
+          VERSION: ${{ steps.cz.outputs.version }}
+        run: |
+          echo $VERSION
+          pants package ::
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-dist
+          path: dist/
+  # Publish to test PyPI
+  publish_test:
+    if: ${{!contains(github.ref, 'main')}}
+    needs:
+      - bump_version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: test-dist
+          path: dist/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Publish to Test PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_TEST }}
+        run: |
+          python3 -m twine upload --repository testpypi dist/next_gen_ui*
