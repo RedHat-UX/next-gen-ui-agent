@@ -19,6 +19,9 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'    # Cache pip deps (not used by pants, but other jobs)
+        cache-dependency-path: |
+            tests/distribution-all/install_deps.sh
     - uses: pantsbuild/actions/init-pants@v8
       # This action bootstraps pants and manages 2-3 GHA caches.
       # See: github.com/pantsbuild/actions/tree/main/init-pants/
