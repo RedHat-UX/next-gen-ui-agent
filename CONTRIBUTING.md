@@ -65,7 +65,7 @@ Example: `refactor(NGUI-123): refactoring agent tests`
 ```sh
 # show dependencies
 pants dependencies ::
-# Regenerate lock file (after changing deps)
+# Regenerate lock file (after changing deps, do not forget to run `pants export` for local development)
 pants generate-lockfiles
 
 # Run all tests
