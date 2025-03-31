@@ -1,0 +1,63 @@
+name: Upload Python Package
+
+on:
+  push:
+    tags:
+      - "*" # Will trigger for every tag, alternative: 'v*'
+
+env:
+  PYTHON_VERSION: "3.11" # For deploy
+
+jobs:
+  # Bump version, build and upload artifacts
+  build:
+    runs-on: ubuntu-latest
+    name: "Build"
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: pantsbuild/actions/init-pants@v8
+        with:
+          gha-cache-key: v0
+          named-caches-hash: ${{ hashFiles('python-default.lock') }}
+          cache-lmdb-store: 'true'  # defaults to 'false'
+      - name: Package / Run
+        env:
+          VERSION: ${GITHUB_REF##*/}
+        run: |
+          echo $VERSION
+          pants package ::
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: CHANGELOG.md
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+  publish:
+    name: "Publish to PyPI"
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Publish to Test PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          python3 -m pip install twine
+          python3 -m twine upload --disable-progress-bar --verbose dist/next_gen_ui*.whl
