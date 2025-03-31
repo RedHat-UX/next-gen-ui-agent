@@ -19,6 +19,9 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'        # Cache pip deps (not used by pants, but other jobs)
+        cache-dependency-path: |
+            tests/distribution-all/install_deps.sh
     - uses: pantsbuild/actions/init-pants@v8
       # This action bootstraps pants and manages 2-3 GHA caches.
       # See: github.com/pantsbuild/actions/tree/main/init-pants/
@@ -79,6 +82,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: |
+              requirements_dev.txt
       - id: cz
         name: Bump
         uses: commitizen-tools/commitizen-action@master
@@ -90,9 +99,6 @@ jobs:
           increment: "PATCH"
       - name: Print Version
         run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
       - uses: pantsbuild/actions/init-pants@v8
         with:
           gha-cache-key: v0
@@ -130,6 +136,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: |
+              requirements_dev.txt
       - name: Publish to Test PyPI
         env:
           TWINE_USERNAME: __token__
