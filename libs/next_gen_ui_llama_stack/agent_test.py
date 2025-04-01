@@ -3,7 +3,7 @@ import json
 import logging
 
 import pytest
-from llama_stack_client import LlamaStackClient
+from llama_stack_client import AsyncLlamaStackClient, LlamaStackClient
 from llama_stack_client.types.inference_step import InferenceStep
 from llama_stack_client.types.tool_execution_step import ToolExecutionStep
 from next_gen_ui_agent.types import UIComponentMetadata
@@ -90,6 +90,39 @@ async def test_agent_turn_from_steps() -> None:
 
     mocked_inference = MockedInference(mocked_component)
     client = LlamaStackClient()
+    ngui_agent = NextGenUILlamaStackAgent(
+        client, "not-used", inference=mocked_inference
+    )
+
+    async for ng_event in ngui_agent.create_turn(
+        user_input, steps=[step1, step2, step3]
+    ):
+        if ng_event["event_type"] == "component_metadata":
+            logger.info("Result: %s", ng_event["payload"])
+            assert ng_event["payload"][0]["component"] == "one-card"
+        if ng_event["event_type"] == "rendering":
+            logger.info("Result: %s", ng_event["payload"])
+            rendering = json.loads(ng_event["payload"][0]["rendition"])
+            assert rendering["title"] == "Toy Story"
+
+
+@pytest.mark.asyncio
+async def test_agent_turn_from_steps_async() -> None:
+    mocked_component: UIComponentMetadata = {
+        "title": "Toy Story",
+        "reasonForTheComponentSelection": "One item available in the data",
+        "confidenceScore": "100%",
+        "component": "one-card",
+        "fields": [
+            {"name": "Title", "data_path": "movie.title"},
+            {"name": "Year", "data_path": "movie.year"},
+            {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
+        ],
+        "id": "2ff0f4bd-6b66-4b22-a7eb-8bb0365f52b1",
+    }
+
+    mocked_inference = MockedInference(mocked_component)
+    client = AsyncLlamaStackClient()
     ngui_agent = NextGenUILlamaStackAgent(
         client, "not-used", inference=mocked_inference
     )
