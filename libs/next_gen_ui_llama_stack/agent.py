@@ -1,11 +1,14 @@
 import logging
 from typing import AsyncIterator, Optional
 
-from llama_stack_client import LlamaStackClient
+from llama_stack_client import AsyncLlamaStackClient, LlamaStackClient
 from llama_stack_client.types.agents.turn import Step
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAgentInference
+from next_gen_ui_llama_stack.llama_stack_inference import (
+    LlamaStackAgentInference,
+    LlamaStackAsyncAgentInference,
+)
 from next_gen_ui_llama_stack.types import ResponseEvent
 
 logger = logging.getLogger(__name__)
@@ -16,14 +19,17 @@ class NextGenUILlamaStackAgent:
 
     def __init__(
         self,
-        client: LlamaStackClient,
+        client: LlamaStackClient | AsyncLlamaStackClient,
         model: str,
         inference: Optional[InferenceBase] = None,
     ):
         if inference:
             self.inference = inference
         else:
-            self.inference = LlamaStackAgentInference(client, model)
+            if isinstance(client, LlamaStackClient):
+                self.inference = LlamaStackAgentInference(client, model)
+            else:
+                self.inference = LlamaStackAsyncAgentInference(client, model)
 
         self.client = client
         self.ngui_agent = NextGenUIAgent()
@@ -49,7 +55,7 @@ class NextGenUILlamaStackAgent:
         return components
 
     async def create_turn(
-        self, user_prompt, steps: list[Step]
+        self, user_prompt, steps: list[Step], component_system: str = ""
     ) -> AsyncIterator[ResponseEvent]:
         logger.debug("create_turn. user_prompt: %s", user_prompt)
         tool_data_list = self._data_selection(steps)
@@ -59,4 +65,7 @@ class NextGenUILlamaStackAgent:
         components = self.ngui_agent.data_transformation(
             input_data=tool_data_list, components=components
         )
-        yield ResponseEvent(event_type="output_json", payload=components)
+        components = self.ngui_agent.design_system_handler(
+            components=components, component_system=component_system
+        )
+        yield ResponseEvent(event_type="rendering", payload=components)
