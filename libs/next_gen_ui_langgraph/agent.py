@@ -1,5 +1,4 @@
 import logging
-import pprint
 import uuid
 from typing import Literal, Optional, TypedDict
 
@@ -122,8 +121,11 @@ class NextGenUILangGraphAgent:
 
         messages: list[BaseMessage] = []
         for component in state["components"]:
-            pprint.pp(
-                f"\n\n---CALL {component_system}--- id: {component['id']}, component rendition: {component['rendition']}"
+            logger.debug(
+                "---CALL %s--- id: %s, component rendition: %s",
+                component_system,
+                component["id"],
+                component["rendition"],
             )
 
             tm = ToolMessage(
