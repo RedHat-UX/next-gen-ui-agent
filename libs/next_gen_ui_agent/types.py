@@ -1,5 +1,14 @@
 from typing import NotRequired, TypedDict
 
+from next_gen_ui_agent.model import InferenceBase
+
+
+class AgentConfig(TypedDict):
+    """Agent Configuration."""
+
+    inference: NotRequired[InferenceBase]
+    component_system: NotRequired[str]
+
 
 class InputData(TypedDict):
     """Agent Input Data."""

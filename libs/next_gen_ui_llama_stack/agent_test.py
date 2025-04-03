@@ -95,7 +95,7 @@ async def test_agent_turn_from_steps() -> None:
     )
 
     async for ng_event in ngui_agent.create_turn(
-        user_input, steps=[step1, step2, step3]
+        user_input, steps=[step1, step2, step3], component_system="json"
     ):
         if ng_event["event_type"] == "component_metadata":
             logger.info("Result: %s", ng_event["payload"])
