@@ -7,9 +7,9 @@ from next_gen_ui_testing import data_after_transformation
 test_component: UIComponentMetadata = data_after_transformation.get_transformed_component()
 
 
-def test_design_system_handler_default_json() -> None:
+def test_design_system_handler_json() -> None:
     agent = NextGenUIAgent()
-    agent.design_system_handler([test_component])
+    agent.design_system_handler([test_component], "json")
     json_str = test_component["rendition"]
     result: UIComponentMetadata = json.loads(json_str)
     assert result["title"] == "Toy Story Details"
@@ -34,6 +34,6 @@ def test_design_system_handler_patternfly() -> None:
 if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)
-    test_design_system_handler_default_json()
+    test_design_system_handler_json()
     test_design_system_handler_rhds()
     test_design_system_handler_patternfly()

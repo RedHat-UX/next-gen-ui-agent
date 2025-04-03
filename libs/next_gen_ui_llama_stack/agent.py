@@ -23,16 +23,18 @@ class NextGenUILlamaStackAgent:
         model: str,
         inference: Optional[InferenceBase] = None,
     ):
-        if inference:
-            self.inference = inference
-        else:
+        if not inference:
             if isinstance(client, LlamaStackClient):
-                self.inference = LlamaStackAgentInference(client, model)
+                inference = LlamaStackAgentInference(client, model)
             else:
-                self.inference = LlamaStackAsyncAgentInference(client, model)
+                inference = LlamaStackAsyncAgentInference(client, model)
 
         self.client = client
-        self.ngui_agent = NextGenUIAgent()
+        self.ngui_agent = NextGenUIAgent(
+            config={
+                "inference": inference,
+            }
+        )
 
     def _data_selection(self, steps: list[Step]) -> list[InputData]:
         """Get data from all tool messages."""
@@ -48,14 +50,11 @@ class NextGenUILlamaStackAgent:
 
     async def _component_selection(self, user_prompt, input_data: list[InputData]):
         input = AgentInput(user_prompt=user_prompt, input_data=input_data)
-        components = await self.ngui_agent.component_selection(
-            inference=self.inference,
-            input=input,
-        )
+        components = await self.ngui_agent.component_selection(input=input)
         return components
 
     async def create_turn(
-        self, user_prompt, steps: list[Step], component_system: str = ""
+        self, user_prompt, steps: list[Step], component_system: Optional[str] = None
     ) -> AsyncIterator[ResponseEvent]:
         logger.debug("create_turn. user_prompt: %s", user_prompt)
         tool_data_list = self._data_selection(steps)

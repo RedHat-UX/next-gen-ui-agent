@@ -10,7 +10,6 @@ from langgraph.types import Command
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_agent.model import LangChainModelInference
 
-ngui_agent = NextGenUIAgent()
 logger = logging.getLogger(__name__)
 
 
@@ -43,7 +42,8 @@ class NextGenUILangGraphAgent:
 
     def __init__(self, model: BaseChatModel):
         super().__init__()
-        self.inference = LangChainModelInference(model)
+        inference = LangChainModelInference(model)
+        self.ngui_agent = NextGenUIAgent(config={"inference": inference})
 
     # Nodes
     async def data_selection(self, state: AgentInputState, config: RunnableConfig):
@@ -89,10 +89,7 @@ class NextGenUILangGraphAgent:
             InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
         ]
         input = AgentInput(user_prompt=user_prompt, input_data=input_data)
-        components = await ngui_agent.component_selection(
-            inference=self.inference,
-            input=input,
-        )
+        components = await self.ngui_agent.component_selection(input=input)
         return {"components": components}
 
     async def choose_system(
@@ -104,9 +101,11 @@ class NextGenUILangGraphAgent:
             InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
         ]
         components = state["components"]
-        ngui_agent.data_transformation(input_data=input_data, components=components)
+        self.ngui_agent.data_transformation(
+            input_data=input_data, components=components
+        )
 
-        component_system = cfg.get("component_system", "rhds")
+        component_system = cfg.get("component_system")
         if component_system and component_system != "none":
             return Command(goto="design_system_handler")
 
@@ -115,9 +114,9 @@ class NextGenUILangGraphAgent:
     def design_system_handler(self, state: AgentState, config: RunnableConfig):
         logger.debug("\n\n---CALL design_system_handler---")
         cfg = config.get("configurable", {})
-        component_system = cfg.get("component_system", "rhds")
+        component_system = cfg.get("component_system")
 
-        ngui_agent.design_system_handler(state["components"], component_system)
+        self.ngui_agent.design_system_handler(state["components"], component_system)
 
         messages: list[BaseMessage] = []
         for component in state["components"]:
