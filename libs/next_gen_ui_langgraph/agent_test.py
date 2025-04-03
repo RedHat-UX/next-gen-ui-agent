@@ -7,6 +7,15 @@ from next_gen_ui_agent import UIComponentMetadata
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 
 
+def test_is_next_gen_ui_message() -> None:
+    tm = ToolMessage(content="", tool_call_id="1")
+    assert NextGenUILangGraphAgent.is_next_gen_ui_message(tm) is False
+    tm.name = "some_name"
+    assert NextGenUILangGraphAgent.is_next_gen_ui_message(tm) is False
+    tm.name = "ngui_rhds"
+    assert NextGenUILangGraphAgent.is_next_gen_ui_message(tm) is True
+
+
 @pytest.mark.asyncio
 async def test_agent() -> None:
     user_input = "Tell me brief details of Toy Story"
