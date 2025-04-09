@@ -9,14 +9,15 @@ repos:
         additional_dependencies: [cz-github-jira-conventional]
   - repo: local
     hooks:
-      - id: pants-fmt
-        name: pants fmt
-        always_run: false
-        description: runs pants fmt on python files
-        entry: pants --no-dynamic-ui fmt
-        language: system
-        pass_filenames: true
-        types: [file,python]
+    # NGUI-108 disabled. formatting is still part of CI pipeline but is responsibility of developer to run it
+    #   - id: pants-fmt
+    #     name: pants fmt
+    #     always_run: false
+    #     description: runs pants fmt on python files
+    #     entry: pants --no-dynamic-ui fmt
+    #     language: system
+    #     pass_filenames: true
+    #     types: [file,python]
       - id: pants-lint
         name: pants lint
         always_run: false
