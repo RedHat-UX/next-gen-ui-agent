@@ -1,6 +1,6 @@
 import logging
 
-from .base_renderer import RendererContext, StrategyFactory
+from .renderer_base import RendererContext, StrategyFactory
 from .types import UIComponentMetadata
 
 logger = logging.getLogger(__name__)
@@ -21,13 +21,11 @@ def design_system_handler(
             renderer = RendererContext(factory.get_render_strategy(component))
             output = renderer.render(component)
         except ValueError as e:
-            logger.exception(
-                "Component selection used non-supported component name\n", e
-            )
+            logger.exception("Component selection used non-supported component name")
+            raise e
         except Exception as e:
-            logger.exception(
-                "There was an issue while rendering component template\n", e
-            )
+            logger.exception("There was an issue while rendering component template")
+            raise e
 
         logger.info("%s=%s", component["id"], output)
         component["rendition"] = output

@@ -22,3 +22,7 @@ def test_design_system_handler_json() -> None:
 def test_renderers() -> None:
     agent = NextGenUIAgent()
     assert agent.renderers == ["json"]
+
+
+if __name__ == "__main__":
+    test_design_system_handler_json()
