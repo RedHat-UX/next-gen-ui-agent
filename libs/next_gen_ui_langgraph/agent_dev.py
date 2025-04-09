@@ -1,6 +1,6 @@
 # type: ignore
 
-from agent import NextGenUILangGraphAgent
+from agent import NextGenUILangGraphAgent  # pants: no-infer-dep
 from langchain_openai import ChatOpenAI
 
 llm_settings = {

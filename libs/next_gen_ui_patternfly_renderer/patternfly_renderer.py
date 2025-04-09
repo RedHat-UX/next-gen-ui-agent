@@ -1,8 +1,8 @@
-from jinja2 import Environment, PackageLoader
-from next_gen_ui_agent.base_renderer import (
+from jinja2 import Environment, PackageLoader  # pants: no-infer-dep
+from next_gen_ui_agent.renderer_base import (
     ImageRenderStrategy,
     OneCardRenderStrategy,
-    RenderStrategy,
+    RenderStrategyBase,
     SetOfCardsRenderStrategy,
     StrategyFactory,
     VideoRenderStrategy,
@@ -15,7 +15,7 @@ templates_env = Environment(
 )
 
 
-class PatternflyStrategyBase(RenderStrategy):
+class PatternflyStrategyBase(RenderStrategyBase):
     def generate_output(self, component):
         template = templates_env.get_template(f'/{component["component"]}.jinja')
         return template.render(self._rendering_context)

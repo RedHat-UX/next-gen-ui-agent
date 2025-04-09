@@ -1,18 +1,41 @@
 import json
 from abc import ABC, ABCMeta, abstractmethod
-from typing import Sized
+from typing import Generic, Sized, TypeVar
 
-from .types import UIComponentMetadata
+from .types import (
+    RenderContexSetOfCard,
+    RenderContextAudio,
+    RenderContextBase,
+    RenderContextImage,
+    RenderContextOneCard,
+    RenderContextVideo,
+    UIComponentMetadata,
+)
 
 IMAGE_SUFFIXES = ("jpg", "png", "gif", "jpeg", "bmp")
 PLUGGABLE_RENDERERS_NAMESPACE = "next_gen_ui.agent.renderer_factory"
 
 
-class RenderStrategy(ABC):
-    _rendering_context: dict
+T = TypeVar(
+    "T",
+    RenderContextBase,
+    RenderContextOneCard,
+    RenderContexSetOfCard,
+    RenderContextImage,
+    RenderContextVideo,
+    RenderContextAudio,
+)
+
+
+class GenericRenderStrategy(ABC, Generic[T]):
+    """Base class for rendering with Generic Type of the context."""
+
+
+class RenderStrategyBase(ABC, Generic[T]):
+    """Renderer Base."""
 
     def __init__(self):
-        self._rendering_context = dict()
+        self._rendering_context: T = RenderContextBase()
 
     def preprocess_rendering_context(self, component: UIComponentMetadata):
         fields = component["fields"]
@@ -27,16 +50,16 @@ class RenderStrategy(ABC):
     def main_processing(self, component: UIComponentMetadata):
         pass
 
-    def generate_output(self, component: UIComponentMetadata):
+    def generate_output(self, component: UIComponentMetadata) -> str:
         return json.dumps(component)
 
-    def render(self, component: UIComponentMetadata):
+    def render(self, component: UIComponentMetadata) -> str:
         self.preprocess_rendering_context(component)
         self.main_processing(component)
         return self.generate_output(component)
 
 
-class OneCardRenderStrategy(RenderStrategy):
+class OneCardRenderStrategy(RenderStrategyBase[RenderContextOneCard]):
     def main_processing(self, component: UIComponentMetadata):
         # Trying to find field that would contain an image link
         fields = component["fields"]
@@ -59,25 +82,26 @@ class OneCardRenderStrategy(RenderStrategy):
                 ),
                 None,
             )
-            self._rendering_context["image"] = image
-            self._rendering_context["fields"].remove(field_with_image_suffix)
+            if image:
+                self._rendering_context["image"] = image
+                self._rendering_context["fields"].remove(field_with_image_suffix)
 
 
-class TableRenderStrategy(RenderStrategy):
+class TableRenderStrategy(RenderStrategyBase):
     pass
 
 
 # TODO: Not yet implemented
-class PieChartRenderStrategy(RenderStrategy):
+class PieChartRenderStrategy(RenderStrategyBase):
     pass
 
 
 # TODO: Not yet implemented
-class LineChartRenderStrategy(RenderStrategy):
+class LineChartRenderStrategy(RenderStrategyBase):
     pass
 
 
-class SetOfCardsRenderStrategy(RenderStrategy):
+class SetOfCardsRenderStrategy(RenderStrategyBase[RenderContexSetOfCard]):
     def main_processing(self, component: UIComponentMetadata):
         subtitle_field = next(
             (
@@ -105,7 +129,7 @@ class SetOfCardsRenderStrategy(RenderStrategy):
             self._rendering_context["fields"].remove(image_field)
 
 
-class ImageRenderStrategy(RenderStrategy):
+class ImageRenderStrategy(RenderStrategyBase[RenderContextImage]):
     def main_processing(self, component: UIComponentMetadata):
         # Trying to find field that would contain an image link
         fields = component["fields"]
@@ -128,11 +152,12 @@ class ImageRenderStrategy(RenderStrategy):
                 ),
                 None,
             )
-            self._rendering_context["image"] = image
-            self._rendering_context["fields"].remove(field_with_image_suffix)
+            if image:
+                self._rendering_context["image"] = image
+                self._rendering_context["fields"].remove(field_with_image_suffix)
 
 
-class VideoRenderStrategy(RenderStrategy):
+class VideoRenderStrategy(RenderStrategyBase[RenderContextVideo]):
     def main_processing(self, component: UIComponentMetadata):
         fields = component["fields"]
 
@@ -160,15 +185,15 @@ class VideoRenderStrategy(RenderStrategy):
                 video = f"https://www.youtube.com/embed/{video_id}"
                 # https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg
                 video_img = f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+            if not video:
+                raise ValueError("Cannot render video without the link")
+
             self._rendering_context["video"] = video
             self._rendering_context["video_img"] = video_img
             self._rendering_context["fields"].remove(field_with_video_suffix)
-        if not video:
-            # We cannot render video without the link
-            raise ValueError("Cannot render video without the link")
 
 
-class AudioPlayerRenderStrategy(RenderStrategy):
+class AudioPlayerRenderStrategy(RenderStrategyBase[RenderContextAudio]):
     def main_processing(self, component: UIComponentMetadata):
         fields = component["fields"]
 
@@ -190,8 +215,9 @@ class AudioPlayerRenderStrategy(RenderStrategy):
                 ),
                 None,
             )
-            self._rendering_context["image"] = image
-            self._rendering_context["fields"].remove(field_with_image_suffix)
+            if image:
+                self._rendering_context["image"] = image
+                self._rendering_context["fields"].remove(field_with_image_suffix)
 
         field_with_audio_suffix = next(
             (
@@ -211,8 +237,9 @@ class AudioPlayerRenderStrategy(RenderStrategy):
                 ),
                 None,
             )
-            self._rendering_context["audio"] = audio
-            self._rendering_context["fields"].remove(audio)
+            if audio:
+                self._rendering_context["audio"] = audio
+                self._rendering_context["fields"].remove(field_with_audio_suffix)
 
         if not audio:
             # We cannot render video without the link
@@ -220,44 +247,20 @@ class AudioPlayerRenderStrategy(RenderStrategy):
 
 
 class RendererContext:
-    render_strategy: RenderStrategy
+    """Render performing rendering based for given strategy."""
 
-    def __init__(self, strategy: RenderStrategy):
+    def __init__(self, strategy: RenderStrategyBase):
         self.render_strategy = strategy
 
     def render(self, component: UIComponentMetadata):
         return self.render_strategy.render(component)
 
 
-# This will be our Stevedore plugin driver entry point
-# Default implementation will return preprocessed DTOs that can be JSON'ified for default output
 class StrategyFactory(metaclass=ABCMeta):
+    """Abstract Strategy Factory Base."""
+
     @abstractmethod
-    def get_render_strategy(self, component: UIComponentMetadata):
-        match component["component"]:
-            case "one-card":
-                return OneCardRenderStrategy()
-            case "table":
-                return TableRenderStrategy()
-            case "set-of-cards":
-                return SetOfCardsRenderStrategy()
-            case "image":
-                return ImageRenderStrategy()
-            case "video-player":
-                return VideoRenderStrategy()
-            case "audio-player":
-                return AudioPlayerRenderStrategy()
-            # TODO: Not yet implemented chart types
-            # case "chart-line":
-            #     return LineChartRenderStrategy()
-            # case "chart-pie":
-            #     return PieChartRenderStrategy()
-            case _:
-                raise ValueError(
-                    f"This component: {component['component']} is not supported by rendering plugin."
-                )
-
-
-class JsonStrategyFactory(StrategyFactory):
-    def get_render_strategy(self, component: UIComponentMetadata):
-        return super().get_render_strategy(component)
+    def get_render_strategy(self, component: UIComponentMetadata) -> RenderStrategyBase:
+        raise NotImplementedError(
+            "Renderer Strategy has to implement get_render_strategy method"
+        )

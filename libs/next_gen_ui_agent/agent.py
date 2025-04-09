@@ -1,16 +1,14 @@
 import logging
 from typing import Optional
 
-from next_gen_ui_agent.base_renderer import (
-    PLUGGABLE_RENDERERS_NAMESPACE,
-    JsonStrategyFactory,
-)
 from next_gen_ui_agent.component_selection import component_selection as comp_sel
 from next_gen_ui_agent.data_transformation import enhance_component_by_input_data
 from next_gen_ui_agent.design_system_handler import (
     design_system_handler as _design_system_handler,
 )
 from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.renderer_base import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer_json import JsonStrategyFactory
 from next_gen_ui_agent.types import (
     AgentConfig,
     AgentInput,
