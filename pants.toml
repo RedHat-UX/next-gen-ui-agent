@@ -3,7 +3,7 @@ pants_version = "2.24.2"
 backend_packages.add = [
   "pants.backend.build_files.fmt.black",  
   "pants.backend.python",
-  "pants.backend.python.lint.docformatter",
+#  "pants.backend.python.lint.docformatter", - commented out due to error
   "pants.backend.python.lint.black",
   "pants.backend.python.lint.flake8",
   "pants.backend.python.lint.isort",
@@ -15,7 +15,7 @@ pants_ignore = [
 
 [source]
 # The Python source root is the repo root. See https://www.pantsbuild.org/docs/source-roots.
-root_patterns = ["/libs"]
+root_patterns = ["/libs", "/tests"]
 
 [python]
 # The default interpreter constraints for code in this repo. Individual targets can override

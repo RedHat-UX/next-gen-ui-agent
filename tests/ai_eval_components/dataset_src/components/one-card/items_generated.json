@@ -1,0 +1,9 @@
+[
+    {
+        "prompt_file": "prompts_1.json",
+        "backend_data_files": [
+            "simple_1.json",
+            "simple_2.json"
+        ]
+    }
+]

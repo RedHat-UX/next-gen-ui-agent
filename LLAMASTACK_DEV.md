@@ -1,4 +1,4 @@
-# Llama Stack Local Server Development
+# Llama Stack Local Server for development purposes
 
 ## Run Llama Stack
 
@@ -22,11 +22,13 @@ ollama run llama3.2:latest --keepalive 60m
 
 Start [LlamaStack Ollama distribution](https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/ollama.html#ollama-distribution) container.
 
+Version of the LlamaStack server distribution must be the same as version of the [LlamaStack client used by the UI Agent, see](./libs/next_gen_ui_llama_stack/requirements.txt)!
+
 ```sh
 podman run -it --rm \
   -p 5001:5001 \
   -v ~/.llama:/root/.llama:z \
-  llamastack/distribution-ollama:latest \
+  llamastack/distribution-ollama:0.1.9 \
   --port 5001 \
   --env INFERENCE_MODEL="llama3.2:latest" \
   --env OLLAMA_URL=http://host.containers.internal:11434
@@ -49,9 +51,3 @@ INFO:     Uvicorn running on http://['::', '0.0.0.0']:5001 (Press CTRL+C to quit
 ```
 
 You can use `run-llamastack-ollama.sh` script found in this directory which performs described steps to run LLamaStack.
-
-## Running Examples
-
-Navigate to selected example.py file in VS code.
-
-In VSCode switch to `Run and Debug` view and hit `Python Debugger: Current File` (`Run` on top right of the `*.py` file doesn't work)
