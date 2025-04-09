@@ -17,3 +17,6 @@ __pycache__/
 
 # LangGraph
 .langgraph_api
+
+# temporary test files
+tests/ai_eval_components/errors/

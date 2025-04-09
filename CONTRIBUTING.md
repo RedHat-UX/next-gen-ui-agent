@@ -32,6 +32,10 @@ $ Wrote symlink to immutable virtualenv for python-default (using Python 3.11.11
 VS Code should automatically set the interepreter path to `./dist/export/python/virtualenvs/python-default/3.11.11` (path taken from previous task).
 If not point our IDE interpreter to this folder.
 
+## LlamaStack server
+
+Some parts of the project require local LamaStack server to be running for the development, for details see [LLAMASTACK_DEV.md](LLAMASTACK_DEV.md).
+
 ## Developer guide
 
 ### Prerequisities
