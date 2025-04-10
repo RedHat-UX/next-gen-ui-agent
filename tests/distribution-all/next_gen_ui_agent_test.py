@@ -1,5 +1,6 @@
 import json
 import logging
+import pytest
 
 from next_gen_ui_agent import NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_testing import data_after_transformation
@@ -7,6 +8,7 @@ from next_gen_ui_testing import data_after_transformation
 test_component: UIComponentMetadata = data_after_transformation.get_transformed_component()
 
 
+# Can run without package installation because json is part of the agent and no autodiscovery is needed
 def test_design_system_handler_json() -> None:
     agent = NextGenUIAgent()
     agent.design_system_handler([test_component], "json")
@@ -17,6 +19,8 @@ def test_design_system_handler_json() -> None:
     assert result["fields"][1]["data"] == ["1995"]
 
 
+# marking as distribution because of rendering autodiscovery and the distribution package is need to be installed
+@pytest.mark.distribution
 def test_design_system_handler_rhds() -> None:
     agent = NextGenUIAgent()
     agent.design_system_handler([test_component], "rhds")
@@ -24,6 +28,8 @@ def test_design_system_handler_rhds() -> None:
     assert "<rh-card" in rendition
 
 
+# marking as distribution because of rendering autodiscovery and the distribution package is need to be installed
+@pytest.mark.distribution
 def test_design_system_handler_patternfly() -> None:
     agent = NextGenUIAgent()
     agent.design_system_handler([test_component], "patternfly")
