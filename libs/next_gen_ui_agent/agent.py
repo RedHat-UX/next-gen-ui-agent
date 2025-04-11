@@ -7,8 +7,8 @@ from next_gen_ui_agent.design_system_handler import (
     design_system_handler as _design_system_handler,
 )
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.renderer_base import PLUGGABLE_RENDERERS_NAMESPACE
-from next_gen_ui_agent.renderer_json import JsonStrategyFactory
+from next_gen_ui_agent.renderer.renderer_base import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer.renderer_json import JsonStrategyFactory
 from next_gen_ui_agent.types import (
     AgentConfig,
     AgentInput,

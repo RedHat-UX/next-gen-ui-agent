@@ -1,6 +1,12 @@
 # This target sets the metadata for all the Python non-test files in this directory.
 python_sources(
     name="lib",
+    sources=[
+        "*.py",
+        "!*_test.py",
+        "renderer/*.py",
+        "renderer/!*_test.py",
+    ],
 )
 
 # This target sets the metadata for all the Python test files in this directory.
