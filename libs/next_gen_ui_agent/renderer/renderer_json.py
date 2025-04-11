@@ -20,19 +20,19 @@ class JsonStrategyFactory(StrategyFactory):
         match component["component"]:
             case OneCardRenderStrategy.COMPONENT_NAME:
                 return OneCardRenderStrategy()
-            case "table":
+            case TableRenderStrategy.COMPONENT_NAME:
                 return TableRenderStrategy()
-            case "set-of-cards":
+            case SetOfCardsRenderStrategy.COMPONENT_NAME:
                 return SetOfCardsRenderStrategy()
-            case "image":
+            case ImageRenderStrategy.COMPONENT_NAME:
                 return ImageRenderStrategy()
-            case "video-player":
+            case VideoRenderStrategy.COMPONENT_NAME:
                 return VideoRenderStrategy()
-            case "audio-player":
+            case AudioPlayerRenderStrategy.COMPONENT_NAME:
                 return AudioPlayerRenderStrategy()
-            case "chart-line":
+            case LineChartRenderStrategy.COMPONENT_NAME:
                 return LineChartRenderStrategy()
-            case "chart-pie":
+            case PieChartRenderStrategy.COMPONENT_NAME:
                 return PieChartRenderStrategy()
             case _:
                 raise ValueError(
