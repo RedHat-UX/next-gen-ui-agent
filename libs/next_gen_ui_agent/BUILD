@@ -2,10 +2,8 @@
 python_sources(
     name="lib",
     sources=[
-        "*.py",
-        "!*_test.py",
-        "renderer/*.py",
-        "renderer/!*_test.py",
+        "**/*.py",
+        "!*/*_test.py",
     ],
 )
 
@@ -15,6 +13,9 @@ python_tests(
     dependencies=[
         "libs/3rdparty/python:pytest",
         "libs/3rdparty/python:langchain",
+    ],
+    sources=[
+        "**/*_test.py",
     ],
 )
 
