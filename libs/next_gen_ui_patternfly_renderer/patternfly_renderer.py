@@ -1,12 +1,9 @@
 from jinja2 import Environment, PackageLoader  # pants: no-infer-dep
-from next_gen_ui_agent.renderer_base import (
-    ImageRenderStrategy,
-    OneCardRenderStrategy,
-    RenderStrategyBase,
-    SetOfCardsRenderStrategy,
-    StrategyFactory,
-    VideoRenderStrategy,
-)
+from next_gen_ui_agent.renderer.image import ImageRenderStrategy
+from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
+from next_gen_ui_agent.renderer.renderer_base import RenderStrategyBase, StrategyFactory
+from next_gen_ui_agent.renderer.set_of_cards import SetOfCardsRenderStrategy
+from next_gen_ui_agent.renderer.video import VideoRenderStrategy
 from next_gen_ui_agent.types import UIComponentMetadata
 
 templates_env = Environment(

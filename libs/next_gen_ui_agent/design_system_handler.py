@@ -1,7 +1,7 @@
 import logging
 
-from .renderer_base import RendererContext, StrategyFactory
-from .types import UIComponentMetadata
+from next_gen_ui_agent.renderer.renderer_base import RendererContext, StrategyFactory
+from next_gen_ui_agent.types import UIComponentMetadata
 
 logger = logging.getLogger(__name__)
 
