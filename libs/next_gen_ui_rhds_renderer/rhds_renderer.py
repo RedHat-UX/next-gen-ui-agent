@@ -47,17 +47,17 @@ class RhdsAudioPlayerRenderStrategy(AudioPlayerRenderStrategy, RhdsStrategyBase)
 class RhdsStrategyFactory(StrategyFactory):
     def get_render_strategy(self, component: UIComponentMetadata):
         match component["component"]:
-            case "one-card":
+            case RhdsOneCardRenderStrategy.COMPONENT_NAME:
                 return RhdsOneCardRenderStrategy()
-            case "table":
+            case RhdsTableRenderStrategy.COMPONENT_NAME:
                 return RhdsTableRenderStrategy()
-            case "set-of-cards":
+            case RhdsSetOfCardsRenderStrategy.COMPONENT_NAME:
                 return RhdsSetOfCardsRenderStrategy()
-            case "image":
+            case RhdsImageRenderStrategy.COMPONENT_NAME:
                 return RhdsImageRenderStrategy()
-            case "video-player":
+            case RhdsVideoRenderStrategy.COMPONENT_NAME:
                 return RhdsVideoRenderStrategy()
-            case "audio-player":
+            case RhdsAudioPlayerRenderStrategy.COMPONENT_NAME:
                 return RhdsAudioPlayerRenderStrategy()
             case _:
                 raise ValueError(

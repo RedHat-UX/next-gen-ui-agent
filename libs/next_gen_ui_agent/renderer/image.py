@@ -4,6 +4,8 @@ from next_gen_ui_agent.types import UIComponentMetadata
 
 
 class ImageRenderStrategy(RenderStrategyBase[RenderContextImage]):
+    COMPONENT_NAME = "image"
+
     def main_processing(self, component: UIComponentMetadata):
         # Trying to find field that would contain an image link
         fields = component["fields"]

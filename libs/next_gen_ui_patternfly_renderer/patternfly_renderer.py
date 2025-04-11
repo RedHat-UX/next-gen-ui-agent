@@ -39,13 +39,13 @@ class PatternflyVideoRenderStrategy(VideoRenderStrategy, PatternflyStrategyBase)
 class PatternflyStrategyFactory(StrategyFactory):
     def get_render_strategy(self, component: UIComponentMetadata):
         match component["component"]:
-            case "one-card":
+            case PatternflyOneCardRenderStrategy.COMPONENT_NAME:
                 return PatternflyOneCardRenderStrategy()
-            case "set-of-cards":
+            case PatternflySetOfCardsRenderStrategy.COMPONENT_NAME:
                 return PatternflySetOfCardsRenderStrategy()
-            case "image":
+            case PatternflyImageRenderStrategy.COMPONENT_NAME:
                 return PatternflyImageRenderStrategy()
-            case "video-player":
+            case PatternflyVideoRenderStrategy.COMPONENT_NAME:
                 return PatternflyVideoRenderStrategy()
             case _:
                 raise ValueError(

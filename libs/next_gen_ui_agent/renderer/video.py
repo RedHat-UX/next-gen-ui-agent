@@ -4,6 +4,8 @@ from next_gen_ui_agent.types import UIComponentMetadata
 
 
 class VideoRenderStrategy(RenderStrategyBase[RenderContextVideo]):
+    COMPONENT_NAME = "video-player"
+
     def main_processing(self, component: UIComponentMetadata):
         fields = component["fields"]
 

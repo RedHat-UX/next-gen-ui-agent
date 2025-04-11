@@ -4,6 +4,8 @@ from next_gen_ui_agent.types import UIComponentMetadata
 
 
 class SetOfCardsRenderStrategy(RenderStrategyBase[RenderContexSetOfCard]):
+    COMPONENT_NAME = "set-of-cards"
+
     def main_processing(self, component: UIComponentMetadata):
         subtitle_field = next(
             (
