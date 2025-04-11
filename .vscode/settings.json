@@ -1,5 +1,8 @@
 {
-    "python.testing.pytestArgs": [
+    "python.defaultInterpreterPath": "${workspaceFolder}/dist/export/python/virtualenvs/python-default/3.11.11",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.extraPaths": ["libs"],
+    "python.testing.pytestArgs": [  
         "--no-header",
         "-m", "not distribution"
     ],

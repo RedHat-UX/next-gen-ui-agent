@@ -29,8 +29,8 @@ $ pants export
 $ Wrote symlink to immutable virtualenv for python-default (using Python 3.11.11) to dist/export/python/virtualenvs/python-default/3.11.11
 ```
 
-Point our IDE interpreter to the venv `dist/export/python/virtualenvs/python-default/3.11.11` 
-taken from previous step output (python version may differ here)
+VS Code should automatically set the interepreter path to `./dist/export/python/virtualenvs/python-default/3.11.11` (path taken from previous task).
+If not point our IDE interpreter to this folder.
 
 ## Developer guide
 
