@@ -1,6 +1,6 @@
 import json
 from abc import ABC, ABCMeta, abstractmethod
-from typing import Generic, Sized, TypeVar
+from typing import Callable, Generic, Sized, TypeVar
 
 from next_gen_ui_agent.renderer.types import (
     RenderContexSetOfCard,
@@ -10,7 +10,7 @@ from next_gen_ui_agent.renderer.types import (
     RenderContextOneCard,
     RenderContextVideo,
 )
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.types import DataField, DataFieldDataType, UIComponentMetadata
 
 PLUGGABLE_RENDERERS_NAMESPACE = "next_gen_ui.agent.renderer_factory"
 IMAGE_SUFFIXES = ("jpg", "png", "gif", "jpeg", "bmp")
@@ -46,13 +46,55 @@ class RenderStrategyBase(ABC, Generic[T]):
     def main_processing(self, component: UIComponentMetadata):
         pass
 
-    def generate_output(self, component: UIComponentMetadata) -> str:
-        return json.dumps(component)
+    def post_processing(self, component: UIComponentMetadata):
+        fields = self._rendering_context["fields"]
+        self._rendering_context["field_names"] = [field["name"] for field in fields]
 
-    def render(self, component: UIComponentMetadata) -> str:
+    def process(self, component) -> T:
+        """Transform the component into strategy component via running pre-
+        main-post processing flow."""
         self.preprocess_rendering_context(component)
         self.main_processing(component)
+        self.post_processing(component)
+        return self._rendering_context
+
+    def generate_output(self, component: UIComponentMetadata) -> str:
+        """Generate output by defined strategy.
+
+        If not overriden then JSON dump is performed
+        """
+        return json.dumps(self._rendering_context)
+
+    def render(self, component: UIComponentMetadata) -> str:
+        self.process(component)
         return self.generate_output(component)
+
+    @staticmethod
+    def find_field(
+        fields: list[DataField],
+        fieldFieldPredicate: Callable[[DataFieldDataType], bool],
+    ) -> DataField | None:
+        """Helper methods for to find field based on predicate."""
+        return next(
+            (
+                field
+                for field in fields
+                for d in field["data"]
+                if fieldFieldPredicate(d)
+            ),
+            None,
+        )
+
+    @staticmethod
+    def find_field_data_value(
+        items: list[DataFieldDataType],
+        fieldDataPredicate: Callable[[DataFieldDataType], bool],
+    ) -> DataFieldDataType | None:
+        """Helper methods for to find field data value based on predicate."""
+        return next(
+            (data for data in items if fieldDataPredicate(data)),
+            None,
+        )
 
 
 class RendererContext:

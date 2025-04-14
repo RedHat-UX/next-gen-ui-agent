@@ -9,6 +9,7 @@ class AudioPlayerRenderStrategy(RenderStrategyBase[RenderContextAudio]):
     def main_processing(self, component: UIComponentMetadata):
         fields = component["fields"]
 
+        # TODO: Use super()._find_field
         field_with_image_suffix = next(
             (
                 field

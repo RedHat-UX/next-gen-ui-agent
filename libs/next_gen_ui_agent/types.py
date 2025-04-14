@@ -1,4 +1,4 @@
-from typing import NotRequired, TypedDict
+from typing import Any, NotRequired, TypedDict, Union
 
 from next_gen_ui_agent.model import InferenceBase
 
@@ -24,12 +24,17 @@ class AgentInput(TypedDict):
     input_data: list[InputData]
 
 
+# TODO: Check data_transformation how types are handled
+DataFieldDataType = Union[str | int | Any]
+"""Field Data item can be either str or int"""
+
+
 class DataField(TypedDict):
     """UI Component field metadata."""
 
     name: str
     data_path: str
-    data: NotRequired[list[str]]
+    data: NotRequired[list[DataFieldDataType]]
     """Data matching `data_path` from `input_data`"""
 
 

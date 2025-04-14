@@ -5,7 +5,7 @@ from next_gen_ui_testing.data_after_transformation import get_transformed_compon
 from stevedore.extension import Extension, ExtensionManager
 
 
-def test_base() -> None:
+def test_renderer_one_card() -> None:
     agent = NextGenUIAgent()
     extension = Extension(
         name="patternfly",
@@ -62,7 +62,3 @@ return (
 
 export default OneCard;"""
     )
-
-
-if __name__ == "__main__":
-    test_base()

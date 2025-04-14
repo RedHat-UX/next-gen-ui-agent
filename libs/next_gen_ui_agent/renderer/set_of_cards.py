@@ -7,6 +7,7 @@ class SetOfCardsRenderStrategy(RenderStrategyBase[RenderContexSetOfCard]):
     COMPONENT_NAME = "set-of-cards"
 
     def main_processing(self, component: UIComponentMetadata):
+        # TODO: Use super()._find_field
         subtitle_field = next(
             (
                 field
