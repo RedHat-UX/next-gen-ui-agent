@@ -9,6 +9,7 @@ class VideoRenderStrategy(RenderStrategyBase[RenderContextVideo]):
     def main_processing(self, component: UIComponentMetadata):
         fields = component["fields"]
 
+        # TODO: Use super()._find_field
         field_with_video_suffix = next(
             (
                 field
