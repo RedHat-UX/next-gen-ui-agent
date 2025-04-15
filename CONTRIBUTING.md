@@ -46,11 +46,13 @@ Install dev deps
 pip3 install -r requirements_dev.txt
 ```
 
-Install pre commit hook
+Install pre commit hook to perform python code lint and checks.
 
 ```sh
 pre-commit install
 ```
+
+You should run `pants fmt lint check ::` before every commit to be sure commit won't fail.
 
 ### Commit Message Guidelines
 
@@ -81,6 +83,24 @@ pants run libs/next_gen_ui_llama_stack/agent_test.py
 # Run formatter, linter, check
 pants fmt lint check ::
 ```
+
+### Testing
+
+#### Unit tests
+
+[PyTest](https://docs.pytest.org/en/stable/) library is used to write unit tests in modules.
+
+You can use [Pants test](https://www.pantsbuild.org/dev/docs/python/goals/test) to run them:
+
+Running all tests:
+```sh
+pants test ::
+```
+
+#### Evaluation of the AI functionality
+
+Evaluation of the UI component selection and configuration AI powered functionality is available in the `tests/ai_eval_components` module.
+For more details see its [README.md](tests/ai_eval_components/README.md).
 
 
 ## Versioning

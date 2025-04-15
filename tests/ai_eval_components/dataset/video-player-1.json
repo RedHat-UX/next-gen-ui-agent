@@ -1,0 +1,44 @@
+[
+  {
+    "id": "video-player-000001",
+    "user_prompt": "Show me Toy Story trailer.",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"imdbId\": \"0114709\",\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"imdbRating\": 8.3,\n        \"movieId\": \"1\",\n        \"countries\": [\n            \"USA\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"imdbVotes\": 591836,\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        \"Jim Varney\",\n        \"Tim Allen\",\n        \"Tom Hanks\",\n        \"Don Rickles\"\n    ]\n}",
+    "expected_component": "video-player"
+  },
+  {
+    "id": "video-player-000002",
+    "user_prompt": "Show me trailer of the Toy Story movie.",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"imdbId\": \"0114709\",\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"imdbRating\": 8.3,\n        \"movieId\": \"1\",\n        \"countries\": [\n            \"USA\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"imdbVotes\": 591836,\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        \"Jim Varney\",\n        \"Tim Allen\",\n        \"Tom Hanks\",\n        \"Don Rickles\"\n    ]\n}",
+    "expected_component": "video-player"
+  },
+  {
+    "id": "video-player-000003",
+    "user_prompt": "Show me the trailer",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"imdbId\": \"0114709\",\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"imdbRating\": 8.3,\n        \"movieId\": \"1\",\n        \"countries\": [\n            \"USA\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"imdbVotes\": 591836,\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        \"Jim Varney\",\n        \"Tim Allen\",\n        \"Tom Hanks\",\n        \"Don Rickles\"\n    ]\n}",
+    "expected_component": "video-player"
+  },
+  {
+    "id": "video-player-000004",
+    "user_prompt": "Show me trailer of the movie",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"imdbId\": \"0114709\",\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"imdbRating\": 8.3,\n        \"movieId\": \"1\",\n        \"countries\": [\n            \"USA\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"imdbVotes\": 591836,\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        \"Jim Varney\",\n        \"Tim Allen\",\n        \"Tom Hanks\",\n        \"Don Rickles\"\n    ]\n}",
+    "expected_component": "video-player"
+  },
+  {
+    "id": "video-player-000005",
+    "user_prompt": "Show movie trailer",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"imdbId\": \"0114709\",\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"imdbRating\": 8.3,\n        \"movieId\": \"1\",\n        \"countries\": [\n            \"USA\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"imdbVotes\": 591836,\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        \"Jim Varney\",\n        \"Tim Allen\",\n        \"Tom Hanks\",\n        \"Don Rickles\"\n    ]\n}",
+    "expected_component": "video-player"
+  },
+  {
+    "id": "video-player-000006",
+    "user_prompt": "Movie trailer?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"imdbId\": \"0114709\",\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"imdbRating\": 8.3,\n        \"movieId\": \"1\",\n        \"countries\": [\n            \"USA\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"imdbVotes\": 591836,\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        \"Jim Varney\",\n        \"Tim Allen\",\n        \"Tom Hanks\",\n        \"Don Rickles\"\n    ]\n}",
+    "expected_component": "video-player"
+  },
+  {
+    "id": "video-player-000007",
+    "user_prompt": "Do you have movie trailer?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"imdbId\": \"0114709\",\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"imdbRating\": 8.3,\n        \"movieId\": \"1\",\n        \"countries\": [\n            \"USA\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"imdbVotes\": 591836,\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        \"Jim Varney\",\n        \"Tim Allen\",\n        \"Tom Hanks\",\n        \"Don Rickles\"\n    ]\n}",
+    "expected_component": "video-player"
+  }
+]

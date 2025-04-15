@@ -34,14 +34,14 @@ async def component_selection(
     return components
 
 
-async def component_selection_run(
+async def component_selection_inference(
     user_prompt: str,
     inference: InferenceBase,
     input_data: InputData,
-) -> UIComponentMetadata:
-    """Run Component Selection task."""
+) -> str:
+    """Run Component Selection inference."""
 
-    logger.debug("---CALL component_selection_run--- id: %s", {input_data["id"]})
+    logger.debug("---CALL component_selection_inference--- id: %s", {input_data["id"]})
     # logger.debug(user_prompt)
     # logger.debug(input_data)
 
@@ -93,7 +93,23 @@ async def component_selection_run(
     """
 
     response = await inference.call_model(sys_msg_content, prompt)
-    logger.debug("Component metadata: %s", response)
+    logger.debug("Component metadata LLM response: %s", response)
+
+    return response
+
+
+async def component_selection_run(
+    user_prompt: str,
+    inference: InferenceBase,
+    input_data: InputData,
+) -> UIComponentMetadata:
+    """Run Component Selection task."""
+
+    logger.debug("---CALL component_selection_run--- id: %s", {input_data["id"]})
+    # logger.debug(user_prompt)
+    # logger.debug(input_data)
+
+    response = await component_selection_inference(user_prompt, inference, input_data)
 
     try:
         result: UIComponentMetadata = json.loads(response)
@@ -101,5 +117,8 @@ async def component_selection_run(
         result["id"] = input_data["id"]
         return result
     except json.JSONDecodeError as e:
-        logger.exception("Cannot decode the json")
+        logger.exception("Cannot decode the json from LLM response")
+        raise e
+    except json.decoder.JSONDecodeError as e:
+        logger.exception("Cannot decode the json from LLM response")
         raise e

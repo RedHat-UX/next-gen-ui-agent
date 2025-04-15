@@ -43,8 +43,8 @@ class UIComponentMetadata(TypedDict):
 
     id: str
     title: str
-    reasonForTheComponentSelection: str
-    confidenceScore: str
+    reasonForTheComponentSelection: NotRequired[str]
+    confidenceScore: NotRequired[str]
     component: str
     fields: list[DataField]
     rendition: NotRequired[str]

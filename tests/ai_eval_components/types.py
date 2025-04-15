@@ -1,6 +1,8 @@
 from typing import TypedDict
 
-from next_gen_ui_agent.types import UIComponentMetadata
+BASE_MODULE_PATH = "tests/ai_eval_components/"
+BASE_DATASET_PATH = BASE_MODULE_PATH + "dataset/"
+DATASET_FILE_SUFFIX = ".json"
 
 
 class EvalError:
@@ -27,8 +29,13 @@ class DatasetRow(TypedDict):
 
 class DatasetRowAgentEvalResult:
     errors: list[EvalError]
-    component: UIComponentMetadata
+    llm_output: str
 
-    def __init__(self, component, errors):
-        self.component = component
+    def __init__(self, llm_output, errors):
+        self.llm_output = llm_output
         self.errors = errors
+
+
+class ItemsGenerate(TypedDict):
+    prompts_file: str
+    backend_data_files: list[str]
