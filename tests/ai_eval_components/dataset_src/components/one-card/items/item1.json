@@ -1,0 +1,14 @@
+{
+    "order": {
+        "id": "ORT-4578",
+        "product": {
+            "name": "Good Bood",
+            "brand": "Master Blaster",
+            "price": "10"
+        },
+        "date": "2024-03-12",
+        "amount": "14",
+        "price": "140",
+        "paid": false
+    }
+}

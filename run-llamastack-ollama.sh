@@ -1,8 +1,8 @@
 ## https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/next_gen_ui_llama_stack/examples/LLAMASTACK_DEV.md
 ## https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/ollama.html#via-docker
 
-export OLLAMA_MODEL=llama3.2:latest
-#export OLLAMA_MODEL=granite3.1-dense:2b
+#export OLLAMA_MODEL=llama3.2:latest
+export OLLAMA_MODEL=granite3.1-dense:2b
 
 export LLAMASTACK_VERSION=0.1.9
 #export LLAMASTACK_VERSION=latest

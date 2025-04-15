@@ -1,0 +1,9 @@
+[
+    {
+        "prompts_file": "prompts_subscriptions.json",
+        "backend_data_files": [
+            "array_subscription_direct_long.json",
+            "array_subscription_inobject_long.json"
+        ]
+    }
+]
