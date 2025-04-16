@@ -28,8 +28,14 @@ class NextGenUIAgent:
             namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
         )
         self.config = config
-        self.renderers = ["json"] + self._extension_manager.names()
-        logger.info("Registered renderers: %s", self.renderers)
+
+    def __setattr__(self, name, value):
+        if name == "_extension_manager":
+            super().__setattr__(name, value)
+            self.renderers = ["json"] + self._extension_manager.names()
+            logger.info("Registered renderers: %s", self.renderers)
+        else:
+            super().__setattr__(name, value)
 
     async def component_selection(
         self, input: AgentInput, inference: Optional[InferenceBase] = None

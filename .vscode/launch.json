@@ -23,6 +23,17 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}/tests/distribution-all"
             },
+        },
+        {
+            "name": "Python Debugger: streamlit",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "streamlit",
+            "console": "integratedTerminal",
+            "args": [
+                "run", "${file}",
+                "--server.runOnSave", "True"
+            ],
         }
     ]
 }
