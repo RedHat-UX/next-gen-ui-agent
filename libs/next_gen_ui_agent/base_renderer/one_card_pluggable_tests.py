@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 
-from next_gen_ui_agent.renderer.renderer_base import StrategyFactory
-from next_gen_ui_agent.renderer.renderer_json import JsonStrategyFactory
+from next_gen_ui_agent.base_renderer.base_renderer import StrategyFactory
+from next_gen_ui_agent.json_renderer.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.types import UIComponentMetadata
 
-class BaseRendererTests(ABC):
+class BaseOneCardRendererTests(ABC):
 
     @abstractmethod
     def get_strategy_factory(self) -> StrategyFactory:
@@ -38,6 +38,6 @@ class BaseRendererTests(ABC):
         assert "DUMMY_POSTER_NAME" in result
 
 
-class TestJsonRenderer(BaseRendererTests):
+class TestJsonRenderer(BaseOneCardRendererTests):
     def get_strategy_factory(self) -> StrategyFactory:
         return JsonStrategyFactory()

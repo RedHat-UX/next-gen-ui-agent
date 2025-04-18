@@ -1,5 +1,5 @@
-from next_gen_ui_agent.renderer.renderer_base import IMAGE_SUFFIXES, RenderStrategyBase
-from next_gen_ui_agent.renderer.types import RenderContextImage
+from next_gen_ui_agent.base_renderer.base_renderer import IMAGE_SUFFIXES, RenderStrategyBase
+from next_gen_ui_agent.base_renderer.types import RenderContextImage
 from next_gen_ui_agent.types import UIComponentMetadata
 
 
