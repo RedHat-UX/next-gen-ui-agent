@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
-from next_gen_ui_agent.renderer.json import JsonStrategyFactory
+from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.types import UIComponentMetadata
 
 

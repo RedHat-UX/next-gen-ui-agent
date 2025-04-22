@@ -1,7 +1,7 @@
 import json
 
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
-from next_gen_ui_agent.renderer.json import JsonStrategyFactory
+from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.one_card_shareable_tests import BaseOneCardRendererTests
 from next_gen_ui_agent.renderer.types import RenderContextOneCard
