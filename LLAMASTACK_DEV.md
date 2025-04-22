@@ -10,7 +10,7 @@ Run model for the first time to download/install it into the local Ollama server
 ollama run granite3.1-dense:2b
 ```
 
-Tested models: `granite3.1-dense:2b` or `llama3.2:latest`
+Tested models: `granite3.1-dense:2b`, `granite3.1-dense:8b`, `granite3.2:latest` or `llama3.2:latest`
 
 Create empty `~/.llama` directory first, if it doesn't exist on your filesystem. It is used to persist LlamaStack platform data (configuration, etc).
 
@@ -50,4 +50,7 @@ INFO:     Application startup complete.
 INFO:     Uvicorn running on http://['::', '0.0.0.0']:5001 (Press CTRL+C to quit)
 ```
 
-You can use `run-llamastack-ollama.sh` script found in this directory which performs described steps to run LLamaStack.
+
+You can use **`run-llamastack-ollama.sh`** script found in this directory, which performs described steps to run LLamaStack.
+
+You can export `INFERENCE_MODEL` environment variable before running it, to select different model to be used.

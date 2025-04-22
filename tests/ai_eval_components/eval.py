@@ -5,6 +5,7 @@ import os
 import sys
 from io import TextIOWrapper
 from pathlib import Path
+from typing import Any
 
 from ai_eval_components.types import (
     BASE_DATASET_PATH,
@@ -83,6 +84,8 @@ def check_result_explicit(
                     errors,
                     err_msg=f"No value found in data for data_path='{data_path}'",
                 )
+
+            # TODO component specific evals where fields have to be of some type, eg link to image for image component, link to video etc
 
 
 def assert_array_not_empty(
@@ -203,14 +206,17 @@ def get_dataset_dir():
     return dataset_dir_path
 
 
-def get_dataset_files():
+def get_dataset_files(filename: str):
     dataset_dir_path = get_dataset_dir()
-    dataset_files = [
-        f
-        for f in dataset_dir_path.iterdir()
-        if f.is_file() and f.match("*" + DATASET_FILE_SUFFIX)
-    ]
-    dataset_files.sort()
+    if filename:
+        dataset_files = [dataset_dir_path / filename]
+    else:
+        dataset_files = [
+            f
+            for f in dataset_dir_path.iterdir()
+            if f.is_file() and f.match("*" + DATASET_FILE_SUFFIX)
+        ]
+        dataset_files.sort()
     return dataset_files
 
 
@@ -244,13 +250,17 @@ def get_llm_output_dir():
 
 def load_args():
     arg_ui_component = None
+    arg_dataset_file = None
     arg_write_llm_output = False
-    opts, args = getopt.getopt(sys.argv[1:], "hwc:")
+    opts, args = getopt.getopt(sys.argv[1:], "hwc:f:")
     for opt, arg in opts:
         if opt == "-h":
             print("eval.py <arguments>")
             print("\nArguments:")
-            print(" -c <ui-component-name> - evaluate only one named UI component")
+            print(" -c <ui-component-name> - evaluate only named UI component")
+            print(
+                " -f <dataset-file-name> - run only evaluations from the named dataset file"
+            )
             print(
                 " -w - if present then LLM outputs with successful checks are written into files in 'llm_out' directory"
             )
@@ -260,12 +270,15 @@ def load_args():
             arg_ui_component = arg
         elif opt in ("-w"):
             arg_write_llm_output = True
+        elif opt in ("-f"):
+            arg_dataset_file = arg
 
     if arg_ui_component:
         print(f"Running evaluations for UI component '{arg_ui_component}' ...")
     else:
         print("Running evaluations for all UI components ...")
-    return arg_ui_component, arg_write_llm_output
+
+    return arg_ui_component, arg_write_llm_output, arg_dataset_file
 
 
 def report_err_sys(f_err: TextIOWrapper, id: str, e: Exception):
@@ -289,6 +302,9 @@ def report_llm_output(
     json.dump(
         json.loads(eval_result.llm_output), f_out, indent=2, separators=(",", ": ")
     )
+    if "src" in dsr and "data_file" in dsr["src"]:
+        ov = dsr["src"]["data_file"]
+        f_out.write(f"\nData file in dataset_src: {ov}")
     f_out.write("\n\n")
     f_out.flush()
 
@@ -314,6 +330,9 @@ def report_err_uiagent(
     except Exception:
         # write LLM output even if it is an invalid JSON
         f_err.write(eval_result.llm_output)
+    if "src" in dsr and "data_file" in dsr["src"]:
+        ov = dsr["src"]["data_file"]
+        f_err.write(f"\nData file in dataset_src: {ov}")
     f_err.write("\n\n")
     f_err.flush()
 
@@ -326,18 +345,46 @@ def report_err_dataset(f_err: TextIOWrapper, id: str, ds_errors: list[EvalError]
     f_err.flush()
 
 
+def get_stats_by_component(eval_stats_by_component: dict, component: str):
+    if component not in eval_stats_by_component:
+        eval_stats_by_component[component] = {
+            "num_evals": 0,
+            "num_err_agent": 0,
+            "num_err_system": 0,
+        }
+    return eval_stats_by_component[component]
+
+
+def stats_by_component_add_success(eval_stats_by_component: dict, component: str):
+    sbc = get_stats_by_component(eval_stats_by_component, component)
+    sbc["num_evals"] += 1
+    return sbc
+
+
+def stats_by_component_add_err_agent(eval_stats_by_component: dict, component: str):
+    sbc = stats_by_component_add_success(eval_stats_by_component, component)
+    sbc["num_err_agent"] += 1
+
+
+def stats_by_component_add_err_system(eval_stats_by_component: dict, component: str):
+    sbc = stats_by_component_add_success(eval_stats_by_component, component)
+    sbc["num_err_system"] += 1
+
+
 if __name__ == "__main__":
-    arg_ui_component, arg_write_llm_output = load_args()
+    arg_ui_component, arg_write_llm_output, arg_dataset_file = load_args()
     errors_dir_path = get_errors_dir()
     if arg_write_llm_output:
         llm_output_dir_path = get_llm_output_dir()
-    dataset_files = get_dataset_files()
+    dataset_files = get_dataset_files(arg_dataset_file)
     inference = init_inference()
 
     num_evals = 0
     num_err_ds = 0
     num_err_agent = 0
     num_err_system = 0
+
+    eval_stats_by_component: dict[str, Any] = {}
 
     for dataset_file in dataset_files:
         dataset = load_dataset_file(dataset_file)
@@ -386,12 +433,22 @@ if __name__ == "__main__":
                                 is_progress_dot
                             )
                             report_err_uiagent(f_err, id, eval_result, dsr)
+                            stats_by_component_add_err_agent(
+                                eval_stats_by_component, dsr["expected_component"]
+                            )
                             num_err_agent += 1
-                        elif arg_write_llm_output:
-                            report_llm_output(f_out, id, eval_result, dsr)
+                        else:
+                            stats_by_component_add_success(
+                                eval_stats_by_component, dsr["expected_component"]
+                            )
+                            if arg_write_llm_output:
+                                report_llm_output(f_out, id, eval_result, dsr)
 
                 except Exception as e:
                     report_err_sys(f_err, id, e)
+                    stats_by_component_add_err_system(
+                        eval_stats_by_component, dsr["expected_component"]
+                    )
                     num_err_system += 1
 
             if arg_write_llm_output:
@@ -402,3 +459,5 @@ if __name__ == "__main__":
     print(f"Agent errors: {num_err_agent}")
     print(f"System errors: {num_err_system}")
     print(f"Dataset errors: {num_err_ds}")
+    print("Results by component:")
+    json.dump(eval_stats_by_component, sys.stdout, indent=2, separators=(",", ": "))

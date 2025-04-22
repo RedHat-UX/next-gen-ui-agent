@@ -2,7 +2,8 @@
     {
         "prompts_file": "prompts_movie.json",
         "backend_data_files": [
-            "simple_movie.json"
+            "simple_movie_1.json",
+            "simple_movie_2.json"
         ]
     }
 ]
