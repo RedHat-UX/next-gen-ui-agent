@@ -5,5 +5,18 @@
             "simple_subscription_direct.json",
             "simple_subscription_inobject.json"
         ]
+    },
+    {
+        "prompts_file": "prompts_movie.json",
+        "backend_data_files": [
+            "simple_movie_1.json",
+            "simple_movie_2.json"
+        ]
+    },
+    {
+        "prompts_file": "prompts_movie_actors.json",
+        "backend_data_files": [
+            "simple_movie_1.json"
+        ]
     }
 ]

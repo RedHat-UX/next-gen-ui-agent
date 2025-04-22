@@ -20,7 +20,8 @@ pants run tests/ai_eval_components/eval.py
 ```
 
 You can use these commandline argument:
-* `-c <ui-component-name>` to run evaluation for one UI component only named
+* `-c <ui-component-name>` to run evaluation for one named UI component only
+* `-f <dataset-file-name>` to run only evaluations from the named dataset file
 * `-w` to write Agent ouput with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
 * `-h` to get help
 
@@ -43,7 +44,7 @@ Where `err_type` is one of:
   
 `dataset_item_id` is unique identifier of the dataset item to find it easier.
 
-Next lines contain detailed description of errors. For `AGENT` error, UI Agent output is also provided.
+Next lines contain detailed description of errors. For `AGENT` error, UI Agent output, prompt, and location of the data file in `dataset_src` is also provided for easier debugging.
 
 ## Evaluation dataset
 
@@ -53,11 +54,14 @@ It contains items for each UI component the UI Agent is able to generate. All in
 
 It is better to provide smaller files, grouped together by some common aspect (eg. the same expected UI component).
 
+**DO NOT EDIT DATASET MANUALLY, SEE NEXT CHAPTER HOW TO GENERATE IT**
+
 Dataset files itself must be `.json` containing JSON array of objects representing individual dataset items with fields:
 * `id` unique identifier of the dataset item, used in error reporting
 * `user_prompt` input for UI Agent
 * `backend_data` input for UI Agent, must be JSON stored as a string
 * `expected_component` checked in UI Agent output during evaluation
+* `src` optional info about prompt and data source files in `dataset_src` directory for easier location
 
 Example:
 ```json
@@ -83,7 +87,7 @@ Example:
 ]
 ```
 
-### Regenerating dataset from the source files
+### Generating dataset from the source files
 
 Dataset is generated from source files, it allows to automatically combine data files with prompts to get more examples.
 

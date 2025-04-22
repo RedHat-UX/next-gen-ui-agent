@@ -8,12 +8,20 @@ export LLAMASTACK_VERSION=0.1.9
 #export LLAMASTACK_VERSION=latest
 #export LLAMASTACK_VERSION=0.2.1
 
+if [ -z "$INFERENCE_MODEL" ]; then
+    echo INFERENCE_MODEL env variable not set, setting it to default value $OLLAMA_MODEL
+    export INFERENCE_MODEL=$OLLAMA_MODEL
+else
+    echo Using existing INFERENCE_MODEL env variable
+fi
+
+
 # create directory for LlamaStack persistence if is doesn't exist
 mkdir -p ~/.llama
 
-echo "Starting Ollama model $OLLAMA_MODEL..."
+echo "Starting Ollama model $INFERENCE_MODEL..."
 
-ollama run $OLLAMA_MODEL "/bye"
+ollama run $INFERENCE_MODEL "/bye"
 
 echo "Starting LlamaStack $LLAMASTACK_VERSION container..."
 
@@ -22,6 +30,6 @@ podman run -it --rm \
   -v ~/.llama:/root/.llama:z \
   llamastack/distribution-ollama:$LLAMASTACK_VERSION \
   --port 5001 \
-  --env INFERENCE_MODEL=$OLLAMA_MODEL \
+  --env INFERENCE_MODEL=$INFERENCE_MODEL \
   --env OLLAMA_URL=http://host.containers.internal:11434
 

@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 BASE_MODULE_PATH = "tests/ai_eval_components/"
 BASE_DATASET_PATH = BASE_MODULE_PATH + "dataset/"
@@ -20,11 +20,17 @@ class EvalError:
         return f'"{self.code}: {self.message}"'
 
 
+class DatasetRowSrc(TypedDict):
+    prompt_file: NotRequired[str]
+    data_file: NotRequired[str]
+
+
 class DatasetRow(TypedDict):
     id: str
     user_prompt: str
     backend_data: str
     expected_component: str
+    src: NotRequired[DatasetRowSrc]
 
 
 class DatasetRowAgentEvalResult:

@@ -55,6 +55,7 @@ def load_backend_data(
     backend_data_file_name: str, component_dir: Path, shared_data_dir_path: Path
 ):
     component_data_path = component_dir / "backend_data/" / backend_data_file_name
+    shared = False
     if component_data_path.exists() and component_data_path.is_file():
         with component_data_path.open("r") as f:
             backend_data = f.read()
@@ -63,12 +64,13 @@ def load_backend_data(
         if shared_data_path.exists() and shared_data_path.is_file():
             with shared_data_path.open("r") as f:
                 backend_data = f.read()
+                shared = True
         else:
             print(
                 f"Backend data file {backend_data_file_name} not found in any location"
             )
             raise FileNotFoundError()
-    return backend_data
+    return backend_data, shared
 
 
 def get_component_items_prompt_files(component_dir: Path):
@@ -109,7 +111,7 @@ if __name__ == "__main__":
             prompts = read_prompts(component_dir, prompts_file_name)
 
             for backend_data_file_name in item_generate["backend_data_files"]:
-                backend_data = load_backend_data(
+                backend_data, shared = load_backend_data(
                     backend_data_file_name, component_dir, shared_data_dir_path
                 )
                 # validate backend data JSON
@@ -127,6 +129,14 @@ if __name__ == "__main__":
                     dataset_row["user_prompt"] = prompt
                     dataset_row["backend_data"] = backend_data
                     dataset_row["expected_component"] = component_name
+                    if shared:
+                        df = "backend_data_shared/" + backend_data_file_name
+                    else:
+                        df = backend_data_file_name
+                    dataset_row["src"] = {
+                        "data_file": df,
+                        "prompt_file": prompts_file_name,
+                    }
                     dataset.append(dataset_row)
 
             write_dataset_file(dataset_dir_path, component_name, i + 1, dataset)
@@ -154,6 +164,10 @@ if __name__ == "__main__":
                         raise e
                     dataset_row["backend_data"] = backend_data
                 dataset_row["expected_component"] = component_name
+                dataset_row["src"] = {
+                    "data_file": "items/" + data_file.name,
+                    "prompt_file": "items/" + prompt_file.name,
+                }
                 dataset.append(dataset_row)
 
             write_dataset_file(dataset_dir_path, component_name, 0, dataset)
