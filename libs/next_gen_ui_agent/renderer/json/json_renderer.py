@@ -1,12 +1,12 @@
-from next_gen_ui_agent.base_renderer.audio import AudioPlayerRenderStrategy
-from next_gen_ui_agent.base_renderer.chart_line import LineChartRenderStrategy
-from next_gen_ui_agent.base_renderer.chart_pie import PieChartRenderStrategy
-from next_gen_ui_agent.base_renderer.image import ImageRenderStrategy
-from next_gen_ui_agent.base_renderer.one_card import OneCardRenderStrategy
-from next_gen_ui_agent.base_renderer.base_renderer import StrategyFactory
-from next_gen_ui_agent.base_renderer.set_of_cards import SetOfCardsRenderStrategy
-from next_gen_ui_agent.base_renderer.table import TableRenderStrategy
-from next_gen_ui_agent.base_renderer.video import VideoRenderStrategy
+from next_gen_ui_agent.renderer.audio import AudioPlayerRenderStrategy
+from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
+from next_gen_ui_agent.renderer.chart_line import LineChartRenderStrategy
+from next_gen_ui_agent.renderer.chart_pie import PieChartRenderStrategy
+from next_gen_ui_agent.renderer.image import ImageRenderStrategy
+from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
+from next_gen_ui_agent.renderer.set_of_cards import SetOfCardsRenderStrategy
+from next_gen_ui_agent.renderer.table import TableRenderStrategy
+from next_gen_ui_agent.renderer.video import VideoRenderStrategy
 from next_gen_ui_agent.types import UIComponentMetadata
 
 

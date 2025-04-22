@@ -1,4 +1,4 @@
-from next_gen_ui_agent.base_renderer.one_card import OneCardRenderStrategy
+from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.types import UIComponentMetadata
 
 

@@ -2,7 +2,7 @@ import json
 from abc import ABC, ABCMeta, abstractmethod
 from typing import Callable, Generic, Sized, TypeVar
 
-from next_gen_ui_agent.base_renderer.types import (
+from next_gen_ui_agent.renderer.types import (
     RenderContexSetOfCard,
     RenderContextAudio,
     RenderContextBase,

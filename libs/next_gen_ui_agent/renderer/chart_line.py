@@ -1,4 +1,4 @@
-from next_gen_ui_agent.base_renderer.base_renderer import RenderStrategyBase
+from next_gen_ui_agent.renderer.base_renderer import RenderStrategyBase
 
 
 class LineChartRenderStrategy(RenderStrategyBase):

@@ -1,14 +1,18 @@
 from next_gen_ui_agent.agent import NextGenUIAgent
-from next_gen_ui_agent.base_renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer.base_renderer import (
+    PLUGGABLE_RENDERERS_NAMESPACE,
+    StrategyFactory,
+)
+from next_gen_ui_agent.renderer.one_card_shareable_tests import BaseOneCardRendererTests
 from next_gen_ui_rhds_renderer import RhdsStrategyFactory
-from next_gen_ui_agent.base_renderer.base_renderer import StrategyFactory
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
 from stevedore.extension import Extension, ExtensionManager
-from next_gen_ui_agent.base_renderer.one_card_pluggable_tests import BaseOneCardRendererTests
+
 
 class TestRHDSRenderer(BaseOneCardRendererTests):
     def get_strategy_factory(self) -> StrategyFactory:
         return RhdsStrategyFactory()
+
 
 def test_renderer_one_card() -> None:
     agent = NextGenUIAgent()
