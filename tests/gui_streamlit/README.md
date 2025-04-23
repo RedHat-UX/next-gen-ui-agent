@@ -2,10 +2,19 @@
 
 Testing GUI for running Next Gen UI agent with mocked agent's LLM response.
 
-## Pants Setup
+## Python Setup
+
+Create venv via pants export:
 
 ```sh
 pants export
+```
+
+Activate venv and configure python:
+
+```sh
+source dist/export/python/virtualenvs/python-default/3.11.11/bin/activate
+export PYTHONPATH=./libs:./tests:$PYTHONPATH
 ```
 
 ## Run Streamlit
