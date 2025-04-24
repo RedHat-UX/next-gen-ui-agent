@@ -42,10 +42,23 @@ component_one_card = UIComponentMetadata(
         ],
     }
 )
+component_video_player = UIComponentMetadata(
+    {
+        "id": "test_id_1",
+        "title": "Toy Story Details",
+        "reasonForTheComponentSelection": "One item available in the data",
+        "confidenceScore": "100%",
+        "component": "video-player",
+        "fields": [
+            {"name": "Title", "data_path": "movie.title"},
+            {"name": "Video", "data_path": "movie.trailerUrl"},
+        ],
+    }
+)
 
 
-def create_ngui_graph():
-    msg = {"type": "assistant", "content": json.dumps(component_one_card)}
+def create_ngui_graph(llm_data):
+    msg = {"type": "assistant", "content": json.dumps(llm_data)}
     ngui_model = FakeMessagesListChatModel(responses=[msg], cache=False)
     ngui_graph = NextGenUILangGraphAgent(ngui_model)
     extension_rhds = Extension(
@@ -65,9 +78,6 @@ def create_ngui_graph():
     return ngui_graph
 
 
-ngui_graph = create_ngui_graph()
-assistant = ngui_graph.build_graph()
-
 # Streamlit UI
 st.set_page_config(initial_sidebar_state="collapsed", layout="wide")
 st.text(
@@ -78,15 +88,9 @@ st.text(
 with st.expander("Backend Data"):
     st.code(json.dumps(movie, indent=2))
 
+renderers = ["rhds", "json", "patternfly"]
 if "renderer" not in st.session_state:
-    st.session_state.renderer = ngui_graph.ngui_agent.renderers[0]
-
-component_system: str = st.selectbox(
-    label="Rendering System",
-    options=ngui_graph.ngui_agent.renderers,
-    key="component_system",
-    index=ngui_graph.ngui_agent.renderers.index(st.session_state.renderer),
-)
+    st.session_state.renderer = renderers[0]
 
 
 async def start_chat():
@@ -100,17 +104,54 @@ async def start_chat():
             {"role": "tool", "tool_call_id": "test-id", "content": json.dumps(movie)}
         )
 
-        with st.chat_message("user"):
-            st.markdown(prompt)
+        # with st.chat_message("user"):
+        #     st.markdown(prompt)
 
         logger.debug("Sending mesages to the NGUI Agent.count=%s", len(messages))
         with st.chat_message("assistant"):
             col1, col2 = st.columns(2, gap="medium", border=False)
             with col1:
-                st.subheader("LLM Mock Response")
-                st.code(json.dumps(component_one_card, indent=2))
+                col1_1, col1_2 = st.columns(2, gap="small")
+                with col1_1:
+                    st.subheader("LLM Mock Response")
+                with col1_2:
+                    example_code = st.selectbox(
+                        label="Example",
+                        options=[
+                            component_one_card["component"],
+                            component_video_player["component"],
+                        ],
+                        key="example_code",
+                    )
+                    if example_code == component_one_card["component"]:
+                        llm_data = component_one_card
+                    if example_code == component_video_player["component"]:
+                        llm_data = component_video_player
 
+                ngui_data = json.dumps(llm_data, indent=4)
+                ngui_data = st.text_area(
+                    "LLM Mock Response",
+                    value=ngui_data,
+                    height=800,
+                    label_visibility="hidden",
+                )
+
+            with col2:
+                col2_1, col2_2 = st.columns(2, gap="small")
+                with col2_1:
+                    st.subheader("NGUI Rendering")
+                with col2_2:
+                    component_system: str = st.selectbox(
+                        label="Rendering System",
+                        options=renderers,
+                        key="renderer_select",
+                        index=renderers.index(st.session_state.renderer),
+                    )
             try:
+                mocked_data = json.loads(ngui_data)
+                ngui_graph = create_ngui_graph(mocked_data)
+                assistant = ngui_graph.build_graph()
+
                 async for msg, metadata in assistant.astream(
                     {"messages": messages},
                     {"configurable": {"component_system": component_system}},
@@ -119,7 +160,6 @@ async def start_chat():
                     langgraph_node = metadata["langgraph_node"]
                     if langgraph_node == "design_system_handler" and msg.content:
                         with col2:
-                            st.subheader(f"NGUI Rendering - {component_system}")
                             match component_system:
                                 case "json":
                                     msg_json = json.loads(msg.content)
@@ -134,7 +174,8 @@ async def start_chat():
             except Exception as e:
                 logger.exception("Error in execution")
                 with col2:
-                    st.text(e)
+                    st.error(e)
+                    st.exception(e)
 
 
 asyncio.run(start_chat())
