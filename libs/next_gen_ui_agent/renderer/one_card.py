@@ -1,4 +1,4 @@
-from next_gen_ui_agent.renderer.renderer_base import IMAGE_SUFFIXES, RenderStrategyBase
+from next_gen_ui_agent.renderer.base_renderer import IMAGE_SUFFIXES, RenderStrategyBase
 from next_gen_ui_agent.renderer.types import RenderContextOneCard
 from next_gen_ui_agent.types import UIComponentMetadata
 

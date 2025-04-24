@@ -1,5 +1,5 @@
 from next_gen_ui_agent.agent import NextGenUIAgent
-from next_gen_ui_agent.renderer.renderer_base import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
 from next_gen_ui_patternfly_renderer import PatternflyStrategyFactory
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
 from stevedore.extension import Extension, ExtensionManager

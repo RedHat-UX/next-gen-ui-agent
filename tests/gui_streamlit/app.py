@@ -4,7 +4,7 @@ import logging
 
 import streamlit as st
 from langchain_core.language_models import FakeMessagesListChatModel
-from next_gen_ui_agent.renderer.renderer_base import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
 from next_gen_ui_agent.types import UIComponentMetadata
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 from next_gen_ui_patternfly_renderer.patternfly_renderer import (
