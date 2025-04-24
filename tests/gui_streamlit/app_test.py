@@ -9,6 +9,15 @@ def test_renderers_options():
 def test_rendering_json():
     """A user increments the number input, then clicks Add"""
     at = AppTest.from_file("app.py").run()
-    assert at.text[1].value == "Rendering DONE"
+    assert at.text[1].value == "Rendering DONE: json"
     # test that author value is in the agent output
     assert "Tom Hanks" in at.code[2].value
+
+
+def test_rendering_rhds():
+    """A user increments the number input, then clicks Add"""
+    at = AppTest.from_file("app.py")
+    at.session_state.renderer = "rhds"
+    at.run()
+    assert at.text[1].value == "Rendering DONE: rhds"
+    # No way how to get custom component

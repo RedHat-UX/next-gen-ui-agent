@@ -3,6 +3,7 @@ import json
 import logging
 
 import streamlit as st
+from gui_streamlit.ngui_rhds_component import ngui_rhds_component
 from langchain_core.language_models import FakeMessagesListChatModel
 from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
 from next_gen_ui_agent.types import UIComponentMetadata
@@ -77,10 +78,14 @@ st.text(
 with st.expander("Backend Data"):
     st.code(json.dumps(movie, indent=2))
 
+if "renderer" not in st.session_state:
+    st.session_state.renderer = ngui_graph.ngui_agent.renderers[0]
+
 component_system: str = st.selectbox(
     label="Rendering System",
     options=ngui_graph.ngui_agent.renderers,
     key="component_system",
+    index=ngui_graph.ngui_agent.renderers.index(st.session_state.renderer),
 )
 
 
@@ -115,12 +120,17 @@ async def start_chat():
                     if langgraph_node == "design_system_handler" and msg.content:
                         with col2:
                             st.subheader(f"NGUI Rendering - {component_system}")
-                            if component_system == "json":
-                                msg_json = json.loads(msg.content)
-                                st.code(json.dumps(msg_json, indent=2, sort_keys=True))
-                            else:
-                                st.html(msg.content)
-                        st.text("Rendering DONE")
+                            match component_system:
+                                case "json":
+                                    msg_json = json.loads(msg.content)
+                                    st.code(
+                                        json.dumps(msg_json, indent=2, sort_keys=True)
+                                    )
+                                case "rhds":
+                                    ngui_rhds_component(my_input_value=msg.content)
+                                case _:
+                                    st.html(msg.content)
+                        st.text(f"Rendering DONE: {component_system}")
             except Exception as e:
                 logger.exception("Error in execution")
                 with col2:
