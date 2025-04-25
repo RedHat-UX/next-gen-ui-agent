@@ -1,10 +1,7 @@
 from typing import NotRequired, TypedDict
 
-from ai_eval_components.eval import (
-    assert_array_not_empty,
-    assert_str_not_blank,
-    check_result_explicit,
-)
+from ai_eval_components.eval import check_result_explicit
+from ai_eval_components.eval_utils import assert_array_not_empty, assert_str_not_blank
 from ai_eval_components.types import DatasetRow, EvalError
 from next_gen_ui_agent.types import UIComponentMetadata
 
