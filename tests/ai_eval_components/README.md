@@ -9,7 +9,7 @@ Evaluation code requires running LlamaStack server. How to run local instance se
 Evaluation code accepts these environment variables:
 * `LLAMA_STACK_HOST` - defaults to `localhost`
 * `LLAMA_STACK_PORT` - defaults to `5001`
-* `INFERENCE_MODEL` - LLM used by the UI Agent, defaults to `granite3.1-dense:2b` - this model must be available in the LlamaStack instance, see [LLAMASTACK_DEV.md](../../LLAMASTACK_DEV.md)!
+* `INFERENCE_MODEL` - LLM used by the UI Agent, defaults to `granite3.2:2b` - this model must be available in the LlamaStack instance, see [LLAMASTACK_DEV.md](../../LLAMASTACK_DEV.md)!
 * `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 * `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
 
@@ -29,7 +29,8 @@ You can use these commandline argument:
 pants run tests/ai_eval_components/eval.py -- -c one-card
 ```
 
-During the run, basic info about running process and errors is written to the console. At the end, aggregated results are provided.
+During the run, basic info about running process and errors is written to the console. At the end, aggregated results 
+are provided, together with basic AI inference performance statistics.
 
 Detailed error info is written to the files in the specified directory (see above).
 Separate error file is created for each dataset file, `.json` suffix is replaced by `-errors.txt` suffix. 

@@ -39,7 +39,7 @@ from next_gen_ui_agent.types import UIComponentMetadata
 from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAgentInference
 
 # INFERENCE_MODEL_DEFAULT = "llama3.2:latest"
-INFERENCE_MODEL_DEFAULT = "granite3.1-dense:2b"
+INFERENCE_MODEL_DEFAULT = "granite3.2:2b"
 LLAMA_STACK_HOST_DEFAULT = "localhost"
 LLAMA_STACK_PORT_DEFAULT = "5001"
 

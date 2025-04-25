@@ -7,17 +7,22 @@ Install [Ollama](https://ollama.com/download) and make sure it is running.
 Run model for the first time to download/install it into the local Ollama server.
 
 ```sh
-ollama run granite3.1-dense:2b
+ollama run granite3.2:2b
 ```
 
-Tested models: `granite3.1-dense:2b`, `granite3.1-dense:8b`, `granite3.2:latest` or `llama3.2:latest`
+Tested models: 
+* `granite3.2:latest` - 8B model
+* `granite3.2:2b` - 2B model
+* `granite3.1-dense:2b`
+* `granite3.1-dense:8b`
+* `llama3.2:latest`
 
 Create empty `~/.llama` directory first, if it doesn't exist on your filesystem. It is used to persist LlamaStack platform data (configuration, etc).
 
 Ollama model must be running during the LlamaStack startup, so you have to run it shortly before each LlamaStack start, or run it with `-keepalive` in another terminal.
 
 ```sh
-ollama run granite3.1-dense:2b --keepalive 60m 
+ollama run granite3.2:2b --keepalive 60m 
 ```
 
 Start [LlamaStack Ollama distribution](https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/ollama.html#ollama-distribution) container.
@@ -30,12 +35,12 @@ podman run -it --rm \
   -v ~/.llama:/root/.llama:z \
   llamastack/distribution-ollama:0.1.9 \
   --port 5001 \
-  --env INFERENCE_MODEL="granite3.1-dense:2b" \
+  --env INFERENCE_MODEL="granite3.2:2b" \
   --env OLLAMA_URL=http://host.containers.internal:11434
 ```
 **Notes:** 
 * `:z` qualifier on `/root/.llama` volume mount in necessary for Fedora Linux
-* use `--env INFERENCE_MODEL="granite3.1-dense:2b" \` with another model to add it into your LlamaStack instance, it remembers models added before and all are available then
+* use `--env INFERENCE_MODEL="granite3.2:2b" \` with another model to add it into your LlamaStack instance, it remembers models added before and all are available then
 
 Output:
 
