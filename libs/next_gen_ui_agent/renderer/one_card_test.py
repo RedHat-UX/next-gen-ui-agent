@@ -4,7 +4,7 @@ from next_gen_ui_agent.types import UIComponentMetadata
 
 def test_process():
     strategy = OneCardRenderStrategy()
-    c = UIComponentMetadata(
+    c = UIComponentMetadata.model_validate(
         {
             "id": "test_id_1",
             "title": "Toy Story Details",
@@ -24,18 +24,18 @@ def test_process():
         }
     )
     result = strategy.process(c)
-    assert result["title"] == "Toy Story Details"
+    assert result.title == "Toy Story Details"
     assert (
-        result["image"]
+        result.image
         == "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
     )
-    assert len(result["fields"]) == 1
-    assert result["fields"][0]["name"] == "Title"
+    assert len(result.fields) == 1
+    assert result.fields[0].name == "Title"
 
 
 def test_process_no_image():
     strategy = OneCardRenderStrategy()
-    c = UIComponentMetadata(
+    c = UIComponentMetadata.model_validate(
         {
             "id": "test_id_1",
             "title": "Toy Story Details",
@@ -48,7 +48,7 @@ def test_process_no_image():
         }
     )
     result = strategy.process(c)
-    assert result["title"] == "Toy Story Details"
+    assert result.title == "Toy Story Details"
     assert "image" not in result
-    assert len(result["fields"]) == 1
-    assert result["fields"][0]["name"] == "Title"
+    assert len(result.fields) == 1
+    assert result.fields[0].name == "Title"

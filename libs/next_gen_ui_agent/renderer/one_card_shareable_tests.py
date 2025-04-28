@@ -11,7 +11,7 @@ class BaseOneCardRendererTests(ABC):
         pass
 
     def test_fields(self):
-        c = UIComponentMetadata(
+        c = UIComponentMetadata.model_validate(
             {
                 "id": "test_id_1",
                 "title": "Toy Story Details",

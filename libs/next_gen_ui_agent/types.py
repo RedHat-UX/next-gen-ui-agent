@@ -1,8 +1,10 @@
-from typing import Any, NotRequired, TypedDict, Union
+from typing import Any, NotRequired, Optional, TypedDict, Union
 
 from next_gen_ui_agent.model import InferenceBase
+from pydantic import BaseModel
 
 
+# Intentionaly TypeDict because of passing ABC class InferenceBase
 class AgentConfig(TypedDict):
     """Agent Configuration."""
 
@@ -29,22 +31,22 @@ DataFieldDataType = Union[str | int | Any]
 """Field Data item can be either str or int"""
 
 
-class DataField(TypedDict):
+class DataField(BaseModel):
     """UI Component field metadata."""
 
     name: str
     data_path: str
-    data: NotRequired[list[DataFieldDataType]]
+    data: list[DataFieldDataType] = []
     """Data matching `data_path` from `input_data`"""
 
 
-class UIComponentMetadata(TypedDict):
+class UIComponentMetadata(BaseModel):
     """UI Component Mentadata."""
 
-    id: str
+    id: Optional[str] = None
     title: str
-    reasonForTheComponentSelection: NotRequired[str]
-    confidenceScore: NotRequired[str]
+    reasonForTheComponentSelection: Optional[str] = None
+    confidenceScore: Optional[str] = None
     component: str
     fields: list[DataField]
-    rendition: NotRequired[str]
+    rendition: Optional[str] = None

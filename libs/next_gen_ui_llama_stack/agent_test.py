@@ -75,18 +75,20 @@ step3 = InferenceStep(
 
 @pytest.mark.asyncio
 async def test_agent_turn_from_steps() -> None:
-    mocked_component: UIComponentMetadata = {
-        "title": "Toy Story",
-        "reasonForTheComponentSelection": "One item available in the data",
-        "confidenceScore": "100%",
-        "component": "one-card",
-        "fields": [
-            {"name": "Title", "data_path": "movie.title"},
-            {"name": "Year", "data_path": "movie.year"},
-            {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
-        ],
-        "id": "2ff0f4bd-6b66-4b22-a7eb-8bb0365f52b1",
-    }
+    mocked_component: UIComponentMetadata = UIComponentMetadata.model_validate(
+        {
+            "title": "Toy Story",
+            "reasonForTheComponentSelection": "One item available in the data",
+            "confidenceScore": "100%",
+            "component": "one-card",
+            "fields": [
+                {"name": "Title", "data_path": "movie.title"},
+                {"name": "Year", "data_path": "movie.year"},
+                {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
+            ],
+            "id": "2ff0f4bd-6b66-4b22-a7eb-8bb0365f52b1",
+        }
+    )
 
     mocked_inference = MockedInference(mocked_component)
     client = LlamaStackClient()
@@ -97,29 +99,32 @@ async def test_agent_turn_from_steps() -> None:
     async for ng_event in ngui_agent.create_turn(
         user_input, steps=[step1, step2, step3], component_system="json"
     ):
+        payload: UIComponentMetadata = ng_event["payload"][0]
         if ng_event["event_type"] == "component_metadata":
             logger.info("Result: %s", ng_event["payload"])
-            assert ng_event["payload"][0]["component"] == "one-card"
+            assert payload.component == "one-card"
         if ng_event["event_type"] == "rendering":
             logger.info("Result: %s", ng_event["payload"])
-            rendering = json.loads(ng_event["payload"][0]["rendition"])
+            rendering = json.loads(str(payload.rendition))
             assert rendering["title"] == "Toy Story"
 
 
 @pytest.mark.asyncio
 async def test_agent_turn_from_steps_async() -> None:
-    mocked_component: UIComponentMetadata = {
-        "title": "Toy Story",
-        "reasonForTheComponentSelection": "One item available in the data",
-        "confidenceScore": "100%",
-        "component": "one-card",
-        "fields": [
-            {"name": "Title", "data_path": "movie.title"},
-            {"name": "Year", "data_path": "movie.year"},
-            {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
-        ],
-        "id": "2ff0f4bd-6b66-4b22-a7eb-8bb0365f52b1",
-    }
+    mocked_component: UIComponentMetadata = UIComponentMetadata.model_validate(
+        {
+            "title": "Toy Story",
+            "reasonForTheComponentSelection": "One item available in the data",
+            "confidenceScore": "100%",
+            "component": "one-card",
+            "fields": [
+                {"name": "Title", "data_path": "movie.title"},
+                {"name": "Year", "data_path": "movie.year"},
+                {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
+            ],
+            "id": "2ff0f4bd-6b66-4b22-a7eb-8bb0365f52b1",
+        }
+    )
 
     mocked_inference = MockedInference(mocked_component)
     client = AsyncLlamaStackClient()
@@ -131,8 +136,9 @@ async def test_agent_turn_from_steps_async() -> None:
         user_input, steps=[step1, step2, step3]
     ):
         if ng_event["event_type"] == "component_metadata":
-            logger.info("Result: %s", ng_event["payload"])
-            assert ng_event["payload"][0]["component"] == "one-card"
+            payload: UIComponentMetadata = ng_event["payload"][0]
+            logger.info("Result: %s", payload)
+            assert payload.component == "one-card"
 
 
 if __name__ == "__main__":

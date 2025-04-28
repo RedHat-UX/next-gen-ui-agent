@@ -6,15 +6,18 @@ from next_gen_ui_agent.types import UIComponentMetadata
 class ImageRenderStrategy(RenderStrategyBase[RenderContextImage]):
     COMPONENT_NAME = "image"
 
+    def __init__(self):
+        self._rendering_context = RenderContextImage.model_construct()
+
     def main_processing(self, component: UIComponentMetadata):
         # Trying to find field that would contain an image link
-        fields = component["fields"]
+        fields = component.fields
 
         field_with_image_suffix = next(
             (
                 field
                 for field in fields
-                for d in field["data"]
+                for d in field.data
                 if type(d) is str and d.endswith(IMAGE_SUFFIXES)
             ),
             None,
@@ -23,11 +26,11 @@ class ImageRenderStrategy(RenderStrategyBase[RenderContextImage]):
             image = next(
                 (
                     data
-                    for data in field_with_image_suffix["data"]
+                    for data in field_with_image_suffix.data
                     if type(data) is str and data.endswith(IMAGE_SUFFIXES)
                 ),
                 None,
             )
             if image:
-                self._rendering_context["image"] = image
-                self._rendering_context["fields"].remove(field_with_image_suffix)
+                self._rendering_context.image = image
+                self._rendering_context.fields.remove(field_with_image_suffix)

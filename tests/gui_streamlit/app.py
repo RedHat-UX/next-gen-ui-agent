@@ -26,7 +26,7 @@ logging.basicConfig(
 
 prompt = "tell me details about Toy Story movie"
 movie = find_movie("Toy Story")
-component_one_card = UIComponentMetadata(
+component_one_card = UIComponentMetadata.model_validate(
     {
         "id": "test_id_1",
         "title": "Toy Story Details",
@@ -42,7 +42,7 @@ component_one_card = UIComponentMetadata(
         ],
     }
 )
-component_video_player = UIComponentMetadata(
+component_video_player = UIComponentMetadata.model_validate(
     {
         "id": "test_id_1",
         "title": "Toy Story Details",
@@ -93,7 +93,7 @@ if "renderer" not in st.session_state:
     st.session_state.renderer = renderers[0]
 
 
-async def start_chat():
+async def start_chat() -> None:
     # prompt = st.chat_input("Ask something about movies...")
     if prompt:
         logger.info(prompt)
@@ -118,17 +118,17 @@ async def start_chat():
                     example_code = st.selectbox(
                         label="Example",
                         options=[
-                            component_one_card["component"],
-                            component_video_player["component"],
+                            component_one_card.component,
+                            component_video_player.component,
                         ],
                         key="example_code",
                     )
-                    if example_code == component_one_card["component"]:
+                    if example_code == component_one_card.component:
                         llm_data = component_one_card
-                    if example_code == component_video_player["component"]:
+                    if example_code == component_video_player.component:
                         llm_data = component_video_player
 
-                ngui_data = json.dumps(llm_data, indent=4)
+                ngui_data = llm_data.model_dump_json(indent=4)
                 ngui_data = st.text_area(
                     "LLM Mock Response",
                     value=ngui_data,

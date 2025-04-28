@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class NextGenUIAgent:
     """Next Gen UI Agent."""
 
-    def __init__(self, config: AgentConfig = {}):
+    def __init__(self, config: AgentConfig = AgentConfig()):
         self._extension_manager = ExtensionManager(
             namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
         )

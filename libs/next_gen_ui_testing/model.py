@@ -1,5 +1,3 @@
-import json
-
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 
@@ -12,4 +10,4 @@ class MockedInference(InferenceBase):
         self.response = response
 
     async def call_model(self, system_msg: str, prompt: str) -> str:
-        return json.dumps(self.response)
+        return self.response.model_dump_json()

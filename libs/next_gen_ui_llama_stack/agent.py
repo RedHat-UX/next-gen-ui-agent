@@ -5,6 +5,7 @@ from llama_stack_client import AsyncLlamaStackClient, LlamaStackClient
 from llama_stack_client.types.agents.turn import Step
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.types import AgentConfig
 from next_gen_ui_llama_stack.llama_stack_inference import (
     LlamaStackAgentInference,
     LlamaStackAsyncAgentInference,
@@ -30,11 +31,7 @@ class NextGenUILlamaStackAgent:
                 inference = LlamaStackAsyncAgentInference(client, model)
 
         self.client = client
-        self.ngui_agent = NextGenUIAgent(
-            config={
-                "inference": inference,
-            }
-        )
+        self.ngui_agent = NextGenUIAgent(AgentConfig(inference=inference))
 
     def _data_selection(self, steps: list[Step]) -> list[InputData]:
         """Get data from all tool messages."""

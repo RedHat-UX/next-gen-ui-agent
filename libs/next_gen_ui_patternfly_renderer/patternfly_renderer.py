@@ -14,8 +14,9 @@ templates_env = Environment(
 
 class PatternflyStrategyBase(RenderStrategyBase):
     def generate_output(self, component):
-        template = templates_env.get_template(f'/{component["component"]}.jinja')
-        return template.render(self._rendering_context)
+        template = templates_env.get_template(f"/{component.component}.jinja")
+        # TODO: Change templates to work with dot notation (pydantic) and remove converting form pydantic to TypeDict
+        return template.render(self._rendering_context.model_dump())
 
 
 class PatternflyOneCardRenderStrategy(OneCardRenderStrategy, PatternflyStrategyBase):
@@ -38,7 +39,7 @@ class PatternflyVideoRenderStrategy(VideoRenderStrategy, PatternflyStrategyBase)
 
 class PatternflyStrategyFactory(StrategyFactory):
     def get_render_strategy(self, component: UIComponentMetadata):
-        match component["component"]:
+        match component.component:
             case PatternflyOneCardRenderStrategy.COMPONENT_NAME:
                 return PatternflyOneCardRenderStrategy()
             case PatternflySetOfCardsRenderStrategy.COMPONENT_NAME:
@@ -49,5 +50,5 @@ class PatternflyStrategyFactory(StrategyFactory):
                 return PatternflyVideoRenderStrategy()
             case _:
                 raise ValueError(
-                    f"This component: {component['component']} is not supported by Patternfly rendering plugin."
+                    f"This component: {component.component} is not supported by Patternfly rendering plugin."
                 )
