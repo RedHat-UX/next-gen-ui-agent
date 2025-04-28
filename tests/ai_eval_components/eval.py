@@ -113,10 +113,15 @@ def evaluate_agent_for_dataset_row(dsr: DatasetRow, inference: InferenceBase):
     )
     report_perf_stats(time_start, round(time.time() * 1000), dsr["expected_component"])
 
+    component: UIComponentMetadata | None = None
     try:
-        component: UIComponentMetadata = json.loads(llm_response)
+        component = json.loads(llm_response)
+    except Exception as e:
+        errors.append(EvalError("invalid_json", "LLM produced invalid JSON: " + str(e)))
 
+    if component:
         # load data so we can evaluate that pointers to data are correct
+        # any exception from this code is "SYS" error
         component["id"] = input_data["id"]
         components = [component]
         enhance_component_by_input_data([input_data], components)
@@ -124,11 +129,6 @@ def evaluate_agent_for_dataset_row(dsr: DatasetRow, inference: InferenceBase):
         check_result_explicit(component, errors, dsr)
 
         # TODO NGUI-116 LLM-as-a-judge AI check
-
-    except json.JSONDecodeError as e:
-        errors.append(EvalError("invalid_json", "LLM produced invalid JSON: " + str(e)))
-    except json.decoder.JSONDecodeError as e:
-        errors.append(EvalError("invalid_json", "LLM produced invalid JSON: " + str(e)))
 
     return DatasetRowAgentEvalResult(llm_response, errors)
 
