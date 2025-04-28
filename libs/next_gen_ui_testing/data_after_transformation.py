@@ -1,6 +1,6 @@
 from next_gen_ui_agent import UIComponentMetadata
 
-_transformed_component = UIComponentMetadata(
+_transformed_component = UIComponentMetadata.model_validate(
     {
         "id": "test_id_1",
         "title": "Toy Story Details",
@@ -31,4 +31,4 @@ _transformed_component = UIComponentMetadata(
 
 
 def get_transformed_component():
-    return _transformed_component.copy()
+    return _transformed_component.model_copy()

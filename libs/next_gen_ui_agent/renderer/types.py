@@ -1,9 +1,10 @@
-from typing import NotRequired, TypedDict
+from typing import Optional
 
 from next_gen_ui_agent.types import DataField
+from pydantic import BaseModel
 
 
-class RenderContextBase(TypedDict):
+class RenderContextBase(BaseModel):
     """Rendering Context."""
 
     title: str
@@ -28,7 +29,7 @@ class RenderContextImage(RenderContextBase):
 class RenderContextOneCard(RenderContextBase):
     """Rendering Context for OneCard."""
 
-    image: NotRequired[str]
+    image: Optional[str] = None
 
 
 class RenderContexSetOfCard(RenderContextBase):

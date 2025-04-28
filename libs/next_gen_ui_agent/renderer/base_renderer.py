@@ -1,4 +1,3 @@
-import json
 from abc import ABC, ABCMeta, abstractmethod
 from typing import Callable, Generic, Sized, TypeVar
 
@@ -31,24 +30,23 @@ class RenderStrategyBase(ABC, Generic[T]):
     """Renderer Base."""
 
     def __init__(self):
-        self._rendering_context: T = RenderContextBase()
+        self._rendering_context: T = None
 
     def preprocess_rendering_context(self, component: UIComponentMetadata):
-        fields = component["fields"]
-        self._rendering_context["fields"] = fields.copy()
-        self._rendering_context["title"] = component["title"]
-        self._rendering_context["data_length"] = max(
-            len(field["data"] if isinstance(field["data"], Sized) else [])
-            for field in fields
+        fields = component.fields
+        self._rendering_context.fields = fields.copy()
+        self._rendering_context.title = component.title
+        self._rendering_context.data_length = max(
+            len(field.data if isinstance(field.data, Sized) else []) for field in fields
         )
-        self._rendering_context["field_names"] = [field["name"] for field in fields]
+        self._rendering_context.field_names = [field.name for field in fields]
 
     def main_processing(self, component: UIComponentMetadata):
         pass
 
     def post_processing(self, component: UIComponentMetadata):
-        fields = self._rendering_context["fields"]
-        self._rendering_context["field_names"] = [field["name"] for field in fields]
+        fields = self._rendering_context.fields
+        self._rendering_context.field_names = [field.name for field in fields]
 
     def process(self, component) -> T:
         """Transform the component into strategy component via running pre-
@@ -63,7 +61,7 @@ class RenderStrategyBase(ABC, Generic[T]):
 
         If not overriden then JSON dump is performed
         """
-        return json.dumps(self._rendering_context)
+        return self._rendering_context.model_dump_json()
 
     def render(self, component: UIComponentMetadata) -> str:
         self.process(component)
@@ -76,12 +74,7 @@ class RenderStrategyBase(ABC, Generic[T]):
     ) -> DataField | None:
         """Helper methods for to find field based on predicate."""
         return next(
-            (
-                field
-                for field in fields
-                for d in field["data"]
-                if fieldFieldPredicate(d)
-            ),
+            (field for field in fields for d in field.data if fieldFieldPredicate(d)),
             None,
         )
 

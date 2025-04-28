@@ -17,7 +17,7 @@ class JsonStrategyFactory(StrategyFactory):
     """
 
     def get_render_strategy(self, component: UIComponentMetadata):
-        match component["component"]:
+        match component.component:
             case OneCardRenderStrategy.COMPONENT_NAME:
                 return OneCardRenderStrategy()
             case TableRenderStrategy.COMPONENT_NAME:
@@ -36,5 +36,5 @@ class JsonStrategyFactory(StrategyFactory):
                 return PieChartRenderStrategy()
             case _:
                 raise ValueError(
-                    f"This component: {component['component']} is not supported by rendering plugin."
+                    f"This component: {component.component} is not supported by rendering plugin."
                 )

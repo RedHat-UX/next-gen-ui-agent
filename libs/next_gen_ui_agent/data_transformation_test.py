@@ -2,7 +2,7 @@ from next_gen_ui_agent.data_transformation import enhance_component_by_input_dat
 from next_gen_ui_agent.types import InputData, UIComponentMetadata
 
 
-def test_enhance_component_by_input_data():
+def test_enhance_component_by_input_data() -> None:
     movie1 = """
 [
   {
@@ -79,7 +79,7 @@ def test_enhance_component_by_input_data():
     input_data = InputData({"id": id, "data": movie1})
     input_data_2 = InputData({"id": "other", "data": movie2})
 
-    component1 = UIComponentMetadata(
+    component1 = UIComponentMetadata.model_validate(
         {
             "id": id,
             "title": "Toy Story Details",
@@ -100,12 +100,12 @@ def test_enhance_component_by_input_data():
     enhance_component_by_input_data(
         input_data=[input_data_2, input_data], components=[component1]
     )
-    fields = component1["fields"]
-    assert fields[0]["data"] == ["Toy Story"]
-    assert fields[1]["data"] == [1995]
-    assert fields[2]["data"] == [8.3]
-    assert fields[3]["data"] == ["1995-11-22"]  # TODO: Date time formatting
-    assert fields[4]["data"] == [
+    fields = component1.fields
+    assert fields[0].data == ["Toy Story"]
+    assert fields[1].data == [1995]
+    assert fields[2].data == [8.3]
+    assert fields[3].data == ["1995-11-22"]  # TODO: Date time formatting
+    assert fields[4].data == [
         "Jim Varney",
         "Tim Allen",
         "Tom Hanks",

@@ -9,6 +9,7 @@ from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Command
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_agent.model import LangChainModelInference
+from next_gen_ui_agent.types import AgentConfig
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class AgentOutputState(MessagesState):
 
 
 # Graph Config Schema
-class AgentConfig(TypedDict):
+class GraphConfig(TypedDict):
     model: Optional[str]
     model_api_base_url: Optional[str]
     model_api_token: Optional[str]
@@ -43,7 +44,7 @@ class NextGenUILangGraphAgent:
     def __init__(self, model: BaseChatModel):
         super().__init__()
         inference = LangChainModelInference(model)
-        self.ngui_agent = NextGenUIAgent(config={"inference": inference})
+        self.ngui_agent = NextGenUIAgent(config=AgentConfig(inference=inference))
 
     # Nodes
     async def data_selection(self, state: AgentInputState, config: RunnableConfig):
@@ -95,7 +96,7 @@ class NextGenUILangGraphAgent:
     async def choose_system(
         self, state: AgentState, config: RunnableConfig
     ) -> Command[Literal["design_system_handler", "__end__"]]:
-        cfg: AgentConfig = config.get("configurable", {})  # type: ignore
+        cfg: GraphConfig = config.get("configurable", {})  # type: ignore
 
         input_data = [
             InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
@@ -123,14 +124,14 @@ class NextGenUILangGraphAgent:
             logger.debug(
                 "---CALL %s--- id: %s, component rendition: %s",
                 component_system,
-                component["id"],
-                component["rendition"],
+                component.id,
+                component.rendition,
             )
 
             tm = ToolMessage(
                 name=f"ngui_{component_system}",
-                tool_call_id=component["id"] + uuid.uuid4().hex,
-                content=component["rendition"],
+                tool_call_id=str(component.id) + uuid.uuid4().hex,
+                content=str(component.rendition),
             )
             ai = AIMessage(
                 content="", name=f"ngui_{component_system}", id=uuid.uuid4().hex
@@ -154,7 +155,7 @@ class NextGenUILangGraphAgent:
         """Build NextGenUI Agent as Langgraph graph."""
         builder = StateGraph(
             state_schema=AgentState,
-            config_schema=AgentConfig,
+            config_schema=GraphConfig,
             input=AgentInputState,
             output=AgentOutputState,
         )

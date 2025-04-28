@@ -6,15 +6,18 @@ from next_gen_ui_agent.types import UIComponentMetadata
 class VideoRenderStrategy(RenderStrategyBase[RenderContextVideo]):
     COMPONENT_NAME = "video-player"
 
+    def __init__(self):
+        self._rendering_context = RenderContextVideo.model_construct()
+
     def main_processing(self, component: UIComponentMetadata):
-        fields = component["fields"]
+        fields = component.fields
 
         # TODO: Use super()._find_field
         field_with_video_suffix = next(
             (
                 field
                 for field in fields
-                for d in field["data"]
+                for d in field.data
                 if type(d) is str and "youtube.com" in d
             ),
             None,
@@ -23,7 +26,7 @@ class VideoRenderStrategy(RenderStrategyBase[RenderContextVideo]):
             video = next(
                 (
                     data
-                    for data in field_with_video_suffix["data"]
+                    for data in field_with_video_suffix.data
                     if type(data) is str and "youtube.com" in data
                 ),
                 None,
@@ -37,6 +40,6 @@ class VideoRenderStrategy(RenderStrategyBase[RenderContextVideo]):
             if not video:
                 raise ValueError("Cannot render video without the link")
 
-            self._rendering_context["video"] = video
-            self._rendering_context["video_img"] = video_img
-            self._rendering_context["fields"].remove(field_with_video_suffix)
+            self._rendering_context.video = video
+            self._rendering_context.video_img = video_img
+            self._rendering_context.fields.remove(field_with_video_suffix)

@@ -71,10 +71,11 @@ def check_result_explicit(
     Return list of errors or empty list if everything is OK.
     """
 
-    assert_str_not_blank(component, "title", "title.empty", errors)
-    if assert_str_not_blank(component, "component", "component.empty", errors):
+    componentDict = component.model_dump()
+    assert_str_not_blank(componentDict, "title", "title.empty", errors)
+    if assert_str_not_blank(componentDict, "component", "component.empty", errors):
         ds_expected_component = dsr["expected_component"]
-        generated_component = component["component"]
+        generated_component = component.component
         if generated_component != ds_expected_component:
             errors.append(
                 EvalError(
@@ -83,15 +84,18 @@ def check_result_explicit(
                 )
             )
 
-    if assert_array_not_empty(component, "fields", "fields.empty", errors):
-        for i, field in enumerate(component["fields"]):
+    if assert_array_not_empty(componentDict, "fields", "fields.empty", errors):
+        for i, field in enumerate(component.fields):
             fn = f"fields[{i}]."
-            assert_str_not_blank(field, "name", fn + "name.empty", errors)
+            fieldDict = field.model_dump()
+            assert_str_not_blank(fieldDict, "name", fn + "name.empty", errors)
 
-            if assert_str_not_blank(field, "data_path", fn + "data_path.empty", errors):
-                data_path = field["data_path"]
+            if assert_str_not_blank(
+                fieldDict, "data_path", fn + "data_path.empty", errors
+            ):
+                data_path = field.data_path
                 assert_array_not_empty(
-                    field,
+                    fieldDict,
                     "data",
                     fn + "data_path.points_no_data",
                     errors,
@@ -122,7 +126,7 @@ def evaluate_agent_for_dataset_row(dsr: DatasetRow, inference: InferenceBase):
     if component:
         # load data so we can evaluate that pointers to data are correct
         # any exception from this code is "SYS" error
-        component["id"] = input_data["id"]
+        component.id = input_data["id"]
         components = [component]
         enhance_component_by_input_data([input_data], components)
 

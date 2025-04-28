@@ -3,7 +3,7 @@ from typing import NotRequired, TypedDict
 from ai_eval_components.eval import check_result_explicit
 from ai_eval_components.eval_utils import assert_array_not_empty, assert_str_not_blank
 from ai_eval_components.types import DatasetRow, EvalError
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.types import DataField, UIComponentMetadata
 
 ERR = "error-test"
 
@@ -69,7 +69,7 @@ def test_assert_str_not_blank_OK():
 
 def test_check_result_explicit_BASIC_ATTRS_NONE():
     errors: list[EvalError] = []
-    component: UIComponentMetadata = {}  # type: ignore
+    component: UIComponentMetadata = UIComponentMetadata.model_construct()
     dsr: DatasetRow = {}  # type: ignore
 
     check_result_explicit(component, errors, dsr)
@@ -81,7 +81,9 @@ def test_check_result_explicit_BASIC_ATTRS_NONE():
 
 def test_check_result_explicit_BASIC_ATTRS_EMPTY():
     errors: list[EvalError] = []
-    component: UIComponentMetadata = {"title": " ", "component": " ", "fields": []}  # type: ignore
+    component: UIComponentMetadata = UIComponentMetadata.model_validate(
+        {"title": " ", "component": " ", "fields": []}
+    )
     dsr: DatasetRow = {}  # type: ignore
 
     check_result_explicit(component, errors, dsr)
@@ -94,7 +96,7 @@ def test_check_result_explicit_BASIC_ATTRS_EMPTY():
 def test_check_result_explicit_COMPONENT_INCORRECT():
     errors: list[EvalError] = []
     # everything is valid here
-    component: UIComponentMetadata = {"title": "my title", "component": "one-card", "fields": [{"name": "my name", "data_path": "dp", "data": ["a"]}]}  # type: ignore
+    component: UIComponentMetadata = UIComponentMetadata.model_validate({"title": "my title", "component": "one-card", "fields": [{"name": "my name", "data_path": "dp", "data": ["a"]}]})  # type: ignore
     # but expected component is different
     dsr: DatasetRow = {"expected_component": "table"}  # type: ignore
 
@@ -105,7 +107,11 @@ def test_check_result_explicit_COMPONENT_INCORRECT():
 
 def test_check_result_explicit_FIELDS_ATTRS_EMPTY():
     errors: list[EvalError] = []
-    component: UIComponentMetadata = {"title": "my title", "component": "one-card", "fields": [{}, {}]}  # type: ignore
+    component: UIComponentMetadata = UIComponentMetadata(
+        title="my title",
+        component="one-card",
+        fields=[DataField.model_construct(), DataField.model_construct()],
+    )
     dsr: DatasetRow = {"expected_component": "one-card"}  # type: ignore
 
     check_result_explicit(component, errors, dsr)
@@ -119,7 +125,16 @@ def test_check_result_explicit_FIELDS_ATTRS_EMPTY():
 
 def test_check_result_explicit_FIELDS_DATA_MISSING():
     errors: list[EvalError] = []
-    component: UIComponentMetadata = {"title": "my title", "component": "one-card", "fields": [{"name": "name 1", "data_path": "dp", "data": ["a"]}, {"name": "name 2", "data_path": "dp2"}]}  # type: ignore
+    component: UIComponentMetadata = UIComponentMetadata.model_validate(
+        {
+            "title": "my title",
+            "component": "one-card",
+            "fields": [
+                {"name": "name 1", "data_path": "dp", "data": ["a"]},
+                {"name": "name 2", "data_path": "dp2"},
+            ],
+        }
+    )
     dsr: DatasetRow = {"expected_component": "one-card"}  # type: ignore
 
     check_result_explicit(component, errors, dsr)
@@ -131,7 +146,16 @@ def test_check_result_explicit_FIELDS_DATA_MISSING():
 def test_check_result_explicit_FIELDS_DATA_EMPTY():
     # this test case may not be valid later, once libs/next_gen_ui_agent/data_transformation.py is improved, if it becomes to use None for missing data (now it uses [])
     errors: list[EvalError] = []
-    component: UIComponentMetadata = {"title": "my title", "component": "one-card", "fields": [{"name": "name 1", "data_path": "dp", "data": ["a"]}, {"name": "name 2", "data_path": "dp2", "data": []}]}  # type: ignore
+    component: UIComponentMetadata = UIComponentMetadata.model_validate(
+        {
+            "title": "my title",
+            "component": "one-card",
+            "fields": [
+                {"name": "name 1", "data_path": "dp", "data": ["a"]},
+                {"name": "name 2", "data_path": "dp2", "data": []},
+            ],
+        }
+    )
     dsr: DatasetRow = {"expected_component": "one-card"}  # type: ignore
 
     check_result_explicit(component, errors, dsr)

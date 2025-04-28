@@ -12,7 +12,7 @@ from .model import LangChainModelInference
 
 
 @pytest.mark.asyncio
-async def test_component_selection_run():
+async def test_component_selection_run() -> None:
     user_input = "Tell me brief details of Toy Story"
     movies_data = """
     [
@@ -73,11 +73,11 @@ async def test_component_selection_run():
     # }
     # llm = ChatOpenAI(**llm_settings, disable_streaming=True)
     msg = {"type": "assistant", "content": response}
-    llm = FakeMessagesListChatModel(responses=[msg])
+    llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
     iference = LangChainModelInference(llm)
 
     result = await component_selection_run(user_input, iference, input_data)
-    assert result["component"] == "one-card"
+    assert result.component == "one-card"
 
 
 if __name__ == "__main__":

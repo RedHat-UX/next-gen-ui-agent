@@ -2,6 +2,8 @@ import asyncio
 import json
 import logging
 
+from pydantic_core import from_json
+
 from .model import InferenceBase
 from .types import AgentInput, InputData, UIComponentMetadata
 
@@ -112,9 +114,11 @@ async def component_selection_run(
     response = await component_selection_inference(user_prompt, inference, input_data)
 
     try:
-        result: UIComponentMetadata = json.loads(response)
-        # TODO Validate response
-        result["id"] = input_data["id"]
+        result: UIComponentMetadata = UIComponentMetadata.model_validate(
+            from_json(response, allow_partial=True), strict=False
+        )
+        # TODO Validate response - https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
+        result.id = input_data["id"]
         return result
     except json.JSONDecodeError as e:
         logger.exception("Cannot decode the json from LLM response")

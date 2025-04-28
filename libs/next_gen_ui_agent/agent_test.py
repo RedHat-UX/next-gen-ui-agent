@@ -16,7 +16,7 @@ def test_design_system_handler_json() -> None:
     agent = NextGenUIAgent()
     c = get_transformed_component()
     result = agent.design_system_handler([c], "json")
-    assert result[0]["component"] == "one-card"
+    assert result[0].component == "one-card"
 
 
 def test_renderers() -> None:

@@ -18,7 +18,7 @@ def test_renderer_one_card() -> None:
     )
     agent._extension_manager = em
     component = get_transformed_component()
-    rendition = agent.design_system_handler([component], "patternfly")[0]["rendition"]
+    rendition = agent.design_system_handler([component], "patternfly")[0].rendition
     assert (
         rendition
         == """import React from 'react';
