@@ -26,6 +26,7 @@ logging.basicConfig(
 
 prompt = "tell me details about Toy Story movie"
 movie = find_movie("Toy Story")
+movie.append({"testing": {"arrayNumbers": [1, 2, 3]}})
 component_one_card = UIComponentMetadata.model_validate(
     {
         "id": "test_id_1",
@@ -39,6 +40,8 @@ component_one_card = UIComponentMetadata.model_validate(
             {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
             {"name": "Release Date", "data_path": "movie.released"},
             {"name": "Actors", "data_path": "actors[*]"},
+            {"name": "Poster", "data_path": "movie.posterUrl"},
+            # {"name": "testing.arrayNumbers[*]", "data_path": "testing.arrayNumbers[*]"},
         ],
     }
 )
