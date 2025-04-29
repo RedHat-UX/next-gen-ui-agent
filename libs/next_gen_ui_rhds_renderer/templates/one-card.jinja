@@ -1,43 +1,90 @@
-{# RHDS Table component from https://ux.redhat.com/elements/card/ #}
+{# 
+RHDS "Fast facts card" component from 
+ * https://ux.redhat.com/patterns/card/examples/#fast-facts-card 
+ * https://ux.redhat.com/elements/card/demos/#demo-promo
+#}
 {# TODO: We're currently not using call to action link #}
 {# TODO: Image doesn't work properly so adding additional <div id="one-card-image-text"> and little bit styling#}
 
-<rh-card class="example-fast-facts-card">
+<rh-card class="ngui-one-card reverse" {% if image %}variant="promo"{% endif %}>
+{% if image %}
+  <img src="{{image}}" slot="image" aria-label="{{title}}">
+{% endif %}
   <h2 slot="header">{{title}}</h2>
-  <div id="one-card-image-text">
-  {% if image %}
-  <div class="img"><img src="{{image}}" slot="image" alt="{{title}}"></div>
-  {% endif %}
-  {% if fields|length > 1 %}
-    <div>
-      {% for f in fields %}
-          <h4>{{f.get("name")}}</h4>
-          <p>{{f.get("data") if f.get("data")|length > 1 else f.get("data")[0]}}</p>
-        </li>
-      {% endfor %}
-    </div>
-  {% elif fields|length == 1 %}
-    <p>{{fields[0].get("data") if fields[0].get("data")|length > 1 else fields[0].get("data")[0]}}</p>
-  {% endif %}
-  {#<rh-cta slot="footer" priority="primary">
-    <a href="#">Call to action</a>
-  </rh-cta>#}
-  </div>
+
+  <ul>
+{%  for f in fields %}
+    <li>
+      <h4>{{f.get("name")}}</h4>
+      <p>{% for item in f.get("data") %}
+{{      item }}{% if not loop.last %}, {% endif %}
+{%    endfor %}</p>
+    </li>
+{%  endfor %}
+  </ul>
 </rh-card>
 
 <style>
-  rh-card {
-    & h2 {
-      font-size: initial;
+{# https://ux.redhat.com/elements/card/demos/#demo-promo #}
+rh-card[variant="promo"] {
+  container-name: promo;
+  container-type: inline-size;
+}
+
+@container promo (min-width: 768px) {
+  .reverse::part(container) {
+    grid-template-columns: 1fr 2fr;
+  }
+
+  .reverse::part(image) {
+    justify-self: start;
+    order: -10;
+  }
+}
+
+{# Control padding #}
+{% set padding = 'var(--rh-space-lg)' %}
+{% if fields|length > 4 %}
+{%   set padding = 'var(--rh-space-md)' %}
+{% endif %}
+
+{# https://ux.redhat.com/patterns/card/examples/#fast-facts-card #}
+.ngui-one-card {
+  & ul {
+    display: flex;
+    flex-flow: column;
+    gap: {{padding}};
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    & li {
+      margin-block: 0;
+      padding-block-end: {{padding}};
+      border-block-end: 1px solid var(--rh-color-border-subtle);
+      &:last-child {
+        padding-block-end: 0;
+        border-block-end: none;
+      }
+      & :first-child {
+        margin-block-start: 0;
+      }
+
+      & :last-child {
+        margin-block-end: 0;
+      }
     }
   }
-  #one-card-image-text {
-    display: flex;
-    gap: 1rem;
+  & h4 {
+    margin-block-end: 0 {{padding}};
+    font-weight: var(--rh-font-weight-heading-regular);
+    font-size: var(--rh-font-size-body-text-md);
+    font-family: var(--rh-font-family-body-text);
+    line-height: var(--rh-line-height-body-text);
   }
-  #one-card-image-text .img {
-    width: 50%;
+  & p {
+    margin-block-start: var(--rh-space-sm);
   }
+}
 </style>
 
 <script type="module">
