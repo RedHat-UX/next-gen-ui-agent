@@ -22,35 +22,30 @@ def test_renderer_one_card_full() -> None:
     agent._extension_manager = extension_manager_rhds()
     component = get_transformed_component()
     rendition = agent.design_system_handler([component], component_system)[0].rendition
-    # print(rendition)
+    print(rendition)
     assert (
         rendition
         == """
 <rh-card class="ngui-one-card reverse" >
   <h2 slot="header">Toy Story Details</h2>
 
-  <ul>
-    <li>
-      <h4>Title</h4>
-      <p>Toy Story</p>
-    </li>
-    <li>
-      <h4>Year</h4>
-      <p>1995</p>
-    </li>
-    <li>
-      <h4>IMDB Rating</h4>
-      <p>8.3</p>
-    </li>
-    <li>
-      <h4>Release Date</h4>
-      <p>1995-11-22</p>
-    </li>
-    <li>
-      <h4>Actors</h4>
-      <p>Jim Varney, Tim Allen, Tom Hanks, Don Rickles</p>
-    </li>
-  </ul>
+  <dl>
+      <dt>Title</dt>
+      <dd>Toy Story</dd>
+
+      <dt>Year</dt>
+      <dd>1995</dd>
+
+      <dt>IMDB Rating</dt>
+      <dd>8.3</dd>
+
+      <dt>Release Date</dt>
+      <dd>1995-11-22</dd>
+
+      <dt>Actors</dt>
+      <dd>Jim Varney, Tim Allen, Tom Hanks, Don Rickles</dd>
+
+  </dl>
 </rh-card>
 
 <style>
@@ -72,15 +67,16 @@ rh-card[variant="promo"] {
 
 
 .ngui-one-card {
-  & ul {
+  & dl {
     display: flex;
     flex-flow: column;
     gap: var(--rh-space-md);
     margin: 0;
     padding: 0;
     list-style-type: none;
-    & li {
+    & dd {
       margin-block: 0;
+      margin-inline-start: 0;
       padding-block-end: var(--rh-space-md);
       border-block-end: 1px solid var(--rh-color-border-subtle);
       &:last-child {
@@ -90,21 +86,17 @@ rh-card[variant="promo"] {
       & :first-child {
         margin-block-start: 0;
       }
-
       & :last-child {
         margin-block-end: 0;
       }
     }
-  }
-  & h4 {
-    margin-block-end: 0 var(--rh-space-md);
-    font-weight: var(--rh-font-weight-heading-regular);
-    font-size: var(--rh-font-size-body-text-md);
-    font-family: var(--rh-font-family-body-text);
-    line-height: var(--rh-line-height-body-text);
-  }
-  & p {
-    margin-block-start: var(--rh-space-sm);
+    & dt {
+      margin-block-end: 0 var(--rh-space-md);
+      font-weight: var(--rh-font-weight-heading-regular);
+      font-size: var(--rh-font-size-body-text-md);
+      font-family: var(--rh-font-family-body-text);
+      line-height: var(--rh-line-height-body-text);
+    }
   }
 }
 </style>
