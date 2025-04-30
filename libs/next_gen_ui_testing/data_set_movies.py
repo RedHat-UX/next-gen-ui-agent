@@ -1,5 +1,7 @@
 # Data Set - Movies
 
+import datetime
+
 movies = [
     {
         "movie": {
@@ -17,7 +19,7 @@ movies = [
             "tmdbId": "862",
             "plot": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
             "posterUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
-            "released": "1995-11-22",
+            "released": datetime.datetime(2022, 11, 2),
             "trailerUrl": "https://www.youtube.com/watch?v=v-PjgYDrg70",
             "budget": 30000000,
         },

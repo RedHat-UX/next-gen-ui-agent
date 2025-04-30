@@ -5,6 +5,7 @@ import logging
 import streamlit as st
 from gui_streamlit.ngui_rhds_component import ngui_rhds_component
 from langchain_core.language_models import FakeMessagesListChatModel
+from langchain_core.messages import AIMessage, BaseMessage, ChatMessage, ToolMessage
 from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
 from next_gen_ui_agent.types import UIComponentMetadata
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
@@ -61,7 +62,7 @@ component_video_player = UIComponentMetadata.model_validate(
 
 
 def create_ngui_graph(llm_data):
-    msg = {"type": "assistant", "content": json.dumps(llm_data)}
+    msg = AIMessage(content=json.dumps(llm_data, default=str))
     ngui_model = FakeMessagesListChatModel(responses=[msg], cache=False)
     ngui_graph = NextGenUILangGraphAgent(ngui_model)
     extension_rhds = Extension(
@@ -89,7 +90,7 @@ st.text(
 )
 
 with st.expander("Backend Data"):
-    st.code(json.dumps(movie, indent=2))
+    st.code(json.dumps(movie, indent=2, default=str))
 
 renderers = ["rhds", "json", "patternfly"]
 if "renderer" not in st.session_state:
@@ -101,10 +102,10 @@ async def start_chat() -> None:
     if prompt:
         logger.info(prompt)
         logger.info(movie)
-        messages = []
-        messages.append({"role": "user", "content": prompt})
+        messages: list[BaseMessage] = []
+        messages.append(ChatMessage(content=prompt, role="user"))
         messages.append(
-            {"role": "tool", "tool_call_id": "test-id", "content": json.dumps(movie)}
+            ToolMessage(content=json.dumps(movie, default=str), tool_call_id="test-id")
         )
 
         # with st.chat_message("user"):
@@ -167,7 +168,12 @@ async def start_chat() -> None:
                                 case "json":
                                     msg_json = json.loads(msg.content)
                                     st.code(
-                                        json.dumps(msg_json, indent=2, sort_keys=True)
+                                        json.dumps(
+                                            msg_json,
+                                            indent=2,
+                                            sort_keys=True,
+                                            default=str,
+                                        )
                                     )
                                 case "rhds":
                                     ngui_rhds_component(my_input_value=msg.content)
