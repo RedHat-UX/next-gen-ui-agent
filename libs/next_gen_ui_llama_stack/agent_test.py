@@ -43,7 +43,7 @@ step2_ToolExecutionStep = {
     "tool_responses": [
         {
             "call_id": "b8807f6c-ea68-4f5f-a369-4a1542132e7a",
-            "content": json.dumps(movies_data),
+            "content": json.dumps(movies_data, default=str),
             "tool_name": "movies",
         }
     ],
