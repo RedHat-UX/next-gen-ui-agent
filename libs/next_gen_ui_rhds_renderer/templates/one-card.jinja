@@ -12,16 +12,15 @@ RHDS "Fast facts card" component from
 {% endif %}
   <h2 slot="header">{{title}}</h2>
 
-  <ul>
+  <dl>
 {%  for f in fields %}
-    <li>
-      <h4>{{f.get("name")}}</h4>
-      <p>{% for item in f.get("data") %}
+      <dt>{{f.get("name")}}</dt>
+      <dd>{% for item in f.get("data") %}
 {{      item }}{% if not loop.last %}, {% endif %}
-{%    endfor %}</p>
-    </li>
+{%    endfor %}</dd>
+
 {%  endfor %}
-  </ul>
+  </dl>
 </rh-card>
 
 <style>
@@ -50,15 +49,16 @@ rh-card[variant="promo"] {
 
 {# https://ux.redhat.com/patterns/card/examples/#fast-facts-card #}
 .ngui-one-card {
-  & ul {
+  & dl {
     display: flex;
     flex-flow: column;
     gap: {{padding}};
     margin: 0;
     padding: 0;
     list-style-type: none;
-    & li {
+    & dd {
       margin-block: 0;
+      margin-inline-start: 0;
       padding-block-end: {{padding}};
       border-block-end: 1px solid var(--rh-color-border-subtle);
       &:last-child {
@@ -68,21 +68,17 @@ rh-card[variant="promo"] {
       & :first-child {
         margin-block-start: 0;
       }
-
       & :last-child {
         margin-block-end: 0;
       }
     }
-  }
-  & h4 {
-    margin-block-end: 0 {{padding}};
-    font-weight: var(--rh-font-weight-heading-regular);
-    font-size: var(--rh-font-size-body-text-md);
-    font-family: var(--rh-font-family-body-text);
-    line-height: var(--rh-line-height-body-text);
-  }
-  & p {
-    margin-block-start: var(--rh-space-sm);
+    & dt {
+      margin-block-end: 0 {{padding}};
+      font-weight: var(--rh-font-weight-heading-regular);
+      font-size: var(--rh-font-size-body-text-md);
+      font-family: var(--rh-font-family-body-text);
+      line-height: var(--rh-line-height-body-text);
+    }
   }
 }
 </style>
