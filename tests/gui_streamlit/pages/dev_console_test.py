@@ -2,13 +2,13 @@ from streamlit.testing.v1 import AppTest
 
 
 def test_renderers_options():
-    at = AppTest.from_file("app.py").run()
+    at = AppTest.from_file("dev_console.py").run()
     assert at.selectbox("renderer_select").options == ["rhds", "json", "patternfly"]
 
 
 def test_rendering_json():
     """A user increments the number input, then clicks Add"""
-    at = AppTest.from_file("app.py")
+    at = AppTest.from_file("dev_console.py")
     at.session_state.renderer = "json"
     at.run()
     assert at.text[1].value == "Rendering DONE: json"
@@ -18,7 +18,7 @@ def test_rendering_json():
 
 def test_rendering_rhds():
     """A user increments the number input, then clicks Add"""
-    at = AppTest.from_file("app.py")
+    at = AppTest.from_file("dev_console.py")
     at.session_state.renderer = "rhds"
     at.run()
     assert at.text[1].value == "Rendering DONE: rhds"
