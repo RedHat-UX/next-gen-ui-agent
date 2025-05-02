@@ -13,6 +13,9 @@ python_sources(
 
 python_tests(
     name="tests",
+    sources=[
+        "*/*_test.py",
+    ],
     dependencies=[
         "libs/3rdparty/python:pytest",
         ":lib",  # streamlit needs to see app.py
