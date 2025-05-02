@@ -55,9 +55,12 @@ def assert_array_not_empty(
 ):
     """Assert that array value expected under `value_name` in the `value_object` is not empty, add `error_code` into `errors` if it is empty and return `False`"""
     try:
-        value = value_object[value_name]
+        if isinstance(value_object, dict):
+            value = value_object[value_name]
+        else:
+            value = getattr(value_object, value_name)
 
-        if not value or len(value) == 0:
+        if not value or value is None or len(value) == 0:
             errors.append(
                 EvalError(error_code, err_msg if err_msg else f"array is '{value}'")
             )
@@ -78,8 +81,12 @@ def assert_str_not_blank(
 ):
     """Assert that string value expected under `value_name` in the `value_object` is not a blank string, add `error_code` into `errors` if it is blank and return `False`"""
     try:
-        value = value_object[value_name]
-        if not value or len(value.strip()) == 0:
+        if isinstance(value_object, dict):
+            value = value_object[value_name]
+        else:
+            value = getattr(value_object, value_name)
+
+        if not value or value is None or len(value.strip()) == 0:
             errors.append(
                 EvalError(
                     error_code, err_msg if err_msg else f"string value is '{value}'"
