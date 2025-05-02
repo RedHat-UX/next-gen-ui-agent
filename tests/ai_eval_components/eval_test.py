@@ -1,9 +1,10 @@
-from typing import NotRequired, TypedDict
+from typing import NotRequired, Optional, TypedDict
 
 from ai_eval_components.eval import check_result_explicit
 from ai_eval_components.eval_utils import assert_array_not_empty, assert_str_not_blank
 from ai_eval_components.types import DatasetRow, EvalError
 from next_gen_ui_agent.types import DataField, UIComponentMetadata
+from pydantic import BaseModel
 
 ERR = "error-test"
 
@@ -13,7 +14,12 @@ class TestTypeDict(TypedDict):
     string: NotRequired[str]
 
 
-def test_assert_array_not_empty_None() -> None:
+class TestPydantic(BaseModel):
+    array: Optional[list[str]] = None
+    string: Optional[str] = None
+
+
+def test_assert_array_not_empty_TypeDict_None() -> None:
     errors: list[EvalError] = []
     component: TestTypeDict = {}
     assert_array_not_empty(component, "array", ERR, errors, "my msg")
@@ -21,7 +27,15 @@ def test_assert_array_not_empty_None() -> None:
     assert errors[0].message == "my msg"
 
 
-def test_assert_array_not_empty_Empty() -> None:
+def test_assert_array_not_empty_Pydantic_None() -> None:
+    errors: list[EvalError] = []
+    component: TestPydantic = TestPydantic()
+    assert_array_not_empty(component, "array", ERR, errors, "my msg")
+    assert errors[0].code == ERR
+    assert errors[0].message == "my msg"
+
+
+def test_assert_array_not_empty_TypeDict_Empty() -> None:
     errors: list[EvalError] = []
     component: TestTypeDict = {"array": []}
     assert_array_not_empty(component, "array", ERR, errors)
@@ -29,14 +43,29 @@ def test_assert_array_not_empty_Empty() -> None:
     assert errors[0].message == "array is '[]'"
 
 
-def test_assert_array_not_empty_OK() -> None:
+def test_assert_array_not_empty_Pydantic_Empty() -> None:
+    errors: list[EvalError] = []
+    component: TestPydantic = TestPydantic.model_validate({"array": []})
+    assert_array_not_empty(component, "array", ERR, errors)
+    assert errors[0].code == ERR
+    assert errors[0].message == "array is '[]'"
+
+
+def test_assert_array_not_empty_TypeDict_OK() -> None:
     errors: list[EvalError] = []
     component: TestTypeDict = {"array": ["a"]}
     assert_array_not_empty(component, "array", ERR, errors)
     assert len(errors) == 0
 
 
-def test_assert_str_not_blank_None() -> None:
+def test_assert_array_not_empty_Pydantic_OK() -> None:
+    errors: list[EvalError] = []
+    component: TestPydantic = TestPydantic.model_validate({"array": ["a"]})
+    assert_array_not_empty(component, "array", ERR, errors)
+    assert len(errors) == 0
+
+
+def test_assert_str_not_blank_TypeDict_None() -> None:
     errors: list[EvalError] = []
     component: TestTypeDict = {}
     assert_str_not_blank(component, "string", ERR, errors)
@@ -44,7 +73,15 @@ def test_assert_str_not_blank_None() -> None:
     assert errors[0].message == "string is missing"
 
 
-def test_assert_str_not_blank_Empty() -> None:
+def test_assert_str_not_blank_Pydantic_None() -> None:
+    errors: list[EvalError] = []
+    component: TestPydantic = TestPydantic()
+    assert_str_not_blank(component, "string", ERR, errors)
+    assert errors[0].code == ERR
+    assert errors[0].message == "string value is 'None'"
+
+
+def test_assert_str_not_blank_TypeDict_Empty() -> None:
     errors: list[EvalError] = []
     component: TestTypeDict = {"string": ""}
     assert_str_not_blank(component, "string", ERR, errors)
@@ -52,7 +89,15 @@ def test_assert_str_not_blank_Empty() -> None:
     assert errors[0].message == "string value is ''"
 
 
-def test_assert_str_not_blank_Blank() -> None:
+def test_assert_str_not_blank_Pydantic_Empty() -> None:
+    errors: list[EvalError] = []
+    component: TestPydantic = TestPydantic.model_validate({"string": ""})
+    assert_str_not_blank(component, "string", ERR, errors)
+    assert errors[0].code == ERR
+    assert errors[0].message == "string value is ''"
+
+
+def test_assert_str_not_blank_TypeDict_Blank() -> None:
     errors: list[EvalError] = []
     component: TestTypeDict = {"string": "  "}
     assert_str_not_blank(component, "string", ERR, errors, "my msg")
@@ -60,9 +105,24 @@ def test_assert_str_not_blank_Blank() -> None:
     assert errors[0].message == "my msg"
 
 
-def test_assert_str_not_blank_OK() -> None:
+def test_assert_str_not_blank_Pydantic_Blank() -> None:
+    errors: list[EvalError] = []
+    component: TestPydantic = TestPydantic.model_validate({"string": "  "})
+    assert_str_not_blank(component, "string", ERR, errors, "my msg")
+    assert errors[0].code == ERR
+    assert errors[0].message == "my msg"
+
+
+def test_assert_str_not_blank_TypeDict_OK() -> None:
     errors: list[EvalError] = []
     component: TestTypeDict = {"string": "a"}
+    assert_str_not_blank(component, "string", ERR, errors)
+    assert len(errors) == 0
+
+
+def test_assert_str_not_blank_Pydantic_OK() -> None:
+    errors: list[EvalError] = []
+    component: TestPydantic = TestPydantic.model_validate({"string": "a"})
     assert_str_not_blank(component, "string", ERR, errors)
     assert len(errors) == 0
 

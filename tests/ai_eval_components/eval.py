@@ -1,7 +1,7 @@
 import asyncio
-import json
 import os
 import time
+from traceback import print_exception
 
 from ai_eval_components.eval_perfstats import print_perf_stats, report_perf_stats
 from ai_eval_components.eval_reporting import (
@@ -37,6 +37,10 @@ from next_gen_ui_agent.data_transformation import enhance_component_by_input_dat
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAgentInference
+from pydantic_core import from_json
+
+# allows to print system error traces to the stderr
+PRINT_SYS_ERR_TRACE = False
 
 # INFERENCE_MODEL_DEFAULT = "llama3.2:latest"
 INFERENCE_MODEL_DEFAULT = "granite3.2:2b"
@@ -119,7 +123,9 @@ def evaluate_agent_for_dataset_row(dsr: DatasetRow, inference: InferenceBase):
 
     component: UIComponentMetadata | None = None
     try:
-        component = json.loads(llm_response)
+        component = UIComponentMetadata.model_validate(
+            from_json(llm_response, allow_partial=False), strict=False
+        )
     except Exception as e:
         errors.append(EvalError("invalid_json", "LLM produced invalid JSON: " + str(e)))
 
@@ -188,6 +194,8 @@ if __name__ == "__main__":
 
                 except Exception as e:
                     is_progress_dot = report_err_sys(f_err, e, dsr, is_progress_dot)
+                    if PRINT_SYS_ERR_TRACE:
+                        print_exception(e)
 
             if arg_write_llm_output:
                 f_out.close()
