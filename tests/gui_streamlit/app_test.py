@@ -13,7 +13,7 @@ def test_rendering_json():
     at.run()
     assert at.text[1].value == "Rendering DONE: json"
     # test that author value is in the agent output
-    assert "Tom Hanks" in at.code[1].value
+    assert "Tom Hanks" in at.code[0].value
 
 
 def test_rendering_rhds():
