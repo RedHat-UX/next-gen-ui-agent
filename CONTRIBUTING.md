@@ -132,3 +132,25 @@ Github Ci/CD pipeline automatically publish all packages. During every git push 
 On Tag the pipeline build and pushes packages to [PyPI](https://pypi.org/project/next-gen-ui-agent/).
 
 To perform actual release bump the version (see above).
+
+## Documentation
+
+Install [MkDocs Material](https://squidfunk.github.io/mkdocs-material/)
+
+```sh
+pip install mkdocs-material
+```
+
+Serve documentation locally
+
+```sh
+mkdocs serve
+```
+
+and contribute in `docs` directory.
+
+### Build documentation
+
+```sh
+mkdocs build
+```
