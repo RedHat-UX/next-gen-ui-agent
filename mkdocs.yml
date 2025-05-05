@@ -21,4 +21,6 @@ nav:
   - Get Started:
     - Welcome: index.md
     - installation.md
-  - User Guide: user_guide/index.md
+  - User Guide:
+    - Architecture: user_guide/architecture.md
+    - Input Data: user_guide/input_data.md
