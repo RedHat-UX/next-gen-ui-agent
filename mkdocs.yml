@@ -1,0 +1,24 @@
+site_name: Next Gen UI Agent
+
+repo_name: RedHat-UX/next-gen-ui-agent
+repo_url: https://github.com/RedHat-UX/next-gen-ui-agent
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.path
+    - navigation.top
+
+# https://www.mkdocs.org/user-guide/configuration/#validation
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
+
+nav:
+  - Get Started:
+    - Welcome: index.md
+    - installation.md
+  - User Guide: user_guide/index.md
