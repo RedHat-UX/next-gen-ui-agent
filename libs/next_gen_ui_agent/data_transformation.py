@@ -22,6 +22,12 @@ def enhance_component_by_input_data(
 
             for field in component.fields:
                 dp = field.data_path
+                # patch occasional LLM error
+                dp = (
+                    dp
+                    if not dp.startswith("$.{")
+                    else dp.replace("$.{", "$..").replace("}", "")
+                )
                 dp = dp if dp.startswith("$.") else f"$..{dp}"
                 je = None
                 try:
