@@ -15,3 +15,9 @@ args = ["-vv", "--no-header"]
 ignore_paths = [
     'tests/distribution-all/**',
 ]
+
+[coverage-py]
+report = ["raw"]
+
+[test]
+report = true
