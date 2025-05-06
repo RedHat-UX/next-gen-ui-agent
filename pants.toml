@@ -15,7 +15,7 @@ pants_ignore = [
 
 [source]
 # The Python source root is the repo root. See https://www.pantsbuild.org/docs/source-roots.
-root_patterns = ["/libs", "/tests"]
+root_patterns = ["/libs", "/tests", "/spec"]
 
 [python]
 # The default interpreter constraints for code in this repo. Individual targets can override

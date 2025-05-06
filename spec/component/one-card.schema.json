@@ -1,0 +1,80 @@
+{
+  "$defs": {
+    "DataField": {
+      "description": "UI Component field metadata.",
+      "properties": {
+        "name": {
+          "description": "Field name",
+          "type": "string"
+        },
+        "data_path": {
+          "description": "JSON Path to input data",
+          "type": "string"
+        },
+        "data": {
+          "default": [],
+          "description": "Data matching `data_path` from `input_data`",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {}
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "data_path"
+      ],
+      "title": "RenderContextDataField",
+      "type": "object"
+    }
+  },
+  "description": "Rendering Context for OneCard.",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "fields": {
+      "items": {
+        "$ref": "#/$defs/DataField"
+      },
+      "type": "array"
+    },
+    "field_names": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "data_length": {
+      "type": "integer"
+    },
+    "image": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Image URL"
+    }
+  },
+  "required": [
+    "title",
+    "fields",
+    "field_names",
+    "data_length"
+  ],
+  "title": "RenderContextOneCard",
+  "type": "object"
+}
