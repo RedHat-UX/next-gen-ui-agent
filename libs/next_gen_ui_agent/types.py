@@ -1,7 +1,7 @@
 from typing import Any, NotRequired, Optional, TypedDict, Union
 
 from next_gen_ui_agent.model import InferenceBase
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # Intentionaly TypeDict because of passing ABC class InferenceBase
@@ -34,9 +34,14 @@ DataFieldDataType = Union[str | int | Any]
 class DataField(BaseModel):
     """UI Component field metadata."""
 
-    name: str
-    data_path: str
-    data: list[DataFieldDataType] = []
+    model_config = ConfigDict(title="RenderContextDataField")
+
+    name: str = Field(description="Field name")
+    data_path: str = Field(description="JSON Path to input data")
+    """JSON Path to input data"""
+    data: list[DataFieldDataType] = Field(
+        default=[], description="Data matching `data_path` from `input_data`"
+    )
     """Data matching `data_path` from `input_data`"""
 
 
