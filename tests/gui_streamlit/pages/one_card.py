@@ -13,6 +13,15 @@ prompt = "tell me details about Toy Story movie"
 movie = find_movie("Toy Story")
 input_data = json.dumps(movie, default=str)
 
+st.sidebar.header("One Card")
+st.sidebar.text("Input data:")
+st.sidebar.code(json.dumps(movie, default=str, indent=2))
+
+
+@st.dialog("Agent LLM Mocked Response")
+def show_llm_input(component: UIComponentMetadata):
+    st.code(component.model_dump_json(indent=2, exclude_unset=True))
+
 
 def get_component():
     component_one_card = UIComponentMetadata.model_validate(
@@ -45,6 +54,8 @@ async def case_fields():
         component_system=component_system,
     )
     ngui_rhds_component(msg_content)
+    if st.button("Agent LLM Mocked Response", key="llm_case_fields"):
+        show_llm_input(component)
 
 
 async def case_one_field():
@@ -60,6 +71,8 @@ async def case_one_field():
         component_system=component_system,
     )
     ngui_rhds_component(msg_content)
+    if st.button("Agent LLM Mocked Response", key="llm_case_one_field"):
+        show_llm_input(component)
 
 
 async def case_image():
@@ -74,6 +87,8 @@ async def case_image():
         component_system=component_system,
     )
     ngui_rhds_component(msg_content)
+    if st.button("Agent LLM Mocked Response", key="llm_case_image"):
+        show_llm_input(component)
 
 
 async def render():
