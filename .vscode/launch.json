@@ -34,6 +34,17 @@
                 "run", "${file}",
                 "--server.runOnSave", "True"
             ],
+        },
+        {
+            "name": "tests/gui_streamlit/app.py",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "streamlit",
+            "console": "integratedTerminal",
+            "args": [
+                "run", "tests/gui_streamlit/app.py",
+                "--server.runOnSave", "True"
+            ],
         }
     ]
 }

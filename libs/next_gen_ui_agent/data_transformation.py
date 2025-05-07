@@ -1,8 +1,9 @@
 import json
 import logging
+from typing import Any
 
 from jsonpath_ng import parse  # type: ignore
-from next_gen_ui_agent.types import InputData, UIComponentMetadata
+from next_gen_ui_agent.types import DataFieldDataType, InputData, UIComponentMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,8 @@ def enhance_component_by_input_data(
                 try:
                     # TODO empty array is put into the field["data"] even if `data_path`` is invalid. Shouldn't it be `None` to distinguish from data field with empty array? Has consequence into `tests/ai_eval_components/eval.py`!
                     # TODO array seems to be put into the field["data"] even if `data_path`` is pointing to simple value
-                    field.data = [match.value for match in je.find(json_data)]
+                    matched_data = [match.value for match in je.find(json_data)]
+                    field.data = sanitize_matched_data(matched_data)
                 except Exception:
                     logger.exception(
                         "Cannot match data and component JSONPath dp=%s data=%s",
@@ -47,3 +49,21 @@ def enhance_component_by_input_data(
                         data_content,
                     )
                     break
+
+
+def sanitize_matched_data(matched_data_list: list[Any]) -> list[DataFieldDataType]:
+    """Check matched data if they match the expected layout and types"""
+    result = matched_data_list
+
+    # Array of array (NGUI-129)
+    if len(matched_data_list) == 1 and isinstance(matched_data_list[0], list):
+        result = matched_data_list[0]
+
+    for index, matched_item in enumerate(result):
+        if isinstance(matched_item, dict):
+            result[index] = ", ".join(f"{k}: {v}" for k, v in matched_item.items())
+        elif not isinstance(matched_item, DataFieldDataType):
+            result[index] = str(matched_item)
+        # TODO: Handle date, datetime
+
+    return result

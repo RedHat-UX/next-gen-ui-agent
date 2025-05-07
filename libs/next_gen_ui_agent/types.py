@@ -1,4 +1,4 @@
-from typing import Any, NotRequired, Optional, TypedDict, Union
+from typing import NotRequired, Optional, TypedDict, Union
 
 from next_gen_ui_agent.model import InferenceBase
 from pydantic import BaseModel, ConfigDict, Field
@@ -26,9 +26,8 @@ class AgentInput(TypedDict):
     input_data: list[InputData]
 
 
-# TODO: Check data_transformation how types are handled
-DataFieldDataType = Union[str | int | Any]
-"""Field Data item can be either str or int"""
+DataFieldDataType = Union[str | int | float | bool]
+"""Field Data item can be either str, number or bool"""
 
 
 class DataField(BaseModel):
