@@ -22,7 +22,8 @@ class RenderContextBase(BaseModel):
     title: str
     fields: list[DataField]
     field_names: list[str]
-    data_length: int
+    data_length: int = Field(description="Maximal count of items in any data field")
+    """Maximal count of items in any data field"""
 
 
 class RenderContextAudio(RenderContextBase):

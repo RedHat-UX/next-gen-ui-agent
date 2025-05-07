@@ -59,6 +59,7 @@
       "type": "array"
     },
     "data_length": {
+      "description": "Maximal count of items in any data field",
       "type": "integer"
     },
     "image": {
