@@ -2,7 +2,6 @@ from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.one_card_shareable_tests import BaseOneCardRendererTests
-from next_gen_ui_agent.renderer.types import RenderContextOneCard
 from next_gen_ui_agent.types import UIComponentMetadata
 
 
@@ -11,7 +10,7 @@ class TestOneCardJsonRenderer(BaseOneCardRendererTests):
         return JsonStrategyFactory()
 
 
-def test_render_json() -> None:
+def test_render_json_output() -> None:
     strategy = OneCardRenderStrategy()
     c = UIComponentMetadata.model_validate(
         {
@@ -33,10 +32,8 @@ def test_render_json() -> None:
         }
     )
     resultStr = strategy.render(c)
-    result: RenderContextOneCard = RenderContextOneCard.model_validate_json(resultStr)
+    # print(resultStr)
     assert (
-        result.image
-        == "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
+        resultStr
+        == """{"image":"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg","fields":[{"name":"Title","data_path":"movie.title","data":["Toy Story"]}],"title":"Toy Story Details","data_length":1,"field_names":["Title"]}"""
     )
-    assert len(result.fields) == 1
-    assert len(result.field_names) == 1
