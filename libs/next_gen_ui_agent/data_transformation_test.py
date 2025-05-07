@@ -1,4 +1,9 @@
-from next_gen_ui_agent.data_transformation import enhance_component_by_input_data
+from datetime import date, datetime
+
+from next_gen_ui_agent.data_transformation import (
+    enhance_component_by_input_data,
+    sanitize_matched_data,
+)
 from next_gen_ui_agent.types import InputData, UIComponentMetadata
 
 
@@ -110,6 +115,35 @@ def test_enhance_component_by_input_data() -> None:
         "Tim Allen",
         "Tom Hanks",
         "Don Rickles",
+    ]
+
+
+def test_sanitize_matched_data_str() -> None:
+    assert sanitize_matched_data(["str_1", "str_2"]) == ["str_1", "str_2"]
+
+
+def test_sanitize_matched_data_int() -> None:
+    assert sanitize_matched_data([10, 20]) == [10, 20]
+
+
+def test_sanitize_matched_data_datetime() -> None:
+    assert sanitize_matched_data([datetime.fromisoformat("2011-11-04")]) == [
+        "2011-11-04 00:00:00"
+    ]
+
+
+def test_sanitize_matched_data_date() -> None:
+    assert sanitize_matched_data([date.fromisoformat("2011-11-04")]) == ["2011-11-04"]
+
+
+def test_sanitize_matched_data_array() -> None:
+    assert sanitize_matched_data([["str1", "str2"]]) == ["str1", "str2"]
+
+
+def test_sanitize_matched_data_objects() -> None:
+    assert sanitize_matched_data([[{"a": "b", "x": "y"}, {"c": 10}]]) == [
+        "a: b, x: y",
+        "c: 10",
     ]
 
 

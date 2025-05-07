@@ -22,7 +22,12 @@
               {
                 "type": "integer"
               },
-              {}
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
             ]
           },
           "type": "array"
