@@ -1,3 +1,5 @@
+# Input data
+
 This chapter contains rules for the format of the `Structured data` provided as an input to the *UI Agent*.
 *Controlling assistant* or *Data providing agent* must provide data conforming to these rules to get good results from the *UI Agent*.
 Non conforming data may work still to get reasonable `Data UI Block`, but results are not guaranteed.
@@ -130,10 +132,11 @@ You can also nest `Array of simple values` in the `Object` (even if the `Object`
 }
 ```
 
-Nesting `Array of objects` in the `Object` (except documented root) may be sometimes interpreted correctly, but it is not guaranteed and should be avoided.
-*UI Agent* can sometimes select specific UI component to render this `Array of objects` only, but fields from the parent object are not rendered then. 
-But in many cases LLM of the *UI Agent* generates nonsense paths pointing to the values of this array.
-It is always better to provide this `Array of objects` as a separate input data, so two `Data UI Blocks` are shown, one for the parent `Object`, and one for the `Array of objects`.
+!!! warning
+    Nesting `Array of objects` in the `Object` (except documented root) may be sometimes interpreted correctly, but it is not guaranteed and should be avoided.
+    *UI Agent* can sometimes select specific UI component to render this `Array of objects` only, but fields from the parent object are not rendered then. 
+    But in many cases LLM of the *UI Agent* generates nonsense paths pointing to the values of this array.
+    It is always better to provide this `Array of objects` as a separate input data, so two `Data UI Blocks` are shown, one for the parent `Object`, and one for the `Array of objects`.
 
 ## Data hints using metadata
 

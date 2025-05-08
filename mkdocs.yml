@@ -5,10 +5,37 @@ repo_url: https://github.com/RedHat-UX/next-gen-ui-agent
 
 theme:
   name: material
+  palette:
+  - media: "(prefers-color-scheme)"
+    scheme: default
+    toggle:
+      icon: material/lightbulb-auto-outline
+      name: "Auto mode"
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    toggle:
+      icon: material/lightbulb-on
+      name: "Light mode"
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    toggle:
+      icon: material/lightbulb-off
+      name: "Dark mode"
   features:
     - navigation.tabs
     - navigation.path
     - navigation.top
+    - content.code.copy
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
 
 # https://www.mkdocs.org/user-guide/configuration/#validation
 validation:
@@ -22,5 +49,6 @@ nav:
     - Welcome: index.md
     - installation.md
   - User Guide:
-    - Architecture: user_guide/architecture.md
-    - Input Data: user_guide/input_data.md
+    - user_guide/architecture.md
+    - user_guide/input_data.md
+    - user_guide/data_ui_blocks.md
