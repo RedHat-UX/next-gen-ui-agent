@@ -23,3 +23,13 @@ def test_rendering_rhds():
     at.run()
     assert at.text[1].value == "Rendering DONE: rhds"
     # No way how to get custom component
+
+
+def test_rendering_rhds_image():
+    """A user increments the number input, then clicks Add"""
+    at = AppTest.from_file("dev_console.py")
+    at.session_state.renderer = "rhds"
+    at.session_state.example_code = "image"
+    at.run()
+    assert at.text[1].value == "Rendering DONE: rhds"
+    # No way how to get custom component

@@ -4,7 +4,6 @@ RHDS "Fast facts card" component from
  * https://ux.redhat.com/elements/card/demos/#demo-promo
 #}
 {# TODO: We're currently not using call to action link #}
-{# TODO: Image doesn't work properly so adding additional <div id="one-card-image-text"> and little bit styling#}
 
 <rh-card class="ngui-one-card">
 {% if image %}
@@ -56,6 +55,10 @@ RHDS "Fast facts card" component from
       place-items: start stretch;
       /*gap: var(--rh-space-2xl, 32px);*/
     }
+    &::part(image) {
+      grid-area: image;
+      padding: var(--rh-space-xl, 24px);
+    }
 
     @container (min-width: 576px) {
       &::part(container) {
@@ -63,10 +66,10 @@ RHDS "Fast facts card" component from
         grid-template-columns: 1fr 2fr;
       }
     }
-
-    &::part(image) {
-      grid-area: image;
-      padding: var(--rh-space-2xl, 32px);
+    @container (min-width: 768px) {
+      &::part(image) {
+        padding: var(--rh-space-2xl, 32px);
+      }
     }
   }
 {% endif %}

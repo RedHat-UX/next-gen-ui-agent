@@ -1,15 +1,33 @@
-{# RHDS Table component from https://ux.redhat.com/elements/card/ #}
+{# RHDS Image component from https://ux.redhat.com/patterns/card/examples/#image-card #}
 {# TODO: We're currently not using call to action link #}
-{# TODO: Image doesn't work properly so adding additional <div id="one-card-image-text"> and little bit styling#}
 
-<rh-card class="image-card">
+<rh-card class="ngui-image-card">
+{% if image %}
+  <img src="{{image}}" slot="image" alt="{{title}}">
+{% endif %}
   <h2 slot="header">{{title}}</h2>
-  {% if image %}
-  <div class="img">
-    <img src="{{image}}" slot="image" alt="{{title}}">
-  </div>
-  {% endif %}
 </rh-card>
+
+<style>
+  .ngui-image-card {
+    &::part(header) {
+      order: 0;
+    }
+    &::part(image) {
+      order: 1;
+      padding: var(--rh-space-xl, 24px);
+    }
+    &::part(footer) {
+      order: 2;
+    }
+    @container (min-width: 768px) {
+      &::part(image) {
+        padding: var(--rh-space-2xl, 32px);
+      }
+    }
+  }
+</style>
+
 
 <script type="module">
   import '@rhds/elements/rh-card/rh-card.js';

@@ -13,24 +13,15 @@ class ImageRenderStrategy(RenderStrategyBase[RenderContextImage]):
         # Trying to find field that would contain an image link
         fields = component.fields
 
-        field_with_image_suffix = next(
-            (
-                field
-                for field in fields
-                for d in field.data
-                if type(d) is str and d.endswith(IMAGE_SUFFIXES)
-            ),
-            None,
+        field_with_image_suffix = RenderStrategyBase.find_field(
+            fields,
+            lambda data: isinstance(data, str) and data.endswith(IMAGE_SUFFIXES),
         )
         if field_with_image_suffix:
-            image = next(
-                (
-                    data
-                    for data in field_with_image_suffix.data
-                    if type(data) is str and data.endswith(IMAGE_SUFFIXES)
-                ),
-                None,
+            image = RenderStrategyBase.find_field_data_value(
+                field_with_image_suffix.data,
+                lambda data: isinstance(data, str) and data.endswith(IMAGE_SUFFIXES),
             )
             if image:
-                self._rendering_context.image = image
+                self._rendering_context.image = str(image)
                 self._rendering_context.fields.remove(field_with_image_suffix)

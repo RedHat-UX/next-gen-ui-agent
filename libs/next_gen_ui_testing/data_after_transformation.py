@@ -1,7 +1,7 @@
 from next_gen_ui_agent import UIComponentMetadata
 from next_gen_ui_agent.types import DataField
 
-_transformed_component = UIComponentMetadata.model_validate(
+_transformed_component_one_card = UIComponentMetadata.model_validate(
     {
         "id": "test_id_1",
         "title": "Toy Story Details",
@@ -30,13 +30,41 @@ _transformed_component = UIComponentMetadata.model_validate(
     }
 )
 
+_transformed_component_image = UIComponentMetadata.model_validate(
+    {
+        "id": "test_id_1",
+        "title": "Toy Story Poster",
+        "reasonForTheComponentSelection": "Image available in the data",
+        "confidenceScore": "100%",
+        "component": "image",
+        "fields": [
+            {"name": "Title", "data_path": "movie.title", "data": ["Toy Story"]},
+            {
+                "name": "Poster",
+                "data_path": "movie.posterUrl",
+                "data": [
+                    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
+                ],
+            },
+        ],
+    }
+)
 
-def get_transformed_component():
-    return _transformed_component.model_copy()
+
+def get_transformed_component(component_name="one-card"):
+    match component_name:
+        case _transformed_component_one_card.component:
+            return _transformed_component_one_card.model_copy()
+        case _transformed_component_image.component:
+            return _transformed_component_image.model_copy()
+        case _:
+            raise Exception(
+                f"Unkonwn _transformed_component component_name={component_name}"
+            )
 
 
 def get_transformed_component_testing_data():
-    c = _transformed_component.model_copy()
+    c = _transformed_component_one_card.model_copy()
     c.fields.append(
         DataField(
             name="testing.arrayNumbers[*]",
