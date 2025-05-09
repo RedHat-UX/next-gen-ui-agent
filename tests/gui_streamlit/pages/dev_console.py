@@ -31,6 +31,18 @@ component_one_card = UIComponentMetadata.model_validate(
         ],
     }
 )
+component_image = UIComponentMetadata.model_validate(
+    {
+        "title": "Toy Story Poster",
+        "reasonForTheComponentSelection": "One item available in the data",
+        "confidenceScore": "100%",
+        "component": "image",
+        "fields": [
+            {"name": "Year", "data_path": "movie.year"},  # should not render
+            {"name": "Poster", "data_path": "movie.posterUrl"},
+        ],
+    }
+)
 component_video_player = UIComponentMetadata.model_validate(
     {
         "title": "Toy Story Details",
@@ -45,12 +57,31 @@ component_video_player = UIComponentMetadata.model_validate(
 )
 
 
+def get_component(component_code: str) -> UIComponentMetadata:
+    match component_code:
+        case component_one_card.component:
+            return component_one_card
+        case component_image.component:
+            return component_image
+        case component_video_player.component:
+            return component_video_player
+        case _:
+            raise Exception(f"Unkonwn component_code: {component_code}")
+
+
 # Streamlit UI
 st.header("Developer Console")
 
 renderers = ["rhds", "json", "patternfly"]
 if "renderer" not in st.session_state:
     st.session_state.renderer = renderers[0]
+example_codes = [
+    component_one_card.component,
+    component_image.component,
+    component_video_player.component,
+]
+if "example_code" not in st.session_state:
+    st.session_state.example_code = example_codes[0]
 
 
 async def start_chat() -> None:
@@ -76,16 +107,11 @@ async def start_chat() -> None:
         with st.expander("Component selection & configuration"):
             example_code = st.selectbox(
                 label="Example",
-                options=[
-                    component_one_card.component,
-                    component_video_player.component,
-                ],
+                options=example_codes,
                 key="example_code",
+                index=example_codes.index(st.session_state.example_code),
             )
-            if example_code == component_one_card.component:
-                llm_data = component_one_card
-            if example_code == component_video_player.component:
-                llm_data = component_video_player
+            llm_data = get_component(example_code)
 
             ngui_data = llm_data.model_dump_json(indent=4)
             ngui_data = st.text_area(
