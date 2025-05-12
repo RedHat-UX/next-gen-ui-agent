@@ -42,4 +42,3 @@ class VideoRenderStrategy(RenderStrategyBase[RenderContextVideo]):
 
             self._rendering_context.video = video
             self._rendering_context.video_img = video_img
-            self._rendering_context.fields.remove(field_with_video_suffix)

@@ -24,4 +24,3 @@ class ImageRenderStrategy(RenderStrategyBase[RenderContextImage]):
             )
             if image:
                 self._rendering_context.image = str(image)
-                self._rendering_context.fields.remove(field_with_image_suffix)

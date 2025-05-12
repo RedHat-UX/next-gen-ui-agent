@@ -33,7 +33,6 @@ class AudioPlayerRenderStrategy(RenderStrategyBase[RenderContextAudio]):
             )
             if image:
                 self._rendering_context.image = image
-                self._rendering_context.fields.remove(field_with_image_suffix)
 
         field_with_audio_suffix = next(
             (
@@ -55,7 +54,6 @@ class AudioPlayerRenderStrategy(RenderStrategyBase[RenderContextAudio]):
             )
             if audio:
                 self._rendering_context.audio = audio
-                self._rendering_context.fields.remove(field_with_audio_suffix)
 
         if not audio:
             # We cannot render video without the link
