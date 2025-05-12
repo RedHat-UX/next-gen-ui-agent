@@ -127,7 +127,12 @@ def evaluate_agent_for_dataset_row(dsr: DatasetRow, inference: InferenceBase):
             from_json(llm_response, allow_partial=False), strict=False
         )
     except Exception as e:
-        errors.append(EvalError("invalid_json", "LLM produced invalid JSON: " + str(e)))
+        errors.append(
+            EvalError(
+                "invalid_json",
+                "LLM produced invalid JSON: " + str(e).replace("\n", ": "),
+            )
+        )
 
     if component:
         # load data so we can evaluate that pointers to data are correct
