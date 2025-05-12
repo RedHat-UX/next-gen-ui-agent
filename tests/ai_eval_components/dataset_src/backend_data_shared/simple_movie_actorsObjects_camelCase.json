@@ -1,0 +1,51 @@
+{
+    "movie": {
+        "languages": [
+            "English"
+        ],
+        "year": 1995,
+        "pictureUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+        "runtime": 81,
+        "movieId": "1",
+        "imdb": {
+            "votes": 591836,
+            "id": "0114709",
+            "rating": 8.3
+        },
+        "countries": [
+            "USA",
+            "Germany",
+            "Czech Republic"
+        ],
+        "trailerUrl": "https://www.youtube.com/watch?v=v-PjgYDrg70",
+        "title": "Toy Story",
+        "url": "https://themoviedb.org/movie/862",
+        "revenue": 373554033,
+        "tmdbId": "862",
+        "plot": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
+        "released": "1995-11-22",
+        "budget": 30000000
+    },
+    "actors": [
+        {
+            "name": "Jim Varney",
+            "role": "Slinky Dog",
+            "description": " A dachshund slinky toy and Woody's second-in-command."
+        },
+        {
+            "name": "Tim Allen",
+            "role": "Buzz Lightyear",
+            "description": "Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend."
+        },
+        {
+            "name": "Tom Hanks",
+            "role": "Woody",
+            "description": "A pullstring cowboy doll who is Andy's favorite toy"
+        },
+        {
+            "name": "Don Rickles",
+            "role": "Mr. Potato Head",
+            "description": "A cynical potato-shaped doll with put-together pieces on his body."
+        }
+    ]
+}

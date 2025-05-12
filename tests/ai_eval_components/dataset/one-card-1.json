@@ -2,7 +2,7 @@
   {
     "id": "one-card-000001",
     "user_prompt": "When does my RHEL subscription end?",
-    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfItems\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
+    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfRuntimes\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_direct.json",
@@ -12,7 +12,7 @@
   {
     "id": "one-card-000002",
     "user_prompt": "When do I have to renew my RHEL subscription?",
-    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfItems\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
+    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfRuntimes\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_direct.json",
@@ -21,8 +21,8 @@
   },
   {
     "id": "one-card-000003",
-    "user_prompt": "How many items is included in my RHEL subscription?",
-    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfItems\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
+    "user_prompt": "How many runtimes is included in my RHEL subscription?",
+    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfRuntimes\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_direct.json",
@@ -32,7 +32,7 @@
   {
     "id": "one-card-000004",
     "user_prompt": "Where can I find details about my RHEL subscription?",
-    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfItems\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
+    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfRuntimes\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_direct.json",
@@ -42,7 +42,7 @@
   {
     "id": "one-card-000005",
     "user_prompt": "Where can I edit my RHEL subscription?",
-    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfItems\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
+    "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfRuntimes\": 2,\n    \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n    \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n    \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_direct.json",
@@ -52,7 +52,7 @@
   {
     "id": "one-card-000006",
     "user_prompt": "When does my RHEL subscription end?",
-    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfItems\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
+    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_inobject.json",
@@ -62,7 +62,7 @@
   {
     "id": "one-card-000007",
     "user_prompt": "When do I have to renew my RHEL subscription?",
-    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfItems\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
+    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_inobject.json",
@@ -71,8 +71,8 @@
   },
   {
     "id": "one-card-000008",
-    "user_prompt": "How many items is included in my RHEL subscription?",
-    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfItems\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
+    "user_prompt": "How many runtimes is included in my RHEL subscription?",
+    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_inobject.json",
@@ -82,7 +82,7 @@
   {
     "id": "one-card-000009",
     "user_prompt": "Where can I find details about my RHEL subscription?",
-    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfItems\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
+    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_inobject.json",
@@ -92,7 +92,7 @@
   {
     "id": "one-card-000010",
     "user_prompt": "Where can I edit my RHEL subscription?",
-    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfItems\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
+    "backend_data": "{\n    \"subscription\": {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewUrl\": \"https://access.redhat.com/sub/EUS-101\",\n        \"editUrl\": \"https://access.redhat.com/sub/ed/EUS-101\",\n        \"renewUrl\": \"https://access.redhat.com/sub/r/EUS-101\"\n    }\n}",
     "expected_component": "one-card",
     "src": {
       "data_file": "backend_data_shared/simple_subscription_inobject.json",

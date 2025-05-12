@@ -3,7 +3,7 @@
     "name": "RHEL",
     "endDate": "2024-12-24",
     "supported": true,
-    "numOfItems": 2,
+    "numOfRuntimes": 2,
     "viewUrl": "https://access.redhat.com/sub/EUS-101",
     "editUrl": "https://access.redhat.com/sub/ed/EUS-101",
     "renewUrl": "https://access.redhat.com/sub/r/EUS-101"

@@ -4,22 +4,24 @@
             "English"
         ],
         "year": 1995,
-        "pictureUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+        "picture_url": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
         "runtime": 81,
-        "movieId": "1",
+        "movie_id": "1",
         "imdb": {
             "votes": 591836,
             "id": "0114709",
             "rating": 8.3
         },
         "countries": [
-            "USA"
+            "USA",
+            "Germany",
+            "Czech Republic"
         ],
-        "trailerUrl": "https://www.youtube.com/watch?v=v-PjgYDrg70",
+        "trailer_url": "https://www.youtube.com/watch?v=v-PjgYDrg70",
         "title": "Toy Story",
         "url": "https://themoviedb.org/movie/862",
         "revenue": 373554033,
-        "tmdbId": "862",
+        "tmdb_id": "862",
         "plot": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
         "released": "1995-11-22",
         "budget": 30000000

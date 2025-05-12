@@ -4,16 +4,20 @@
             "English"
         ],
         "year": 1995,
-        "imdbId": "0114709",
         "pictureUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
         "runtime": 81,
-        "imdbRating": 8.3,
         "movieId": "1",
+        "imdb": {
+            "votes": 591836,
+            "id": "0114709",
+            "rating": 8.3
+        },
         "countries": [
-            "USA"
+            "USA",
+            "Germany",
+            "Czech Republic"
         ],
         "trailerUrl": "https://www.youtube.com/watch?v=v-PjgYDrg70",
-        "imdbVotes": 591836,
         "title": "Toy Story",
         "url": "https://themoviedb.org/movie/862",
         "revenue": 373554033,

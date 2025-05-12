@@ -22,12 +22,19 @@ def enhance_component_by_input_data(
 
             for field in component.fields:
                 dp = field.data_path
-                # patch occasional LLM error
+
+                # patch occasional LLM errors
+                if dp == "$":
+                    dp = ""
+                # TODO solve also case where path is like `$.fieldName`, simply remove that `$.` part
+                # TODO solve paths like `$[*].id` for array component, it selects all id multiple times - this is why array in the data root doesn't work most the time!
                 dp = (
                     dp
                     if not dp.startswith("$.{")
                     else dp.replace("$.{", "$..").replace("}", "")
                 )
+
+                # make sure data are picked
                 dp = dp if dp.startswith("$.") else f"$..{dp}"
                 je = None
                 try:

@@ -4,7 +4,7 @@
         "name": "RHEL",
         "endDate": "2024-12-24",
         "supported": true,
-        "numOfItems": 2,
+        "numOfRuntimes": 2,
         "viewUrl": "https://access.redhat.com/sub/EUS-101",
         "editLink": "https://access.redhat.com/sub/e/3ygrstg",
         "renewalLink": "https://access.redhat.com/sub/r/3ygrstg"
@@ -14,7 +14,7 @@
         "name": "Red Hat Developer",
         "endDate": "2025-04-13",
         "supported": false,
-        "numOfItems": 4,
+        "numOfRuntimes": 4,
         "viewUrl": "https://access.redhat.com/sub/EUS-112",
         "editLink": "https://access.redhat.com/sub/e/3ygrstg2",
         "renewalLink": "https://access.redhat.com/sub/r/3ygrstg2"
@@ -24,7 +24,7 @@
         "name": "EAP",
         "endDate": "2025-07-26",
         "supported": true,
-        "numOfItems": 3,
+        "numOfRuntimes": 3,
         "viewUrl": "https://access.redhat.com/sub/EUS-254",
         "editLink": "https://access.redhat.com/sub/e/3ygrst3",
         "renewalLink": "https://access.redhat.com/sub/r/3ygrst3"
@@ -34,7 +34,7 @@
         "name": "ACVR",
         "endDate": "2024-12-24",
         "supported": true,
-        "numOfItems": 5,
+        "numOfRuntimes": 5,
         "viewUrl": "https://access.redhat.com/sub/asdasdad",
         "editLink": "https://access.redhat.com/sub/e/asdasdad",
         "renewalLink": "https://access.redhat.com/sub/r/asdasdad"
@@ -44,7 +44,7 @@
         "name": "Red Hat SSS subscription",
         "endDate": "2025-04-13",
         "supported": false,
-        "numOfItems": 1,
+        "numOfRuntimes": 1,
         "viewUrl": "https://access.redhat.com/sub/45gdfge",
         "editLink": "https://access.redhat.com/sub/e/45gdfge",
         "renewalLink": "https://access.redhat.com/sub/r/45gdfge"
@@ -54,7 +54,7 @@
         "name": "OLP",
         "endDate": "2025-07-26",
         "supported": true,
-        "numOfItems": 2,
+        "numOfRuntimes": 2,
         "viewUrl": "https://access.redhat.com/sub/w4tgtedgsd",
         "editLink": "https://access.redhat.com/sub/e/w4tgtedgsd",
         "renewalLink": "https://access.redhat.com/sub/r/w4tgtedgsd"
@@ -64,7 +64,7 @@
         "name": "JSR subscription",
         "endDate": "2024-12-24",
         "supported": true,
-        "numOfItems": 2,
+        "numOfRuntimes": 2,
         "viewUrl": "https://access.redhat.com/sub/45tgedsweerf",
         "editLink": "https://access.redhat.com/sub/e/45tgedsweerf",
         "renewalLink": "https://access.redhat.com/sub/r/45tgedsweerf"
@@ -74,7 +74,7 @@
         "name": "MMM",
         "endDate": "2025-04-13",
         "supported": false,
-        "numOfItems": 3,
+        "numOfRuntimes": 3,
         "viewUrl": "https://access.redhat.com/sub/435tefvsd",
         "editLink": "https://access.redhat.com/sub/e/435tefvsd",
         "renewalLink": "https://access.redhat.com/sub/r/435tefvsd"
@@ -84,7 +84,7 @@
         "name": "KOLER subscription",
         "endDate": "2025-07-26",
         "supported": true,
-        "numOfItems": 2,
+        "numOfRuntimes": 2,
         "viewUrl": "https://access.redhat.com/sub/4w5tgeagncj",
         "editLink": "https://access.redhat.com/sub/e/4w5tgeagncj",
         "renewalLink": "https://access.redhat.com/sub/r/4w5tgeagncj"
@@ -94,7 +94,7 @@
         "name": "FEL subscription",
         "endDate": "2024-12-24",
         "supported": true,
-        "numOfItems": 4,
+        "numOfRuntimes": 4,
         "viewUrl": "https://access.redhat.com/sub/kj34w5ywh",
         "editLink": "https://access.redhat.com/sub/e/kj34w5ywh",
         "renewalLink": "https://access.redhat.com/sub/r/kj34w5ywh"
@@ -104,7 +104,7 @@
         "name": "OLPIC subscription",
         "endDate": "2025-04-13",
         "supported": false,
-        "numOfItems": 2,
+        "numOfRuntimes": 2,
         "viewUrl": "https://access.redhat.com/sub/2tgergsd",
         "editLink": "https://access.redhat.com/sub/e/2tgergsd",
         "renewalLink": "https://access.redhat.com/sub/r/2tgergsd"
@@ -114,7 +114,7 @@
         "name": "SAE subscription",
         "endDate": "2025-07-26",
         "supported": true,
-        "numOfItems": 3,
+        "numOfRuntimes": 3,
         "viewUrl": "https://access.redhat.com/sub/45tgesdf",
         "editLink": "https://access.redhat.com/sub/e/45tgesdf",
         "renewalLink": "https://access.redhat.com/sub/r/45tgesdf"
@@ -124,7 +124,7 @@
         "name": "MEKOL subscription",
         "endDate": "2024-12-24",
         "supported": true,
-        "numOfItems": 2,
+        "numOfRuntimes": 2,
         "viewUrl": "https://access.redhat.com/sub/45gsdf",
         "editLink": "https://access.redhat.com/sub/e/45gsdf",
         "renewalLink": "https://access.redhat.com/sub/r/45gsdf"
@@ -134,7 +134,7 @@
         "name": "Red Hat ORUL subscription",
         "endDate": "2025-04-13",
         "supported": false,
-        "numOfItems": 2,
+        "numOfRuntimes": 2,
         "viewUrl": "https://access.redhat.com/sub/543tgeasdvs",
         "editLink": "https://access.redhat.com/sub/e/543tgeasdvs",
         "renewalLink": "https://access.redhat.com/sub/r/543tgeasdvs"
@@ -144,7 +144,7 @@
         "name": "YOLO subscription",
         "endDate": "2025-07-26",
         "supported": true,
-        "numOfItems": 325,
+        "numOfRuntimes": 325,
         "viewUrl": "https://access.redhat.com/sub/08it7jrdntrfg",
         "editLink": "https://access.redhat.com/sub/e/08it7jrdntrfg",
         "renewalLink": "https://access.redhat.com/sub/r/08it7jrdntrfg"

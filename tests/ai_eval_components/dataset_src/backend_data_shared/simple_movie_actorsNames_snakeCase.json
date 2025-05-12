@@ -1,0 +1,33 @@
+{
+    "movie": {
+        "languages": [
+            "English",
+            "German",
+            "French"
+        ],
+        "year": 1995,
+        "imdb_id": "0114709",
+        "picture_url": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+        "runtime": 81,
+        "imdb_rating": 8.3,
+        "movie_id": "1",
+        "countries": [
+            "USA"
+        ],
+        "trailer_url": "https://www.youtube.com/watch?v=v-PjgYDrg70",
+        "imdb_votes": 591836,
+        "title": "Toy Story",
+        "url": "https://themoviedb.org/movie/862",
+        "revenue": 373554033,
+        "tmdb_id": "862",
+        "plot": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
+        "released": "1995-11-22",
+        "budget": 30000000
+    },
+    "actors": [
+        "Jim Varney",
+        "Tim Allen",
+        "Tom Hanks",
+        "Don Rickles"
+    ]
+}
