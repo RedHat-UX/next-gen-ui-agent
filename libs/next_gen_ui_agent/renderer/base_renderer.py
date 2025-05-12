@@ -34,19 +34,22 @@ class RenderStrategyBase(ABC, Generic[T]):
 
     def preprocess_rendering_context(self, component: UIComponentMetadata):
         fields = component.fields
-        self._rendering_context.fields = fields.copy()
         self._rendering_context.title = component.title
-        self._rendering_context.data_length = max(
-            len(field.data if isinstance(field.data, Sized) else []) for field in fields
-        )
-        self._rendering_context.field_names = [field.name for field in fields]
+        if isinstance(self._rendering_context, RenderContextBase):
+            self._rendering_context.fields = fields.copy()
+            self._rendering_context.data_length = max(
+                len(field.data if isinstance(field.data, Sized) else [])
+                for field in fields
+            )
+            self._rendering_context.field_names = [field.name for field in fields]
 
     def main_processing(self, component: UIComponentMetadata):
         pass
 
     def post_processing(self, component: UIComponentMetadata):
-        fields = self._rendering_context.fields
-        self._rendering_context.field_names = [field.name for field in fields]
+        if isinstance(self._rendering_context, RenderContextBase):
+            fields = self._rendering_context.fields
+            self._rendering_context.field_names = [field.name for field in fields]
 
     def process(self, component) -> T:
         """Transform the component into strategy component via running pre-

@@ -1,0 +1,18 @@
+{
+  "description": "Rendering Context for Image",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "image": {
+      "description": "Image URL",
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "image"
+  ],
+  "title": "RenderContextImage",
+  "type": "object"
+}

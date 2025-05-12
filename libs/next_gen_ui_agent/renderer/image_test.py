@@ -29,10 +29,3 @@ def test_process() -> None:
         result.image
         == "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
     )
-    # TODO: remove fields
-    assert len(result.fields) == 2
-    assert result.field_names == ["Title", "Authors"]
-    assert result.fields[0].name == "Title"
-    assert result.fields[0].data == ["Toy Story"]
-    assert result.fields[1].name == "Authors"
-    assert result.fields[1].data == ["A1", "A2", "A3"]

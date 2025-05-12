@@ -3,9 +3,11 @@ import logging
 import os
 from typing import Any
 
+from next_gen_ui_agent.renderer.image import ImageRenderStrategy
 from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.types import (
     CustomGenerateJsonSchema,
+    RenderContextImage,
     RenderContextOneCard,
 )
 
@@ -25,6 +27,16 @@ def test_one_card_schema() -> None:
         schema_generator=CustomGenerateJsonSchema
     )
     with open(schema_file_path(OneCardRenderStrategy.COMPONENT_NAME), "r") as file:
+        file_content = file.read()
+    assert '"title": "Title"' not in file_content
+    assert json.dumps(schema, indent=2) == file_content
+
+
+def test_image_schema() -> None:
+    schema = RenderContextImage.model_json_schema(
+        schema_generator=CustomGenerateJsonSchema
+    )
+    with open(schema_file_path(ImageRenderStrategy.COMPONENT_NAME), "r") as file:
         file_content = file.read()
     assert '"title": "Title"' not in file_content
     assert json.dumps(schema, indent=2) == file_content
@@ -55,6 +67,10 @@ def regenerate_schemas() -> None:
         RenderContextOneCard.model_json_schema(
             schema_generator=CustomGenerateJsonSchema
         ),
+    )
+    save_schema(
+        ImageRenderStrategy.COMPONENT_NAME,
+        RenderContextImage.model_json_schema(schema_generator=CustomGenerateJsonSchema),
     )
 
 

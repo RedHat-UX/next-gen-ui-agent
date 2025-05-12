@@ -16,27 +16,32 @@ class CustomGenerateJsonSchema(GenerateJsonSchema):
         return return_value
 
 
-class RenderContextBase(BaseModel):
-    """Rendering Context."""
+class RenderContextBaseTitle(BaseModel):
+    """Rendering Context base title only"""
 
     title: str
+
+
+class RenderContextBase(RenderContextBaseTitle):
+    """Rendering Context base with title and fields"""
+
     fields: list[DataField]
     field_names: list[str]
     data_length: int = Field(description="Maximal count of items in any data field")
     """Maximal count of items in any data field"""
 
 
-class RenderContextAudio(RenderContextBase):
+class RenderContextAudio(RenderContextBaseTitle):
     """Rendering Context for Audio."""
 
     image: str
     audio: str
 
 
-class RenderContextImage(RenderContextBase):
-    """Rendering Context for Image."""
+class RenderContextImage(RenderContextBaseTitle):
+    """Rendering Context for Image"""
 
-    image: str
+    image: str = Field(description="Image URL")
 
 
 class RenderContextOneCard(RenderContextBase):
@@ -53,7 +58,7 @@ class RenderContexSetOfCard(RenderContextBase):
     subtitle_field: DataField
 
 
-class RenderContextVideo(RenderContextBase):
+class RenderContextVideo(RenderContextBaseTitle):
     """Rendering Context for Video."""
 
     video: str

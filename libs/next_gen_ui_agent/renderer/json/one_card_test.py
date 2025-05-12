@@ -35,5 +35,5 @@ def test_render_json_output() -> None:
     # print(resultStr)
     assert (
         resultStr
-        == """{"image":"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg","fields":[{"name":"Title","data_path":"movie.title","data":["Toy Story"]}],"title":"Toy Story Details","data_length":1,"field_names":["Title"]}"""
+        == """{"image":"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg","title":"Toy Story Details","fields":[{"name":"Title","data_path":"movie.title","data":["Toy Story"]}],"data_length":1,"field_names":["Title"]}"""
     )
