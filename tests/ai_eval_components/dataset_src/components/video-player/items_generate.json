@@ -2,8 +2,11 @@
     {
         "prompts_file": "prompts_movie.json",
         "backend_data_files": [
-            "simple_movie_1.json",
-            "simple_movie_2.json"
+            "simple_movie_actorsNames_camelCase.json",
+            "simple_movie_actorsNames_snakeCase.json",
+            "simple_movie_actorsObjects_camelCase.json",
+            "simple_movie_actorsObjects_snakeCase.json",
+            "simple_movie_actorsNames_imdbNested_camelCase.json"
         ]
     }
 ]

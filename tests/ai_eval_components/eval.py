@@ -140,6 +140,9 @@ def evaluate_agent_for_dataset_row(dsr: DatasetRow, inference: InferenceBase):
 
         # TODO NGUI-116 LLM-as-a-judge AI check
 
+        # return JSON with the data so we can check them
+        llm_response = component.model_dump_json()
+
     return DatasetRowAgentEvalResult(llm_response, errors)
 
 
