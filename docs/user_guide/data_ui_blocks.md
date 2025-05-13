@@ -14,5 +14,14 @@ Card is UI block that displays:
 Facts are name-value pairs, where the `name` is AI generated and the `value` is gathered from agent's input data.
 Value can be simple text or number. List (array) of values is supported as well.
 
-Example rendering by Red Hat Design System:
-![Card Data UI Block](../img/data_ui_block_card.png "Card Data UI Block")
+Example rendering by Red Hat Design System for user prompt `Tell me details about Toy Story`:
+
+![Card Data UI Block rendering by Red Hat Design System](../img/data_ui_block_card.png "Card Data UI Block rendering by Red Hat Design System")
+
+## Image
+
+Image is UI block to display a single image with a title.
+
+Example rendering by Red Hat Design System for a prompt `Show me poster of Toy Story movie`:
+
+![Image Data UI Block rendering by Red Hat Design System](../img/data_ui_block_image.png "Image Data UI Block rendering by Red Hat Design System")
