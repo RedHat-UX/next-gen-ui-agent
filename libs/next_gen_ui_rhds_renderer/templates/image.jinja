@@ -6,6 +6,9 @@
   <img src="{{image}}" slot="image" alt="{{title}}">
 {% endif %}
   <h2 slot="header">{{title}}</h2>
+{% if not image %}
+  <p>No image to display.</p>
+{% endif %}
 </rh-card>
 
 <style>

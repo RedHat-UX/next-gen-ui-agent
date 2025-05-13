@@ -25,3 +25,5 @@ Image is UI block to display a single image with a title.
 Example rendering by Red Hat Design System for a prompt `Show me poster of Toy Story movie`:
 
 ![Image Data UI Block rendering by Red Hat Design System](../img/data_ui_block_image.png "Image Data UI Block rendering by Red Hat Design System")
+
+Image is found by agent from backend-data either by field value or by field name. See the [spec/component/image.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/image.schema.json) for more details.

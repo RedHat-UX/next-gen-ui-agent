@@ -23,19 +23,18 @@ def show_llm_input(component: UIComponentMetadata):
     st.code(component.model_dump_json(indent=2, exclude_unset=True))
 
 
-def get_component():
-    component_one_card = UIComponentMetadata.model_validate(
+def get_component(image_data_path="movie.posterUrl"):
+    return UIComponentMetadata.model_validate(
         {
             "title": "Toy Story Poster",
             "component": "image",
             "fields": [
                 {"name": "Title", "data_path": "movie.title"},
                 {"name": "Year", "data_path": "movie.year"},
-                {"name": "Poster", "data_path": "movie.posterUrl"},
+                {"name": "Poster", "data_path": image_data_path},
             ],
         }
     )
-    return component_one_card.model_copy()
 
 
 component_system = "rhds"
@@ -56,8 +55,24 @@ async def case_image():
         show_llm_input(component)
 
 
+async def case_noimage():
+    st.subheader("No Image")
+    component = get_component("bad_path")
+
+    msg_content = await execute_ngui_agent(
+        llm_data=component.model_dump(),
+        prompt=prompt,
+        input_data=input_data,
+        component_system=component_system,
+    )
+    ngui_rhds_component(msg_content)
+    if st.button("Agent LLM Mocked Response", key="llm_case_noimage"):
+        show_llm_input(component)
+
+
 async def render():
     await case_image()
+    await case_noimage()
     st.text(f"Rendering DONE: {component_system}")
 
 

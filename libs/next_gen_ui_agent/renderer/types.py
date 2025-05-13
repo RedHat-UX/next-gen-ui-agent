@@ -38,10 +38,37 @@ class RenderContextAudio(RenderContextBaseTitle):
     audio: str
 
 
+# https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/Image_types
+IMAGE_SUFFIXES = (
+    "apng",  # APNG
+    "png",  # PNG
+    "avif",
+    "gif",  # GIF
+    "jpg",  # JPEG
+    "jpeg",
+    "jtif",
+    "pjpeg",
+    "pjp",
+    "svg",  # SVG
+    "webp",  # webp
+    "bmp",
+    "tif",  # tiff
+    "tiff",
+)
+
+image_desc = f"""Image URL. It's optional field. If it's not set then image component has been choosen, but no image like path field found.
+Image field value either ends by any of these extension: {IMAGE_SUFFIXES},
+or the field name ends by either 'url' or 'link' (case insensitive)
+"""
+
+
 class RenderContextImage(RenderContextBaseTitle):
     """Rendering Context for Image"""
 
-    image: str = Field(description="Image URL")
+    image: Optional[str] = Field(
+        description=image_desc,
+        default=None,
+    )
 
 
 class RenderContextOneCard(RenderContextBase):

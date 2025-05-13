@@ -26,7 +26,7 @@ class BaseOneCardRendererTests(ABC):
                     },
                     {
                         "name": "DUMMY_POSTER_NAME",
-                        "data_path": "movie.posterUrl",
+                        "data_path": "movie.poster",  # has not to end by url or link
                         "data": ["DUMMY_IMG_URL"],
                     },
                 ],

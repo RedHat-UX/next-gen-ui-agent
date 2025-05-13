@@ -2,6 +2,7 @@ from abc import ABC, ABCMeta, abstractmethod
 from typing import Callable, Generic, Sized, TypeVar
 
 from next_gen_ui_agent.renderer.types import (
+    IMAGE_SUFFIXES,
     RenderContexSetOfCard,
     RenderContextAudio,
     RenderContextBase,
@@ -12,7 +13,6 @@ from next_gen_ui_agent.renderer.types import (
 from next_gen_ui_agent.types import DataField, DataFieldDataType, UIComponentMetadata
 
 PLUGGABLE_RENDERERS_NAMESPACE = "next_gen_ui.agent.renderer_factory"
-IMAGE_SUFFIXES = ("jpg", "png", "gif", "jpeg", "bmp")
 
 
 T = TypeVar(
@@ -51,7 +51,7 @@ class RenderStrategyBase(ABC, Generic[T]):
             fields = self._rendering_context.fields
             self._rendering_context.field_names = [field.name for field in fields]
 
-    def process(self, component) -> T:
+    def process(self, component: UIComponentMetadata) -> T:
         """Transform the component into strategy component via running pre-
         main-post processing flow."""
         self.preprocess_rendering_context(component)
@@ -71,26 +71,68 @@ class RenderStrategyBase(ABC, Generic[T]):
         return self.generate_output(component)
 
     @staticmethod
-    def find_field(
+    def find_field_by_data_value(
         fields: list[DataField],
-        fieldFieldPredicate: Callable[[DataFieldDataType], bool],
+        field_data_predicate: Callable[[DataFieldDataType], bool],
     ) -> DataField | None:
         """Helper methods for to find field based on predicate."""
         return next(
-            (field for field in fields for d in field.data if fieldFieldPredicate(d)),
+            (field for field in fields for d in field.data if field_data_predicate(d)),
             None,
         )
 
     @staticmethod
-    def find_field_data_value(
+    def find_field_by_data_path(
+        fields: list[DataField],
+        data_path_predicate: Callable[[str], bool],
+    ) -> DataField | None:
+        """Helper methods for to find field based on its data_path predicate. Predicate's argument is lowered field `data_path`"""
+        return next(
+            (
+                field
+                for field in fields
+                if field.data_path and data_path_predicate(field.data_path.lower())
+            ),
+            None,
+        )
+
+    @staticmethod
+    def find_data_value_in_field(
         items: list[DataFieldDataType],
-        fieldDataPredicate: Callable[[DataFieldDataType], bool],
+        data_value_predicate: Callable[[DataFieldDataType], bool],
     ) -> DataFieldDataType | None:
         """Helper methods for to find field data value based on predicate."""
         return next(
-            (data for data in items if fieldDataPredicate(data)),
+            (value for value in items if data_value_predicate(value)),
             None,
         )
+
+    @staticmethod
+    def find_image(
+        component: UIComponentMetadata,
+    ) -> tuple[str, DataField] | tuple[None, None]:
+        """Find image field with image. Return tuple with data value and DataField"""
+        fields = component.fields
+        field_with_image_suffix = RenderStrategyBase.find_field_by_data_value(
+            fields,
+            lambda data: isinstance(data, str) and data.endswith(IMAGE_SUFFIXES),
+        )
+        if field_with_image_suffix:
+            image = RenderStrategyBase.find_data_value_in_field(
+                field_with_image_suffix.data,
+                lambda value: isinstance(value, str) and value.endswith(IMAGE_SUFFIXES),
+            )
+            if image:
+                return str(image), field_with_image_suffix
+        else:
+            field_name_like_url = RenderStrategyBase.find_field_by_data_path(
+                fields,
+                lambda name: name.endswith("link") or name.endswith("url"),
+            )
+            if field_name_like_url and len(field_name_like_url.data) > 0:
+                return str(field_name_like_url.data[0]), field_name_like_url
+
+        return None, None
 
 
 class RendererContext:
