@@ -1,6 +1,10 @@
-from next_gen_ui_agent.renderer.base_renderer import IMAGE_SUFFIXES, RenderStrategyBase
+import logging
+
+from next_gen_ui_agent.renderer.base_renderer import RenderStrategyBase
 from next_gen_ui_agent.renderer.types import RenderContextImage
 from next_gen_ui_agent.types import UIComponentMetadata
+
+logger = logging.getLogger(__name__)
 
 
 class ImageRenderStrategy(RenderStrategyBase[RenderContextImage]):
@@ -11,16 +15,9 @@ class ImageRenderStrategy(RenderStrategyBase[RenderContextImage]):
 
     def main_processing(self, component: UIComponentMetadata):
         # Trying to find field that would contain an image link
-        fields = component.fields
-
-        field_with_image_suffix = RenderStrategyBase.find_field(
-            fields,
-            lambda data: isinstance(data, str) and data.endswith(IMAGE_SUFFIXES),
-        )
-        if field_with_image_suffix:
-            image = RenderStrategyBase.find_field_data_value(
-                field_with_image_suffix.data,
-                lambda data: isinstance(data, str) and data.endswith(IMAGE_SUFFIXES),
-            )
-            if image:
-                self._rendering_context.image = str(image)
+        image, _f = self.find_image(component)
+        # If the image like URL is present, then set it, otherwise leave it blank
+        if image:
+            self._rendering_context.image = str(image)
+        else:
+            logger.warning("No image found in Image Component")
