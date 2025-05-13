@@ -13,3 +13,8 @@ python_requirements(
     name="langchain",
     source="langchain-requirements.txt",
 )
+
+python_requirements(
+    name="rich",
+    source="rich-requirements.txt",
+)
