@@ -1,6 +1,7 @@
 import pytest
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
+from pydantic_core import from_json
 
 
 def test_design_system_handler_wrong_name() -> None:
@@ -16,7 +17,9 @@ def test_design_system_handler_json() -> None:
     agent = NextGenUIAgent()
     c = get_transformed_component()
     result = agent.design_system_handler([c], "json")
-    assert result[0].component == "one-card"
+
+    r = from_json(result[0].content)
+    assert r["component"] == "one-card"
 
 
 def test_renderers() -> None:

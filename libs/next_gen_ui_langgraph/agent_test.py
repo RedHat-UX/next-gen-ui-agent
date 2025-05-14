@@ -103,7 +103,7 @@ async def test_agent() -> None:
     )
     components = result["components"]
     c: UIComponentMetadata = components[0]
-    result["messages"] = ["removed"]
+    # result["messages"] = ["removed"]
     print("\n--RESULT---")
     print(c.component)
     assert "one-card" == c.component

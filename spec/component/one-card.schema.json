@@ -43,6 +43,9 @@
   },
   "description": "Rendering Context for OneCard.",
   "properties": {
+    "id": {
+      "type": "string"
+    },
     "title": {
       "type": "string"
     },
@@ -81,6 +84,7 @@
     }
   },
   "required": [
+    "id",
     "title",
     "fields",
     "field_names",

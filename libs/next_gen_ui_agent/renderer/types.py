@@ -19,6 +19,8 @@ class CustomGenerateJsonSchema(GenerateJsonSchema):
 class RenderContextBaseTitle(BaseModel):
     """Rendering Context base title only"""
 
+    id: str
+
     title: str
 
 

@@ -38,6 +38,8 @@ class BaseOneCardRendererTests(ABC):
         assert "DUMMY_IMG_URL" in result
         assert "DUMMY_NAME_VALUE" in result
         assert "DUMMY_POSTER_NAME" in result
+        if isinstance(strategy, JsonStrategyFactory):
+            assert "test_id_1" in result
 
 
 class TestJsonRenderer(BaseOneCardRendererTests):

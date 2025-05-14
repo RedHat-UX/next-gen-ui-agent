@@ -61,7 +61,7 @@ class NextGenUILlamaStackAgent:
         components = self.ngui_agent.data_transformation(
             input_data=tool_data_list, components=components
         )
-        components = self.ngui_agent.design_system_handler(
+        renditions = self.ngui_agent.design_system_handler(
             components=components, component_system=component_system
         )
-        yield ResponseEvent(event_type="rendering", payload=components)
+        yield ResponseEvent(event_type="rendering", payload=renditions)
