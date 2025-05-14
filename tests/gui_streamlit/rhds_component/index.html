@@ -94,6 +94,11 @@
         window.addEventListener("message", onDataFromPython);
         init();
 
+        // This fix the issue in Firefox
+        // Optionally, if the automatic height computation fails you, give this component a height manually
+        // by commenting out below:
+        setFrameHeight(600);
+
         // Hack to autoset the iframe height.
         window.addEventListener("load", function () {
             window.setTimeout(function () {
@@ -101,9 +106,6 @@
             }, 0);
         });
 
-        // Optionally, if the automatic height computation fails you, give this component a height manually
-        // by commenting out below:
-        //setFrameHeight(200);
     </script>
 </body>
 
