@@ -17,6 +17,7 @@
     "dev": "vite",
     "build": "vite build",
     "test": "vitest",
+    "test:ci": "vitest --run",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview"
