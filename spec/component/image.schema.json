@@ -4,6 +4,11 @@
     "title": {
       "type": "string"
     },
+    "component": {
+      "const": "image",
+      "default": "image",
+      "type": "string"
+    },
     "image": {
       "anyOf": [
         {

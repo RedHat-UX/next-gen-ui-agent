@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 from next_gen_ui_agent.types import DataField
 from pydantic import BaseModel, Field
@@ -34,6 +34,7 @@ class RenderContextBase(RenderContextBaseTitle):
 class RenderContextAudio(RenderContextBaseTitle):
     """Rendering Context for Audio."""
 
+    component: Literal["audio"] = "audio"
     image: str
     audio: str
 
@@ -65,6 +66,7 @@ or the field name ends by either 'url' or 'link' (case insensitive)
 class RenderContextImage(RenderContextBaseTitle):
     """Rendering Context for Image"""
 
+    component: Literal["image"] = "image"
     image: Optional[str] = Field(
         description=image_desc,
         default=None,
@@ -74,6 +76,8 @@ class RenderContextImage(RenderContextBaseTitle):
 class RenderContextOneCard(RenderContextBase):
     """Rendering Context for OneCard."""
 
+    component: Literal["one-card"] = "one-card"
+
     image: Optional[str] = Field(description="Image URL", default=None)
     """Image URL"""
 
@@ -81,12 +85,16 @@ class RenderContextOneCard(RenderContextBase):
 class RenderContexSetOfCard(RenderContextBase):
     """Rendering Context for SetOfCard."""
 
+    component: Literal["set-of-cards"] = "set-of-cards"
+
     image_field: DataField
     subtitle_field: DataField
 
 
 class RenderContextVideo(RenderContextBaseTitle):
     """Rendering Context for Video."""
+
+    component: Literal["video-player"] = "video-player"
 
     video: str
     video_img: str
