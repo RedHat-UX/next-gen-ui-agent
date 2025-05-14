@@ -117,21 +117,23 @@ class NextGenUILangGraphAgent:
         cfg = config.get("configurable", {})
         component_system = cfg.get("component_system")
 
-        self.ngui_agent.design_system_handler(state["components"], component_system)
+        results = self.ngui_agent.design_system_handler(
+            state["components"], component_system
+        )
 
         messages: list[BaseMessage] = []
-        for component in state["components"]:
+        for result in results:
             logger.debug(
                 "---CALL %s--- id: %s, component rendition: %s",
                 component_system,
-                component.id,
-                component.rendition,
+                result.id,
+                result.content,
             )
 
             tm = ToolMessage(
                 name=f"ngui_{component_system}",
-                tool_call_id=str(component.id) + uuid.uuid4().hex,
-                content=str(component.rendition),
+                tool_call_id=str(result.id) + uuid.uuid4().hex,
+                content=str(result.content),
             )
             ai = AIMessage(
                 content="", name=f"ngui_{component_system}", id=uuid.uuid4().hex

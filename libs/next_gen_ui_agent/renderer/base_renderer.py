@@ -35,6 +35,7 @@ class RenderStrategyBase(ABC, Generic[T]):
     def preprocess_rendering_context(self, component: UIComponentMetadata):
         fields = component.fields
         self._rendering_context.title = component.title
+        self._rendering_context.id = component.id  # type: ignore
         if isinstance(self._rendering_context, RenderContextBase):
             self._rendering_context.fields = fields.copy()
             self._rendering_context.data_length = max(

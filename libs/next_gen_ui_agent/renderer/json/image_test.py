@@ -26,5 +26,5 @@ def test_render_json_output() -> None:
     # print(resultStr)
     assert (
         resultStr
-        == """{"component":"image","image":"https://image.tmdb.org/test_path.jpg","title":"Toy Story Poster"}"""
+        == """{"component":"image","image":"https://image.tmdb.org/test_path.jpg","title":"Toy Story Poster","id":"test_id_1"}"""
     )

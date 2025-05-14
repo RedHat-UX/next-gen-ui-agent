@@ -1,7 +1,7 @@
 import logging
 
 from next_gen_ui_agent.renderer.base_renderer import RendererContext, StrategyFactory
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.types import Rendition, UIComponentMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 def design_system_handler(
     components: list[UIComponentMetadata],
     factory: StrategyFactory,
-) -> list[UIComponentMetadata]:
+) -> list[Rendition]:
+    outputs = []
     for component in components:
         logger.debug(
             "\n\n---design_system_handler processing component id: %s with %s renderer",
@@ -28,5 +29,5 @@ def design_system_handler(
             raise e
 
         logger.info("%s=%s", component.id, output)
-        component.rendition = output
-    return components
+        outputs.append(Rendition(id=component.id, content=output))  # type: ignore
+    return outputs

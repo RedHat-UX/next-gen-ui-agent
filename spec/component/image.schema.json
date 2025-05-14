@@ -1,6 +1,9 @@
 {
   "description": "Rendering Context for Image",
   "properties": {
+    "id": {
+      "type": "string"
+    },
     "title": {
       "type": "string"
     },
@@ -23,6 +26,7 @@
     }
   },
   "required": [
+    "id",
     "title"
   ],
   "title": "RenderContextImage",

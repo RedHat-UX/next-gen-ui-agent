@@ -13,6 +13,7 @@ from next_gen_ui_agent.types import (
     AgentConfig,
     AgentInput,
     InputData,
+    Rendition,
     UIComponentMetadata,
 )
 from stevedore import ExtensionManager
@@ -61,7 +62,7 @@ class NextGenUIAgent:
         self,
         components: list[UIComponentMetadata],
         component_system: Optional[str] = None,
-    ) -> list[UIComponentMetadata]:
+    ) -> list[Rendition]:
         """Handle rendering of the component with the chosen component system
         either via config or parameter."""
 
@@ -71,7 +72,7 @@ class NextGenUIAgent:
             else self.config.get("component_system")
         )
         if not component_system:
-            return components
+            raise Exception("Component system not defined")
 
         factory = JsonStrategyFactory()
         if component_system == "json":
