@@ -62,6 +62,11 @@
       "description": "Maximal count of items in any data field",
       "type": "integer"
     },
+    "component": {
+      "const": "one-card",
+      "default": "one-card",
+      "type": "string"
+    },
     "image": {
       "anyOf": [
         {
