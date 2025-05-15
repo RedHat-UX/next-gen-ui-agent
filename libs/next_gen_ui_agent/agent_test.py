@@ -18,6 +18,10 @@ def test_design_system_handler_json() -> None:
     c = get_transformed_component()
     result = agent.design_system_handler([c], "json")
 
+    assert result[0].mime_type == "application/json"
+    assert result[0].component_system == "json"
+    assert result[0].id == c.id
+
     r = from_json(result[0].content)
     assert r["component"] == "one-card"
 

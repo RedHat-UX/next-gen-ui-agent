@@ -1,5 +1,6 @@
 from datetime import date, datetime
 
+from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_agent.data_transformation import (
     enhance_component_by_input_data,
     sanitize_matched_data,
@@ -101,16 +102,22 @@ def test_enhance_component_by_input_data() -> None:
         }
     )
 
-    # put in two input data to be sure the correct one are selected
-    enhance_component_by_input_data(
+    # put in two input data to be sure the correct one is selected
+    ret = enhance_component_by_input_data(
         input_data=[input_data_2, input_data], components=[component1]
     )
-    fields = component1.fields
-    assert fields[0].data == ["Toy Story"]
-    assert fields[1].data == [1995]
-    assert fields[2].data == [8.3]
-    assert fields[3].data == ["1995-11-22"]  # TODO: Date time formatting
-    assert fields[4].data == [
+
+    assert len(ret) == 1
+    assert ret[0].id == id
+    assert ret[0].component == "one-card"
+    assert ret[0].title == "Toy Story Details"
+
+    ret_one_card: ComponentDataOneCard = ret[0]  # type: ignore
+    assert ret_one_card.fields[0].data == ["Toy Story"]
+    assert ret_one_card.fields[1].data == [1995]
+    assert ret_one_card.fields[2].data == [8.3]
+    assert ret_one_card.fields[3].data == ["1995-11-22"]
+    assert ret_one_card.fields[4].data == [
         "Jim Varney",
         "Tim Allen",
         "Tom Hanks",

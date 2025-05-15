@@ -58,10 +58,10 @@ class NextGenUILlamaStackAgent:
         components = await self._component_selection(user_prompt, tool_data_list)
         yield ResponseEvent(event_type="component_metadata", payload=components)
 
-        components = self.ngui_agent.data_transformation(
+        components_data = self.ngui_agent.data_transformation(
             input_data=tool_data_list, components=components
         )
         renditions = self.ngui_agent.design_system_handler(
-            components=components, component_system=component_system
+            components=components_data, component_system=component_system
         )
         yield ResponseEvent(event_type="rendering", payload=renditions)

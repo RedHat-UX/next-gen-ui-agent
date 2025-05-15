@@ -1,7 +1,10 @@
-from next_gen_ui_agent import UIComponentMetadata
+from next_gen_ui_agent.data_transform.types import (
+    ComponentDataImage,
+    ComponentDataOneCard,
+)
 from next_gen_ui_agent.types import DataField
 
-_transformed_component_one_card = UIComponentMetadata.model_validate(
+_transformed_component_one_card = ComponentDataOneCard.model_validate(
     {
         "id": "test_id_1",
         "title": "Toy Story Details",
@@ -30,23 +33,19 @@ _transformed_component_one_card = UIComponentMetadata.model_validate(
     }
 )
 
-_transformed_component_image = UIComponentMetadata.model_validate(
+_transformed_component_image = ComponentDataImage.model_validate(
     {
         "id": "test_id_1",
         "title": "Toy Story Poster",
-        "reasonForTheComponentSelection": "Image available in the data",
-        "confidenceScore": "100%",
         "component": "image",
         "fields": [
             {"name": "Title", "data_path": "movie.title", "data": ["Toy Story"]},
             {
                 "name": "Poster",
                 "data_path": "movie.posterUrl",
-                "data": [
-                    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
-                ],
             },
         ],
+        "image": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
     }
 )
 
@@ -79,14 +78,8 @@ def get_transformed_component_testing_data():
             data=[True, False],
         )
     )
-    c.fields.append(
-        DataField(
-            name="Poster",
-            data_path="movie.posterUrl",
-            data=[
-                "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
-            ],
-        )
+    c.image = (
+        "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
     )
 
     return c

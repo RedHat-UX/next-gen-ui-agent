@@ -1,8 +1,8 @@
+from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.one_card_shareable_tests import BaseOneCardRendererTests
-from next_gen_ui_agent.types import UIComponentMetadata
 
 
 class TestOneCardJsonRenderer(BaseOneCardRendererTests):
@@ -12,28 +12,17 @@ class TestOneCardJsonRenderer(BaseOneCardRendererTests):
 
 def test_render_json_output() -> None:
     strategy = OneCardRenderStrategy()
-    c = UIComponentMetadata.model_validate(
+    c = ComponentDataOneCard.model_validate(
         {
             "id": "test_id_1",
             "title": "Toy Story Details",
-            "reasonForTheComponentSelection": "One item available in the data",
-            "confidenceScore": "100%",
             "component": "one-card",
             "fields": [
-                {"name": "Title", "data_path": "movie.title", "data": ["Toy Story"]},
-                {
-                    "name": "Poster",
-                    "data_path": "movie.posterUrl",
-                    "data": [
-                        "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg"
-                    ],
-                },
+                {"name": "Title", "data_path": "movie.title", "data": ["Toy Story"]}
             ],
+            "image": "https://image.tmdb.org/t/p/b.jpg",
         }
     )
-    resultStr = strategy.render(c)
+    resultStr = strategy.generate_output(c)
     # print(resultStr)
-    assert (
-        resultStr
-        == """{"component":"one-card","image":"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg","title":"Toy Story Details","id":"test_id_1","fields":[{"name":"Title","data_path":"movie.title","data":["Toy Story"]}],"data_length":1,"field_names":["Title"]}"""
-    )
+    assert resultStr == c.model_dump_json()

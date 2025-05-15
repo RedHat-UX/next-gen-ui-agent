@@ -1,37 +1,5 @@
 from next_gen_ui_agent.renderer.base_renderer import RenderStrategyBase
-from next_gen_ui_agent.renderer.types import IMAGE_SUFFIXES, RenderContexSetOfCard
-from next_gen_ui_agent.types import UIComponentMetadata
 
 
-class SetOfCardsRenderStrategy(RenderStrategyBase[RenderContexSetOfCard]):
+class SetOfCardsRenderStrategy(RenderStrategyBase):
     COMPONENT_NAME = "set-of-cards"
-
-    def __init__(self):
-        self._rendering_context = RenderContexSetOfCard.model_construct()
-
-    def main_processing(self, component: UIComponentMetadata):
-        # TODO: Use super()._find_field
-        subtitle_field = next(
-            (
-                field
-                for field in component.fields
-                if field.name.lower() in ["title", "name", "header"]
-            ),
-            None,
-        )
-        if subtitle_field:
-            self._rendering_context.subtitle_field = subtitle_field
-            self._rendering_context.fields.remove(subtitle_field)
-
-        image_field = next(
-            (
-                field
-                for field in component.fields
-                for d in field.data
-                if type(d) is str and d.endswith(IMAGE_SUFFIXES)
-            ),
-            None,
-        )
-        if image_field:
-            self._rendering_context.image_field = image_field
-            self._rendering_context.fields.remove(image_field)
