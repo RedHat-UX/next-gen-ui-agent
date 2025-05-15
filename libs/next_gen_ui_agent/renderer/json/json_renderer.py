@@ -1,3 +1,4 @@
+from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.renderer.audio import AudioPlayerRenderStrategy
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 from next_gen_ui_agent.renderer.chart_line import LineChartRenderStrategy
@@ -7,7 +8,6 @@ from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.set_of_cards import SetOfCardsRenderStrategy
 from next_gen_ui_agent.renderer.table import TableRenderStrategy
 from next_gen_ui_agent.renderer.video import VideoRenderStrategy
-from next_gen_ui_agent.types import UIComponentMetadata
 
 
 class JsonStrategyFactory(StrategyFactory):
@@ -16,7 +16,13 @@ class JsonStrategyFactory(StrategyFactory):
     Rendering output is JSON
     """
 
-    def get_render_strategy(self, component: UIComponentMetadata):
+    def get_component_system_name(self) -> str:
+        return "json"
+
+    def get_output_mime_type(self) -> str:
+        return "application/json"
+
+    def get_render_strategy(self, component: ComponentDataBase):
         match component.component:
             case OneCardRenderStrategy.COMPONENT_NAME:
                 return OneCardRenderStrategy()

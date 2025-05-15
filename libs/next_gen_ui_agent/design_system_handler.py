@@ -1,13 +1,14 @@
 import logging
 
+from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.renderer.base_renderer import RendererContext, StrategyFactory
-from next_gen_ui_agent.types import Rendition, UIComponentMetadata
+from next_gen_ui_agent.types import Rendition
 
 logger = logging.getLogger(__name__)
 
 
 def design_system_handler(
-    components: list[UIComponentMetadata],
+    components: list[ComponentDataBase],
     factory: StrategyFactory,
 ) -> list[Rendition]:
     outputs = []
@@ -29,5 +30,12 @@ def design_system_handler(
             raise e
 
         logger.info("%s=%s", component.id, output)
-        outputs.append(Rendition(id=component.id, content=output))  # type: ignore
+        outputs.append(
+            Rendition(
+                id=component.id,
+                content=output,
+                component_system=factory.get_component_system_name(),
+                mime_type=factory.get_output_mime_type(),
+            )
+        )
     return outputs

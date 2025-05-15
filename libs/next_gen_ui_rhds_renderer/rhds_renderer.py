@@ -1,4 +1,5 @@
 from jinja2 import Environment, PackageLoader  # pants: no-infer-dep
+from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.renderer.audio import AudioPlayerRenderStrategy
 from next_gen_ui_agent.renderer.base_renderer import RenderStrategyBase, StrategyFactory
 from next_gen_ui_agent.renderer.image import ImageRenderStrategy
@@ -6,7 +7,6 @@ from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.set_of_cards import SetOfCardsRenderStrategy
 from next_gen_ui_agent.renderer.table import TableRenderStrategy
 from next_gen_ui_agent.renderer.video import VideoRenderStrategy
-from next_gen_ui_agent.types import UIComponentMetadata
 
 templates_env = Environment(
     loader=PackageLoader("next_gen_ui_rhds_renderer", "templates"),
@@ -18,7 +18,7 @@ class RhdsStrategyBase(RenderStrategyBase):
     def generate_output(self, component):
         template = templates_env.get_template(f"/{component.component}.jinja")
         # TODO: Change templates to work with dot notation (pydantic) and remove converting form pydantic to TypeDict
-        return template.render(self._rendering_context.model_dump())
+        return template.render(component.model_dump())
 
 
 class RhdsOneCardRenderStrategy(OneCardRenderStrategy, RhdsStrategyBase):
@@ -46,7 +46,13 @@ class RhdsAudioPlayerRenderStrategy(AudioPlayerRenderStrategy, RhdsStrategyBase)
 
 
 class RhdsStrategyFactory(StrategyFactory):
-    def get_render_strategy(self, component: UIComponentMetadata):
+    def get_component_system_name(self) -> str:
+        return "rhds"
+
+    def get_output_mime_type(self) -> str:
+        return "text/html"
+
+    def get_render_strategy(self, component: ComponentDataBase):
         match component.component:
             case RhdsOneCardRenderStrategy.COMPONENT_NAME:
                 return RhdsOneCardRenderStrategy()

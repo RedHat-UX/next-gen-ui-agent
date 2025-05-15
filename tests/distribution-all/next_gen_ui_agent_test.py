@@ -3,7 +3,7 @@ import logging
 import pytest
 
 from next_gen_ui_agent import NextGenUIAgent, UIComponentMetadata
-from next_gen_ui_agent.renderer.types import RenderContextOneCard
+from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_testing import data_after_transformation
 
 test_component: UIComponentMetadata = (
@@ -16,7 +16,7 @@ def test_design_system_handler_json() -> None:
     agent = NextGenUIAgent()
     res = agent.design_system_handler([test_component], "json")
     json_str = res[0].content
-    result = RenderContextOneCard.model_validate_json(json_str)
+    result = ComponentDataOneCard.model_validate_json(json_str)
     assert result.title == "Toy Story Details"
     assert result.fields[0].data == ["Toy Story"]
     assert result.fields[1].data == ["1995"]
