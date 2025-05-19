@@ -1,4 +1,4 @@
-commitizen
+commitizen==4.6.3
 cz_github_jira_conventional
 pre-commit
 twine
