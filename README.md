@@ -59,47 +59,6 @@ agent = NextGenUIAgent()
 # TODO Add example how to use the agent directly
 ```
 
-## Running Tests
-
-Below are detailed instructions for running your tests.
-
-`Install Dependencies`
-npm install
--Installs all project dependencies, including the internal test setup package.
-
-1. Run All Tests (Watch Mode)
-npm test
--Starts Jest in watch mode, re-running relevant tests as you save changes.
-
-2. Run Tests Once (CI Mode)
-npm run test:ci
--Executes the entire test suite a single time without watching.
-
-3. Run a Specific Test File
-You can target a single test file like so:
-
-npm test -- src/test/components/ComponentName.test.tsx 
-
-Or using the run keyword:
-
-npm run test -- src/test/components/ComponentName.test.tsx 
-
-Replace ComponentName with the actual file name you wish to test.
-
-`NPM Scripts`
-The following scripts are available via package.json:
-
-{
-  "scripts": {
-    "test": "jest",
-  }
-}
-npm test → Runs all tests in watch mode.
-npm run test:ci → Runs all tests once, useful for CI pipelines.
-
-`Test Setup Details`
-Global config (e.g., @testing-library/jest-dom) is handled by setupTests.ts via our internal npm package.
-Test files follow the pattern *.test.tsx or *.test.js and are placed in: tests folders
 
 ## Rendering & UI Frameworks
 
