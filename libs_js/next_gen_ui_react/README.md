@@ -1,137 +1,110 @@
-# 📦 React Component Library
+# Dynamic UI NPM Package
 
-A modern, reusable, and tested React component library built using [React](https://reactjs.org/), bundled for distribution via [npm](https://www.npmjs.com/), with unit tests powered by [React Testing Library](https://testing-library.com/).
+A collection of reusable React components to support dynamic UI rendering. This package includes wrappers for markdown, tables, accordions, messages, and more.
 
----
+## Project Structure
 
-## 🧩 Features
+public/ # Public static assets
+src/
+├── components/ # Core reusable components
+├── constants/ # Component mapping logic
+├── index.tsx # Entry point
+└── test
+        └── components
+           └──/ # Unit tests
+        └── setup.ts
+└── index.html
+└── vite.config.ts
+└── package.json
+└── package-lock.json
+└── README.md
 
-- ✅ Reusable, customizable React components
-- 🧪 Fully unit-tested using React Testing Library + Jest
-- 📦 Published and installable via `npm`
-- 📚 Storybook (optional) for isolated component previews
-- 🎨 Styled with CSS Modules / Tailwind / Styled Components (choose one)
-- 🚀 Built using Vite / Webpack (choose one)
 
----
+## Installation
 
-## 🛠️ Installation
+npm install <package-name>
+Note: Requires React 18+ and TypeScript.
 
-`bash`
-# via npm
-npm install your-component-library-name
+Available Components:
+- AccordianWrapper
+- CodeBlockWrapper
+- CustomLink
+- DynamicComponents
+- ListWrapper
+- MarkdownWrapper
+- Message
+- QuickResponse
+- TableWrapper
 
-# or via yarn
-yarn add your-component-library-name
-📦 Usage
-jsx
-Copy
-Edit
-import { Button } from 'your-component-library-name';
+
+## Usage Example
+import { AccordianWrapper } from '<package-name>';
 
 function App() {
-  return <Button variant="primary">Click Me</Button>;
+  return (
+    <AccordianWrapper title="Click me">
+      <p>This is hidden content!</p>
+    </AccordianWrapper>
+  );
 }
 
-🧪 Running Tests
-The project uses React Testing Library and Jest for testing.
 
-# Run all tests
+## Development
+
+npm install
+npm run build #Generates the package in /dist
+npm link dynamicui
+
+
+## Testing
+- Running Tests
+
+Below are detailed instructions for running your tests.
+
+`Install Dependencies`
+npm install
+-Installs all project dependencies, including the internal test setup package.
+
+1. Run All Tests (Watch Mode)
 npm test
+-Starts Jest in watch mode, re-running relevant tests as you save changes.
 
-# Watch mode
-npm test -- --watch
+2. Run Tests Once (CI Mode)
+npm run test:ci
+-Executes the entire test suite a single time without watching.
 
-# Coverage report
-npm test -- --coverage
+3. Run a Specific Test File
+You can target a single test file like so:
 
-🏗️ Project Structure
+npm test -- src/test/components/ComponentName.test.tsx 
 
-src/
-├── components/
-│   ├── Button/
-│   │   ├── Button.tsx
-│   │   ├── Button.test.tsx
-│   │   ├── Button.styles.css
-│   │   └── index.ts
-│   └── ...
-├── hooks/
-├── utils/
-├── index.ts           # Library entry point
-tests/
-├── setupTests.ts      # Global RTL config
-...
+Or using the run keyword:
 
-🧪 Testing Strategy
-Each component is tested for:
+npm run test -- src/test/components/ComponentName.test.tsx 
 
-Rendering
-Interaction events (clicks, typing, etc.)
-Props behavior
-Accessibility (where applicable)
-Snapshot testing (optional)
-Tests are located alongside the component in a Component.test.tsx file.
+Replace ComponentName with the actual file name you wish to test.
+
+`NPM Scripts`
+The following scripts are available via package.json:
+
+{
+  "scripts": {
+    "test": "jest",
+  }
+}
+npm test → Runs all tests in watch mode.
+npm run test:ci → Runs all tests once, useful for CI pipelines.
+
+`Test Setup Details`
+Global config (e.g., @testing-library/jest-dom) is handled by setupTests.ts via our internal npm package.
+Test files follow the pattern *.test.tsx or *.test.js and are placed in: tests folders
 
 
-`Example for <Button />:`
+## License
+For open source projects, say how it is licensed.
 
-tsx
-Copy
-Edit
-import { render, screen, fireEvent } from '@testing-library/react';
-import { Button } from './Button';
+## Authors and acknowledgment
+Show your appreciation to those who have contributed to the project.
 
-test('renders with correct label', () => {
-  render(<Button>Click Me</Button>);
-  expect(screen.getByText(/click me/i)).toBeInTheDocument();
-});
-
-test('calls onClick when clicked', () => {
-  const handleClick = jest.fn();
-  render(<Button onClick={handleClick}>Click</Button>);
-  fireEvent.click(screen.getByText(/click/i));
-  expect(handleClick).toHaveBeenCalledTimes(1);
-});
-📖 Documentation
-Each component includes inline JSDoc for props.
-
-Optionally view components via Storybook:
-npm run storybook
-
-🚀 Publishing
-Ensure your components are bundled (via Rollup / Vite / tsup):
-npm run build
-
-Then publish to npm:
-npm publish --access public
-
-👨‍💻 Development
-# Start dev server
-npm run dev
-
-# Run tests
-npm test
-
-# Lint and format
-npm run lint
-npm run format
-
-🧱 Built With
-React
-TypeScript
-React Testing Library
-Jest
-Rollup / Vite (choose based on your setup)
-ESLint + Prettier
-Optionally Storybook
-
-📄 License
-MIT License
-
-🙌 Contributing
-
-Create your feature branch (git checkout -b feat/your-feature)
-Commit your changes (git commit -m 'Add feature')
-Push to the branch (git push origin feat/your-feature)
-
-Open a pull request
+## Project status
+If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
