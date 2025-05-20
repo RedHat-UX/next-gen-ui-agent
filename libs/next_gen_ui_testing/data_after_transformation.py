@@ -1,6 +1,7 @@
 from next_gen_ui_agent.data_transform.types import (
     ComponentDataImage,
     ComponentDataOneCard,
+    ComponentDataVideo,
 )
 from next_gen_ui_agent.types import DataField
 
@@ -49,6 +50,16 @@ _transformed_component_image = ComponentDataImage.model_validate(
     }
 )
 
+_transformed_component_video = ComponentDataVideo.model_validate(
+    {
+        "component": "video-player",
+        "id": "test-id",
+        "title": "Toy Story Trailer",
+        "video": "https://www.youtube.com/embed/v-PjgYDrg70",
+        "video_img": "https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg",
+    }
+)
+
 
 def get_transformed_component(component_name="one-card"):
     match component_name:
@@ -56,6 +67,8 @@ def get_transformed_component(component_name="one-card"):
             return _transformed_component_one_card.model_copy()
         case _transformed_component_image.component:
             return _transformed_component_image.model_copy()
+        case _transformed_component_video.component:
+            return _transformed_component_video.model_copy()
         case _:
             raise Exception(
                 f"Unkonwn _transformed_component component_name={component_name}"

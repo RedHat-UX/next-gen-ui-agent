@@ -45,8 +45,8 @@ component_image = UIComponentMetadata.model_validate(
 )
 component_video_player = UIComponentMetadata.model_validate(
     {
-        "title": "Toy Story Details",
-        "reasonForTheComponentSelection": "One item available in the data",
+        "title": "Toy Story Trailer",
+        "reasonForTheComponentSelection": "Youtube link in field",
         "confidenceScore": "100%",
         "component": "video-player",
         "fields": [

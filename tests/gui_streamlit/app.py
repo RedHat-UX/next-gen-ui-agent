@@ -21,6 +21,7 @@ pages = [
     st.Page("pages/welcome.py", title="Welcome"),
     st.Page("pages/one_card.py", title="One Card"),
     st.Page("pages/image.py", title="Image"),
+    st.Page("pages/video.py", title="Video"),
     st.Page("pages/dev_console.py", title="Developer Console"),
 ]
 
