@@ -76,6 +76,7 @@ const TableWrapper = ({
               <Th>
                 <input
                   type="checkbox"
+                  aria-label="Select all rows"
                   checked={selectedRows.length === rows.length}
                   onChange={toggleAllRows}
                 />
@@ -88,11 +89,12 @@ const TableWrapper = ({
         </Thead>
         <Tbody>
           {rows.map((row, rowIndex) => (
-            <Tr key={rowIndex}>
+            <Tr key={rowIndex} data-testid={`row-${row.id ?? rowIndex}`} >
               {selectable && (
                 <Td>
                   <input
                     type="checkbox"
+                    aria-label={`Select row ${rowIndex}`}
                     checked={selectedRows.includes(rowIndex)}
                     onChange={() => toggleRow(rowIndex)}
                   />
