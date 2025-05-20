@@ -2,6 +2,7 @@ import logging
 from typing import Optional
 
 from next_gen_ui_agent.component_selection import component_selection as comp_sel
+from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transformation import enhance_component_by_input_data
 from next_gen_ui_agent.design_system_handler import (
     design_system_handler as _design_system_handler,
@@ -13,6 +14,7 @@ from next_gen_ui_agent.types import (
     AgentConfig,
     AgentInput,
     InputData,
+    Rendition,
     UIComponentMetadata,
 )
 from stevedore import ExtensionManager
@@ -52,16 +54,17 @@ class NextGenUIAgent:
 
     def data_transformation(
         self, input_data: list[InputData], components: list[UIComponentMetadata]
-    ) -> list[UIComponentMetadata]:
+    ) -> list[ComponentDataBase]:
         """Transform components to Agent Data Output."""
-        enhance_component_by_input_data(input_data=input_data, components=components)
-        return components
+        return enhance_component_by_input_data(
+            input_data=input_data, components=components
+        )
 
     def design_system_handler(
         self,
-        components: list[UIComponentMetadata],
+        components: list[ComponentDataBase],
         component_system: Optional[str] = None,
-    ) -> list[UIComponentMetadata]:
+    ) -> list[Rendition]:
         """Handle rendering of the component with the chosen component system
         either via config or parameter."""
 
@@ -71,7 +74,7 @@ class NextGenUIAgent:
             else self.config.get("component_system")
         )
         if not component_system:
-            return components
+            raise Exception("Component system not defined")
 
         factory = JsonStrategyFactory()
         if component_system == "json":

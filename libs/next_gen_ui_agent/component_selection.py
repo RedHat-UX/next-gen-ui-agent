@@ -1,5 +1,4 @@
 import asyncio
-import json
 import logging
 
 from pydantic_core import from_json
@@ -24,14 +23,15 @@ logger = logging.getLogger(__name__)
 async def component_selection(
     inference: InferenceBase, input: AgentInput
 ) -> list[UIComponentMetadata]:
-    logger.info("---CALL component_selection---")
+    logger.debug("---CALL component_selection---")
     components = await asyncio.gather(
         *[
             component_selection_run(input["user_prompt"], inference, data)
             for data in input["input_data"]
         ]
     )
-    logger.debug(components)
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(components)
 
     return components
 
@@ -43,9 +43,12 @@ async def component_selection_inference(
 ) -> str:
     """Run Component Selection inference."""
 
-    logger.debug("---CALL component_selection_inference--- id: %s", {input_data["id"]})
-    # logger.debug(user_prompt)
-    # logger.debug(input_data)
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug(
+            "---CALL component_selection_inference--- id: %s", {input_data["id"]}
+        )
+        # logger.debug(user_prompt)
+        # logger.debug(input_data)
 
     sys_msg_content = f"""
         You are helpful and advanced user interface design assistant. Based on the user query and JSON formatted data, select the best one component to visualize the data to the user.
@@ -108,21 +111,17 @@ async def component_selection_run(
     """Run Component Selection task."""
 
     logger.debug("---CALL component_selection_run--- id: %s", {input_data["id"]})
-    # logger.debug(user_prompt)
-    # logger.debug(input_data)
 
     response = await component_selection_inference(user_prompt, inference, input_data)
 
     try:
+        # allow values coercing by `strict=False`
+        # allow partial json parsing by `allow_partial=True`, validation will fail on missing fields then. See https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
         result: UIComponentMetadata = UIComponentMetadata.model_validate(
             from_json(response, allow_partial=True), strict=False
         )
-        # TODO Validate response - https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
         result.id = input_data["id"]
         return result
-    except json.JSONDecodeError as e:
-        logger.exception("Cannot decode the json from LLM response")
-        raise e
-    except json.decoder.JSONDecodeError as e:
+    except Exception as e:
         logger.exception("Cannot decode the json from LLM response")
         raise e

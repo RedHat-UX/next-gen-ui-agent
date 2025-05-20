@@ -106,6 +106,7 @@ jobs:
           prerelease: "beta"
           extra_requirements: "cz_github_jira_conventional"
           increment: "PATCH"
+          commitizen_version: "4.6.3"
       - name: Print Version
         run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
       - uses: pantsbuild/actions/init-pants@v8

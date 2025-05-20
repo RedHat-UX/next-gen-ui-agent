@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Literal, Optional
 
 from next_gen_ui_agent.types import DataField
 from pydantic import BaseModel, Field
@@ -16,24 +16,24 @@ class CustomGenerateJsonSchema(GenerateJsonSchema):
         return return_value
 
 
-class RenderContextBaseTitle(BaseModel):
-    """Rendering Context base title only"""
+class ComponentDataBase(BaseModel):
+    """Component Data base with really basic attributes like title and id"""
 
+    component: Any
+    id: str
     title: str
 
 
-class RenderContextBase(RenderContextBaseTitle):
-    """Rendering Context base with title and fields"""
+class ComponentDataBaseWithFileds(ComponentDataBase):
+    """Component Data base extended by fields"""
 
     fields: list[DataField]
-    field_names: list[str]
-    data_length: int = Field(description="Maximal count of items in any data field")
-    """Maximal count of items in any data field"""
 
 
-class RenderContextAudio(RenderContextBaseTitle):
-    """Rendering Context for Audio."""
+class ComponentDataAudio(ComponentDataBase):
+    """Component Data for Audio."""
 
+    component: Literal["audio"] = "audio"
     image: str
     audio: str
 
@@ -62,31 +62,35 @@ or the field name ends by either 'url' or 'link' (case insensitive)
 """
 
 
-class RenderContextImage(RenderContextBaseTitle):
-    """Rendering Context for Image"""
+class ComponentDataImage(ComponentDataBase):
+    """Component Data for Image"""
 
+    component: Literal["image"] = "image"
     image: Optional[str] = Field(
         description=image_desc,
         default=None,
     )
 
 
-class RenderContextOneCard(RenderContextBase):
-    """Rendering Context for OneCard."""
+class ComponentDataOneCard(ComponentDataBaseWithFileds):
+    """Component Data for OneCard."""
 
+    component: Literal["one-card"] = "one-card"
     image: Optional[str] = Field(description="Image URL", default=None)
     """Image URL"""
 
 
-class RenderContexSetOfCard(RenderContextBase):
-    """Rendering Context for SetOfCard."""
+class ComponentDataSetOfCard(ComponentDataBaseWithFileds):
+    """Component Data for SetOfCard."""
 
+    component: Literal["set-of-cards"] = "set-of-cards"
     image_field: DataField
     subtitle_field: DataField
 
 
-class RenderContextVideo(RenderContextBaseTitle):
-    """Rendering Context for Video."""
+class ComponentDataVideo(ComponentDataBase):
+    """Component Data for Video."""
 
+    component: Literal["video-player"] = "video-player"
     video: str
     video_img: str

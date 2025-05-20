@@ -8,8 +8,9 @@ from langchain_core.runnables.config import RunnableConfig
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Command
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponentMetadata
+from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.model import LangChainModelInference
-from next_gen_ui_agent.types import AgentConfig
+from next_gen_ui_agent.types import AgentConfig, Rendition
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,8 @@ class AgentState(MessagesState):
     backend_data: list[InputData]
     user_prompt: str
     components: list[UIComponentMetadata]
+    components_data: list[ComponentDataBase]
+    renditions: list[Rendition]
 
 
 class AgentInputState(MessagesState):
@@ -28,6 +31,8 @@ class AgentInputState(MessagesState):
 
 class AgentOutputState(MessagesState):
     components: list[UIComponentMetadata]
+    components_data: list[ComponentDataBase]
+    renditions: list[Rendition]
 
 
 # Graph Config Schema
@@ -35,7 +40,7 @@ class GraphConfig(TypedDict):
     model: Optional[str]
     model_api_base_url: Optional[str]
     model_api_token: Optional[str]
-    component_system: Literal["none", "patternfly", "rhds"]
+    component_system: Literal["none", "patternfly", "rhds", "json"]
 
 
 class NextGenUILangGraphAgent:
@@ -93,45 +98,51 @@ class NextGenUILangGraphAgent:
         components = await self.ngui_agent.component_selection(input=input)
         return {"components": components}
 
+    def data_transformation(self, state: AgentState, config: RunnableConfig):
+        components = state["components"]
+        input_data = [
+            InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
+        ]
+
+        data = self.ngui_agent.data_transformation(
+            input_data=input_data, components=components
+        )
+        return {"components_data": data}
+
     async def choose_system(
         self, state: AgentState, config: RunnableConfig
     ) -> Command[Literal["design_system_handler", "__end__"]]:
         cfg: GraphConfig = config.get("configurable", {})  # type: ignore
 
-        input_data = [
-            InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
-        ]
-        components = state["components"]
-        self.ngui_agent.data_transformation(
-            input_data=input_data, components=components
-        )
-
         component_system = cfg.get("component_system")
         if component_system and component_system != "none":
             return Command(goto="design_system_handler")
 
-        return Command(goto=END)
+        # TODO is this really correct, shouldn't json renderer be used by default?
+        return Command(goto=END)  # type: ignore
 
     def design_system_handler(self, state: AgentState, config: RunnableConfig):
         logger.debug("\n\n---CALL design_system_handler---")
         cfg = config.get("configurable", {})
         component_system = cfg.get("component_system")
 
-        self.ngui_agent.design_system_handler(state["components"], component_system)
+        results = self.ngui_agent.design_system_handler(
+            state["components_data"], component_system
+        )
 
         messages: list[BaseMessage] = []
-        for component in state["components"]:
+        for result in results:
             logger.debug(
                 "---CALL %s--- id: %s, component rendition: %s",
                 component_system,
-                component.id,
-                component.rendition,
+                result.id,
+                result.content,
             )
 
             tm = ToolMessage(
                 name=f"ngui_{component_system}",
-                tool_call_id=str(component.id) + uuid.uuid4().hex,
-                content=str(component.rendition),
+                tool_call_id=str(result.id) + uuid.uuid4().hex,
+                content=str(result.content),
             )
             ai = AIMessage(
                 content="", name=f"ngui_{component_system}", id=uuid.uuid4().hex
@@ -141,7 +152,7 @@ class NextGenUILangGraphAgent:
             )
             messages.append(ai)
             messages.append(tm)
-        return {"messages": messages}
+        return {"messages": messages, "renditions": results}
 
     @staticmethod
     def is_next_gen_ui_message(message: BaseMessage):
@@ -161,13 +172,15 @@ class NextGenUILangGraphAgent:
         )
 
         builder.add_node("component_selection", self.component_selection)
+        builder.add_node("data_transformation", self.data_transformation)
         builder.add_node("data_selection", self.data_selection)
         builder.add_node("component_system", self.choose_system)
         builder.add_node("design_system_handler", self.design_system_handler)
 
         builder.add_edge(START, "data_selection")
         builder.add_edge("data_selection", "component_selection")
-        builder.add_edge("component_selection", "component_system")
+        builder.add_edge("component_selection", "data_transformation")
+        builder.add_edge("data_transformation", "component_system")
         builder.add_edge("design_system_handler", END)
 
         graph = builder.compile()

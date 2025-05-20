@@ -41,8 +41,16 @@
       "type": "object"
     }
   },
-  "description": "Rendering Context for OneCard.",
+  "description": "Component Data for OneCard.",
   "properties": {
+    "component": {
+      "const": "one-card",
+      "default": "one-card",
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
     "title": {
       "type": "string"
     },
@@ -51,16 +59,6 @@
         "$ref": "#/$defs/DataField"
       },
       "type": "array"
-    },
-    "field_names": {
-      "items": {
-        "type": "string"
-      },
-      "type": "array"
-    },
-    "data_length": {
-      "description": "Maximal count of items in any data field",
-      "type": "integer"
     },
     "image": {
       "anyOf": [
@@ -76,11 +74,10 @@
     }
   },
   "required": [
+    "id",
     "title",
-    "fields",
-    "field_names",
-    "data_length"
+    "fields"
   ],
-  "title": "RenderContextOneCard",
+  "title": "ComponentDataOneCard",
   "type": "object"
 }

@@ -53,4 +53,12 @@ class UIComponentMetadata(BaseModel):
     confidenceScore: Optional[str] = None
     component: str
     fields: list[DataField]
-    rendition: Optional[str] = None
+
+
+class Rendition(BaseModel):
+    """Rendition of the component."""
+
+    id: str
+    component_system: str
+    mime_type: str
+    content: str

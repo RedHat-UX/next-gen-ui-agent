@@ -1,6 +1,14 @@
 {
-  "description": "Rendering Context for Image",
+  "description": "Component Data for Image",
   "properties": {
+    "component": {
+      "const": "image",
+      "default": "image",
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
     "title": {
       "type": "string"
     },
@@ -18,8 +26,9 @@
     }
   },
   "required": [
+    "id",
     "title"
   ],
-  "title": "RenderContextImage",
+  "title": "ComponentDataImage",
   "type": "object"
 }

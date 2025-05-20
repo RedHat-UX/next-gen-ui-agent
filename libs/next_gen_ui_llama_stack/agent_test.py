@@ -6,7 +6,7 @@ import pytest
 from llama_stack_client import AsyncLlamaStackClient, LlamaStackClient
 from llama_stack_client.types.inference_step import InferenceStep
 from llama_stack_client.types.tool_execution_step import ToolExecutionStep
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.types import Rendition, UIComponentMetadata
 from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedInference
@@ -99,13 +99,14 @@ async def test_agent_turn_from_steps() -> None:
     async for ng_event in ngui_agent.create_turn(
         user_input, steps=[step1, step2, step3], component_system="json"
     ):
-        payload: UIComponentMetadata = ng_event["payload"][0]
         if ng_event["event_type"] == "component_metadata":
             logger.info("Result: %s", ng_event["payload"])
-            assert payload.component == "one-card"
+            payload_cm: UIComponentMetadata = ng_event["payload"][0]
+            assert payload_cm.component == "one-card"
         if ng_event["event_type"] == "rendering":
             logger.info("Result: %s", ng_event["payload"])
-            rendering = json.loads(str(payload.rendition))
+            payload_re: Rendition = ng_event["payload"][0]
+            rendering = json.loads(str(payload_re.content))
             assert rendering["title"] == "Toy Story"
 
 
@@ -133,7 +134,7 @@ async def test_agent_turn_from_steps_async() -> None:
     )
 
     async for ng_event in ngui_agent.create_turn(
-        user_input, steps=[step1, step2, step3]
+        user_input, steps=[step1, step2, step3], component_system="json"
     ):
         if ng_event["event_type"] == "component_metadata":
             payload: UIComponentMetadata = ng_event["payload"][0]
