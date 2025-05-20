@@ -7,7 +7,6 @@ def test_renderers_options():
 
 
 def test_rendering_json():
-    """A user increments the number input, then clicks Add"""
     at = AppTest.from_file("dev_console.py")
     at.session_state.renderer = "json"
     at.run()
@@ -17,7 +16,6 @@ def test_rendering_json():
 
 
 def test_rendering_rhds():
-    """A user increments the number input, then clicks Add"""
     at = AppTest.from_file("dev_console.py")
     at.session_state.renderer = "rhds"
     at.run()
@@ -26,10 +24,18 @@ def test_rendering_rhds():
 
 
 def test_rendering_rhds_image():
-    """A user increments the number input, then clicks Add"""
     at = AppTest.from_file("dev_console.py")
     at.session_state.renderer = "rhds"
     at.session_state.example_code = "image"
+    at.run()
+    assert at.text[1].value == "Rendering DONE: rhds"
+    # No way how to get custom component
+
+
+def test_rendering_rhds_video():
+    at = AppTest.from_file("dev_console.py")
+    at.session_state.renderer = "rhds"
+    at.session_state.example_code = "video-player"
     at.run()
     assert at.text[1].value == "Rendering DONE: rhds"
     # No way how to get custom component
