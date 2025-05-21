@@ -21,5 +21,5 @@ def test_process() -> None:
             ],
         }
     )
-    result = OneCardRenderStrategy().generate_output(c)
+    result = OneCardRenderStrategy().render(c)
     assert result == c.model_dump_json()

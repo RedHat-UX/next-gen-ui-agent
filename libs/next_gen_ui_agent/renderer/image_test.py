@@ -27,7 +27,7 @@ testdata = [(".jpg"), (".jpeg"), (".png"), (".webp"), (".tiff")]
 
 
 @pytest.mark.parametrize("extension", testdata)
-def test_generate_output(extension) -> None:
+def test_render(extension) -> None:
     component = get_component(extension)
-    result = ImageRenderStrategy().generate_output(component)
+    result = ImageRenderStrategy().render(component)
     assert result == component.model_dump_json()

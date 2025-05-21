@@ -38,9 +38,10 @@ Type of the input data, [`Object`](https://datatracker.ietf.org/doc/html/rfc8259
 For `Object`, UI component rendering one item is selected, like `one-card`, `image`, `video-player`, `audio-player` etc. 
 `Array of objects` is rendered by UI component like `set-of-card`, `table`, `chart`, `image-gallery`.
 
-But LLM used in the *UI Agent* struggles to generate correct paths pointing to the data values if they are stored directly in the root Object. *UI Agent* works correctly if there is an JSON Object in the data root, containing exactly one field, which name describes business nature of the data. This helps LLM to better understand the data, match them with the user prompt, and generate correct paths pointing to the data values. This field can then contain `Object` or `Array of objects`.
+LLM used in the *UI Agent* struggles sometimes to generate correct paths pointing to the data values if they are stored directly in the root Object. 
+*UI Agent* works correctly if there is an JSON Object in the data root, containing exactly one field, which name describes business nature of the data. This helps LLM to better understand the data, match them with the user prompt, and generate correct paths pointing to the data values. This field can then contain `Object` or `Array of objects`.
 
-### `Object` input data
+### One `Object` input data
 
 Correct `Object` input data:
 ```json
@@ -53,8 +54,9 @@ Correct `Object` input data:
   }
 }
 ```
+Putting this structure into top level array (with one object only) is mostly interpreted as one `Object` with relevant UI component selected and generally works well.
 
-Incorrect `Object` input data:
+Potentially problematic `Object` input data:
 ```json
 {
   "id": 254,
@@ -86,7 +88,7 @@ Correct `Array of objects` input data:
 }
 ```
 
-Incorrect `Array of objects` input data:
+Potentially problematic `Array of objects` input data:
 ```json
 [
   {
@@ -103,6 +105,17 @@ Incorrect `Array of objects` input data:
   }     
 ]
 ```
+
+!!! warning
+    Array with one object only is typically interpreted as a single `Object` and relevant UI component is used to show it's values.
+
+## Structure of objects in the `Array of objects`
+
+In the `Array of objects` input data type, structure of all objects must be the same. The same fields MUST be present in all the objects (data pickup by JSONPath can be broken if not),
+every field's value must be the same type in all the objects, but it can be `null` in some of them. 
+
+It's because JSONPath is used to extract data values.
+
 
 ## Values nesting
 
@@ -137,6 +150,56 @@ You can also nest `Array of simple values` in the `Object` (even if the `Object`
     *UI Agent* can sometimes select specific UI component to render this `Array of objects` only, but fields from the parent object are not rendered then. 
     But in many cases LLM of the *UI Agent* generates nonsense paths pointing to the values of this array.
     It is always better to provide this `Array of objects` as a separate input data, so two `Data UI Blocks` are shown, one for the parent `Object`, and one for the `Array of objects`.
+
+
+## Data value types
+
+Data value type is important for formating during visualization. Details depend on used frontend technology etc. 
+Some data value types are also important for specific UI components as they may form heart of their functionality, e.g "Image URL" for `image` component.
+
+Data field value is interpreted as plain `string` until any other type applies.
+Data field value can be `null` also in JSON.
+
+### Number
+
+[Number value](https://datatracker.ietf.org/doc/html/rfc8259#section-6) in the JSON data. Can be either Integer or Floating point number.
+
+**ToDo** conversion from JSON string value?
+
+### Logic/Boolean value
+
+[`true`/`false` value](https://datatracker.ietf.org/doc/html/rfc8259#section-3) in the JSON data.
+
+**ToDo** conversion from JSON string value?
+
+### Date and time values
+
+**ToDo** detection/conversion from JSON string value
+
+### Image URL
+
+To interpret data field as an url pointing to the image, it must match any of this:
+* data field value must be http/s url pointing to the file with [image extension defined in `IMAGE_URL_SUFFIXES`](../../libs/next_gen_ui_agent/data_transform/types.py)
+* data field value must be http/s url and data field name must end with [extension defined in `IMAGE_DATA_PATH_SUFFIXES`](../../libs/next_gen_ui_agent/data_transform/types.py)
+
+Field with Image URL is important for `image` component, but is used also in `one-card` to show optional main image.
+
+### Audio URL
+
+**ToDo** `audio-player` component impl
+
+### Video URL
+
+**ToDo** `video-player` component impl
+
+### Other URL
+
+**ToDo** 
+
+### Enum value
+
+**ToDo** implementation of value formating with "Data hints" for enums
+
 
 ## Data hints using metadata
 

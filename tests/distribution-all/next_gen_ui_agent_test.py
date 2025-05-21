@@ -6,7 +6,7 @@ from next_gen_ui_agent import NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_testing import data_after_transformation
 
-test_component: UIComponentMetadata = (
+test_component: ComponentDataOneCard = (
     data_after_transformation.get_transformed_component()
 )
 

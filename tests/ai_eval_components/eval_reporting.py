@@ -10,7 +10,9 @@ from ai_eval_components.types import (
     DATASET_FILE_SUFFIX,
     DatasetRow,
     DatasetRowAgentEvalResult,
-    EvalError,
+)
+from next_gen_ui_agent.data_transform.validation.types import (
+    ComponentDataValidationError,
 )
 
 ERR_FILE_SUFFIX = "-errors.txt"
@@ -38,10 +40,14 @@ def report_success(
         f_out.write(f"==== DATASET ID {id} ====\n")
         f_out.write("Prompt:\n")
         f_out.write(dsr["user_prompt"])
-        f_out.write("\nAgent output:\n")
+        f_out.write("\nLLM output:\n")
         json.dump(
             json.loads(eval_result.llm_output), f_out, indent=2, separators=(",", ": ")
         )
+        if eval_result.data:
+            f_out.write(
+                "\nComponent data:\n" + eval_result.data.model_dump_json(indent=2)
+            )
         if "src" in dsr and "data_file" in dsr["src"]:
             ov = dsr["src"]["data_file"]
             f_out.write(f"\nData file in dataset_src: {ov}")
@@ -51,7 +57,7 @@ def report_success(
 
 def report_err_dataset(
     f_err: TextIOWrapper,
-    ds_errors: list[EvalError],
+    ds_errors: list[ComponentDataValidationError],
     dsr: DatasetRow,
     is_progress_dot: bool,
 ):
@@ -90,7 +96,7 @@ def report_err_uiagent(
     )
     f_err.write("\nPrompt:\n")
     f_err.write(dsr["user_prompt"])
-    f_err.write("\nAgent output:\n")
+    f_err.write("\nLLM output:\n")
     try:
         json.dump(
             json.loads(eval_result.llm_output), f_err, indent=2, separators=(",", ": ")
@@ -98,6 +104,8 @@ def report_err_uiagent(
     except Exception:
         # write LLM output even if it is an invalid JSON
         f_err.write(eval_result.llm_output)
+    if eval_result.data:
+        f_err.write("\nComponent data:\n" + eval_result.data.model_dump_json(indent=2))
     if "src" in dsr and "data_file" in dsr["src"]:
         ov = dsr["src"]["data_file"]
         f_err.write(f"\nData file in dataset_src: {ov}")

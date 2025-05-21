@@ -4,6 +4,10 @@ from abc import ABC, abstractmethod
 class InferenceBase(ABC):
     @abstractmethod
     async def call_model(self, system_msg: str, prompt: str) -> str:
+        """
+        Call the LLM model with the given system message and prompt and return response.
+        LLM should always return the same response for the same system message and prompt (eg. by tempetrature set to 0).
+        """
         pass
 
 

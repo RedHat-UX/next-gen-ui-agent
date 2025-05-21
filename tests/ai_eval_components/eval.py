@@ -17,8 +17,6 @@ from ai_eval_components.eval_reporting import (
     report_success,
 )
 from ai_eval_components.eval_utils import (
-    assert_array_not_empty,
-    assert_str_not_blank,
     get_dataset_files,
     load_args,
     load_dataset_file,
@@ -28,19 +26,28 @@ from ai_eval_components.types import (
     DATASET_FILE_SUFFIX,
     DatasetRow,
     DatasetRowAgentEvalResult,
-    EvalError,
 )
 from llama_stack_client import LlamaStackClient
 from next_gen_ui_agent import InputData
 from next_gen_ui_agent.component_selection import component_selection_inference
-from next_gen_ui_agent.data_transformation import enhance_component_by_input_data
+from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
+from next_gen_ui_agent.data_transform.table import TableDataTransformer
+from next_gen_ui_agent.data_transform.types import ComponentDataBase
+from next_gen_ui_agent.data_transform.validation.assertions import (
+    assert_array_not_empty,
+    assert_str_not_blank,
+)
+from next_gen_ui_agent.data_transform.validation.types import (
+    ComponentDataValidationError,
+)
+from next_gen_ui_agent.data_transformation import get_data_transformer
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAgentInference
 from pydantic_core import from_json
 
 # allows to print system error traces to the stderr
-PRINT_SYS_ERR_TRACE = False
+PRINT_SYS_ERR_TRACE = True
 
 # INFERENCE_MODEL_DEFAULT = "llama3.2:latest"
 INFERENCE_MODEL_DEFAULT = "granite3.2:2b"
@@ -64,13 +71,15 @@ def init_inference() -> InferenceBase:
 
 
 def check_result_explicit(
-    component: UIComponentMetadata, errors: list[EvalError], dsr: DatasetRow
+    component: UIComponentMetadata,
+    errors: list[ComponentDataValidationError],
+    dsr: DatasetRow,
+    arg_vague_component_check: bool,
 ):
     """
-    Perform explicit checks on the component JSON
-    * attributes are not empty
+    Perform explicit checks on the LLM generated component JSON
+    * all necessary attributes in the root and in `fields` are not empty
     * component is of the expected type
-    * data pointers point to the fields existing in the data and are of expected type (array of values or simple value)
 
     Return list of errors or empty list if everything is OK.
     """
@@ -81,8 +90,22 @@ def check_result_explicit(
         ds_expected_component = dsr["expected_component"]
         generated_component = component.component
         if generated_component != ds_expected_component:
+            if arg_vague_component_check:
+                # allow `table` and `set-of-cards` components to be interchanged
+                if (
+                    generated_component == TableDataTransformer.COMPONENT_NAME
+                    and ds_expected_component
+                    == SetOfCardsDataTransformer.COMPONENT_NAME
+                ):
+                    return
+                if (
+                    generated_component == SetOfCardsDataTransformer.COMPONENT_NAME
+                    and ds_expected_component == TableDataTransformer.COMPONENT_NAME
+                ):
+                    return
+
             errors.append(
-                EvalError(
+                ComponentDataValidationError(
                     "component.invalid",
                     f"{generated_component} instead of {ds_expected_component}",
                 )
@@ -94,24 +117,14 @@ def check_result_explicit(
             fieldDict = field.model_dump()
             assert_str_not_blank(fieldDict, "name", fn + "name.empty", errors)
 
-            if assert_str_not_blank(
-                fieldDict, "data_path", fn + "data_path.empty", errors
-            ):
-                data_path = field.data_path
-                assert_array_not_empty(
-                    fieldDict,
-                    "data",
-                    fn + "data_path.points_no_data",
-                    errors,
-                    err_msg=f"No value found in data for data_path='{data_path}'",
-                )
-
-            # TODO component specific evals where fields have to be of some type, eg link to image for image component, link to video etc
+            assert_str_not_blank(fieldDict, "data_path", fn + "data_path.empty", errors)
 
 
-def evaluate_agent_for_dataset_row(dsr: DatasetRow, inference: InferenceBase):
+def evaluate_agent_for_dataset_row(
+    dsr: DatasetRow, inference: InferenceBase, arg_vague_component_check: bool
+):
     """Run agent evaluation for one dataset row"""
-    errors: list[EvalError] = []
+    errors: list[ComponentDataValidationError] = []
     input_data = InputData(id="myid", data=dsr["backend_data"])
 
     # separate steps so we can see LLM response even if it is invalid JSON
@@ -128,31 +141,40 @@ def evaluate_agent_for_dataset_row(dsr: DatasetRow, inference: InferenceBase):
         )
     except Exception as e:
         errors.append(
-            EvalError(
+            ComponentDataValidationError(
                 "invalid_json",
                 "LLM produced invalid JSON: " + str(e).replace("\n", ": "),
             )
         )
 
+    data: ComponentDataBase | None = None
     if component:
         # load data so we can evaluate that pointers to data are correct
         # any exception from this code is "SYS" error
         component.id = input_data["id"]
-        components = [component]
-        enhance_component_by_input_data([input_data], components)
 
-        check_result_explicit(component, errors, dsr)
+        check_result_explicit(component, errors, dsr, arg_vague_component_check)
 
-        # TODO NGUI-116 LLM-as-a-judge AI check
+        # if not any error so far, validate the component data_paths and overal structure of data for given component
+        if len(errors) == 0:
+            data_transformer = get_data_transformer(component.component)
+            data = data_transformer.validate(component, input_data, errors)
+
+        # TODO NGUI-116 LLM-as-a-judge AI check to evaluate if fields are relevant to the user prompt and data
 
         # return JSON with the data so we can check them
         llm_response = component.model_dump_json()
 
-    return DatasetRowAgentEvalResult(llm_response, errors)
+    return DatasetRowAgentEvalResult(llm_response, errors, data)
 
 
 if __name__ == "__main__":
-    arg_ui_component, arg_write_llm_output, arg_dataset_file = load_args()
+    (
+        arg_ui_component,
+        arg_write_llm_output,
+        arg_dataset_file,
+        arg_vague_component_check,
+    ) = load_args()
     errors_dir_path = get_errors_dir()
     if arg_write_llm_output:
         llm_output_dir_path = get_llm_output_dir()
@@ -190,7 +212,9 @@ if __name__ == "__main__":
                             f_err, ds_errors, dsr, is_progress_dot
                         )
                     else:
-                        eval_result = evaluate_agent_for_dataset_row(dsr, inference)
+                        eval_result = evaluate_agent_for_dataset_row(
+                            dsr, inference, arg_vague_component_check
+                        )
                         if len(eval_result.errors) > 0:
                             is_progress_dot = report_err_uiagent(
                                 f_err, eval_result, dsr, is_progress_dot

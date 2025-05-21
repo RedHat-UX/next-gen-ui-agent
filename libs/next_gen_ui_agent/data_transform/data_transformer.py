@@ -1,23 +1,28 @@
 import json
+import logging
 from abc import ABC
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
+from next_gen_ui_agent.data_transform.data_transformer_utils import (
+    copy_array_fields_from_ui_component_metadata,
+    copy_simple_fields_from_ui_component_metadata,
+    sanitize_data_path,
+)
 from next_gen_ui_agent.data_transform.types import (
-    IMAGE_SUFFIXES,
     ComponentDataAudio,
     ComponentDataBase,
-    ComponentDataBaseWithFileds,
+    ComponentDataBaseWithArrayValueFileds,
+    ComponentDataBaseWithSimpleValueFileds,
     ComponentDataImage,
     ComponentDataOneCard,
-    ComponentDataSetOfCard,
+    ComponentDataSetOfCards,
+    ComponentDataTable,
     ComponentDataVideo,
 )
-from next_gen_ui_agent.types import (
-    DataField,
-    DataFieldDataType,
-    InputData,
-    UIComponentMetadata,
+from next_gen_ui_agent.data_transform.validation.types import (
+    ComponentDataValidationError,
 )
+from next_gen_ui_agent.types import InputData, UIComponentMetadata
 
 T = TypeVar(
     "T",
@@ -25,107 +30,95 @@ T = TypeVar(
     ComponentDataAudio,
     ComponentDataImage,
     ComponentDataOneCard,
-    ComponentDataSetOfCard,
+    ComponentDataSetOfCards,
+    ComponentDataTable,
     ComponentDataVideo,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class DataTransformerBase(ABC, Generic[T]):
     """Data transformer"""
 
     def __init__(self):
-        self._component_data: T = None
+        self._component_data: T = None  # type: ignore
 
     def preprocess_rendering_context(self, component: UIComponentMetadata):
-        """Prepare ComponentData property for further use"""
-        fields = component.fields
+        """Prepare _component_data property for further use in the transformer"""
         self._component_data.title = component.title
         self._component_data.id = component.id  # type: ignore
-        if isinstance(self._component_data, ComponentDataBaseWithFileds):
-            self._component_data.fields = fields.copy()
+        if isinstance(self._component_data, ComponentDataBaseWithSimpleValueFileds):
+            self._component_data.fields = copy_simple_fields_from_ui_component_metadata(
+                component.fields
+            )
+        elif isinstance(self._component_data, ComponentDataBaseWithArrayValueFileds):
+            self._component_data.fields = copy_array_fields_from_ui_component_metadata(
+                component.fields
+            )
 
-    def main_processing(self, component: UIComponentMetadata, data: Any):
-        """Main processing of the component data from UIComponentMetadata and JSON parsed data"""
+    def main_processing(self, json_data: Any, component: UIComponentMetadata):
+        """IMPLEMENT: Main processing of the _component_data from parsed JSON data, UIComponentMetadata passed here also if necessary"""
         pass
 
-    def post_processing(self, component: UIComponentMetadata, data: Any):
-        """Post processing of the component data from UIComponentMetadata and JSON parsed data"""
+    def post_processing(self, json_data: Any, component: UIComponentMetadata):
+        """IMPLEMENT: Post processing of the _component_data from parsed JSON data, UIComponentMetadata passed here also if necessary"""
         pass
 
     def process(self, component: UIComponentMetadata, data: InputData) -> T:
         """Transform the component metadata and data into final structure passed to the rendering, via running pre-
-        main-post processing flow."""
+        main-post processing flow. You can use `data_transformer_utils` for the implementation.
+        """
 
-        # TODO some system error should be thrown if no data are found for the component["id"]
         data_content = data["data"]
-        # TODO: Investigate why is problem with \n in content
-        json_data = json.loads(data_content.replace("\n", ""))
+        if not data_content:
+            raise ValueError(f"No data content found for the component {data['id']}")
+
+        json_data = json.loads(data_content)
 
         self.preprocess_rendering_context(component)
-        self.main_processing(component, json_data)
-        self.post_processing(component, json_data)
+        self.main_processing(json_data, component)
+        self.post_processing(json_data, component)
         return self._component_data
 
-    @staticmethod
-    def find_field_by_data_value(
-        fields: list[DataField],
-        field_data_predicate: Callable[[DataFieldDataType], bool],
-    ) -> DataField | None:
-        """Helper methods for to find field based on predicate."""
-        return next(
-            (field for field in fields for d in field.data if field_data_predicate(d)),
-            None,
-        )
-
-    @staticmethod
-    def find_field_by_data_path(
-        fields: list[DataField],
-        data_path_predicate: Callable[[str], bool],
-    ) -> DataField | None:
-        """Helper methods for to find field based on its data_path predicate. Predicate's argument is lowered field `data_path`"""
-        return next(
-            (
-                field
-                for field in fields
-                if field.data_path and data_path_predicate(field.data_path.lower())
-            ),
-            None,
-        )
-
-    @staticmethod
-    def find_data_value_in_field(
-        items: list[DataFieldDataType],
-        data_value_predicate: Callable[[DataFieldDataType], bool],
-    ) -> DataFieldDataType | None:
-        """Helper methods for to find field data value based on predicate."""
-        return next(
-            (value for value in items if data_value_predicate(value)),
-            None,
-        )
-
-    @staticmethod
-    def find_image(
+    def validate(
+        self,
         component: UIComponentMetadata,
-    ) -> tuple[str, DataField] | tuple[None, None]:
-        """Find image field with image. Return tuple with data value and DataField"""
-        fields = component.fields
-        field_with_image_suffix = DataTransformerBase.find_field_by_data_value(
-            fields,
-            lambda data: isinstance(data, str) and data.endswith(IMAGE_SUFFIXES),
-        )
-        if field_with_image_suffix:
-            image = DataTransformerBase.find_data_value_in_field(
-                field_with_image_suffix.data,
-                lambda value: isinstance(value, str) and value.endswith(IMAGE_SUFFIXES),
-            )
-            if image:
-                return str(image), field_with_image_suffix
-        else:
-            field_name_like_url = DataTransformerBase.find_field_by_data_path(
-                fields,
-                lambda name: name.endswith("link") or name.endswith("url"),
-            )
-            if field_name_like_url and len(field_name_like_url.data) > 0:
-                return str(field_name_like_url.data[0]), field_name_like_url
+        data: InputData,
+        errors: list[ComponentDataValidationError],
+    ) -> T:
+        """
+        Validate the component configuration agains provided data. Basic implementation inits `_component_data` and then validates the data paths and data presence for `fields`.
+        You can override it to perform more complex validation for components with specific type (you should always call super().validate() in your implementation).
+        """
 
-        return None, None
+        self.process(component, data)
+
+        if isinstance(
+            self._component_data, ComponentDataBaseWithSimpleValueFileds
+        ) or isinstance(self._component_data, ComponentDataBaseWithArrayValueFileds):
+            for i, field in enumerate(self._component_data.fields):
+                fn = f"fields[{i}]."
+                sanitized_data_path = sanitize_data_path(field.data_path)
+                if not sanitized_data_path:
+                    errors.append(
+                        ComponentDataValidationError(
+                            fn + "data_path.invalid_format",
+                            f"Generated data_path='{field.data_path}' is not valid",
+                        )
+                    )
+                elif not field.data or (
+                    isinstance(
+                        self._component_data, ComponentDataBaseWithArrayValueFileds
+                    )
+                    and (field.data == [])
+                ):
+                    # we cant perform full incorrect path check for `ComponentDataBaseWithSimpleValueFileds` as `[]` is valid value here for input data fields containing empty array :-(
+                    errors.append(
+                        ComponentDataValidationError(
+                            fn + "data_path.invalid",
+                            f"No value found in input data for data_path='{field.data_path}'",
+                        )
+                    )
+
+        return self._component_data

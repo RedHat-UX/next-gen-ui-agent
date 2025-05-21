@@ -66,7 +66,7 @@ class NextGenUILangGraphAgent:
         messagesReversed = list(reversed(messages))
         for m in messagesReversed:
             # logger.debug(m.content)
-            # TODO: Handle better success/error messages
+            # TODO ERRHANDLING Handle better success/error messages
             if (
                 m.type
                 == "tool"

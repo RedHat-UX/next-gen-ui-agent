@@ -13,17 +13,26 @@
       "type": "string"
     },
     "video": {
+      "description": "Video URL",
       "type": "string"
     },
     "video_img": {
-      "type": "string"
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "URL of the Image for Video"
     }
   },
   "required": [
     "id",
     "title",
-    "video",
-    "video_img"
+    "video"
   ],
   "title": "ComponentDataVideo",
   "type": "object"

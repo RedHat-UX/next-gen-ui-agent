@@ -100,16 +100,15 @@ async def test_agent_MESSAGESIN_WITH_COMPONENT_SYSTEM() -> None:
     assert c.fields
     field = c.fields[0]
     assert field.name == "Title"
-    assert field.data == ["Toy Story"]
 
     components_data = result["components_data"]
     assert len(components_data) == 1
     c_data: ComponentDataOneCard = components_data[0]
     assert c_data.component == "one-card"
     assert c_data.fields
-    field = c_data.fields[0]
-    assert field.name == "Title"
-    assert field.data == ["Toy Story"]
+    c_field = c_data.fields[0]
+    assert c_field.name == "Title"
+    assert c_field.data == ["Toy Story"]
 
     # renditions for configured component system are present
     renditions = result["renditions"]
@@ -160,16 +159,15 @@ async def test_agent_MESSAGESIN_WITHOUT_COMPONENT_SYSTEM() -> None:
     assert c.fields
     field = c.fields[0]
     assert field.name == "Title"
-    assert field.data == ["Toy Story"]
 
     components_data = result["components_data"]
     assert len(components_data) == 1
     c_data: ComponentDataOneCard = components_data[0]
     assert c_data.component == "one-card"
     assert c_data.fields
-    field = c_data.fields[0]
-    assert field.name == "Title"
-    assert field.data == ["Toy Story"]
+    c_field = c_data.fields[0]
+    assert c_field.name == "Title"
+    assert c_field.data == ["Toy Story"]
 
     try:
         result["renditions"]
@@ -206,16 +204,15 @@ async def test_agent_STATEIN_WITH_COMPONENT_SYSTEM() -> None:
     assert c.fields
     field = c.fields[0]
     assert field.name == "Title"
-    assert field.data == ["Toy Story"]
 
     components_data = result["components_data"]
     assert len(components_data) == 1
     c_data: ComponentDataOneCard = components_data[0]
     assert c_data.component == "one-card"
     assert c_data.fields
-    field = c_data.fields[0]
-    assert field.name == "Title"
-    assert field.data == ["Toy Story"]
+    c_field = c_data.fields[0]
+    assert c_field.name == "Title"
+    assert c_field.data == ["Toy Story"]
 
     # renditions for configured component system are present
     renditions = result["renditions"]

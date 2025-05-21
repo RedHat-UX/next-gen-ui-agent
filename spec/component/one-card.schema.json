@@ -1,7 +1,7 @@
 {
   "$defs": {
-    "DataField": {
-      "description": "UI Component field metadata.",
+    "DataFieldSimpleValue": {
+      "description": "Component Data with fields containing simple value obtained from the input_data.",
       "properties": {
         "name": {
           "description": "Field name",
@@ -37,7 +37,7 @@
         "name",
         "data_path"
       ],
-      "title": "RenderContextDataField",
+      "title": "DataFieldSimpleValue",
       "type": "object"
     }
   },
@@ -56,7 +56,7 @@
     },
     "fields": {
       "items": {
-        "$ref": "#/$defs/DataField"
+        "$ref": "#/$defs/DataFieldSimpleValue"
       },
       "type": "array"
     },
@@ -70,7 +70,7 @@
         }
       ],
       "default": null,
-      "description": "Image URL"
+      "description": "Main Image URL"
     }
   },
   "required": [

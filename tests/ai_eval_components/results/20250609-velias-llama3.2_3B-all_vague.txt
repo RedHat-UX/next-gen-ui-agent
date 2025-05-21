@@ -1,0 +1,88 @@
+Date: 2025-06-09
+Components: all with vague component type check
+LLM: llama 3.2 3B
+Env: velias ThinkPad P16v (ollama accelerated on AMD GPU)
+
+Note: perf stats might be affected by video-meting running in parallel!
+
+Dataset items evalueated: 171
+Agent errors: 59
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 13,
+    "num_err_system": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 21,
+    "num_err_system": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 11,
+    "num_err_system": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 14,
+    "num_err_system": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 3742,
+  "mean": 6481,
+  "avg": 6481,
+  "perc95": 22031,
+  "max": 58220
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 3742,
+    "mean": 4439,
+    "avg": 4439,
+    "perc95": 5049,
+    "max": 5287
+  },
+  "one-card": {
+    "min": 3841,
+    "mean": 4901,
+    "avg": 4901,
+    "perc95": 6346,
+    "max": 6891
+  },
+  "set-of-cards": {
+    "min": 4724,
+    "mean": 5862,
+    "avg": 5862,
+    "perc95": 6548,
+    "max": 12366
+  },
+  "table": {
+    "min": 13439,
+    "mean": 24118,
+    "avg": 24118,
+    "perc95": 39639,
+    "max": 58220
+  },
+  "video-player": {
+    "min": 4256,
+    "mean": 4668,
+    "avg": 4668,
+    "perc95": 5226,
+    "max": 5634
+  }
+}
+
