@@ -13,14 +13,6 @@ Example JSON output:
 ```json
 {
   "component": "one-card",
-  "data_length": 4,
-  "field_names": [
-    "Title",
-    "Year",
-    "IMDB Rating",
-    "Release Date",
-    "Actors"
-  ],
   "fields": [
     {
       "data": [
