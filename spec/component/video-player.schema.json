@@ -1,0 +1,30 @@
+{
+  "description": "Component Data for Video.",
+  "properties": {
+    "component": {
+      "const": "video-player",
+      "default": "video-player",
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "video": {
+      "type": "string"
+    },
+    "video_img": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "video",
+    "video_img"
+  ],
+  "title": "ComponentDataVideo",
+  "type": "object"
+}

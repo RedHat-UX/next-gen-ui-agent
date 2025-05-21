@@ -9,7 +9,7 @@ How types are then generated to e.g. TS you can test here: https://transform.too
 ### One Card
 [One Card JSON Schema](./component/one-card.schema.json)
 
-Example JSON
+Example JSON output:
 ```json
 {
   "component": "one-card",
@@ -70,12 +70,26 @@ Example JSON
 ### Image
 [JSON Schema](./component/image.schema.json)
 
-Example:
+Example JSON output:
 ```json
 {
   "component": "image",
   "id": "test-id",
   "image": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
   "title": "Toy Story Poster"
+}
+```
+
+### Video Player
+[JSON Schema](./component/video-player.schema.json)
+
+Example JSON output:
+```json
+{
+  "component": "video-player",
+  "id": "test-id",
+  "title": "Toy Story Trailer",
+  "video": "https://www.youtube.com/embed/v-PjgYDrg70",
+  "video_img": "https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg"
 }
 ```

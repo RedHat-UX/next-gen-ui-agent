@@ -3,12 +3,16 @@ import logging
 import os
 from typing import Any
 
-from next_gen_ui_agent.data_transform.image import ImageDataTransformer
-from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
+from next_gen_ui_agent.data_transform import (
+    ImageDataTransformer,
+    OneCardDataTransformer,
+    VideoPlayerDataTransformer,
+)
+from next_gen_ui_agent.data_transform.json_schema_config import CustomGenerateJsonSchema
 from next_gen_ui_agent.data_transform.types import (
     ComponentDataImage,
     ComponentDataOneCard,
-    CustomGenerateJsonSchema,
+    ComponentDataVideo,
 )
 
 logger = logging.getLogger(__name__)
@@ -37,6 +41,16 @@ def test_image_schema() -> None:
         schema_generator=CustomGenerateJsonSchema
     )
     with open(schema_file_path(ImageDataTransformer.COMPONENT_NAME), "r") as file:
+        file_content = file.read()
+    assert '"title": "Title"' not in file_content
+    assert json.dumps(schema, indent=2) == file_content
+
+
+def test_video_schema() -> None:
+    schema = ComponentDataVideo.model_json_schema(
+        schema_generator=CustomGenerateJsonSchema
+    )
+    with open(schema_file_path(VideoPlayerDataTransformer.COMPONENT_NAME), "r") as file:
         file_content = file.read()
     assert '"title": "Title"' not in file_content
     assert json.dumps(schema, indent=2) == file_content
@@ -72,8 +86,13 @@ def regenerate_schemas() -> None:
         ImageDataTransformer.COMPONENT_NAME,
         ComponentDataImage.model_json_schema(schema_generator=CustomGenerateJsonSchema),
     )
+    save_schema(
+        VideoPlayerDataTransformer.COMPONENT_NAME,
+        ComponentDataVideo.model_json_schema(schema_generator=CustomGenerateJsonSchema),
+    )
 
 
+# Run this file to regenerate all schemas
 if __name__ == "__main__":
     logging.basicConfig()
     logger.setLevel(logging.INFO)
