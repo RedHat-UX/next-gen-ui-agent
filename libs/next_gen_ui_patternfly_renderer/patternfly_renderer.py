@@ -5,6 +5,7 @@ from next_gen_ui_agent.renderer.image import ImageRenderStrategy
 from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.set_of_cards import SetOfCardsRenderStrategy
 from next_gen_ui_agent.renderer.video import VideoRenderStrategy
+from typing_extensions import override
 
 templates_env = Environment(
     loader=PackageLoader("next_gen_ui_patternfly_renderer", "templates"),
@@ -13,10 +14,10 @@ templates_env = Environment(
 
 
 class PatternflyStrategyBase(RenderStrategyBase):
-    def generate_output(self, component):
+    @override
+    def generate_output(self, component, additional_context):
         template = templates_env.get_template(f"/{component.component}.jinja")
-        # TODO: Change templates to work with dot notation (pydantic) and remove converting form pydantic to TypeDict
-        return template.render(component.model_dump())
+        return template.render(component.model_dump() | additional_context)
 
 
 class PatternflyOneCardRenderStrategy(OneCardRenderStrategy, PatternflyStrategyBase):

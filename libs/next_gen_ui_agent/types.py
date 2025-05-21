@@ -1,4 +1,4 @@
-from typing import NotRequired, Optional, TypedDict, Union
+from typing import NotRequired, Optional, TypedDict
 
 from next_gen_ui_agent.model import InferenceBase
 from pydantic import BaseModel, ConfigDict, Field
@@ -26,10 +26,6 @@ class AgentInput(TypedDict):
     input_data: list[InputData]
 
 
-DataFieldDataType = Union[str | int | float | bool]
-"""Field Data item can be either str, number or bool"""
-
-
 class DataField(BaseModel):
     """UI Component field metadata."""
 
@@ -38,10 +34,6 @@ class DataField(BaseModel):
     name: str = Field(description="Field name")
     data_path: str = Field(description="JSON Path to input data")
     """JSON Path to input data"""
-    data: list[DataFieldDataType] = Field(
-        default=[], description="Data matching `data_path` from `input_data`"
-    )
-    """Data matching `data_path` from `input_data`"""
 
 
 class UIComponentMetadata(BaseModel):

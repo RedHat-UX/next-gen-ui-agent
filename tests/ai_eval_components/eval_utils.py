@@ -4,11 +4,10 @@ import os
 import sys
 from pathlib import Path
 
-from ai_eval_components.types import (
-    BASE_DATASET_PATH,
-    DATASET_FILE_SUFFIX,
-    DatasetRow,
-    EvalError,
+from ai_eval_components.types import BASE_DATASET_PATH, DATASET_FILE_SUFFIX, DatasetRow
+from next_gen_ui_agent.data_transform.validation.assertions import assert_str_not_blank
+from next_gen_ui_agent.data_transform.validation.types import (
+    ComponentDataValidationError,
 )
 
 
@@ -17,7 +16,8 @@ def load_args():
     arg_ui_component = None
     arg_dataset_file = None
     arg_write_llm_output = False
-    opts, args = getopt.getopt(sys.argv[1:], "hwc:f:")
+    arg_vague_component_check = False
+    opts, args = getopt.getopt(sys.argv[1:], "hwvc:f:")
     for opt, arg in opts:
         if opt == "-h":
             print("eval.py <arguments>")
@@ -29,12 +29,17 @@ def load_args():
             print(
                 " -w - if present then LLM outputs with successful checks are written into files in 'llm_out' directory"
             )
+            print(
+                " -v - if present then component type check is vague, allowing `table` and `set-of-cards` components to be interchanged"
+            )
             print(" -h - help")
             sys.exit()
         elif opt in ("-c"):
             arg_ui_component = arg
         elif opt in ("-w"):
             arg_write_llm_output = True
+        elif opt in ("-v"):
+            arg_vague_component_check = True
         elif opt in ("-f"):
             arg_dataset_file = arg
 
@@ -43,68 +48,17 @@ def load_args():
     else:
         print("Running evaluations for all UI components ...")
 
-    return arg_ui_component, arg_write_llm_output, arg_dataset_file
-
-
-def assert_array_not_empty(
-    value_object,
-    value_name: str,
-    error_code: str,
-    errors: list[EvalError],
-    err_msg=None,
-):
-    """Assert that array value expected under `value_name` in the `value_object` is not empty, add `error_code` into `errors` if it is empty and return `False`"""
-    try:
-        if isinstance(value_object, dict):
-            value = value_object[value_name]
-        else:
-            value = getattr(value_object, value_name)
-
-        if not value or value is None or len(value) == 0:
-            errors.append(
-                EvalError(error_code, err_msg if err_msg else f"array is '{value}'")
-            )
-            return False
-        else:
-            return True
-    except KeyError:
-        errors.append(EvalError(error_code, err_msg if err_msg else "array is missing"))
-        return False
-
-
-def assert_str_not_blank(
-    value_object,
-    value_name: str,
-    error_code: str,
-    errors: list[EvalError],
-    err_msg=None,
-):
-    """Assert that string value expected under `value_name` in the `value_object` is not a blank string, add `error_code` into `errors` if it is blank and return `False`"""
-    try:
-        if isinstance(value_object, dict):
-            value = value_object[value_name]
-        else:
-            value = getattr(value_object, value_name)
-
-        if not value or value is None or len(value.strip()) == 0:
-            errors.append(
-                EvalError(
-                    error_code, err_msg if err_msg else f"string value is '{value}'"
-                )
-            )
-            return False
-        else:
-            return True
-    except KeyError:
-        errors.append(
-            EvalError(error_code, err_msg if err_msg else "string is missing")
-        )
-        return False
+    return (
+        arg_ui_component,
+        arg_write_llm_output,
+        arg_dataset_file,
+        arg_vague_component_check,
+    )
 
 
 def validate_dataset_row(dsr: DatasetRow):
     """Make sure Dataset row contains everything we need to run evaluation"""
-    errors: list[EvalError] = []
+    errors: list[ComponentDataValidationError] = []
     assert_str_not_blank(dsr, "id", "id.missing", errors)
     assert_str_not_blank(
         dsr, "expected_component", "expected_component.missing", errors
@@ -114,7 +68,9 @@ def validate_dataset_row(dsr: DatasetRow):
         try:
             json.loads(dsr["backend_data"])
         except json.JSONDecodeError as e:
-            errors.append(EvalError("backend_data.invalid_json", str(e)))
+            errors.append(
+                ComponentDataValidationError("backend_data.invalid_json", str(e))
+            )
     return errors
 
 

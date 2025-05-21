@@ -1,23 +1,13 @@
 from typing import NotRequired, TypedDict
 
+from next_gen_ui_agent.data_transform.types import ComponentDataBase
+from next_gen_ui_agent.data_transform.validation.types import (
+    ComponentDataValidationError,
+)
+
 BASE_MODULE_PATH = "tests/ai_eval_components/"
 BASE_DATASET_PATH = BASE_MODULE_PATH + "dataset/"
 DATASET_FILE_SUFFIX = ".json"
-
-
-class EvalError:
-    code: str
-    message: str
-
-    def __init__(self, code, message):
-        self.code = code
-        self.message = message
-
-    def __str__(self):
-        return f'"{self.code}: {self.message}"'
-
-    def __repr__(self):
-        return f'"{self.code}: {self.message}"'
 
 
 class DatasetRowSrc(TypedDict):
@@ -34,12 +24,19 @@ class DatasetRow(TypedDict):
 
 
 class DatasetRowAgentEvalResult:
-    errors: list[EvalError]
+    errors: list[ComponentDataValidationError]
     llm_output: str
+    data: ComponentDataBase | None
 
-    def __init__(self, llm_output, errors):
+    def __init__(
+        self,
+        llm_output: str,
+        errors: list[ComponentDataValidationError],
+        data: ComponentDataBase | None,
+    ):
         self.llm_output = llm_output
         self.errors = errors
+        self.data = data
 
 
 class ItemsGenerate(TypedDict):

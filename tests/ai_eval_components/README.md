@@ -22,7 +22,8 @@ pants run tests/ai_eval_components/eval.py
 You can use these commandline argument:
 * `-c <ui-component-name>` to run evaluation for one named UI component only
 * `-f <dataset-file-name>` to run only evaluations from the named dataset file
-* `-w` to write Agent ouput with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
+* `-w` to write Agent ouputs (LLM and Component data) with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
+* `-v` to enable vague component type check, allowing `table` and `set-of-cards` components to be interchanged
 * `-h` to get help
 
 ```sh
@@ -45,7 +46,19 @@ Where `err_type` is one of:
   
 `dataset_item_id` is unique identifier of the dataset item to find it easier.
 
-Next lines contain detailed description of errors. For `AGENT` error, UI Agent output, prompt, and location of the data file in `dataset_src` is also provided for easier debugging.
+Next lines contain detailed description of errors. For `AGENT` error, prompt, LLM output, Component data, and location of the data file in `dataset_src` is also provided for easier debugging.
+
+Results of some eval runs are stored in `/results` folder so we can compare them in time to see changes. 
+Each file stored here contains description info like:
+
+```
+* Date: 2025-06-09
+* Components: all with vague component type check
+* LLM: granite 3.2 2B
+* Env: velias localhost (ollama on accelerated AMD)
+```
+
+and then results printed by eval script, including performance stats.
 
 ## Evaluation dataset
 

@@ -31,7 +31,7 @@ class BaseOneCardRendererTests(ABC):
             }
         )
         strategy = self.get_strategy_factory().get_render_strategy(c)
-        result = strategy.generate_output(c)
+        result = strategy.render(c)
         assert "DUMMY_MOVIE_TITLE" in result
         assert "DUMMY_IMG_URL" in result
         assert "DUMMY_NAME_VALUE" in result

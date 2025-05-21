@@ -1,8 +1,13 @@
 from typing import Any
 
+from next_gen_ui_agent.data_transform import data_transformer_utils
 from next_gen_ui_agent.data_transform.data_transformer import DataTransformerBase
-from next_gen_ui_agent.data_transform.types import ComponentDataVideo
+from next_gen_ui_agent.data_transform.types import (
+    ComponentDataVideo,
+    DataFieldSimpleValue,
+)
 from next_gen_ui_agent.types import UIComponentMetadata
+from typing_extensions import override
 
 
 class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
@@ -11,10 +16,18 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
     def __init__(self):
         self._component_data = ComponentDataVideo.model_construct()
 
-    def main_processing(self, component: UIComponentMetadata, data: Any):
-        fields = component.fields
+    @override
+    def main_processing(self, data: Any, component: UIComponentMetadata):
+        fields: list[
+            DataFieldSimpleValue
+        ] = data_transformer_utils.copy_simple_fields_from_ui_component_metadata(
+            component.fields
+        )
 
-        # TODO: Use super()._find_field
+        data_transformer_utils.fill_fields_with_simple_data(fields, data)
+
+        # TODO: Use data_transformer_utils._find_field
+        # TODO also search by video link suffixes, and by field names
         field_with_video_suffix = next(
             (
                 field
@@ -33,7 +46,7 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
                 ),
                 None,
             )
-            video_img = "https://fakeimg.pl/900x499/282828/eae0d0"
+            video_img = ""
             if video and video.startswith("https://www.youtube.com/watch?v="):
                 video_id = video.replace("https://www.youtube.com/watch?v=", "")
                 video = f"https://www.youtube.com/embed/{video_id}"

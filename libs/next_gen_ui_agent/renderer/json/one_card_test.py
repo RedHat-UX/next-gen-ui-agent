@@ -23,6 +23,6 @@ def test_render_json_output() -> None:
             "image": "https://image.tmdb.org/t/p/b.jpg",
         }
     )
-    resultStr = strategy.generate_output(c)
+    resultStr = strategy.render(c)
     # print(resultStr)
     assert resultStr == c.model_dump_json()

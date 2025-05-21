@@ -22,7 +22,7 @@
         }
       ],
       "default": null,
-      "description": "Image URL. It's optional field. If it's not set then image component has been choosen, but no image like path field found.\nImage field value either ends by any of these extension: ('apng', 'png', 'avif', 'gif', 'jpg', 'jpeg', 'jtif', 'pjpeg', 'pjp', 'svg', 'webp', 'bmp', 'tif', 'tiff'),\nor the field name ends by either 'url' or 'link' (case insensitive)\n"
+      "description": "Image URL. It's optional field. If it's not set then image component has been choosen, but no image like path field found.\nImage field value either ends by any of these extension: ('.apng', '.png', '.avif', '.gif', '.jpg', '.jpeg', '.jtif', '.pjpeg', '.pjp', '.svg', '.webp', '.bmp', '.tif', '.tiff'),\nor the field name ends by either 'url' or 'link' (case insensitive)\n"
     }
   },
   "required": [

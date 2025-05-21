@@ -1,5 +1,7 @@
-from next_gen_ui_agent.renderer.base_renderer import RenderStrategyBase
+from next_gen_ui_agent.renderer.base_renderer import (
+    RendererStrategyBaseWithArrayValueFileds,
+)
 
 
-class TableRenderStrategy(RenderStrategyBase):
+class TableRenderStrategy(RendererStrategyBaseWithArrayValueFileds):
     COMPONENT_NAME = "table"
