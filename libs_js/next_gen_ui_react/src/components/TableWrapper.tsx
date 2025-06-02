@@ -1,10 +1,10 @@
-import {
-  Chart,
-  ChartBar,
-  ChartAxis,
-  ChartGroup,
-  ChartThemeColor,
-} from "@patternfly/react-charts";
+// import {
+//   Chart,
+//   ChartBar,
+//   ChartAxis,
+//   ChartGroup,
+//   ChartThemeColor,
+// } from "@patternfly/react-charts";
 import {
   Table,
   Thead,
@@ -89,7 +89,7 @@ const TableWrapper = ({
         </Thead>
         <Tbody>
           {rows.map((row, rowIndex) => (
-            <Tr key={rowIndex} data-testid={`row-${row.id ?? rowIndex}`} >
+            <Tr key={rowIndex} data-testid={`row-${row.id ?? rowIndex}`}>
               {selectable && (
                 <Td>
                   <input
@@ -110,7 +110,7 @@ const TableWrapper = ({
 
       {graph && (
         <div style={{ height: "300px" }}>
-          <Chart
+          {/* <Chart
             ariaTitle={graph.title || "Chart"}
             domainPadding={{ x: [30, 25] }}
             height={300}
@@ -122,7 +122,7 @@ const TableWrapper = ({
             <ChartGroup>
               <ChartBar data={graphData} barWidth={30} />
             </ChartGroup>
-          </Chart>
+          </Chart> */}
         </div>
       )}
     </div>

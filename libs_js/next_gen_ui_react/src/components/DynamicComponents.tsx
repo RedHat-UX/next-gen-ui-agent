@@ -1,3 +1,5 @@
+import "@patternfly/react-core/dist/styles/base.css";
+import "@patternfly/chatbot/dist/css/main.css";
 import isArray from "lodash/isArray";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";

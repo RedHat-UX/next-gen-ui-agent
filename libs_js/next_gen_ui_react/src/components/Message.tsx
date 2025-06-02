@@ -1,9 +1,4 @@
-import {
-  Avatar,
-  TextContent,
-  TextVariants,
-  Text,
-} from "@patternfly/react-core";
+import Message from "@patternfly/chatbot/dist/dynamic/Message";
 
 import DynamicComponent from "./DynamicComponents";
 
@@ -16,41 +11,24 @@ interface IProps {
   customProps?: any;
 }
 
-export default function Message(props: IProps) {
+export default function MessageWrapper(props: IProps) {
   const { avatar, name, datetime, content, actions, customProps } = props;
 
   return (
-    <div
-      className="message"
-      style={{ display: "flex", alignItems: "flex-start" }}
-    >
-      <Avatar
-        size="md"
-        src={
-          avatar ||
-          "https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg"
-        }
-        alt={name || "Bot"}
-        className="pf-v5-u-mr-md"
-      />
-      <div style={{ flex: 1 }}>
-        <TextContent>
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <Text component={TextVariants.p}>
-              <span className="message-sender pf-v5-u-mr-md">
-                {name || "Bot"}
-              </span>
-              <span className="message-datetime">
-                {new Date(datetime).toLocaleString()}
-              </span>
-            </Text>
-          </div>
-          <div className="pf-v5-u-my-sm">
-            <DynamicComponent config={content} customProps={customProps} />
-          </div>
-          {actions}
-        </TextContent>
-      </div>
-    </div>
+    <Message
+      avatar={
+        avatar ||
+        "https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg"
+      }
+      name={name}
+      role="user"
+      timestamp={new Date(datetime).toLocaleString()}
+      extraContent={{
+        beforeMainContent: (
+          <DynamicComponent config={content} customProps={customProps} />
+        ),
+        afterMainContent: actions,
+      }}
+    />
   );
 }
