@@ -2,9 +2,8 @@ import {
   Chart,
   ChartBar,
   ChartAxis,
-  ChartGroup,
   ChartThemeColor,
-} from "@patternfly/react-charts";
+} from "@patternfly/react-charts/victory";
 import {
   Table,
   Thead,
@@ -89,7 +88,7 @@ const TableWrapper = ({
         </Thead>
         <Tbody>
           {rows.map((row, rowIndex) => (
-            <Tr key={rowIndex} data-testid={`row-${row.id ?? rowIndex}`} >
+            <Tr key={rowIndex} data-testid={`row-${row.id ?? rowIndex}`}>
               {selectable && (
                 <Td>
                   <input
@@ -119,9 +118,7 @@ const TableWrapper = ({
           >
             <ChartAxis />
             <ChartAxis dependentAxis />
-            <ChartGroup>
-              <ChartBar data={graphData} barWidth={30} />
-            </ChartGroup>
+            <ChartBar data={graphData} barWidth={30} />
           </Chart>
         </div>
       )}

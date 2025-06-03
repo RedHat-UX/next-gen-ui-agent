@@ -1,33 +1,38 @@
-import { Button, Flex, FlexItem, Card, CardBody } from "@patternfly/react-core";
+import Message from "@patternfly/chatbot/dist/dynamic/Message";
+import { isEmpty } from "lodash";
+import map from "lodash/map";
 import React from "react";
 
-interface ActionButton {
-  label: string;
-  onClick: () => void;
+interface QuickResponse {
+  id: string;
+  content: string;
+  onClick: string;
 }
 
 interface QuickResponseProps {
   message: string;
-  actions: ActionButton[];
+  actions: QuickResponse[];
 }
 
 const QuickResponse: React.FC<QuickResponseProps> = ({ message, actions }) => {
-  console.log(actions);
+  const processedActions = !isEmpty(actions)
+    ? map(actions, (action) => ({
+        ...action,
+        onClick:
+          typeof action.onClick === "string"
+            ? new Function("event", action.onClick)
+            : action.onClick,
+      }))
+    : [];
+
   return (
-    <Card>
-      <CardBody>
-        <p className="pf-v5-u-my-sm">{message}</p>
-        <Flex gap={{ default: "gapMd" }}>
-          {actions.map((action, index) => (
-            <FlexItem key={index}>
-              <Button onClick={action.onClick} size="sm">
-                {action.label}
-              </Button>
-            </FlexItem>
-          ))}
-        </Flex>
-      </CardBody>
-    </Card>
+    <Message
+      name="Bot"
+      role="bot"
+      avatar="https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg"
+      content={message}
+      quickResponses={processedActions}
+    />
   );
 };
 

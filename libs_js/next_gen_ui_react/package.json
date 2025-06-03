@@ -23,15 +23,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@patternfly/patternfly": "5.4.2",
-    "@patternfly/react-charts": "^7.2.2",
-    "@patternfly/react-component-groups": "^6.1.0",
-    "@patternfly/react-core": "5.4.2",
-    "@patternfly/react-table": "^5.4.16",
+    "@patternfly/chatbot": "^2.2.1",
+    "@patternfly/react-charts": "^8.2.2",
+    "@patternfly/react-core": "^6.2.2",
+    "@patternfly/react-table": "^6.2.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
+    "victory": "^37.3.6",
     "vite-plugin-dts": "^4.5.3"
   },
   "devDependencies": {
