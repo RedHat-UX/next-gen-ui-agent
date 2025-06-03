@@ -1,3 +1,5 @@
+vi.mock("react-markdown");
+
 import { render, screen } from "@testing-library/react";
 
 import Message from "../../components/Message";
@@ -18,7 +20,9 @@ describe("Message Component", () => {
 
     const avatar = screen.getByAltText("Bot");
     expect(avatar).toBeInTheDocument();
-    expect(avatar.src).toBe("https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg");
+    expect(avatar.src).toBe(
+      "https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg"
+    );
   });
 
   it("should render the message with provided avatar", () => {

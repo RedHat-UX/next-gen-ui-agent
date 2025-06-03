@@ -20,7 +20,7 @@ export default function MessageWrapper(props: IProps) {
         avatar ||
         "https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg"
       }
-      name={name}
+      name={name || "Bot"}
       role="user"
       timestamp={new Date(datetime).toLocaleString()}
       extraContent={{

@@ -11,7 +11,6 @@ import AccordionWrapper from "../components/AccordionWrapper";
 import { CodeBlockWrapper } from "../components/CodeBloackWrapper";
 import CustomLink from "../components/CustomLink";
 import ListWrapper from "../components/ListWrapper";
-import MarkdownWrapper from "../components/MarkdownWrapper";
 import Message from "../components/Message";
 import QuickResponse from "../components/QuickResponse";
 import TableWrapper from "../components/TableWrapper";
@@ -32,5 +31,4 @@ export const componentsMap = {
   quickResponse: QuickResponse,
   table: TableWrapper,
   message: Message,
-  markdown: MarkdownWrapper,
 };

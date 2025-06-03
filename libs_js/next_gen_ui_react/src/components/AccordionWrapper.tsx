@@ -16,7 +16,6 @@ interface AccordionWrapperProps {
 }
 
 const AccordionWrapper: React.FC<AccordionWrapperProps> = ({ items }) => {
-  console.log(items);
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const onToggle = (id: string) => {

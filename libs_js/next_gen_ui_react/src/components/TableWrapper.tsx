@@ -1,10 +1,9 @@
-// import {
-//   Chart,
-//   ChartBar,
-//   ChartAxis,
-//   ChartGroup,
-//   ChartThemeColor,
-// } from "@patternfly/react-charts";
+import {
+  Chart,
+  ChartBar,
+  ChartAxis,
+  ChartThemeColor,
+} from "@patternfly/react-charts/victory";
 import {
   Table,
   Thead,
@@ -110,7 +109,7 @@ const TableWrapper = ({
 
       {graph && (
         <div style={{ height: "300px" }}>
-          {/* <Chart
+          <Chart
             ariaTitle={graph.title || "Chart"}
             domainPadding={{ x: [30, 25] }}
             height={300}
@@ -119,10 +118,8 @@ const TableWrapper = ({
           >
             <ChartAxis />
             <ChartAxis dependentAxis />
-            <ChartGroup>
-              <ChartBar data={graphData} barWidth={30} />
-            </ChartGroup>
-          </Chart> */}
+            <ChartBar data={graphData} barWidth={30} />
+          </Chart>
         </div>
       )}
     </div>
