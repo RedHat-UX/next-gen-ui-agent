@@ -27,3 +27,11 @@ Example rendering by Red Hat Design System for a prompt `Show me poster of Toy S
 ![Image Data UI Block rendering by Red Hat Design System](../img/data_ui_block_image.png "Image Data UI Block rendering by Red Hat Design System")
 
 Image is found by agent from backend-data either by field value or by field name. See the [spec/component/image.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/image.schema.json) for more details.
+
+## Video Player
+
+Video player is UI block to play a single video from provided URL e.g. youtube.
+
+Example rendering by Red Hat Design System for a prompt `Play trailer of Toy Story movie`:
+
+![Video Player Data UI Block rendering by Red Hat Design System](../img/data_ui_block_video.jpg "Video Player Data UI Block rendering by Red Hat Design System")
