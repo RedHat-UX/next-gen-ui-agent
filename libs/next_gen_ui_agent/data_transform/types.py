@@ -118,6 +118,15 @@ Image field value either ends by any of these extension: {IMAGE_URL_SUFFIXES},
 or the field name ends by either 'url' or 'link' (case insensitive)
 """
 
+# suffixes of the data_path (name of field in the data) to detect videos
+# must be in lower case to get case insensitive matching
+VIDEO_DATA_PATH_SUFFIXES = (
+    "videourl",
+    "video_url",
+    "videolink",
+    "video_link",
+)
+
 
 class ComponentDataImage(ComponentDataBase):
     """Component Data for Image"""
@@ -152,7 +161,7 @@ class ComponentDataVideo(ComponentDataBase):
     """Component Data for Video."""
 
     component: Literal["video-player"] = "video-player"
-    video: str = Field(description="Video URL")
+    video: Optional[str] = Field(description="Video URL", default=None)
     video_img: Optional[str] = Field(
         description="URL of the Image for Video", default=None
     )
