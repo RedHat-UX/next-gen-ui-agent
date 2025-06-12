@@ -19,7 +19,7 @@ def find_video_value_and_field(
     fields: list[DataFieldSimpleValue],
     value_str: str,
 ) -> tuple[str, DataFieldSimpleValue] | tuple[None, None]:
-    """Find image field with image. Return tuple with data value and DataField"""
+    """Find video field with video. Return tuple with data value and DataField"""
     field = data_transformer_utils.find_field_by_simple_data_value(
         fields,
         lambda data: isinstance(data, str) and value_str in data.lower(),
@@ -40,6 +40,7 @@ def find_video_value_and_field(
 class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
     COMPONENT_NAME = "video-player"
     YOUTUBE = ".youtube."  # https://github.com/v2fly/domain-list-community/blob/master/data/youtube
+    YOUTUBE_SHARE = "youtu.be"  # https://github.com/v2fly/domain-list-community/blob/master/data/youtube
 
     def __init__(self):
         self._component_data = ComponentDataVideo.model_construct()
@@ -54,6 +55,7 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
 
         data_transformer_utils.fill_fields_with_simple_data(fields, data)
 
+        # YOUTUBE
         video_url, _field = find_video_value_and_field(fields, self.YOUTUBE)
         if video_url:
             video_id = video_url[video_url.find("/watch?v=") + 9 :]
@@ -62,6 +64,18 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
             self._component_data.video_img = (
                 f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
             )
+        if not video_url:
+            # Youtube Share
+            video_url, _field = find_video_value_and_field(fields, self.YOUTUBE_SHARE)
+            if video_url:
+                if "?" in video_url:
+                    video_url = video_url[0 : video_url.find("?")]
+                video_id = video_url[video_url.find("youtu.be/") + 9 :]
+                video_url = f"https://www.youtube.com/embed/{video_id}"
+                # https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg
+                self._component_data.video_img = (
+                    f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+                )
 
         if not video_url:
             # not found by image url, so try to find by field name suffix

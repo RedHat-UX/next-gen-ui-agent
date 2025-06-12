@@ -71,6 +71,26 @@ def test_process_youtube(videoUrl) -> None:
     )
 
 
+@pytest.mark.parametrize(
+    "videoUrl",
+    [
+        "https://youtu.be/v-PjgYDrg70",
+        "https://youtu.be/v-PjgYDrg70?sid=1",
+    ],
+)
+def test_process_youtube_shared_url(videoUrl) -> None:
+    # https://github.com/v2fly/domain-list-community/blob/master/data/youtube
+    result = VideoPlayerDataTransformer().process(
+        get_component(),
+        get_data(videoUrl),
+    )
+    assert result.title == "Toy Story Details"
+    assert result.video == "https://www.youtube.com/embed/v-PjgYDrg70"
+    assert (
+        result.video_img == "https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg"
+    )
+
+
 def test_process_by_field() -> None:
     # https://github.com/v2fly/domain-list-community/blob/master/data/youtube
     result = VideoPlayerDataTransformer().process(
