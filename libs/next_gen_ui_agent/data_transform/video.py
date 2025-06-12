@@ -9,7 +9,10 @@ from next_gen_ui_agent.data_transform.types import (
     DataFieldSimpleValue,
 )
 from next_gen_ui_agent.data_transform.validation.assertions import is_url_http
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.data_transform.validation.types import (
+    ComponentDataValidationError,
+)
+from next_gen_ui_agent.types import InputData, UIComponentMetadata
 from typing_extensions import override
 
 logger = logging.getLogger(__name__)
@@ -47,9 +50,7 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
 
     @override
     def main_processing(self, data: Any, component: UIComponentMetadata):
-        fields: list[
-            DataFieldSimpleValue
-        ] = data_transformer_utils.copy_simple_fields_from_ui_component_metadata(
+        fields = data_transformer_utils.copy_simple_fields_from_ui_component_metadata(
             component.fields
         )
 
@@ -98,3 +99,28 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
             self._component_data.video_img = None
         else:
             self._component_data.video = str(video_url)
+
+    @override
+    def validate(
+        self,
+        component: UIComponentMetadata,
+        data: InputData,
+        errors: list[ComponentDataValidationError],
+    ) -> ComponentDataVideo:
+        ret = super().validate(component, data, errors)
+
+        video_url = self._component_data.video
+
+        if video_url:
+            if not is_url_http(video_url):
+                errors.append(
+                    ComponentDataValidationError(
+                        "video.invalidUrl",
+                        f"Video URL '{video_url}' is not a valid URL",
+                    )
+                )
+        else:
+            errors.append(
+                ComponentDataValidationError("video.missing", "Video URL is missing")
+            )
+        return ret
