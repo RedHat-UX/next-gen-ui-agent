@@ -14,7 +14,3 @@ python_tests(
         "libs/3rdparty/python:langchain",
     ],
 )
-
-python_requirements(
-    name="reqs",
-)

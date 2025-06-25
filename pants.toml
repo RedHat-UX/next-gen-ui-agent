@@ -36,6 +36,9 @@ enable_resolves = true
 python-default = "python-default.lock"
 flake8 = "libs/3rdparty/python/flake8.lock"
 
+[python.resolves_to_constraints_file]
+python-default = "libs/3rdparty/python/llama-stack-client-constraints.txt"
+
 [export]
 py_resolve_format = "symlinked_immutable_virtualenv"
 resolve = [

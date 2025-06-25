@@ -10,7 +10,7 @@ from next_gen_ui_testing.model import MockedInference
 user_input = "Tell me brief details of Toy Story"
 user_message = Message(
     parts=[MessagePart.model_validate({"content": user_input, "role": "user"})]
-)
+)  # type: ignore[call-arg]
 
 movies_data = find_movie("Toy Story")
 tool_message = Message(
@@ -24,7 +24,7 @@ tool_message = Message(
             }
         )
     ]
-)
+)  # type: ignore[call-arg]
 
 
 @pytest.mark.asyncio

@@ -176,7 +176,7 @@ if __name__ == "__main__":
         arg_vague_component_check,
     ) = load_args()
     errors_dir_path = get_errors_dir()
-    if arg_write_llm_output:
+    if not arg_write_llm_output:
         llm_output_dir_path = get_llm_output_dir()
     dataset_files = get_dataset_files(arg_dataset_file)
     inference = init_inference()
