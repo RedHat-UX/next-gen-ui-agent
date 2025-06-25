@@ -27,7 +27,7 @@ ollama run granite3.2:2b --keepalive 60m
 
 Start [LlamaStack Ollama distribution](https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/ollama.html#ollama-distribution) container.
 
-Version of the LlamaStack server distribution must be the same as version of the [LlamaStack client used by the UI Agent, see](./libs/next_gen_ui_llama_stack/requirements.txt)!
+Version of the LlamaStack server distribution must be the same as version of the [LlamaStack client used by the UI Agent, see](./libs/3rdparty/python/llama-stack-client-constraints.txt)!
 
 ```sh
 podman run -it --rm \
