@@ -3,7 +3,7 @@ python_sources(
     name="lib",
     sources=[
         "**/*.py",
-        "!*/*_test.py",
+        "!**/*_test.py",
     ],
     dependencies=[
         "libs/next_gen_ui_agent:lib",
