@@ -1,8 +1,7 @@
-import json
 import logging
 import pytest
 
-from next_gen_ui_agent import NextGenUIAgent, UIComponentMetadata
+from next_gen_ui_agent import NextGenUIAgent
 from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_testing import data_after_transformation
 

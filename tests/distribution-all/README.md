@@ -9,6 +9,7 @@ pants package ::
 ## Create venv and install deps:
 
 ```sh
+cd tests/distribution-all
 rm -rf .venv && \
 python3 -m venv .venv  && \
 source .venv/bin/activate  && \
