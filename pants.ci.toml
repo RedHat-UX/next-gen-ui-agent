@@ -9,7 +9,7 @@ remote_cache_read = false
 remote_cache_write = false
 
 [python]
-interpreter_constraints = ["CPython>=3.11,<=3.13"]
+interpreter_constraints = ["CPython>=3.11,<3.14"]
 
 [pytest]
 args = ["-vv", "--no-header"]
