@@ -35,10 +35,10 @@ jobs:
       with:
         # v0 makes it easy to bust the cache if needed
         # just increase the integer to start with a fresh cache
-        gha-cache-key: v0
+        gha-cache-key: cache1-py${{ matrix.python_version }}
         # The Python backend uses named_caches for Pip/PEX state,
         # so it is appropriate to invalidate on lockfile changes.
-        named-caches-hash: ${{ hashFiles('python-default.lock') }}
+        named-caches-hash: ${{ hashFiles('python-default.lock', 'libs/3rdparty/python/*.lock') }}
         # If you're not using a fine-grained remote caching service (see https://www.pantsbuild.org/docs/remote-caching),
         # then you may also want to preserve the local Pants cache (lmdb_store). However this must invalidate for
         # changes to any file that can affect the build, so may not be practical in larger repos.
