@@ -62,6 +62,7 @@ jobs:
       uses: mikepenz/action-junit-report@v5
       if: success() || failure() # always run even if the previous step fails
       with:
+        check_name: 'JUnit Test Report (${{ matrix.python-version }})'
         report_paths: 'dist/test/reports/*.xml'
     - name: Package / Run
       run: |
@@ -131,7 +132,7 @@ jobs:
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
-          name: test-dist
+          name: distribution
           path: dist/
   # Publish to test PyPI
   publish_test:
