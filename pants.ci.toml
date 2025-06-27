@@ -8,6 +8,9 @@ colors = true
 remote_cache_read = false
 remote_cache_write = false
 
+[python]
+interpreter_constraints = ["CPython>=3.11,<=3.13"]
+
 [pytest]
 args = ["-vv", "--no-header"]
 
@@ -21,3 +24,4 @@ report = ["raw"]
 
 [test]
 report = true
+use_coverage = true
