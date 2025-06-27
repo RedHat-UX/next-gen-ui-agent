@@ -8,9 +8,6 @@ on:
     - 'main'
   pull_request:
 
-env:
-  PYTHON_VERSION: "3.11" # For deploy
-
 jobs:
   build:
     name: Perform CI Checks
@@ -35,7 +32,7 @@ jobs:
       with:
         # v0 makes it easy to bust the cache if needed
         # just increase the integer to start with a fresh cache
-        gha-cache-key: cache1-py${{ matrix.python_version }}
+        gha-cache-key: cache2-py${{ matrix.python-version }}
         # The Python backend uses named_caches for Pip/PEX state,
         # so it is appropriate to invalidate on lockfile changes.
         named-caches-hash: ${{ hashFiles('python-default.lock', 'libs/3rdparty/python/*.lock') }}
@@ -97,7 +94,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.11'
           cache: 'pip'
           cache-dependency-path: |
               requirements_dev.txt
@@ -149,7 +146,7 @@ jobs:
           path: dist/
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: 3.11
           cache: 'pip'
           cache-dependency-path: |
               requirements_dev.txt
