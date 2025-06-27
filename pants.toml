@@ -25,7 +25,7 @@ root_patterns = ["/libs", "/tests", "/spec"]
 # Modify this if you don't have Python 3.9 on your machine.
 # This can be a range, such as [">=3.8,<3.11"], but it's usually recommended to restrict
 # to a single minor version.
-interpreter_constraints = [">=3.11"]
+interpreter_constraints = ["CPython==3.11.*"]
 
 # Enable the "resolves" mechanism, which turns on lockfiles for user code. See
 # https://www.pantsbuild.org/docs/python-third-party-dependencies. This also adds the
@@ -62,12 +62,6 @@ ignore_paths = [
 args = ["--no-header", "-vv"]
 execution_slot_var = "TEST_EXECUTION_SLOT"
 requirements = ["//libs/3rdparty/python:pytest"]
-
-[test]
-use_coverage = true
-
-[coverage-py]
-interpreter_constraints = [">=3.11"]
 
 [flake8]
 install_from_resolve = "flake8"
