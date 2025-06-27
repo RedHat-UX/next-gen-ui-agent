@@ -8,13 +8,13 @@ from next_gen_ui_testing.data_after_transformation import (
     get_transformed_component_testing_data,
 )
 
+component_system = "rhds"
 
-class TestRHDSRenderer(BaseOneCardRendererTests):
+
+# Test class for RHDS renderer using shared test cases
+class TestOneCardRHDSRendererWithShareableTests(BaseOneCardRendererTests):
     def get_strategy_factory(self) -> StrategyFactory:
         return RhdsStrategyFactory()
-
-
-component_system = "rhds"
 
 
 def test_renderer_one_card_full() -> None:

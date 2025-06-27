@@ -1,9 +1,18 @@
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.data_transform.types import ComponentDataVideo
+from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
+from next_gen_ui_agent.renderer.video_shareable_tests import BaseVideoRendererTests
+from next_gen_ui_rhds_renderer import RhdsStrategyFactory
 from next_gen_ui_testing.agent_testing import extension_manager_rhds
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
 
 component_system = "rhds"
+
+
+# Test class for RHDS renderer using shared test cases
+class TestVideoRHDSRendererWithShareableTests(BaseVideoRendererTests):
+    def get_strategy_factory(self) -> StrategyFactory:
+        return RhdsStrategyFactory()
 
 
 def test_renderer_video_full() -> None:

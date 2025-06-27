@@ -24,3 +24,6 @@ tests/ai_eval_components/llm_out/
 
 # Docs
 site/
+
+# Custom .gitmessage template
+.gitmessage

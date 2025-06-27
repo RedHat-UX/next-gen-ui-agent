@@ -5,7 +5,8 @@ from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.one_card_shareable_tests import BaseOneCardRendererTests
 
 
-class TestOneCardJsonRenderer(BaseOneCardRendererTests):
+# Test class for JSON renderer using shared test cases
+class TestOneCardJsonRendererWithShareableTests(BaseOneCardRendererTests):
     def get_strategy_factory(self) -> StrategyFactory:
         return JsonStrategyFactory()
 
