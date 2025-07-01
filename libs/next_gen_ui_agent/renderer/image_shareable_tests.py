@@ -1,3 +1,5 @@
+# Substantial portions of this file were generated with help of Cursor AI
+
 from abc import ABC, abstractmethod
 
 from next_gen_ui_agent.data_transform.types import ComponentDataImage
