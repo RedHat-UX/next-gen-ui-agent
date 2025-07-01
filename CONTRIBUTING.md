@@ -26,11 +26,17 @@ Run Pants export to create a virtual env
 ```sh
 $ pants export
 ...
-$ Wrote symlink to immutable virtualenv for python-default (using Python 3.11.11) to dist/export/python/virtualenvs/python-default/3.11.11
+$ Wrote symlink to immutable virtualenv for python-default (using Python 3.11.13) to dist/export/python/virtualenvs/python-default/3.11.13
 ```
 
-VS Code should automatically set the interepreter path to `./dist/export/python/virtualenvs/python-default/3.11.11` (path taken from previous task).
-If not point our IDE interpreter to this folder.
+Create a symlink to the immutable virtualenv you've just created, so that our shared `.vscode` settings work. Make sure to use the right version coming from the previous command
+
+```sh
+ln -s ./dist/export/python/virtualenvs/python-default/3.11.13 dist/export/python/virtualenvs/python-default/latest
+```
+
+VS Code should automatically set the interepreter path to `./dist/export/python/virtualenvs/python-default/latest` (path taken from previous task).
+If not point our IDE interpreter to this folder - CMD+Shift+P and type 'Python: Select Interpreter' to find the setting.
 
 ## LlamaStack server
 

@@ -1,8 +1,22 @@
 from next_gen_ui_agent.agent import NextGenUIAgent
-from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer.base_renderer import (
+    PLUGGABLE_RENDERERS_NAMESPACE,
+    StrategyFactory,
+)
+from next_gen_ui_agent.renderer.one_card_shareable_tests import BaseOneCardRendererTests
 from next_gen_ui_patternfly_renderer import PatternflyStrategyFactory
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
 from stevedore.extension import Extension, ExtensionManager
+
+
+class TestOneCardPatternflyRendererWithShareableTests(BaseOneCardRendererTests):
+    """Test class for Patternfly renderer using shared test cases for one-card component."""
+
+    def get_strategy_factory(self) -> StrategyFactory:
+        return PatternflyStrategyFactory()
+
+
+component_system = "patternfly"
 
 
 def test_renderer_one_card() -> None:
@@ -18,7 +32,7 @@ def test_renderer_one_card() -> None:
     )
     agent._extension_manager = em
     component = get_transformed_component()
-    rendition = agent.design_system_handler([component], "patternfly")[0].content
+    rendition = agent.design_system_handler([component], component_system)[0].content
     assert (
         rendition
         == """import React from 'react';
