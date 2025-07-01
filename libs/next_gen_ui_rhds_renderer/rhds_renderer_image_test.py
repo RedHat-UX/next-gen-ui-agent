@@ -8,8 +8,9 @@ from next_gen_ui_testing.data_after_transformation import get_transformed_compon
 component_system = "rhds"
 
 
-# Test class for RHDS renderer using shared test cases
 class TestImageRHDSRendererWithShareableTests(BaseImageRendererTests):
+    """Test class for RHDS renderer using shared test cases for image component."""
+
     def get_strategy_factory(self) -> StrategyFactory:
         return RhdsStrategyFactory()
 

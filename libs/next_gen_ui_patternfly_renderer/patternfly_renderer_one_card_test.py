@@ -9,8 +9,9 @@ from next_gen_ui_testing.data_after_transformation import get_transformed_compon
 from stevedore.extension import Extension, ExtensionManager
 
 
-# Test class for Patternfly renderer using shared test cases
 class TestOneCardPatternflyRendererWithShareableTests(BaseOneCardRendererTests):
+    """Test class for Patternfly renderer using shared test cases for one-card component."""
+
     def get_strategy_factory(self) -> StrategyFactory:
         return PatternflyStrategyFactory()
 

@@ -22,16 +22,23 @@ SAMPLE_ONE_CARD_DATA = {
 }
 
 
-# Shareable one-card component tests. In order to have basic tests for your renderer,
-# you can inherit from this class and implement the get_strategy_factory method.
-# This class will then provide the basic tests for your renderer.
-#
-# Example:
-# class TestOneCardJsonRendererWithShareableTests(BaseOneCardRendererTests):
-#     def get_strategy_factory(self) -> StrategyFactory:
-#         return JsonStrategyFactory()
-# If you intentionally want to omit one of the tests, you can override the test method with 'pass'.
 class BaseOneCardRendererTests(ABC):
+    """Shareable one-card component tests.
+
+    In order to have basic tests for your renderer, you can inherit from this class
+    and implement the get_strategy_factory method. This class will then provide the
+    basic tests for your renderer.
+
+    Example:
+        class TestOneCardJsonRendererWithShareableTests(BaseOneCardRendererTests):
+            def get_strategy_factory(self) -> StrategyFactory:
+                return JsonStrategyFactory()
+
+    Note:
+        If you intentionally want to omit one of the tests, you can override the test
+        method with 'pass'.
+    """
+
     @abstractmethod
     def get_strategy_factory(self) -> StrategyFactory:
         pass

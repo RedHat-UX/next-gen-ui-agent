@@ -5,8 +5,9 @@ from next_gen_ui_agent.renderer.image_shareable_tests import BaseImageRendererTe
 from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 
 
-# Test class for JSON renderer using shared test cases
 class TestImageJsonRendererWithShareableTests(BaseImageRendererTests):
+    """Test class for JSON renderer using shared test cases for image component."""
+
     def get_strategy_factory(self) -> StrategyFactory:
         return JsonStrategyFactory()
 
