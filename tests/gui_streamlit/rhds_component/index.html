@@ -87,7 +87,7 @@
         function onDataFromPython(event) {
             if (event.data.type !== "streamlit:render") return;
             contentContainer.innerHTML = event.data.args.my_input_value;  // Access values sent from Python here!
-            // TODO: This not execute <script> tag !!!
+            // NOTE: This not executes <script> tag !!!
         }
 
         // Hook things up!
