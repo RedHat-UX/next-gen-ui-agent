@@ -32,7 +32,7 @@ $ Wrote symlink to immutable virtualenv for python-default (using Python 3.11.13
 Create a symlink to the immutable virtualenv you've just created, so that our shared `.vscode` settings work. Make sure to use the right version coming from the previous command
 
 ```sh
-ln -s ./dist/export/python/virtualenvs/python-default/3.11.13 dist/export/python/virtualenvs/python-default/latest
+ln -s $PWD/dist/export/python/virtualenvs/python-default/3.11.13 $PWD/dist/export/python/virtualenvs/python-default/latest
 ```
 
 VS Code should automatically set the interepreter path to `./dist/export/python/virtualenvs/python-default/latest` (path taken from previous task).
