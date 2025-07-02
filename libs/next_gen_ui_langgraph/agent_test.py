@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 import pytest
 from langchain_core.language_models import FakeMessagesListChatModel
@@ -7,6 +8,7 @@ from next_gen_ui_agent import UIComponentMetadata
 from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_agent.types import InputData, Rendition
 from next_gen_ui_langgraph.agent import GraphConfig, NextGenUILangGraphAgent
+from next_gen_ui_testing.data_set_movies import find_movie
 from pytest import fail
 
 
@@ -20,41 +22,8 @@ def test_is_next_gen_ui_message() -> None:
 
 
 USER_PROMPT = "Tell me brief details of Toy Story"
-MOVIES_DATA = """
-    [
-    {
-        "movie":{
-        "languages":[
-            "English"
-        ],
-        "year":1995,
-        "imdbId":"0114709",
-        "runtime":81,
-        "imdbRating":8.3,
-        "movieId":"1",
-        "countries":[
-            "USA"
-        ],
-        "imdbVotes":591836,
-        "title":"Toy Story",
-        "url":"https://themoviedb.org/movie/862",
-        "revenue":373554033,
-        "tmdbId":"862",
-        "plot":"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
-        "posterUrl":"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
-        "released":"1995-11-22",
-        "trailerUrl": "https://www.youtube.com/watch?v=v-PjgYDrg70",
-        "budget":30000000
-        },
-        "actors":[
-        "Jim Varney",
-        "Tim Allen",
-        "Tom Hanks",
-        "Don Rickles"
-        ]
-    }
-    ]
-    """
+movies_data_obj = find_movie("Toy Story")
+MOVIES_DATA = json.dumps(movies_data_obj, default=str)
 LLM_RESPONSE = """
     {
         "title": "Toy Story Details",

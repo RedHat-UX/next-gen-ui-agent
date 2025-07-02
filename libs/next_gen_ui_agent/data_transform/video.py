@@ -79,7 +79,7 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
                 )
 
         if not video_url:
-            # not found by image url, so try to find by field name suffix
+            # not found by video url, so try to find by field name suffix
             field_name_like_url = (
                 data_transformer_utils.find_simple_value_field_by_data_path(
                     fields,
