@@ -1,5 +1,7 @@
 # Next Gen UI Llama Stack Agent
 
+Support for [Llama Stack](https://github.com/meta-llama/llama-stack).
+
 ## Installation
 
 ```sh

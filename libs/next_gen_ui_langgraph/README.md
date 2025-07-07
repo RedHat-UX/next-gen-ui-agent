@@ -1,5 +1,7 @@
 # Next Gen UI LangGraph Agent
 
+Support for [LangGraph](https://www.langchain.com/langgraph). 
+
 ## Installation
 
 ```sh
@@ -31,4 +33,4 @@ graph = agent.build_graph()
 
 ## Integrate NextGenUI agent in your assistant workflow 
 
-TODO
+TODO (NGUI-97)LangGraph simple example
