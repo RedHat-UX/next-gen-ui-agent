@@ -83,6 +83,30 @@ def test_sanitize_data_path() -> None:
         sanitize_data_path("$.[].string") == "$..[*].string"
     )  # array in the root is allowed
 
+    # Handle paths with descriptive content in brackets
+    assert (
+        sanitize_data_path("subscriptions[size up to 6].name")
+        == "$..subscriptions[*].name"
+    )  # descriptive content in brackets should be replaced with [*]
+    assert (
+        sanitize_data_path("users[first user].email") == "$..users[*].email"
+    )  # descriptive content in brackets should be replaced with [*]
+    assert (
+        sanitize_data_path("items[0].title") == "$..items[0].title"
+    )  # numeric indices should be preserved
+    assert (
+        sanitize_data_path("items[134].title") == "$..items[134].title"
+    )  # numeric indices should be preserved
+    assert (
+        sanitize_data_path("products[0 best seller].price") == "$..products[*].price"
+    )  # descriptive content should be replaced
+    assert (
+        sanitize_data_path("orders[latest order].items[0].name") is None
+    )  # multiple array accesses are not allowed (descriptive + numeric)
+    assert (
+        sanitize_data_path("customers[active users][0].profile") is None
+    )  # multiple array accesses are not allowed (descriptive + numeric)
+
 
 def test_get_data_value_for_path_INVALID() -> None:
     data = json.loads(

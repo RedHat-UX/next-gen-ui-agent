@@ -10,10 +10,9 @@ from . import InputData
 from .component_selection import component_selection, component_selection_run
 from .model import LangChainModelInference
 
-movies_data = """
-    [
-    {
-        "movie":{
+movies_data = """[
+{
+    "movie":{
         "year":1995,
         "imdbRating":8.3,
         "countries":[
@@ -22,8 +21,8 @@ movies_data = """
         "title":"Toy Story",
         "url":"https://themoviedb.org/movie/862"
     }
-    ]
-    """
+}
+]"""
 
 response = """
     {

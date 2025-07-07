@@ -50,6 +50,11 @@ def sanitize_data_path(data_path: str | None) -> str | None:
             data_path = data_path[1:]
         data_path = data_path.replace("{", "").replace("}", "")
 
+        # Handle paths like `subscriptions[size up to 6].name` by removing content between []
+        # Keep it if there are only numbers inside (like `[0]`, `[1]`, etc.)
+        # this code is necessary for our array size reduction in LLM inference step
+        data_path = re.sub(r"\[([^\]]*[^\d\]]+[^\]]*)\]", "[*]", data_path)
+
         # sanitization of [] and [*]
         data_path = data_path.replace("[]", "[*]")
         # never `[*]` at the end as it selects content of the array into main returned array
