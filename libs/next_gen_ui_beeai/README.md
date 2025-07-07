@@ -1,4 +1,6 @@
-# Next Gen UI BeeAI Integration
+# Next Gen UI BeeAI Framework Integration
+
+Support for [BeeAI Framework](https://github.com/i-am-bee/beeai-framework).
 
 ## Installation
 

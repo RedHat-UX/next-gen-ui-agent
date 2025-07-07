@@ -1,5 +1,7 @@
 # Next Gen UI ACP Server
 
+Support for [Agent Communication Protocol (ACP)](https://agentcommunicationprotocol.dev/)
+
 ## Installation
 
 ```sh

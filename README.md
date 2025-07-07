@@ -5,17 +5,22 @@ the user prompt, chat history and backend data provided by other agent in your a
 
 ## Why use Next Gen UI?
 
-* `Rich UI experience` - Extends simple text based LLM applications output by UI components like card, table, chart, 
+* `Rich user experience` - Extends simple text based LLM applications output by UI components like card, table, chart, 
 video-player, image gallery etc.
+* `Extensible architecture` - Developer's choice to which AI framwork to choose and which UI component framework.
+* `AI Frameworks integration` - Seamless integration of various AI framworks.
+* `Server (Agent) side UI rendering` - Powerful agent centralized HTML (e.g. web component) rendition.
+* `Client side UI rendering` - Client side rendering for more control over the rendition.
 
-* `Extensions architecture` - Developer's choice to which AI framwork to choose and which UI component framework.
+Example of rich card component including image and structured data.
 
+![Card UI Component](https://raw.githubusercontent.com/RedHat-UX/next-gen-ui-agent/refs/heads/main/docs/img/data_ui_block_card.png "Card UI Component")
 
-TODO: Image with text + UI component chat
 
 ## Example
 
-Simple example below of how to integrate a ReAct LangGraph agent with Next Gen UI Agent. For other frameworks see below.
+Following example shows how easy you can integrate your ReAct LangGraph agent with Next Gen UI Agent.
+For other frameworks see below.
 
 ```py
 from langgraph.prebuilt import create_react_agent
@@ -32,8 +37,7 @@ agent.invoke(
     {"messages": [{"role": "user", "content": "what is the weather in sf"}]}
 )
 
-
-# TODO LangGraph simple example
+# TODO (NGUI-97)LangGraph simple example
 
 ngui_agent = NextGenUILangGraphAgent("anthropic:claude-3-7-sonnet-latest")
 graph = agent.build_graph()
@@ -45,28 +49,25 @@ For seamless integration with your AI application following frameworks are suppo
 
 1. [LangGraph](./libs/next_gen_ui_langgraph/)
 2. [Llama-stack](./libs/next_gen_ui_llama_stack/)
-3. BeeAI - TBD
+3. [BeeAI Framework](./libs/next_gen_ui_beeai/) - WIP
 
 Missing framework?
-[Create an issue](https://github.com/RedHat-UX/next-gen-ui-agent/issues/new) please.
-
-Other option is to use the "core" agent directly like this:
-
-```py
-from next_gen_ui_agent import NextGenUIAgent
-agent = NextGenUIAgent()
-
-# TODO Add example how to use the agent directly
-```
+[Create an issue](https://issues.redhat.com/projects/NGUI/issues) please.
 
 
-## Rendering & UI Frameworks
+## AI/UI Protocols
 
-1. React
-2. Web Components
-3. PatternFly
-4. Hat Design System System
-5. Text - TBD
+Protocols provides standardization between client and agent and provides TypeScript / Python interoperability.
+
+1. [ACP](./libs/next_gen_ui_acp/) - WIP
+2. A2A - TBD
+
+
+## UI Frameworks
+
+1. [React/PatternFly](./libs_js/next_gen_ui_react/) - WIP
+2. [Hat Design System System](./libs/next_gen_ui_rhds_renderer/) - Server-side web component rendering
+3. Text - TBD
 
 ## Contributing
 
