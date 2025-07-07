@@ -1,18 +1,19 @@
 import asyncio
+import json
 import logging
 
+from next_gen_ui_agent.array_field_reducer import reduce_arrays
+from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.types import AgentInput, InputData, UIComponentMetadata
 from pydantic_core import from_json
-
-from .model import InferenceBase
-from .types import AgentInput, InputData, UIComponentMetadata
 
 ui_components_description = """
 * none - component to use when the data are not appropriate to be shown for user's query.
-* table - component to visualize multi-item data with more items (more than 6). Better for small number of shown fields.
-* set-of-cards - component to visualize multi-item data with few items (up to 6). Better for high numbers of shown fields.
+* table - component to visualize array of data items with size over 6. Better suitable for small number of shown fields with shorter values.
+* set-of-cards - component to visualize array of data items with size up to 6. Better suitable for high numbers of shown fields and for fields withlonger values.
 * one-card - component to visualize one data item.
-* chart-line - component to visualize multi-item data as a line graph. Suitable for series of number values.
-* chart-pie - component to visualize multi-item data of any size as a pie chart. Suitable for items percentage or portion values. First field contains the name, second percentage value.
+* chart-line - component to visualize array of data as a line graph. Suitable for series of number values.
+* chart-pie - component to visualize array of data items of any size as a pie chart. Suitable for items percentage or portion values. First field contains the name, second percentage value.
 * video-player - component to play video from one item data. First field contains title, second url to the video e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
 * image - component to show one image from one item data. First field contains title, second url to the image.
 """
@@ -50,52 +51,57 @@ async def component_selection_inference(
         # logger.debug(user_prompt)
         # logger.debug(input_data)
 
-    sys_msg_content = f"""
-        You are helpful and advanced user interface design assistant. Based on the user query and JSON formatted data, select the best one component to visualize the data to the user.
-        Generate response in the JSON format only. Select one component only.
-        Provide the title for the component in "title".
-        Provide reason for the component selection in the "reasonForTheComponentSelection".
-        Provide your confidence for the component selection as a percentage in the "confidenceScore".
-        Select only relevant data fields to be presented in the component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for.
-        Provide "name" for every field.
-        For every field provide "data_path" containing path to get the value from the data. Do not use any formatting or calculations in the "data_path".
+    sys_msg_content = f"""You are helpful and advanced user interface design assistant. Based on the user query and JSON formatted data, select the best one component to visualize the data to the user.
+Generate response in the JSON format only. Select one component only.
+Provide the title for the component in "title".
+Provide reason for the component selection in the "reasonForTheComponentSelection".
+Provide your confidence for the component selection as a percentage in the "confidenceScore".
+Select only relevant data fields to be presented in the component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for.
+Provide "name" for every field.
+For every field provide "data_path" containing path to get the value from the data. Do not use any formatting or calculations in the "data_path".
 
-        Available components:
-        {ui_components_description}
-    """
+Available components:
+{ui_components_description}
+"""
+
     sys_msg_content += """
-        Response example for multi-item data:
-        {
-            "title": "Orders",
-            "reasonForTheComponentSelection": "More than 6 items in the data",
-            "confidenceScore": "82%",
-            "component": "table",
-            "fields" : [
-                {"name":"Name","data_path":"orders[*].name"},
-                {"name":"Creation Date","data_path":"orders[*].creationDate"}
-            ]
-        }
+Response example for multi-item data:
+{
+    "title": "Orders",
+    "reasonForTheComponentSelection": "More than 6 items in the data",
+    "confidenceScore": "82%",
+    "component": "table",
+    "fields" : [
+        {"name":"Name","data_path":"orders[*].name"},
+        {"name":"Creation Date","data_path":"orders[*].creationDate"}
+    ]
+}
 
-        Response example for one item data:
-        {
-            "title": "Order CA565",
-            "reasonForTheComponentSelection": "One item available in the data",
-            "confidenceScore": "35%",
-            "component": "one-card",
-            "fields" : [
-                {"name":"Name","data_path":"order.name"},
-                {"name":"Creation Date","data_path":"order.creationDate"}
-            ]
-        }
+Response example for one item data:
+{
+    "title": "Order CA565",
+    "reasonForTheComponentSelection": "One item available in the data",
+    "confidenceScore": "35%",
+    "component": "one-card",
+    "fields" : [
+        {"name":"Name","data_path":"order.name"},
+        {"name":"Creation Date","data_path":"order.creationDate"}
+    ]
+}
+"""
+
+    # we have to parse JSON data to reduce arrays
+    json_data = json.loads(input_data["data"])
+    data = reduce_arrays(json_data, 6)
+
+    prompt = f"""=== User query ===
+{user_prompt}
+
+=== Data ===
+{str(data)}
     """
 
-    prompt = f"""
-        === User query ===
-        {user_prompt}
-
-        === Data ===
-        {input_data['data']}
-    """
+    logger.debug("LLM prompt: %s", prompt)
 
     response = await inference.call_model(sys_msg_content, prompt)
     logger.debug("Component metadata LLM response: %s", response)
