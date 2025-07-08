@@ -18,14 +18,8 @@ pants_ignore = [
 root_patterns = ["/libs", "/tests", "/spec"]
 
 [python]
-# The default interpreter constraints for code in this repo. Individual targets can override
-#  this with the `interpreter_constraints` field. See
-#  https://www.pantsbuild.org/docs/python-interpreter-compatibility.
-#
-# Modify this if you don't have Python 3.9 on your machine.
-# This can be a range, such as [">=3.8,<3.11"], but it's usually recommended to restrict
-# to a single minor version.
-interpreter_constraints = ["CPython==3.11.*"]
+# Project supported versions.
+interpreter_constraints = ["CPython>=3.11,<3.14"]
 
 # Enable the "resolves" mechanism, which turns on lockfiles for user code. See
 # https://www.pantsbuild.org/docs/python-third-party-dependencies. This also adds the
