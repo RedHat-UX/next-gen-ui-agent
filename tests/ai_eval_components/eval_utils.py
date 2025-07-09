@@ -5,10 +5,13 @@ import sys
 from pathlib import Path
 
 from ai_eval_components.types import BASE_DATASET_PATH, DATASET_FILE_SUFFIX, DatasetRow
+from next_gen_ui_agent.data_transform.image import ImageDataTransformer
+from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
 from next_gen_ui_agent.data_transform.validation.assertions import assert_str_not_blank
 from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
+from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
 
 
 def load_args():
@@ -43,17 +46,39 @@ def load_args():
         elif opt in ("-f"):
             arg_dataset_file = arg
 
-    if arg_ui_component:
-        print(f"Running evaluations for UI component '{arg_ui_component}' ...")
-    else:
-        print("Running evaluations for all UI components ...")
-
     return (
         arg_ui_component,
         arg_write_llm_output,
         arg_dataset_file,
         arg_vague_component_check,
     )
+
+
+def select_run_components(arg_ui_component, arg_dataset_file):
+    """Select UI components to run for based on configuration"""
+    run_components = None
+    if arg_ui_component:
+        if arg_ui_component != "all":
+            run_components = [arg_ui_component]
+            print(f"Running evaluations for defined UI component {run_components} ...")
+        else:
+            print(
+                "Running evaluations for all UI components present in the dataset ..."
+            )
+    elif arg_dataset_file:
+        print(
+            f"Running evaluations for all UI components from the dataset file '{arg_dataset_file}' ..."
+        )
+    else:
+        run_components = [
+            OneCardDataTransformer.COMPONENT_NAME,
+            ImageDataTransformer.COMPONENT_NAME,
+            VideoPlayerDataTransformer.COMPONENT_NAME,
+        ]
+        print(
+            f"Running evaluations for all supported/implemented UI components {run_components} ..."
+        )
+    return run_components
 
 
 def validate_dataset_row(dsr: DatasetRow):
