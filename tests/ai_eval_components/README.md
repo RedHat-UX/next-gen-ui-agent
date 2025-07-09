@@ -20,8 +20,8 @@ pants run tests/ai_eval_components/eval.py
 ```
 
 You can use these commandline argument:
-* `-c <ui-component-name>` to run evaluation for one named UI component only
-* `-f <dataset-file-name>` to run only evaluations from the named dataset file
+* `-c <ui-component-name>` to run evaluation for one named UI component only. If `all` is used then evaluation runs for all the components present in the evaluation dataset.
+* `-f <dataset-file-name>` to run only evaluations from the named dataset file (for any UI component present in the file)
 * `-w` to write Agent ouputs (LLM and Component data) with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
 * `-v` to enable vague component type check, allowing `table` and `set-of-cards` components to be interchanged
 * `-h` to get help
@@ -29,6 +29,8 @@ You can use these commandline argument:
 ```sh
 pants run tests/ai_eval_components/eval.py -- -c one-card
 ```
+
+If no `-c` nor `-f` argument is used, evaluation runs only for fully implemented/supported UI components.
 
 During the run, basic info about running process and errors is written to the console. At the end, aggregated results 
 are provided, together with basic AI inference performance statistics.

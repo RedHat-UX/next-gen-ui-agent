@@ -20,6 +20,7 @@ from ai_eval_components.eval_utils import (
     get_dataset_files,
     load_args,
     load_dataset_file,
+    select_run_components,
     validate_dataset_row,
 )
 from ai_eval_components.types import (
@@ -181,14 +182,15 @@ if __name__ == "__main__":
     dataset_files = get_dataset_files(arg_dataset_file)
     inference = init_inference()
 
+    run_components = select_run_components(arg_ui_component, arg_dataset_file)
+
     for dataset_file in dataset_files:
         dataset = load_dataset_file(dataset_file)
 
-        if arg_ui_component:
-            dataset = [
-                f for f in dataset if f["expected_component"] == arg_ui_component
-            ]
-        # skip dataset files not containing any record
+        # filter dataset by UI components to run for
+        if run_components:
+            dataset = [f for f in dataset if f["expected_component"] in run_components]
+        # skip dataset files not containing any record after filtering
         if len(dataset) == 0:
             continue
 
