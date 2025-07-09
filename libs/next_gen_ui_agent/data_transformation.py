@@ -2,8 +2,6 @@ import copy
 import logging
 
 from next_gen_ui_agent.data_transform.audio import AudioPlayerDataTransformer
-from next_gen_ui_agent.data_transform.chart_line import LineChartDataTransformer
-from next_gen_ui_agent.data_transform.chart_pie import PieChartDataTransformer
 from next_gen_ui_agent.data_transform.data_transformer import DataTransformerBase
 from next_gen_ui_agent.data_transform.image import ImageDataTransformer
 from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
@@ -22,8 +20,6 @@ COMPONENT_TRANSFORMERS_REGISTRY: dict[str, DataTransformerBase] = {
     AudioPlayerDataTransformer.COMPONENT_NAME: AudioPlayerDataTransformer(),
     TableDataTransformer.COMPONENT_NAME: TableDataTransformer(),
     SetOfCardsDataTransformer.COMPONENT_NAME: SetOfCardsDataTransformer(),
-    LineChartDataTransformer.COMPONENT_NAME: LineChartDataTransformer(),
-    PieChartDataTransformer.COMPONENT_NAME: PieChartDataTransformer(),
 }
 
 

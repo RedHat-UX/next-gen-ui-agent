@@ -1,8 +1,6 @@
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.renderer.audio import AudioPlayerRenderStrategy
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
-from next_gen_ui_agent.renderer.chart_line import LineChartRenderStrategy
-from next_gen_ui_agent.renderer.chart_pie import PieChartRenderStrategy
 from next_gen_ui_agent.renderer.image import ImageRenderStrategy
 from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.set_of_cards import SetOfCardsRenderStrategy
@@ -36,10 +34,6 @@ class JsonStrategyFactory(StrategyFactory):
                 return VideoRenderStrategy()
             case AudioPlayerRenderStrategy.COMPONENT_NAME:
                 return AudioPlayerRenderStrategy()
-            case LineChartRenderStrategy.COMPONENT_NAME:
-                return LineChartRenderStrategy()
-            case PieChartRenderStrategy.COMPONENT_NAME:
-                return PieChartRenderStrategy()
             case _:
                 raise ValueError(
                     f"This component: {component.component} is not supported by rendering plugin."

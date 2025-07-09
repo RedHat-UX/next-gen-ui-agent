@@ -1,22 +1,35 @@
 import asyncio
 import json
 import logging
+import os
 
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import AgentInput, InputData, UIComponentMetadata
 from pydantic_core import from_json
 
-ui_components_description = """
-* none - component to use when the data are not appropriate to be shown for user's query.
+ui_components_description_all = """
 * table - component to visualize array of data items with size over 6. Better suitable for small number of shown fields with shorter values.
 * set-of-cards - component to visualize array of data items with size up to 6. Better suitable for high numbers of shown fields and for fields withlonger values.
 * one-card - component to visualize one data item.
-* chart-line - component to visualize array of data as a line graph. Suitable for series of number values.
-* chart-pie - component to visualize array of data items of any size as a pie chart. Suitable for items percentage or portion values. First field contains the name, second percentage value.
 * video-player - component to play video from one item data. First field contains title, second url to the video e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
 * image - component to show one image from one item data. First field contains title, second url to the image.
 """
+
+ui_components_description_supported = """
+* one-card - component to visualize one data item.
+* video-player - component to play video from one item data. First field contains title, second url to the video e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
+* image - component to show one image from one item data. First field contains title, second url to the image.
+"""
+
+""" Load environment variable `NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS` to decide which set of allowed components to use for the LLM prompt.
+If False then only supported components from `ui_components_description_supported` are used.
+If True then all components from `ui_components_description_all` are used.
+"""
+if os.getenv("NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS", "False").lower() == "true":
+    ui_components_description = ui_components_description_all
+else:
+    ui_components_description = ui_components_description_supported
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +64,7 @@ async def component_selection_inference(
         # logger.debug(user_prompt)
         # logger.debug(input_data)
 
-    sys_msg_content = f"""You are helpful and advanced user interface design assistant. Based on the user query and JSON formatted data, select the best one component to visualize the data to the user.
+    sys_msg_content = f"""You are helpful and advanced user interface design assistant. Based on the user query and JSON formatted data, select the best one UI component to visualize the data to the user.
 Generate response in the JSON format only. Select one component only.
 Provide the title for the component in "title".
 Provide reason for the component selection in the "reasonForTheComponentSelection".
@@ -60,7 +73,7 @@ Select only relevant data fields to be presented in the component. Do not bloat 
 Provide "name" for every field.
 For every field provide "data_path" containing path to get the value from the data. Do not use any formatting or calculations in the "data_path".
 
-Available components:
+Available UI components you can select from:
 {ui_components_description}
 """
 
