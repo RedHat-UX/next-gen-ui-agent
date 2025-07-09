@@ -56,7 +56,7 @@ Correct `Object` input data:
 ```
 Putting this structure into top level array (with one object only) is mostly interpreted as one `Object` with relevant UI component selected and generally works well.
 
-Potentially problematic `Object` input data:
+Potentially problematic `Object` input data, try to avoid it:
 ```json
 {
   "id": 254,
@@ -65,6 +65,8 @@ Potentially problematic `Object` input data:
   ...
 }
 ```
+Why not to use this structure? LLM is typically looking at the field name to understan what are the data about. 
+And because this object is not stored in any field, LLM do not know so well what is this object about.
 
 ### `Array of objects` input data
 
@@ -88,7 +90,7 @@ Correct `Array of objects` input data:
 }
 ```
 
-Potentially problematic `Array of objects` input data:
+Problematic `Array of objects` input data, DO NOT USE this structure:
 ```json
 [
   {
@@ -105,6 +107,9 @@ Potentially problematic `Array of objects` input data:
   }     
 ]
 ```
+Why not to use this structure? We have to shorten arrays in input data before putting in into the LLM context, 
+and in this case there is not a room where to put original array size necessary for correct UI compoennt selection, 
+as we put it into name of the field the array is stored in.
 
 !!! warning
     Array with one object only is typically interpreted as a single `Object` and relevant UI component is used to show it's values.
