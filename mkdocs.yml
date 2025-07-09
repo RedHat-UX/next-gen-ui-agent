@@ -3,6 +3,9 @@ site_name: Next Gen UI Agent
 repo_name: RedHat-UX/next-gen-ui-agent
 repo_url: https://github.com/RedHat-UX/next-gen-ui-agent
 
+plugins:
+  - include-markdown
+
 theme:
   name: material
   palette:
