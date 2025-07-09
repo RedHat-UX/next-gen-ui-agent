@@ -20,6 +20,7 @@ class DatasetRow(TypedDict):
     user_prompt: str
     backend_data: str
     expected_component: str
+    warn_only: NotRequired[bool]
     src: NotRequired[DatasetRowSrc]
 
 
@@ -42,3 +43,4 @@ class DatasetRowAgentEvalResult:
 class ItemsGenerate(TypedDict):
     prompts_file: str
     backend_data_files: list[str]
+    warn_only: NotRequired[bool]

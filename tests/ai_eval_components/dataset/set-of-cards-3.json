@@ -1,0 +1,90 @@
+[
+  {
+    "id": "set-of-cards-000022",
+    "user_prompt": "Who acted in the Toy Story?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"movieId\": \"1\",\n        \"imdb\": {\n            \"votes\": 591836,\n            \"id\": \"0114709\",\n            \"rating\": 8.3\n        },\n        \"countries\": [\n            \"USA\",\n            \"Germany\",\n            \"Czech Republic\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        {\n            \"name\": \"Jim Varney\",\n            \"role\": \"Slinky Dog\",\n            \"description\": \" A dachshund slinky toy and Woody's second-in-command.\"\n        },\n        {\n            \"name\": \"Tim Allen\",\n            \"role\": \"Buzz Lightyear\",\n            \"description\": \"Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend.\"\n        },\n        {\n            \"name\": \"Tom Hanks\",\n            \"role\": \"Woody\",\n            \"description\": \"A pullstring cowboy doll who is Andy's favorite toy\"\n        },\n        {\n            \"name\": \"Don Rickles\",\n            \"role\": \"Mr. Potato Head\",\n            \"description\": \"A cynical potato-shaped doll with put-together pieces on his body.\"\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/simple_movie_actorsObjects_camelCase.json",
+      "prompt_file": "prompts_movie_actors.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000023",
+    "user_prompt": "Who acted in the movie?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"movieId\": \"1\",\n        \"imdb\": {\n            \"votes\": 591836,\n            \"id\": \"0114709\",\n            \"rating\": 8.3\n        },\n        \"countries\": [\n            \"USA\",\n            \"Germany\",\n            \"Czech Republic\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        {\n            \"name\": \"Jim Varney\",\n            \"role\": \"Slinky Dog\",\n            \"description\": \" A dachshund slinky toy and Woody's second-in-command.\"\n        },\n        {\n            \"name\": \"Tim Allen\",\n            \"role\": \"Buzz Lightyear\",\n            \"description\": \"Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend.\"\n        },\n        {\n            \"name\": \"Tom Hanks\",\n            \"role\": \"Woody\",\n            \"description\": \"A pullstring cowboy doll who is Andy's favorite toy\"\n        },\n        {\n            \"name\": \"Don Rickles\",\n            \"role\": \"Mr. Potato Head\",\n            \"description\": \"A cynical potato-shaped doll with put-together pieces on his body.\"\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/simple_movie_actorsObjects_camelCase.json",
+      "prompt_file": "prompts_movie_actors.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000024",
+    "user_prompt": "Toy Story actors?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"movieId\": \"1\",\n        \"imdb\": {\n            \"votes\": 591836,\n            \"id\": \"0114709\",\n            \"rating\": 8.3\n        },\n        \"countries\": [\n            \"USA\",\n            \"Germany\",\n            \"Czech Republic\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        {\n            \"name\": \"Jim Varney\",\n            \"role\": \"Slinky Dog\",\n            \"description\": \" A dachshund slinky toy and Woody's second-in-command.\"\n        },\n        {\n            \"name\": \"Tim Allen\",\n            \"role\": \"Buzz Lightyear\",\n            \"description\": \"Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend.\"\n        },\n        {\n            \"name\": \"Tom Hanks\",\n            \"role\": \"Woody\",\n            \"description\": \"A pullstring cowboy doll who is Andy's favorite toy\"\n        },\n        {\n            \"name\": \"Don Rickles\",\n            \"role\": \"Mr. Potato Head\",\n            \"description\": \"A cynical potato-shaped doll with put-together pieces on his body.\"\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/simple_movie_actorsObjects_camelCase.json",
+      "prompt_file": "prompts_movie_actors.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000025",
+    "user_prompt": "What are Toy Story actors?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"pictureUrl\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"movieId\": \"1\",\n        \"imdb\": {\n            \"votes\": 591836,\n            \"id\": \"0114709\",\n            \"rating\": 8.3\n        },\n        \"countries\": [\n            \"USA\",\n            \"Germany\",\n            \"Czech Republic\"\n        ],\n        \"trailerUrl\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdbId\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        {\n            \"name\": \"Jim Varney\",\n            \"role\": \"Slinky Dog\",\n            \"description\": \" A dachshund slinky toy and Woody's second-in-command.\"\n        },\n        {\n            \"name\": \"Tim Allen\",\n            \"role\": \"Buzz Lightyear\",\n            \"description\": \"Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend.\"\n        },\n        {\n            \"name\": \"Tom Hanks\",\n            \"role\": \"Woody\",\n            \"description\": \"A pullstring cowboy doll who is Andy's favorite toy\"\n        },\n        {\n            \"name\": \"Don Rickles\",\n            \"role\": \"Mr. Potato Head\",\n            \"description\": \"A cynical potato-shaped doll with put-together pieces on his body.\"\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/simple_movie_actorsObjects_camelCase.json",
+      "prompt_file": "prompts_movie_actors.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000026",
+    "user_prompt": "Who acted in the Toy Story?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"picture_url\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"movie_id\": \"1\",\n        \"imdb\": {\n            \"votes\": 591836,\n            \"id\": \"0114709\",\n            \"rating\": 8.3\n        },\n        \"countries\": [\n            \"USA\",\n            \"Germany\",\n            \"Czech Republic\"\n        ],\n        \"trailer_url\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdb_id\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        {\n            \"name\": \"Jim Varney\",\n            \"role\": \"Slinky Dog\",\n            \"description\": \" A dachshund slinky toy and Woody's second-in-command.\"\n        },\n        {\n            \"name\": \"Tim Allen\",\n            \"role\": \"Buzz Lightyear\",\n            \"description\": \"Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend.\"\n        },\n        {\n            \"name\": \"Tom Hanks\",\n            \"role\": \"Woody\",\n            \"description\": \"A pullstring cowboy doll who is Andy's favorite toy\"\n        },\n        {\n            \"name\": \"Don Rickles\",\n            \"role\": \"Mr. Potato Head\",\n            \"description\": \"A cynical potato-shaped doll with put-together pieces on his body.\"\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/simple_movie_actorsObjects_snakeCase.json",
+      "prompt_file": "prompts_movie_actors.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000027",
+    "user_prompt": "Who acted in the movie?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"picture_url\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"movie_id\": \"1\",\n        \"imdb\": {\n            \"votes\": 591836,\n            \"id\": \"0114709\",\n            \"rating\": 8.3\n        },\n        \"countries\": [\n            \"USA\",\n            \"Germany\",\n            \"Czech Republic\"\n        ],\n        \"trailer_url\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdb_id\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        {\n            \"name\": \"Jim Varney\",\n            \"role\": \"Slinky Dog\",\n            \"description\": \" A dachshund slinky toy and Woody's second-in-command.\"\n        },\n        {\n            \"name\": \"Tim Allen\",\n            \"role\": \"Buzz Lightyear\",\n            \"description\": \"Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend.\"\n        },\n        {\n            \"name\": \"Tom Hanks\",\n            \"role\": \"Woody\",\n            \"description\": \"A pullstring cowboy doll who is Andy's favorite toy\"\n        },\n        {\n            \"name\": \"Don Rickles\",\n            \"role\": \"Mr. Potato Head\",\n            \"description\": \"A cynical potato-shaped doll with put-together pieces on his body.\"\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/simple_movie_actorsObjects_snakeCase.json",
+      "prompt_file": "prompts_movie_actors.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000028",
+    "user_prompt": "Toy Story actors?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"picture_url\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"movie_id\": \"1\",\n        \"imdb\": {\n            \"votes\": 591836,\n            \"id\": \"0114709\",\n            \"rating\": 8.3\n        },\n        \"countries\": [\n            \"USA\",\n            \"Germany\",\n            \"Czech Republic\"\n        ],\n        \"trailer_url\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdb_id\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        {\n            \"name\": \"Jim Varney\",\n            \"role\": \"Slinky Dog\",\n            \"description\": \" A dachshund slinky toy and Woody's second-in-command.\"\n        },\n        {\n            \"name\": \"Tim Allen\",\n            \"role\": \"Buzz Lightyear\",\n            \"description\": \"Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend.\"\n        },\n        {\n            \"name\": \"Tom Hanks\",\n            \"role\": \"Woody\",\n            \"description\": \"A pullstring cowboy doll who is Andy's favorite toy\"\n        },\n        {\n            \"name\": \"Don Rickles\",\n            \"role\": \"Mr. Potato Head\",\n            \"description\": \"A cynical potato-shaped doll with put-together pieces on his body.\"\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/simple_movie_actorsObjects_snakeCase.json",
+      "prompt_file": "prompts_movie_actors.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000029",
+    "user_prompt": "What are Toy Story actors?",
+    "backend_data": "{\n    \"movie\": {\n        \"languages\": [\n            \"English\"\n        ],\n        \"year\": 1995,\n        \"picture_url\": \"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\n        \"runtime\": 81,\n        \"movie_id\": \"1\",\n        \"imdb\": {\n            \"votes\": 591836,\n            \"id\": \"0114709\",\n            \"rating\": 8.3\n        },\n        \"countries\": [\n            \"USA\",\n            \"Germany\",\n            \"Czech Republic\"\n        ],\n        \"trailer_url\": \"https://www.youtube.com/watch?v=v-PjgYDrg70\",\n        \"title\": \"Toy Story\",\n        \"url\": \"https://themoviedb.org/movie/862\",\n        \"revenue\": 373554033,\n        \"tmdb_id\": \"862\",\n        \"plot\": \"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\",\n        \"released\": \"1995-11-22\",\n        \"budget\": 30000000\n    },\n    \"actors\": [\n        {\n            \"name\": \"Jim Varney\",\n            \"role\": \"Slinky Dog\",\n            \"description\": \" A dachshund slinky toy and Woody's second-in-command.\"\n        },\n        {\n            \"name\": \"Tim Allen\",\n            \"role\": \"Buzz Lightyear\",\n            \"description\": \"Action figure, Andy's second favorite toy, and Woody's rival, who later becomes his best friend.\"\n        },\n        {\n            \"name\": \"Tom Hanks\",\n            \"role\": \"Woody\",\n            \"description\": \"A pullstring cowboy doll who is Andy's favorite toy\"\n        },\n        {\n            \"name\": \"Don Rickles\",\n            \"role\": \"Mr. Potato Head\",\n            \"description\": \"A cynical potato-shaped doll with put-together pieces on his body.\"\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/simple_movie_actorsObjects_snakeCase.json",
+      "prompt_file": "prompts_movie_actors.json"
+    }
+  }
+]

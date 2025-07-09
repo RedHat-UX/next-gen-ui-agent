@@ -20,7 +20,8 @@ def load_args():
     arg_dataset_file = None
     arg_write_llm_output = False
     arg_vague_component_check = False
-    opts, args = getopt.getopt(sys.argv[1:], "hwvc:f:")
+    arg_also_warn_only = False
+    opts, args = getopt.getopt(sys.argv[1:], "hwvoc:f:")
     for opt, arg in opts:
         if opt == "-h":
             print("eval.py <arguments>")
@@ -29,6 +30,7 @@ def load_args():
             print(
                 " -f <dataset-file-name> - run only evaluations from the named dataset file"
             )
+            print(" -o - if present then `warn_only` dataset items are evaluated also")
             print(
                 " -w - if present then LLM outputs with successful checks are written into files in 'llm_out' directory"
             )
@@ -41,16 +43,24 @@ def load_args():
             arg_ui_component = arg
         elif opt in ("-w"):
             arg_write_llm_output = True
+        elif opt in ("-o"):
+            arg_also_warn_only = True
         elif opt in ("-v"):
             arg_vague_component_check = True
         elif opt in ("-f"):
             arg_dataset_file = arg
+
+    if not arg_also_warn_only:
+        print("Skipping `warn_only` dataset items ...")
+    else:
+        print("Evaluating `warn_only` dataset items also ...")
 
     return (
         arg_ui_component,
         arg_write_llm_output,
         arg_dataset_file,
         arg_vague_component_check,
+        arg_also_warn_only,
     )
 
 

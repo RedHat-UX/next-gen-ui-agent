@@ -22,6 +22,7 @@ eval_stats = {
     "num_err_ds": 0,
     "num_err_agent": 0,
     "num_err_system": 0,
+    "num_warn_agent": 0,
 }
 eval_stats_by_component: dict[str, Any] = {}
 
@@ -82,15 +83,28 @@ def report_err_uiagent(
     dsr: DatasetRow,
     is_progress_dot: bool,
 ):
+    warn = False if "warn_only" not in dsr else dsr["warn_only"]
+
     """Report UI Agent error"""
     eval_stats["num_evals"] += 1
-    stats_by_component_add_err_agent(dsr["expected_component"])
-    eval_stats["num_err_agent"] += 1
+    if warn:
+        stats_by_component_add_warn_agent(dsr["expected_component"])
+        eval_stats["num_warn_agent"] += 1
+    else:
+        stats_by_component_add_err_agent(dsr["expected_component"])
+        eval_stats["num_err_agent"] += 1
 
     is_progress_dot = console_handle_progress_dot(is_progress_dot)
     id = dsr["id"]
-    print(f"{id} - ERROR UIAGENT {eval_result.errors}")
+    if warn:
+        print(f"{id} - WARN UIAGENT {eval_result.errors}")
+    else:
+        print(f"{id} - ERROR UIAGENT {eval_result.errors}")
     f_err.write(f"==== AGENT {id} ====\n")
+    if warn:
+        f_err.write("Warnings:\n")
+    else:
+        f_err.write("Errors:\n")
     json.dump(
         json.loads(str(eval_result.errors)), f_err, indent=2, separators=(",", ": ")
     )
@@ -138,6 +152,7 @@ def print_stats():
     """Print eval stats to the stdout"""
     print(f"Dataset items evalueated: {eval_stats['num_evals']}")
     print(f"Agent errors: {eval_stats['num_err_agent']}")
+    print(f"Agent warnings: {eval_stats['num_warn_agent']}")
     print(f"System errors: {eval_stats['num_err_system']}")
     print(f"Dataset errors: {eval_stats['num_err_ds']}")
     print("Results by component:")
@@ -162,6 +177,7 @@ def get_stats_by_component(component: str):
             "num_evals": 0,
             "num_err_agent": 0,
             "num_err_system": 0,
+            "num_warn_agent": 0,
         }
     return eval_stats_by_component[component]
 
@@ -175,6 +191,11 @@ def stats_by_component_add_success(component: str):
 def stats_by_component_add_err_agent(component: str):
     sbc = stats_by_component_add_success(component)
     sbc["num_err_agent"] += 1
+
+
+def stats_by_component_add_warn_agent(component: str):
+    sbc = stats_by_component_add_success(component)
+    sbc["num_warn_agent"] += 1
 
 
 def stats_by_component_add_err_system(component: str):

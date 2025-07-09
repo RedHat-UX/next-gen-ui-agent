@@ -175,6 +175,7 @@ if __name__ == "__main__":
         arg_write_llm_output,
         arg_dataset_file,
         arg_vague_component_check,
+        arg_also_warn_only,
     ) = load_args()
     errors_dir_path = get_errors_dir()
     if not arg_write_llm_output:
@@ -190,6 +191,11 @@ if __name__ == "__main__":
         # filter dataset by UI components to run for
         if run_components:
             dataset = [f for f in dataset if f["expected_component"] in run_components]
+
+        # filter dataset by warn_only flag
+        if not arg_also_warn_only:
+            dataset = [f for f in dataset if not f.get("warn_only", False)]
+
         # skip dataset files not containing any record after filtering
         if len(dataset) == 0:
             continue

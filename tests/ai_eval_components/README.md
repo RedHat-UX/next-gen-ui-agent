@@ -13,6 +13,10 @@ Evaluation code accepts these environment variables:
 * `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 * `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
 
+Also these NextGen UI agent env variables can be used:
+* `NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS` - by default, agent can select only fully implemented/supported UI components. You 
+can set this env variable to `true` to allow it to also select other components which are not fully implemented/supported yet.
+
 ## Run Evaluation
 
 ```sh
@@ -22,6 +26,7 @@ pants run tests/ai_eval_components/eval.py
 You can use these commandline argument:
 * `-c <ui-component-name>` to run evaluation for one named UI component only. If `all` is used then evaluation runs for all the components present in the evaluation dataset.
 * `-f <dataset-file-name>` to run only evaluations from the named dataset file (for any UI component present in the file)
+* `-o` to also evaluate `warn_only` dataset items
 * `-w` to write Agent ouputs (LLM and Component data) with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
 * `-v` to enable vague component type check, allowing `table` and `set-of-cards` components to be interchanged
 * `-h` to get help
@@ -30,7 +35,8 @@ You can use these commandline argument:
 pants run tests/ai_eval_components/eval.py -- -c one-card
 ```
 
-If no `-c` nor `-f` argument is used, evaluation runs only for fully implemented/supported UI components.
+If no `-c` nor `-f` argument is used, evaluation runs only for fully implemented/supported UI components. 
+If you want to run evaluation for not supported one, you also have to use `NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS` env variable as described above!
 
 During the run, basic info about running process and errors is written to the console. At the end, aggregated results 
 are provided, together with basic AI inference performance statistics.
@@ -68,6 +74,9 @@ Dataset for the evaluation is stored in the `dataset` subdirectory.
 
 It contains items for each UI component the UI Agent is able to generate. All inputs are in the dataset, together with info necessary for the response evaluation.
 
+Some items may be marked as `warn_only`. They are not evaluated by default (see `eval.py` script params), and if evaluated, they only lead to evaluation warning, not to error. 
+Usefull for evaluation of optional/unimportant features, which we would like to see how they perform still at some cases. Eg. some more exotic shapes of backend data etc.
+
 It is better to provide smaller files, grouped together by some common aspect (eg. the same expected UI component).
 
 **DO NOT EDIT DATASET MANUALLY, SEE NEXT CHAPTER HOW TO GENERATE IT**
@@ -77,6 +86,7 @@ Dataset files itself must be `.json` containing JSON array of objects representi
 * `user_prompt` input for UI Agent
 * `backend_data` input for UI Agent, must be JSON stored as a string
 * `expected_component` checked in UI Agent output during evaluation
+* `warn_only` optional boolean with `true` if this item results only in evaluation warning, not error - used for evaluation of optional features which we would like to see how they perform in evals still
 * `src` optional info about prompt and data source files in `dataset_src` directory for easier location
 
 Example:
@@ -98,7 +108,8 @@ Example:
         "id": "one-card-000003",
         "user_prompt": "Where can I find details about my RHEL subscription?",
         "backend_data": "{\n    \"id\": \"EUS-101\",\n    \"name\": \"RHEL\",\n    \"endDate\": \"2024-12-24\",\n    \"supported\": true,\n    \"numOfItems\": 2,\n    \"viewUrl\": \"https:\/\/access.redhat.com\/sub\/EUS-101\"\n}",
-        "expected_component": ""
+        "expected_component": "",
+        "warn_only": true
     }
 ]
 ```
@@ -112,7 +123,7 @@ Source files for the dataset are stored in `dataset_src` directory. It contains:
 * `components/` directory with the dataset sources for each UI component selection evaluation. Subdirectories are named by these components.
 
 Component dataset source directory then contains:
-* `items_generate.json` configuration used for the dataset generation. Defines prompts and backend data files combined together during the generation. 
+* `items_generate.json` configuration used for the dataset generation. Defines prompts and backend data files combined together during the generation, together with optionl `warn_only` flag.
   Contains array of objects with attributes:
   * `prompts_file` with name of the file to load prompts from. Prompts are defined in json files in this directory with `prompts_` prefix. It is JSON array containing individual prompts as string.
   * `backend_data_files` array with names of the backend data files. Backend data files are searched in local `backend_data/` subdirectory, if not found here then in `backend_data_shared/` directory.
