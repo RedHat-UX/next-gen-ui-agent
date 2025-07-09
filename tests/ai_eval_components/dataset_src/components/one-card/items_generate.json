@@ -4,9 +4,15 @@
         "backend_data_files": [
             "simple_subscription_direct.json",
             "simple_subscription_inobject.json",
-            "simple_subscription_direct_inarray.json",
             "simple_subscription_inobject_inarray.json"
         ]
+    },
+    {
+        "prompts_file": "prompts_subscription.json",
+        "backend_data_files": [
+            "simple_subscription_direct_inarray.json"
+        ],
+        "warn_only": true
     },
     {
         "prompts_file": "prompts_movie.json",

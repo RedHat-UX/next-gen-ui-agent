@@ -129,6 +129,7 @@ if __name__ == "__main__":
                     dataset_row["user_prompt"] = prompt
                     dataset_row["backend_data"] = backend_data
                     dataset_row["expected_component"] = component_name
+                    dataset_row["warn_only"] = item_generate.get("warn_only", False)
                     if shared:
                         df = "backend_data_shared/" + backend_data_file_name
                     else:
