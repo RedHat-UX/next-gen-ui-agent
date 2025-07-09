@@ -12,6 +12,7 @@ import { CodeBlockWrapper } from "../components/CodeBloackWrapper";
 import CustomLink from "../components/CustomLink";
 import ListWrapper from "../components/ListWrapper";
 import Message from "../components/Message";
+import OneCardWrapper from "../components/OneCardWrapper";
 import QuickResponse from "../components/QuickResponse";
 import TableWrapper from "../components/TableWrapper";
 import Text from "../components/Text";
@@ -28,7 +29,8 @@ export const componentsMap = {
   button: Button,
   list: ListWrapper,
   link: CustomLink,
+  message: Message,
+  oneCard: OneCardWrapper,
   quickResponse: QuickResponse,
   table: TableWrapper,
-  message: Message,
 };
