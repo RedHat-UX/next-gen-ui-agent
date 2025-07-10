@@ -1,3 +1,5 @@
+# Substantial portions of this file were generated with help of Cursor AI
+
 from collections.abc import Iterable
 from typing import Any
 
