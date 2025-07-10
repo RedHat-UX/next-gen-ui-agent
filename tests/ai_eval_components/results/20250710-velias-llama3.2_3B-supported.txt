@@ -1,0 +1,65 @@
+Date: 2025-07-10
+Components: supported only
+LLM: llama 3.2 3B
+Env: velias ThinkPad P16v (ollama accelerated on AMD GPU)
+
+Dataset items evalueated: 128
+Agent errors: 27
+Agent warnings: 3
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 10,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 14,
+    "num_err_system": 0,
+    "num_warn_agent": 3
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 3,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 2924,
+  "mean": 4025,
+  "avg": 4025,
+  "perc95": 6143,
+  "max": 7616
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 3177,
+    "mean": 3815,
+    "avg": 3815,
+    "perc95": 4576,
+    "max": 7616
+  },
+  "one-card": {
+    "min": 2924,
+    "mean": 4505,
+    "avg": 4505,
+    "perc95": 6737,
+    "max": 7593
+  },
+  "video-player": {
+    "min": 3276,
+    "mean": 3540,
+    "avg": 3540,
+    "perc95": 4078,
+    "max": 4130
+  }
+}
