@@ -51,13 +51,11 @@ if __name__ == "__main__":
         ngui_agent.ainvoke(movies_response, ngui_cfg),
     )
 
-    print("\n\n===Next Gen UI JSON Rendition===")
-    rendition_json = json.loads(ngui_response["renditions"][0].content)
-    pprint.pprint(rendition_json)
+    print(f"\n\n===Next Gen UI {component_system} Rendition===\n", ngui_response["renditions"][0].content)
 ```
 Note: Full python file is stored in [libs/next_gen_ui_langgraph/readme_example.py](libs/next_gen_ui_langgraph/readme_example.py).
 
-Running this assistant with user's questions `Play Toy Story movie trailer` return this output:
+Running this assistant with user's questions `Play Toy Story movie trailer` generates following output of movies agent:
 
 ```
 ===Movies Text Answer===
@@ -72,13 +70,19 @@ Narrator (in a deep, dramatic voice): "In a world where toys come to life..."
 Narrator: "One toy stands tall."
 
 [Scene: Close-up of Woody's face]
+```
 
-===Next Gen UI JSON Rendition===
-{'component': 'video-player',
- 'id': 'call_zomga3r3',
- 'title': 'Toy Story Trailer',
- 'video': 'https://www.youtube.com/embed/v-PjgYDrg70',
- 'video_img': 'https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg'}
+and Next Gen UI json rendering:
+
+```js
+===Next Gen UI json Rendition===
+{
+    'component': 'video-player',
+    'id': 'call_zomga3r3',
+    'title': 'Toy Story Trailer',
+    'video': 'https://www.youtube.com/embed/v-PjgYDrg70',
+    'video_img': 'https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg'
+}
 ```
 
 

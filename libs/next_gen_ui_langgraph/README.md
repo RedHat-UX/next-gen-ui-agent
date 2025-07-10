@@ -13,7 +13,7 @@ pip install -U next_gen_ui_langgraph
 
 ### Get NextGenUI agent
 
-Use `NextGenUILangGraphAgent` class and just pass your model to get standar LangGraph Agent.
+Use `NextGenUILangGraphAgent` class and just pass your model to get standard LangGraph Agent.
 
 ```py
 from next_gen_ui_langgraph import NextGenUILangGraphAgent
@@ -97,7 +97,9 @@ movies_agent = create_react_agent(
 
 # Next Gen UI Agent - Build it as Standard LangGraph agent
 ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()
-ngui_cfg = {"configurable": {"component_system": "json"}}
+component_system = "json" 
+# component_system = "rhds" # use rhds if you have installed package next_gen_ui_rhds_renderer
+ngui_cfg = {"configurable": {"component_system": component_system}}
 
 if __name__ == "__main__":
     # Run Movies Agent to get raw movie data and answer
@@ -112,9 +114,7 @@ if __name__ == "__main__":
         ngui_agent.ainvoke(movies_response, ngui_cfg),
     )
 
-    print("\n\n===Next Gen UI JSON Rendition===")
-    rendition_json = json.loads(ngui_response["renditions"][0].content)
-    pprint.pprint(rendition_json)
+    print(f"\n\n===Next Gen UI {component_system} Rendition===\n", ngui_response["renditions"][0].content)
 ```
 
 Running this assistant with user's questions `Play Toy Story movie trailer` return this output:
@@ -133,10 +133,12 @@ Narrator: "One toy stands tall."
 
 [Scene: Close-up of Woody's face]
 
-===Next Gen UI JSON Rendition===
-{'component': 'video-player',
- 'id': 'call_zomga3r3',
- 'title': 'Toy Story Trailer',
- 'video': 'https://www.youtube.com/embed/v-PjgYDrg70',
- 'video_img': 'https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg'}
+===Next Gen UI json Rendition===
+{
+    'component': 'video-player',
+    'id': 'call_zomga3r3',
+    'title': 'Toy Story Trailer',
+    'video': 'https://www.youtube.com/embed/v-PjgYDrg70',
+    'video_img': 'https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg'
+}
 ```
