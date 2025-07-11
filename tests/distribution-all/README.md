@@ -31,3 +31,10 @@ Dependencies:
 pip install deptree
 deptree
 ```
+
+
+## Run other executables in libs directory
+
+```sh
+python ../../libs/next_gen_ui_langgraph/readme_example.py
+```

@@ -23,25 +23,68 @@ Following example shows how easy you can integrate your ReAct LangGraph agent wi
 For other frameworks see below.
 
 ```py
+from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
-# This code depends on pip install langchain[anthropic]
+from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 
-def search(query: str):
-    """Call to surf the web."""
-    if "sf" in query.lower() or "san francisco" in query.lower():
-        return "It's 60 degrees and foggy."
-    return "It's 90 degrees and sunny."
+# search_movie tool function
+# def search_movie(title: str):
+#  ...
 
-agent = create_react_agent("anthropic:claude-3-7-sonnet-latest", tools=[search])
-agent.invoke(
-    {"messages": [{"role": "user", "content": "what is the weather in sf"}]}
-)
+llm = ChatOpenAI(**llm_settings)
+movies_agent = create_react_agent(model=llm, tools=[search_movie])
 
-# TODO (NGUI-97)LangGraph simple example
+# Next Gen UI Agent - Build it as Standard LangGraph agent
+ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()
+ngui_cfg = {"configurable": {"component_system": "json"}}
 
-ngui_agent = NextGenUILangGraphAgent("anthropic:claude-3-7-sonnet-latest")
-graph = agent.build_graph()
+if __name__ == "__main__":
+    # Run Movies Agent to get raw movie data and answer
+    movies_response = movies_agent.invoke(
+        {"messages": [{"role": "user", "content": "Play Toy Story movie trailer"}]}
+    )
+    print("\n\n===Movies Text Answer===\n", movies_response["messages"][-1].content)
+
+    # Run NGUI Agent to get UI component as JSON for client-side rendering
+    ngui_response = asyncio.run(
+        # Run Next Gen UI Agent. Pass movies agent response directly.
+        ngui_agent.ainvoke(movies_response, ngui_cfg),
+    )
+
+    print(f"\n\n===Next Gen UI {component_system} Rendition===\n", ngui_response["renditions"][0].content)
 ```
+Note: Full python file is stored in [libs/next_gen_ui_langgraph/readme_example.py](libs/next_gen_ui_langgraph/readme_example.py).
+
+Running this assistant with user's questions `Play Toy Story movie trailer` generates following output of movies agent:
+
+```
+===Movies Text Answer===
+ Here's the answer to the original user question:
+
+[Intro music plays]
+
+Narrator (in a deep, dramatic voice): "In a world where toys come to life..."
+
+[Scene: Andy's room, toys are scattered all over the floor. Woody, a pull-string cowboy toy, is centered on a shelf.]
+
+Narrator: "One toy stands tall."
+
+[Scene: Close-up of Woody's face]
+```
+
+and Next Gen UI json rendering:
+
+```js
+===Next Gen UI json Rendition===
+{
+    'component': 'video-player',
+    'id': 'call_zomga3r3',
+    'title': 'Toy Story Trailer',
+    'video': 'https://www.youtube.com/embed/v-PjgYDrg70',
+    'video_img': 'https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg'
+}
+```
+
 
 ## AI Frameworks
 

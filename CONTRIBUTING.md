@@ -145,6 +145,7 @@ Install [MkDocs Material](https://squidfunk.github.io/mkdocs-material/)
 
 ```sh
 pip install mkdocs-material
+pip install mkdocs-include-markdown-plugin
 ```
 
 Serve documentation locally

@@ -1,40 +1,3 @@
-# Next Gen UI LangGraph Agent
-
-Support for [LangGraph](https://www.langchain.com/langgraph). 
-
-## Installation
-
-```sh
-pip install -U next_gen_ui_langgraph
-```
-
-
-## Example
-
-### Get NextGenUI agent
-
-Use `NextGenUILangGraphAgent` class and just pass your model to get standard LangGraph Agent.
-
-```py
-from next_gen_ui_langgraph import NextGenUILangGraphAgent
-from langchain_openai import ChatOpenAI
-
-llm_settings = {
-    "model": "llama3.2",
-    "base_url": "http://localhost:11434/v1",
-    "api_key": "ollama",
-    "temperature": 0,
-}
-model = ChatOpenAI(**llm_settings)
-
-ngui_agent = NextGenUILangGraphAgent(model).build_graph()
-```
-
-## Integrate NextGenUI agent in your assistant workflow 
-
-This complete example shows how movies ReAct agent get data about movie and then response is passed to Next Gen UI Agent.
-
-```py
 import asyncio
 import json
 import os
@@ -125,30 +88,3 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
-```
-
-Running this assistant with user's questions `Play Toy Story movie trailer` return this output:
-
-```
-===Movies Text Answer===
- Here's the answer to the original user question:
-
-[Intro music plays]
-
-Narrator (in a deep, dramatic voice): "In a world where toys come to life..."
-
-[Scene: Andy's room, toys are scattered all over the floor. Woody, a pull-string cowboy toy, is centered on a shelf.]
-
-Narrator: "One toy stands tall."
-
-[Scene: Close-up of Woody's face]
-
-===Next Gen UI json Rendition===
-{
-    'component': 'video-player',
-    'id': 'call_zomga3r3',
-    'title': 'Toy Story Trailer',
-    'video': 'https://www.youtube.com/embed/v-PjgYDrg70',
-    'video_img': 'https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg'
-}
-```

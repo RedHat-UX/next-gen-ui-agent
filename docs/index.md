@@ -1,1 +1,3 @@
-# Next Gen UI Agent
+{%
+    include-markdown "../README.md"
+%}
