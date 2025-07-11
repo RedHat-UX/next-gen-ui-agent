@@ -63,7 +63,8 @@ component_system = "json"
 # component_system = "rhds" # use rhds if you have installed package next_gen_ui_rhds_renderer
 ngui_cfg = {"configurable": {"component_system": component_system}}
 
-if __name__ == "__main__":
+
+def run() -> None:
     # Run Movies Agent to get raw movie data and answer
     prompt = "Play Toy Story movie trailer"
     # prompt = "Show me the poster of Toy Story"
@@ -83,3 +84,7 @@ if __name__ == "__main__":
         f"\n\n===Next Gen UI {component_system} Rendition===\n",
         ngui_response["renditions"][0].content,
     )
+
+
+if __name__ == "__main__":
+    run()

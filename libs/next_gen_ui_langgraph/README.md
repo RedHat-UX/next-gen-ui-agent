@@ -38,11 +38,10 @@ This complete example shows how movies ReAct agent get data about movie and then
 import asyncio
 import json
 import os
-import pprint
 
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
-from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
+from next_gen_ui_langgraph import NextGenUILangGraphAgent
 
 movie_toy_story = [
     {
@@ -92,19 +91,23 @@ def search_movie(title: str):
 movies_agent = create_react_agent(
     model=llm,
     tools=[search_movie],
-    prompt="You are useful movies assistant to answer user quesiont",
+    prompt="You are useful movies assistant to answer user questions",
 )
 
 # Next Gen UI Agent - Build it as Standard LangGraph agent
 ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()
-component_system = "json" 
+component_system = "json"
 # component_system = "rhds" # use rhds if you have installed package next_gen_ui_rhds_renderer
 ngui_cfg = {"configurable": {"component_system": component_system}}
 
-if __name__ == "__main__":
+
+def run() -> None:
     # Run Movies Agent to get raw movie data and answer
+    prompt = "Play Toy Story movie trailer"
+    # prompt = "Show me the poster of Toy Story"
+    # prompt = "Tell me details about Toy Story, including poster"
     movies_response = movies_agent.invoke(
-        {"messages": [{"role": "user", "content": "Play Toy Story movie trailer"}]}
+        {"messages": [{"role": "user", "content": prompt}]}
     )
     print("\n\n===Movies Text Answer===\n", movies_response["messages"][-1].content)
 
@@ -114,7 +117,14 @@ if __name__ == "__main__":
         ngui_agent.ainvoke(movies_response, ngui_cfg),
     )
 
-    print(f"\n\n===Next Gen UI {component_system} Rendition===\n", ngui_response["renditions"][0].content)
+    print(
+        f"\n\n===Next Gen UI {component_system} Rendition===\n",
+        ngui_response["renditions"][0].content,
+    )
+
+
+if __name__ == "__main__":
+    run()
 ```
 
 Running this assistant with user's questions `Play Toy Story movie trailer` return this output:
