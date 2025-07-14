@@ -38,6 +38,8 @@ Available Components:
 
 
 ## Usage Example
+```js
+// <-- Accordian Component -->
 import { AccordianWrapper } from '<package-name>';
 
 function App() {
@@ -48,6 +50,37 @@ function App() {
   );
 }
 
+// <-- OneCard Component -->
+import { OneCardWrapper } from '<package-name>';
+
+const mockData = {
+  title: "Movie Details",
+  image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  fields: [
+    {
+      name: "Title",
+      data_path: "movie.title",
+      data: ["Toy Story"]
+    },
+    {
+      name: "Year",
+      data_path: "movie.year",
+      data: [1995]
+    },
+    {
+      name: "Genres",
+      data_path: "movie.genres",
+      data: ["Animation", "Adventure"]
+    }
+  ],
+  imageSize: "md",
+  id: "movie-card",
+};
+
+function App() {
+  return <OneCardWrapper {...mockData} />;
+}
+```
 
 ## Development
 
