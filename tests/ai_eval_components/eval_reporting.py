@@ -217,12 +217,17 @@ def console_handle_progress_dot(is_dot: bool):
     return False
 
 
-def get_llm_output_dir():
+def get_llm_output_dir(arg_write_llm_output: bool):
+    if not arg_write_llm_output:
+        return None
+
     llm_output_dir_path = Path.cwd() / (BASE_MODULE_PATH + "llm_out/")
     if not llm_output_dir_path.exists():
         llm_output_dir_path.mkdir(parents=True)
     else:
-        [f.unlink() for f in llm_output_dir_path.iterdir() if f.is_file()]
+        for f in llm_output_dir_path.iterdir():
+            if f.is_file():
+                f.unlink()
     print(f"Writing successfull LLM outputs into folder: {llm_output_dir_path}")
     return llm_output_dir_path
 

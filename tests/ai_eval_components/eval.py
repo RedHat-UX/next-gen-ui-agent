@@ -178,8 +178,7 @@ if __name__ == "__main__":
         arg_also_warn_only,
     ) = load_args()
     errors_dir_path = get_errors_dir()
-    if not arg_write_llm_output:
-        llm_output_dir_path = get_llm_output_dir()
+    llm_output_dir_path = get_llm_output_dir(arg_write_llm_output)
     dataset_files = get_dataset_files(arg_dataset_file)
     inference = init_inference()
 
