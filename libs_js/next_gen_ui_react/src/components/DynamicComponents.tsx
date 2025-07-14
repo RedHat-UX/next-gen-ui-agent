@@ -88,7 +88,7 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   };
 
   const Component = componentsMap[config?.component] || FragmentWrapper;
-  const newProps = parseProps(config?.props);
+  const newProps = parseProps(config?.props || config);
 
   return (
     <Component {...newProps}>

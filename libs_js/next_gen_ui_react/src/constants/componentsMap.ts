@@ -30,7 +30,7 @@ export const componentsMap = {
   list: ListWrapper,
   link: CustomLink,
   message: Message,
-  oneCard: OneCardWrapper,
+  "one-card": OneCardWrapper,
   quickResponse: QuickResponse,
   table: TableWrapper,
 };
