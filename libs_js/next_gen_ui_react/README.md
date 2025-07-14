@@ -38,7 +38,8 @@ Available Components:
 
 
 ## Usage Example
-<-- Accordian Component -->
+```js
+// <-- Accordian Component -->
 import { AccordianWrapper } from '<package-name>';
 
 function App() {
@@ -49,7 +50,7 @@ function App() {
   );
 }
 
-<-- OneCard Component -->
+// <-- OneCard Component -->
 import { OneCardWrapper } from '<package-name>';
 
 const mockData = {
@@ -79,7 +80,7 @@ const mockData = {
 function App() {
   return <OneCardWrapper {...mockData} />;
 }
-
+```
 
 ## Development
 
