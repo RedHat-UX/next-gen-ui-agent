@@ -67,6 +67,9 @@ nav:
       - user_guide/architecture.md
       - user_guide/input_data.md
       - user_guide/data_ui_blocks.md
+    - Development:
+      - Contributing: development/contributing.md
+      - development/release_notes.md
   - Examples:
     - example/langgraph_movies.md
     
