@@ -30,7 +30,9 @@ from ai_eval_components.types import (
 )
 from llama_stack_client import LlamaStackClient
 from next_gen_ui_agent import InputData
-from next_gen_ui_agent.component_selection import component_selection_inference
+from next_gen_ui_agent.component_selection import (
+    OnestepLLMCallComponentSelectionStrategy,
+)
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
 from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
@@ -122,16 +124,25 @@ def check_result_explicit(
 
 
 def evaluate_agent_for_dataset_row(
-    dsr: DatasetRow, inference: InferenceBase, arg_vague_component_check: bool
+    dsr: DatasetRow,
+    inference: InferenceBase,
+    arg_vague_component_check: bool,
+    unsupported_components: bool = False,
 ):
     """Run agent evaluation for one dataset row"""
     errors: list[ComponentDataValidationError] = []
     input_data = InputData(id="myid", data=dsr["backend_data"])
 
+    component_selection = OnestepLLMCallComponentSelectionStrategy(
+        unsupported_components
+    )
+
     # separate steps so we can see LLM response even if it is invalid JSON
     time_start = round(time.time() * 1000)
     llm_response = asyncio.run(
-        component_selection_inference(dsr["user_prompt"], inference, input_data)
+        component_selection.component_selection_inference(
+            dsr["user_prompt"], inference, input_data
+        )
     )
     report_perf_stats(time_start, round(time.time() * 1000), dsr["expected_component"])
 
@@ -219,6 +230,7 @@ if __name__ == "__main__":
                             f_err, ds_errors, dsr, is_progress_dot
                         )
                     else:
+                        # TODO EVAL automatically set unsupported_components to True to test unsupported components if any is requested for evaluation
                         eval_result = evaluate_agent_for_dataset_row(
                             dsr, inference, arg_vague_component_check
                         )
