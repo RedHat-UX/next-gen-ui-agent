@@ -1,3 +1,4 @@
+from abc import ABC, abstractmethod
 from typing import NotRequired, Optional, TypedDict
 
 from next_gen_ui_agent.model import InferenceBase
@@ -9,7 +10,22 @@ class AgentConfig(TypedDict):
     """Agent Configuration."""
 
     inference: NotRequired[InferenceBase]
+    """Inference to use to call LLM by the agent."""
     component_system: NotRequired[str]
+    """Component system to use to render the component."""
+    unsupported_components: NotRequired[bool]
+    """
+    If `False` (default), the agent can generate only supported UI components.
+    If `True`, the agent can also generate unsupported UI components.
+    """
+    component_selection_strategy: NotRequired[str]
+    """
+    Component selection strategy to use.
+    Possible values:
+    - default - use the default implementation
+    - one_llm_call - use the one LLM call implementation from component_selection.py
+    - two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py
+    """
 
 
 class InputData(TypedDict):
@@ -54,3 +70,14 @@ class Rendition(BaseModel):
     component_system: str
     mime_type: str
     content: str
+
+
+class ComponentSelectionStrategy(ABC):
+    """Abstract base class for component selection strategies."""
+
+    @abstractmethod
+    async def select_components(
+        self, inference: InferenceBase, input: AgentInput
+    ) -> list[UIComponentMetadata]:
+        """Select UI components based on input data and user prompt."""
+        pass

@@ -7,7 +7,7 @@ from next_gen_ui_agent.types import AgentInput
 from pytest import fail
 
 from . import InputData
-from .component_selection import component_selection, component_selection_run
+from .component_selection import OnestepLLMCallComponentSelectionStrategy
 from .model import LangChainModelInference
 
 movies_data = """[
@@ -49,7 +49,10 @@ async def test_component_selection_run_OK() -> None:
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
     inference = LangChainModelInference(llm)
 
-    result = await component_selection_run(user_input, inference, input_data)
+    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    result = await component_selection.component_selection_run(
+        user_input, inference, input_data
+    )
     assert result.component == "one-card"
 
 
@@ -63,7 +66,10 @@ async def test_component_selection_run_INVALID_LLM_RESPONSE() -> None:
     inference = LangChainModelInference(llm)
 
     try:
-        await component_selection_run(user_input, inference, input_data)
+        component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+        await component_selection.component_selection_run(
+            user_input, inference, input_data
+        )
         fail("Exception expected")
     except Exception as e:
         assert e.__class__.__name__ == "ValueError"
@@ -86,7 +92,8 @@ async def test_component_selection() -> None:
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
     inference = LangChainModelInference(llm)
 
-    result = await component_selection(inference, input)
+    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    result = await component_selection.select_components(inference, input)
 
     assert len(result) == 2
     ids = []

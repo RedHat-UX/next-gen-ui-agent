@@ -38,8 +38,8 @@ def get_ui_components_description(unsupported_components: bool) -> str:
 logger = logging.getLogger(__name__)
 
 
-class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
-    """Component selection strategy using one LLM call for both component selection and configuration."""
+class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
+    """Component selection strategy using two LLM call, one for component selection and one for its configuration."""
 
     def __init__(self, unsupported_components: bool):
         self.unsupported_components = unsupported_components
