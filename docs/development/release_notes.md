@@ -1,10 +1,10 @@
-# Relase Notes
+# Release Notes
 
 ---
 
-## Relase Notes - Version 0.1.0
+## Release Notes - Version 0.1.0
 
-This release lays the foundational groundwork for a powerful AI-driven UI agent, focusing on establishing core functionalities for component rendering, data transformation, and robust evaluation mechanisms. We've introduced support for multiple Python versions, integrated with Red Hat Design System (RHDS) for enhanced UI consistency, and provided a developer console for improved testing and debugging.
+This initial release establishes the foundation for Next Gen UI, a powerful AI-driven UI agent. It introduces core capablities including component rendering, data transformation, and robust evaluation mechanisms. We've introduced support for multiple Python versions, integrated with Red Hat Design System (RHDS) for enhanced UI consistency, and provided a developer console for improved testing and debugging.
 
 ### Key Features and Benefits
 
