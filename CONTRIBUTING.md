@@ -114,17 +114,33 @@ For more details see its [README.md](tests/ai_eval_components/README.md).
 Version is managed by commitizen and stored in [cz.toml](./cz.toml) and tagged in git.
 All libraries has the same version.
 
-### Bump version
+### Check version & changelog
 
 Dry Run first and check output (changelog, version bump):
 ```sh
-cz changelog --dry-run --unreleased-version="1.0.0"
+cz changelog --dry-run --unreleased-version="0.1.0"
 cz bump --dry-run
 # or with verion
 cz bump 0.1.0 --dry-run
 ```
 
-Perform version bump (release)
+### Generate release notes
+
+Take changelog and genereate a Release Notes by [Google Gemini](https://gemini.google.com/) with following prompt and pasted changelog:
+
+```
+Create release notes that clearly document:
+ - A high-level overview of the release.
+ - Key features and benefits.
+ - Known issues or limitations.
+
+The changelog for this release is following:
+<CHANGELOG.TXT - only particular version>
+```
+
+Review generated release notes and add it into [docs/development/release_notes.md](./docs/development/release_notes.md) and push it to main branch.
+
+### Perform version bump (release)
 
 ```sh
 cz bump 0.1.0
