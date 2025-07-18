@@ -1,0 +1,94 @@
+Date: 2025-07-22
+Components: all with vague component type check
+LLM: granite 3.3 8B
+Env: velias ThinkPad P16v (ollama accelerated on AMD GPU)
+
+Note: one step LLM inference (component selection and configuration together) with updated components description in system prompt based on two-step implementation
+      video-player evals failed 13x with `4444444444444444444` responses which seems like some glich in ollama and would not be an error under normal circumstances
+      
+Dataset items evalueated: 171
+Agent errors: 33
+Agent warnings: 3
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 15,
+    "num_err_system": 0,
+    "num_warn_agent": 2
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 5,
+    "num_err_system": 0,
+    "num_warn_agent": 1
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 13,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 6807,
+  "mean": 11325,
+  "avg": 11325,
+  "perc95": 18202,
+  "max": 20782
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 8905,
+    "mean": 9806,
+    "avg": 9806,
+    "perc95": 10556,
+    "max": 13503
+  },
+  "one-card": {
+    "min": 8212,
+    "mean": 12402,
+    "avg": 12402,
+    "perc95": 18325,
+    "max": 19198
+  },
+  "set-of-cards": {
+    "min": 10255,
+    "mean": 12718,
+    "avg": 12718,
+    "perc95": 18010,
+    "max": 20782
+  },
+  "table": {
+    "min": 10473,
+    "mean": 13407,
+    "avg": 13407,
+    "perc95": 19562,
+    "max": 19693
+  },
+  "video-player": {
+    "min": 6807,
+    "mean": 9442,
+    "avg": 9442,
+    "perc95": 11764,
+    "max": 11951
+  }
+}

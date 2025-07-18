@@ -26,12 +26,12 @@ class DatasetRow(TypedDict):
 
 class DatasetRowAgentEvalResult:
     errors: list[ComponentDataValidationError]
-    llm_output: str
+    llm_output: list[str]
     data: ComponentDataBase | None
 
     def __init__(
         self,
-        llm_output: str,
+        llm_output: list[str],
         errors: list[ComponentDataValidationError],
         data: ComponentDataBase | None,
     ):

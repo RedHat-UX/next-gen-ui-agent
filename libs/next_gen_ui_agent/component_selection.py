@@ -12,19 +12,19 @@ from next_gen_ui_agent.types import (
 )
 from pydantic_core import from_json
 
-ui_components_description_all = """
-* table - component to visualize array of data items with size over 6. Better suitable for small number of shown fields with shorter values.
-* set-of-cards - component to visualize array of data items with size up to 6. Better suitable for high numbers of shown fields and for fields withlonger values.
-* one-card - component to visualize one data item.
-* video-player - component to play video from one item data. Field must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
-* image - component to show one image from one item data. Field must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
+ui_components_description_supported = """
+* one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
+* video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
+* image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
 """
 
-ui_components_description_supported = """
-* one-card - component to visualize one data item.
-* video-player - component to play video from one item data. Field must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
-* image - component to show one image from one item data. Field must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
-"""
+ui_components_description_all = (
+    ui_components_description_supported
+    + """
+* table - component to visualize array of objects with more than 6 items and small number of shown fields with short values.
+* set-of-cards - component to visualize array of objects with less than 6 items, or high number of shown fields and fields with long values.
+""".strip()
+)
 
 
 def get_ui_components_description(unsupported_components: bool) -> str:
@@ -39,9 +39,16 @@ logger = logging.getLogger(__name__)
 
 
 class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
-    """Component selection strategy using one LLM call for both component selection and configuration."""
+    """Component selection strategy using one LLM inference call for both component selection and configuration."""
 
     def __init__(self, unsupported_components: bool):
+        """
+        Component selection strategy using one LLM inference call for both component selection and configuration.
+
+        Args:
+            unsupported_components: if True, generate all UI components, otherwise generate only supported UI components
+            select_component_only: if True, only generate the component, it is not necesary to generate it's configuration
+        """
         self.unsupported_components = unsupported_components
 
     async def select_components(
@@ -59,12 +66,12 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
         return components
 
-    async def component_selection_inference(
+    async def perform_inference(
         self,
         user_prompt: str,
         inference: InferenceBase,
         input_data: InputData,
-    ) -> str:
+    ) -> list[str]:
         """Run Component Selection inference."""
 
         if logger.isEnabledFor(logging.DEBUG):
@@ -75,42 +82,41 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             # logger.debug(input_data)
 
         sys_msg_content = f"""You are helpful and advanced user interface design assistant. Based on the "User query" and JSON formatted "Data", select the best UI component to visualize the "Data" to the user.
-    Generate response in the JSON format only. Select one component only into "component".
-    Provide the title for the component in "title".
-    Provide reason for the component selection in the "reasonForTheComponentSelection".
-    Provide your confidence for the component selection as a percentage in the "confidenceScore".
-    Provide list of "fields" to be visualized in the UI component. Select only relevant data fields to be presented in the component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for in User query.
-    If the selected UI component requires specific fields mentioned in its description, provide them. Provide "name" for every field.
-    For every field provide "data_path" containing path to get the value from the data. Do not use any formatting or calculations in the "data_path".
+Generate response in the JSON format only. Select one component only into "component".
+Provide the title for the component in "title".
+Provide reason for the component selection in the "reasonForTheComponentSelection".
+Provide your confidence for the component selection as a percentage in the "confidenceScore".
+Provide list of "fields" to be visualized in the UI component. Select only relevant data fields to be presented in the component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for in User query.
+If the selected UI component requires specific fields mentioned in its description, provide them. Provide "name" for every field.
+For every field provide "data_path" containing JSONPath to get the value from the Data. Do not use any formatting or calculation in the "data_path".
 
-    Select one from there UI components: {get_ui_components_description(self.unsupported_components)}
+Select one from there UI components: {get_ui_components_description(self.unsupported_components)}
     """
 
         sys_msg_content += """
-    Response example for multi-item data:
-    {
-        "title": "Orders",
-        "reasonForTheComponentSelection": "More than 6 items in the data",
-        "confidenceScore": "82%",
-        "component": "table",
-        "fields" : [
-            {"name":"Name","data_path":"orders[*].name"},
-            {"name":"Creation Date","data_path":"orders[*].creationDate"}
-        ]
-    }
+Response example for multi-item data:
+{
+    "title": "Orders",
+    "reasonForTheComponentSelection": "More than 6 items in the data",
+    "confidenceScore": "82%",
+    "component": "table",
+    "fields" : [
+        {"name":"Name","data_path":"orders[*].name"},
+        {"name":"Creation Date","data_path":"orders[*].creationDate"}
+    ]
+}
 
-    Response example for one item data:
-    {
-        "title": "Order CA565",
-        "reasonForTheComponentSelection": "One item available in the data",
-        "confidenceScore": "35%",
-        "component": "one-card",
-        "fields" : [
-            {"name":"Name","data_path":"order.name"},
-            {"name":"Creation Date","data_path":"order.creationDate"}
-        ]
-    }
-    """
+Response example for one-item data:
+{
+    "title": "Order CA565",
+    "reasonForTheComponentSelection": "One item available in the data",
+    "confidenceScore": "75%",
+    "component": "one-card",
+    "fields" : [
+        {"name":"Name","data_path":"order.name"},
+        {"name":"Creation Date","data_path":"order.creationDate"}
+    ]
+}"""
 
         # we have to parse JSON data to reduce arrays
         json_data = json.loads(input_data["data"])
@@ -129,7 +135,20 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         response = await inference.call_model(sys_msg_content, prompt)
         logger.debug("Component metadata LLM response: %s", response)
 
-        return response
+        return [response]
+
+    def parse_infernce_output(
+        self, inference_output: list[str], input_data: InputData
+    ) -> UIComponentMetadata:
+        """Parse inference output and return UIComponentMetadata or throw exception if inference output is invalid."""
+
+        # allow values coercing by `strict=False`
+        # allow partial json parsing by `allow_partial=True`, validation will fail on missing fields then. See https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
+        result: UIComponentMetadata = UIComponentMetadata.model_validate(
+            from_json(inference_output[0], allow_partial=True), strict=False
+        )
+        result.id = input_data["id"]
+        return result
 
     async def component_selection_run(
         self,
@@ -141,18 +160,12 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
         logger.debug("---CALL component_selection_run--- id: %s", {input_data["id"]})
 
-        response = await self.component_selection_inference(
+        inference_output = await self.perform_inference(
             user_prompt, inference, input_data
         )
 
         try:
-            # allow values coercing by `strict=False`
-            # allow partial json parsing by `allow_partial=True`, validation will fail on missing fields then. See https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
-            result: UIComponentMetadata = UIComponentMetadata.model_validate(
-                from_json(response, allow_partial=True), strict=False
-            )
-            result.id = input_data["id"]
-            return result
+            return self.parse_infernce_output(inference_output, input_data)
         except Exception as e:
             logger.exception("Cannot decode the json from LLM response")
             raise e

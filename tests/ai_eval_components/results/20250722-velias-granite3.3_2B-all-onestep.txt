@@ -1,0 +1,93 @@
+Date: 2025-07-22
+Components: all
+LLM: granite 3.3 2B
+Env: velias ThinkPad P16v (ollama accelerated on AMD GPU)
+
+Note: one step LLM inference (component selection and configuration together) with updated components description in system prompt based on two-step implementation
+
+Dataset items evalueated: 171
+Agent errors: 39
+Agent warnings: 14
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 1,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 17,
+    "num_err_system": 0,
+    "num_warn_agent": 3
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 16,
+    "num_err_system": 0,
+    "num_warn_agent": 4
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 5,
+    "num_err_system": 0,
+    "num_warn_agent": 7
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 2895,
+  "mean": 4632,
+  "avg": 4632,
+  "perc95": 8676,
+  "max": 9623
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 3188,
+    "mean": 3572,
+    "avg": 3572,
+    "perc95": 3891,
+    "max": 5980
+  },
+  "one-card": {
+    "min": 2895,
+    "mean": 4955,
+    "avg": 4955,
+    "perc95": 7400,
+    "max": 9010
+  },
+  "set-of-cards": {
+    "min": 3661,
+    "mean": 5880,
+    "avg": 5880,
+    "perc95": 9576,
+    "max": 9623
+  },
+  "table": {
+    "min": 3661,
+    "mean": 6366,
+    "avg": 6366,
+    "perc95": 8947,
+    "max": 9346
+  },
+  "video-player": {
+    "min": 3270,
+    "mean": 3629,
+    "avg": 3629,
+    "perc95": 4025,
+    "max": 4100
+  }
+}

@@ -13,6 +13,13 @@ from next_gen_ui_agent.data_transform.validation.types import (
 )
 from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
 
+""" List of components fully supported by the agent """
+SUPPORTED_COMPONENTS = [
+    OneCardDataTransformer.COMPONENT_NAME,
+    ImageDataTransformer.COMPONENT_NAME,
+    VideoPlayerDataTransformer.COMPONENT_NAME,
+]
+
 
 def load_args():
     """Load commandline arguments for the eval tool"""
@@ -21,7 +28,8 @@ def load_args():
     arg_write_llm_output = False
     arg_vague_component_check = False
     arg_also_warn_only = False
-    opts, args = getopt.getopt(sys.argv[1:], "hwvoc:f:")
+    arg_selected_component_type_check_only = False
+    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:")
     for opt, arg in opts:
         if opt == "-h":
             print("eval.py <arguments>")
@@ -35,6 +43,9 @@ def load_args():
                 " -w - if present then LLM outputs with successful checks are written into files in 'llm_out' directory"
             )
             print(
+                " -s - if present then only selected component type is checked, not it's configuration - usefull for component selection development/tuning"
+            )
+            print(
                 " -v - if present then component type check is vague, allowing `table` and `set-of-cards` components to be interchanged"
             )
             print(" -h - help")
@@ -45,6 +56,8 @@ def load_args():
             arg_write_llm_output = True
         elif opt in ("-o"):
             arg_also_warn_only = True
+        elif opt in ("-s"):
+            arg_selected_component_type_check_only = True
         elif opt in ("-v"):
             arg_vague_component_check = True
         elif opt in ("-f"):
@@ -61,34 +74,41 @@ def load_args():
         arg_dataset_file,
         arg_vague_component_check,
         arg_also_warn_only,
+        arg_selected_component_type_check_only,
     )
 
 
 def select_run_components(arg_ui_component, arg_dataset_file):
     """Select UI components to run for based on configuration"""
+
     run_components = None
+    unsupported_components = False
     if arg_ui_component:
         if arg_ui_component != "all":
             run_components = [arg_ui_component]
+            unsupported_components = arg_ui_component not in SUPPORTED_COMPONENTS
             print(f"Running evaluations for defined UI component {run_components} ...")
         else:
+            # this is true until there are any unsupported components inthe dataset
+            unsupported_components = True
             print(
                 "Running evaluations for all UI components present in the dataset ..."
             )
     elif arg_dataset_file:
+        # unsupported_components kept false, evaluated during eval for compoennts in the dataset file
         print(
             f"Running evaluations for all UI components from the dataset file '{arg_dataset_file}' ..."
         )
     else:
-        run_components = [
-            OneCardDataTransformer.COMPONENT_NAME,
-            ImageDataTransformer.COMPONENT_NAME,
-            VideoPlayerDataTransformer.COMPONENT_NAME,
-        ]
+        run_components = SUPPORTED_COMPONENTS
         print(
             f"Running evaluations for all supported/implemented UI components {run_components} ..."
         )
-    return run_components
+
+    if unsupported_components:
+        print("UI Agent switched to 'all UI components' mode")
+
+    return run_components, unsupported_components
 
 
 def validate_dataset_row(dsr: DatasetRow):

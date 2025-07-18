@@ -2,7 +2,8 @@
 ## https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/ollama.html#via-docker
 
 #export OLLAMA_MODEL=llama3.2:latest
-export OLLAMA_MODEL=granite3.2:2b
+export OLLAMA_MODEL=granite3.3:2b
+#export OLLAMA_MODEL=granite3.3:8b
 
 export LLAMASTACK_VERSION=0.1.9
 #export LLAMASTACK_VERSION=latest
