@@ -17,6 +17,7 @@ from ai_eval_components.eval_reporting import (
     report_success,
 )
 from ai_eval_components.eval_utils import (
+    SUPPORTED_COMPONENTS,
     get_dataset_files,
     load_args,
     load_dataset_file,
@@ -33,6 +34,9 @@ from next_gen_ui_agent import InputData
 from next_gen_ui_agent.component_selection import (
     OnestepLLMCallComponentSelectionStrategy,
 )
+from next_gen_ui_agent.component_selection_twostep import (
+    TwostepLLMCallComponentSelectionStrategy,
+)
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
 from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
@@ -45,17 +49,22 @@ from next_gen_ui_agent.data_transform.validation.types import (
 )
 from next_gen_ui_agent.data_transformation import get_data_transformer
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.types import ComponentSelectionStrategy, UIComponentMetadata
 from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAgentInference
-from pydantic_core import from_json
 
 # allows to print system error traces to the stderr
 PRINT_SYS_ERR_TRACE = True
 
 # INFERENCE_MODEL_DEFAULT = "llama3.2:latest"
-INFERENCE_MODEL_DEFAULT = "granite3.2:2b"
+# INFERENCE_MODEL_DEFAULT = "granite3.2:2b"
+INFERENCE_MODEL_DEFAULT = "granite3.3:2b"
+# INFERENCE_MODEL_DEFAULT = "granite3.3:8b"
+
 LLAMA_STACK_HOST_DEFAULT = "localhost"
 LLAMA_STACK_PORT_DEFAULT = "5001"
+
+TWO_STEP_COMPONENT_SELECTION = False
+""" Allows to switch between one and two step component selection process """
 
 
 def init_inference() -> InferenceBase:
@@ -78,6 +87,7 @@ def check_result_explicit(
     errors: list[ComponentDataValidationError],
     dsr: DatasetRow,
     arg_vague_component_check: bool,
+    arg_selected_component_type_check_only: bool = False,
 ):
     """
     Perform explicit checks on the LLM generated component JSON
@@ -113,14 +123,16 @@ def check_result_explicit(
                     f"{generated_component} instead of {ds_expected_component}",
                 )
             )
+    if not arg_selected_component_type_check_only:
+        if assert_array_not_empty(componentDict, "fields", "fields.empty", errors):
+            for i, field in enumerate(component.fields):
+                fn = f"fields[{i}]."
+                fieldDict = field.model_dump()
+                assert_str_not_blank(fieldDict, "name", fn + "name.empty", errors)
 
-    if assert_array_not_empty(componentDict, "fields", "fields.empty", errors):
-        for i, field in enumerate(component.fields):
-            fn = f"fields[{i}]."
-            fieldDict = field.model_dump()
-            assert_str_not_blank(fieldDict, "name", fn + "name.empty", errors)
-
-            assert_str_not_blank(fieldDict, "data_path", fn + "data_path.empty", errors)
+                assert_str_not_blank(
+                    fieldDict, "data_path", fn + "data_path.empty", errors
+                )
 
 
 def evaluate_agent_for_dataset_row(
@@ -128,29 +140,32 @@ def evaluate_agent_for_dataset_row(
     inference: InferenceBase,
     arg_vague_component_check: bool,
     unsupported_components: bool = False,
+    arg_selected_component_type_check_only: bool = False,
 ):
     """Run agent evaluation for one dataset row"""
     errors: list[ComponentDataValidationError] = []
     input_data = InputData(id="myid", data=dsr["backend_data"])
 
-    component_selection = OnestepLLMCallComponentSelectionStrategy(
-        unsupported_components
-    )
+    component_selection: ComponentSelectionStrategy
+    if not TWO_STEP_COMPONENT_SELECTION:
+        component_selection = OnestepLLMCallComponentSelectionStrategy(
+            unsupported_components
+        )
+    else:
+        component_selection = TwostepLLMCallComponentSelectionStrategy(
+            unsupported_components, arg_selected_component_type_check_only
+        )
 
     # separate steps so we can see LLM response even if it is invalid JSON
     time_start = round(time.time() * 1000)
     llm_response = asyncio.run(
-        component_selection.component_selection_inference(
-            dsr["user_prompt"], inference, input_data
-        )
+        component_selection.perform_inference(dsr["user_prompt"], inference, input_data)
     )
     report_perf_stats(time_start, round(time.time() * 1000), dsr["expected_component"])
 
     component: UIComponentMetadata | None = None
     try:
-        component = UIComponentMetadata.model_validate(
-            from_json(llm_response, allow_partial=False), strict=False
-        )
+        component = component_selection.parse_infernce_output(llm_response, input_data)
     except Exception as e:
         errors.append(
             ComponentDataValidationError(
@@ -165,17 +180,21 @@ def evaluate_agent_for_dataset_row(
         # any exception from this code is "SYS" error
         component.id = input_data["id"]
 
-        check_result_explicit(component, errors, dsr, arg_vague_component_check)
+        check_result_explicit(
+            component,
+            errors,
+            dsr,
+            arg_vague_component_check,
+            arg_selected_component_type_check_only,
+        )
 
-        # if not any error so far, validate the component data_paths and overal structure of data for given component
-        if len(errors) == 0:
-            data_transformer = get_data_transformer(component.component)
-            data = data_transformer.validate(component, input_data, errors)
+        if not arg_selected_component_type_check_only:
+            # if not any error so far, validate the component data_paths and overal structure of data for given component
+            if len(errors) == 0:
+                data_transformer = get_data_transformer(component.component)
+                data = data_transformer.validate(component, input_data, errors)
 
-        # TODO NGUI-116 LLM-as-a-judge AI check to evaluate if fields are relevant to the user prompt and data
-
-        # return JSON with the data so we can check them
-        llm_response = component.model_dump_json()
+            # TODO NGUI-116 LLM-as-a-judge AI check to evaluate if fields are relevant to the user prompt and data
 
     return DatasetRowAgentEvalResult(llm_response, errors, data)
 
@@ -187,13 +206,16 @@ if __name__ == "__main__":
         arg_dataset_file,
         arg_vague_component_check,
         arg_also_warn_only,
+        arg_selected_component_type_check_only,
     ) = load_args()
     errors_dir_path = get_errors_dir()
     llm_output_dir_path = get_llm_output_dir(arg_write_llm_output)
     dataset_files = get_dataset_files(arg_dataset_file)
     inference = init_inference()
 
-    run_components = select_run_components(arg_ui_component, arg_dataset_file)
+    run_components, unsupported_components = select_run_components(
+        arg_ui_component, arg_dataset_file
+    )
 
     for dataset_file in dataset_files:
         dataset = load_dataset_file(dataset_file)
@@ -230,9 +252,22 @@ if __name__ == "__main__":
                             f_err, ds_errors, dsr, is_progress_dot
                         )
                     else:
-                        # TODO EVAL automatically set unsupported_components to True to test unsupported components if any is requested for evaluation
+                        # automatically switch to unsupported_components mode if any found in the dataset
+                        if not unsupported_components:
+                            unsupported_components = (
+                                dsr["expected_component"] not in SUPPORTED_COMPONENTS
+                            )
+                            if unsupported_components:
+                                print(
+                                    "\nUI Agent switched to 'all UI components' mode as unsupported one was found in the dataset file\n"
+                                )
+
                         eval_result = evaluate_agent_for_dataset_row(
-                            dsr, inference, arg_vague_component_check
+                            dsr,
+                            inference,
+                            arg_vague_component_check,
+                            unsupported_components,
+                            arg_selected_component_type_check_only,
                         )
                         if len(eval_result.errors) > 0:
                             is_progress_dot = report_err_uiagent(

@@ -41,10 +41,16 @@ def report_success(
         f_out.write(f"==== DATASET ID {id} ====\n")
         f_out.write("Prompt:\n")
         f_out.write(dsr["user_prompt"])
-        f_out.write("\nLLM output:\n")
-        json.dump(
-            json.loads(eval_result.llm_output), f_out, indent=2, separators=(",", ": ")
-        )
+        f_out.write("\nLLM outputs:\n")
+        for llm_output in eval_result.llm_output:
+            try:
+                json.dump(
+                    json.loads(llm_output), f_out, indent=2, separators=(",", ": ")
+                )
+                f_out.write("\n")
+            except Exception:
+                # write LLM output even if it is an invalid JSON
+                f_out.write(llm_output + "\n")
         if eval_result.data:
             f_out.write(
                 "\nComponent data:\n" + eval_result.data.model_dump_json(indent=2)
@@ -110,14 +116,14 @@ def report_err_uiagent(
     )
     f_err.write("\nPrompt:\n")
     f_err.write(dsr["user_prompt"])
-    f_err.write("\nLLM output:\n")
-    try:
-        json.dump(
-            json.loads(eval_result.llm_output), f_err, indent=2, separators=(",", ": ")
-        )
-    except Exception:
-        # write LLM output even if it is an invalid JSON
-        f_err.write(eval_result.llm_output)
+    f_err.write("\nLLM outputs:\n")
+    for llm_output in eval_result.llm_output:
+        try:
+            json.dump(json.loads(llm_output), f_err, indent=2, separators=(",", ": "))
+            f_err.write("\n")
+        except Exception:
+            # write LLM output even if it is an invalid JSON
+            f_err.write(llm_output + "\n")
     if eval_result.data:
         f_err.write("\nComponent data:\n" + eval_result.data.model_dump_json(indent=2))
     if "src" in dsr and "data_file" in dsr["src"]:

@@ -13,10 +13,6 @@ Evaluation code accepts these environment variables:
 * `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 * `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
 
-Also these NextGen UI agent env variables can be used:
-* `NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS` - by default, agent can select only fully implemented/supported UI components. You 
-can set this env variable to `true` to allow it to also select other components which are not fully implemented/supported yet.
-
 ## Run Evaluation
 
 ```sh
@@ -28,6 +24,7 @@ You can use these commandline argument:
 * `-f <dataset-file-name>` to run only evaluations from the named dataset file (for any UI component present in the file)
 * `-o` to also evaluate `warn_only` dataset items
 * `-w` to write Agent ouputs (LLM and Component data) with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
+* `-s` evaluate only selected component type, not it's configuration - usefull for component selection development/tuning
 * `-v` to enable vague component type check, allowing `table` and `set-of-cards` components to be interchanged
 * `-h` to get help
 
@@ -36,7 +33,9 @@ pants run tests/ai_eval_components/eval.py -- -c one-card
 ```
 
 If no `-c` nor `-f` argument is used, evaluation runs only for fully implemented/supported UI components. 
-If you want to run evaluation for not supported one, you also have to use `NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS` env variable as described above!
+If args are used, evaluation script automatically switches UI Agent to the mode with all UI components if necessary, 
+message `UI Agent switched to 'all UI components' mode` is provided in this case.
+
 
 During the run, basic info about running process and errors is written to the console. At the end, aggregated results 
 are provided, together with basic AI inference performance statistics.

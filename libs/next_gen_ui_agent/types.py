@@ -15,7 +15,7 @@ class AgentConfig(TypedDict):
     """Component system to use to render the component."""
     unsupported_components: NotRequired[bool]
     """
-    If `False` (default), the agent can generate only supported UI components.
+    If `False` (default), the agent can generate only fully supported UI components.
     If `True`, the agent can also generate unsupported UI components.
     """
     component_selection_strategy: NotRequired[str]
@@ -73,11 +73,28 @@ class Rendition(BaseModel):
 
 
 class ComponentSelectionStrategy(ABC):
-    """Abstract base class for component selection strategies."""
+    """Abstract base class for LLM-based component selection and configuration strategies."""
 
     @abstractmethod
     async def select_components(
         self, inference: InferenceBase, input: AgentInput
     ) -> list[UIComponentMetadata]:
         """Select UI components based on input data and user prompt."""
+        pass
+
+    @abstractmethod
+    async def perform_inference(
+        self,
+        user_prompt: str,
+        inference: InferenceBase,
+        input_data: InputData,
+    ) -> list[str]:
+        """Perform inference to select UI components and configure them. Multiple LLM calls can be performed and inference results can be returned as a list of strings."""
+        pass
+
+    @abstractmethod
+    def parse_infernce_output(
+        self, inference_output: list[str], input_data: InputData
+    ) -> UIComponentMetadata:
+        """Parse LLM inference outputs from `perform_inference` and return UIComponentMetadata or throw exception if it can't be constructed because of invalid LLM outputs."""
         pass

@@ -17,6 +17,14 @@ def report_perf_stats(time_start: int, time_end: int, component: str):
 
 def compute_perf_status(times: list[int]):
     """Compute performance stats from array of runtime times"""
+    if len(times) == 0:
+        return {
+            "min": 0,
+            "mean": 0,
+            "avg": 0,
+            "perc95": 0,
+            "max": 0,
+        }
     sd = np.array(times)
     ret = {
         "min": round(np.min(sd)),
