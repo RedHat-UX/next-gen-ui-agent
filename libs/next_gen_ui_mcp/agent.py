@@ -22,7 +22,7 @@ class NextGenUIMCPAgent:
     ):
         self.ngui_agent = NextGenUIAgent(AgentConfig(inference=inference))
         self.component_system = component_system
-        self.mcp = FastMCP(name)
+        self.mcp: FastMCP = FastMCP(name)
         self._setup_mcp_tools()
 
     def _setup_mcp_tools(self):
@@ -115,13 +115,13 @@ class NextGenUIMCPAgent:
             """
             return f"""
             Generate appropriate UI components for the following request:
-            
+
             User Request: {user_request}
-            
+
             Please provide input data in the following format:
             - id: unique identifier for the data item
             - data: the actual data content (JSON string)
-            
+
             The system will automatically select and render the most appropriate UI components.
             """
 
