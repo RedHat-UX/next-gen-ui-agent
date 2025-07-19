@@ -12,7 +12,6 @@ python_tests(
     dependencies=[
         "libs/next_gen_ui_agent:lib",
         "libs/next_gen_ui_beeai:lib",
-        "libs/next_gen_ui_llama_stack:lib",
         "libs/next_gen_ui_testing:tests",
         "libs/3rdparty/python:pytest",
     ],

@@ -1,4 +1,6 @@
+import asyncio
 import json
+import logging
 
 import pytest
 from fastmcp import Client
@@ -8,9 +10,11 @@ from next_gen_ui_mcp.agent import NextGenUIMCPAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedInference
 
+logger = logging.getLogger(__name__)
+
 
 @pytest.mark.asyncio
-async def test_mcp_agent_generate_ui():
+async def test_mcp_agent_generate_ui() -> None:
     """Test the MCP agent's main generate_ui tool."""
     # Setup mocked component
     mocked_component: UIComponentMetadata = UIComponentMetadata.model_validate(
@@ -63,10 +67,11 @@ async def test_mcp_agent_generate_ui():
         assert len(components) > 0
         assert components[0]["name"] == "rendering"
         assert '"data":[1995]' in str(components[0]["content"])
+        logger.info("Result: %s", text_content)
 
 
 @pytest.mark.asyncio
-async def test_mcp_agent_system_info_resource():
+async def test_mcp_agent_system_info_resource() -> None:
     """Test the MCP agent's system info resource."""
     # Create agent with mocked inference
     mocked_component: UIComponentMetadata = UIComponentMetadata.model_validate(
@@ -106,7 +111,7 @@ async def test_mcp_agent_system_info_resource():
 
 
 @pytest.mark.asyncio
-async def test_mcp_agent_ui_generation_prompt():
+async def test_mcp_agent_ui_generation_prompt() -> None:
     """Test the MCP agent's UI generation prompt."""
     # Create agent with mocked inference
     mocked_component: UIComponentMetadata = UIComponentMetadata.model_validate(
@@ -142,3 +147,9 @@ async def test_mcp_agent_ui_generation_prompt():
         assert "Show me movie details" in prompt_content
         assert "Generate appropriate UI components" in prompt_content
         assert "input data" in prompt_content.lower()
+
+
+if __name__ == "__main__":
+    logging.basicConfig()
+    logging.getLogger().setLevel(logging.INFO)
+    asyncio.run(test_mcp_agent_generate_ui())
