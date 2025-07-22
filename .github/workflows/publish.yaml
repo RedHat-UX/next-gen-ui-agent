@@ -27,7 +27,7 @@ jobs:
           cache-lmdb-store: 'true'  # defaults to 'false'
       - name: Package / Run
         env:
-          VERSION: ${GITHUB_REF##*/}
+          VERSION: ${{github.ref_name}}
         run: |
           echo $VERSION
           pants package ::

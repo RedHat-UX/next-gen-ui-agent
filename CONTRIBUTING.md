@@ -144,6 +144,7 @@ Review generated release notes and add it into [docs/development/release_notes.m
 
 ```sh
 cz bump 0.1.0
+git push
 git push --tags
 ```
 
