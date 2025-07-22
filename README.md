@@ -109,7 +109,7 @@ Protocols provides standardization between client and agent and provides TypeScr
 ## UI Frameworks
 
 1. [React/PatternFly](./libs_js/next_gen_ui_react/) - WIP
-2. [Hat Design System System](./libs/next_gen_ui_rhds_renderer/) - Server-side web component rendering
+2. [Red Hat Design System System](./libs/next_gen_ui_rhds_renderer/) - Server-side web component rendering
 3. Text - TBD
 
 ## Contributing
