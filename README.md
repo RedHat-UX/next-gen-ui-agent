@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
     print(f"\n\n===Next Gen UI {component_system} Rendition===\n", ngui_response["renditions"][0].content)
 ```
-Note: Full python file is stored in [libs/next_gen_ui_langgraph/readme_example.py](libs/next_gen_ui_langgraph/readme_example.py).
+Note: Full python file is stored in [libs/next_gen_ui_langgraph/readme_example.py](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/next_gen_ui_langgraph/readme_example.py).
 
 Running this assistant with user's questions `Play Toy Story movie trailer` generates following output of movies agent:
 
@@ -95,7 +95,7 @@ For seamless integration with your AI application following frameworks are suppo
 3. [BeeAI Framework](./libs/next_gen_ui_beeai/) - WIP
 
 Missing framework?
-[Create an issue](https://issues.redhat.com/projects/NGUI/issues) please.
+[Create an github issue](https://github.com/RedHat-UX/next-gen-ui-agent/issues) please.
 
 
 ## AI/UI Protocols
