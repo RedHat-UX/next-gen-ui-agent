@@ -58,7 +58,7 @@ jobs:
           cache: 'pip'
           cache-dependency-path: |
               requirements_dev.txt
-      - name: Publish to Test PyPI
+      - name: Publish to PROD PyPI
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN_PROD }}
