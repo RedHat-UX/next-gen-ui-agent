@@ -158,7 +158,8 @@ To perform actual release bump the version (see above).
 
 ## Documentation
 
-Install [MkDocs Material](https://squidfunk.github.io/mkdocs-material/)
+Install [MkDocs Material](https://squidfunk.github.io/mkdocs-material/).
+This should be already done as installed from `requirements_dev.txt`.
 
 ```sh
 pip install mkdocs-material
@@ -178,3 +179,7 @@ and contribute in `docs` directory.
 ```sh
 mkdocs build
 ```
+
+### Publish documentation
+
+Documentation is automatically published to Github Pages on every commit / PR merge to `main` branch.
