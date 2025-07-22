@@ -1,0 +1,52 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  build:
+    name: "Build Site"
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+          cache: 'pip'
+          cache-dependency-path: |
+              requirements_dev.txt
+      - name: Build site
+        run: |
+          python3 -m pip install mkdocs-material mkdocs-include-markdown-plugin
+          mkdocs build
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site/
+
+  # Deploy job
+  deploy:
+    name: "Deploy Site"
+
+    permissions:
+      pages: write
+      id-token: write
+
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Add a dependency to the build job
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
