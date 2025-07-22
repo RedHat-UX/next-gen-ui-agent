@@ -1,5 +1,5 @@
 [tool.commitizen]
-version = "0.0.1"
+version = "0.1.0"
 update_changelog_on_bump = true
 version_files = ["cz.toml"]
 
