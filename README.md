@@ -90,9 +90,9 @@ and Next Gen UI json rendering:
 
 For seamless integration with your AI application following frameworks are supported. 
 
-1. [LangGraph](./libs/next_gen_ui_langgraph/)
-2. [Llama-stack](./libs/next_gen_ui_llama_stack/)
-3. [BeeAI Framework](./libs/next_gen_ui_beeai/) - WIP
+1. [LangGraph](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_langgraph/)
+2. [Llama-stack](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack/)
+3. [BeeAI Framework](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_beeai/) - WIP
 
 Missing framework?
 [Create an github issue](https://github.com/RedHat-UX/next-gen-ui-agent/issues) please.
@@ -102,16 +102,16 @@ Missing framework?
 
 Protocols provides standardization between client and agent and provides TypeScript / Python interoperability.
 
-1. [ACP](./libs/next_gen_ui_acp/) - WIP
+1. [ACP](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_acp/) - WIP
 2. A2A - TBD
 
 
 ## UI Frameworks
 
-1. [React/PatternFly](./libs_js/next_gen_ui_react/) - WIP
-2. [Red Hat Design System System](./libs/next_gen_ui_rhds_renderer/) - Server-side web component rendering
+1. [React/PatternFly](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs_js/next_gen_ui_react/) - WIP
+2. [Red Hat Design System System](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_rhds_renderer/) - Server-side web component rendering
 3. Text - TBD
 
 ## Contributing
 
-Follow the [CONTRIBUTING.md](./CONTRIBUTING.md)
+Follow the [CONTRIBUTING.md](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/CONTRIBUTING.md)
