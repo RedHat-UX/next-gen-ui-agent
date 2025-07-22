@@ -43,7 +43,7 @@ if __name__ == "__main__":
     movies_response = movies_agent.invoke(
         {"messages": [{"role": "user", "content": "Play Toy Story movie trailer"}]}
     )
-    print("\n\n===Movies Text Answer===\n", movies_response["messages"][-1].content)
+    print("===Movies Text Answer===", movies_response["messages"][-1].content)
 
     # Run NGUI Agent to get UI component as JSON for client-side rendering
     ngui_response = asyncio.run(
@@ -51,9 +51,9 @@ if __name__ == "__main__":
         ngui_agent.ainvoke(movies_response, ngui_cfg),
     )
 
-    print(f"\n\n===Next Gen UI {component_system} Rendition===\n", ngui_response["renditions"][0].content)
+    print(f"===Next Gen UI {component_system} Rendition===", ngui_response["renditions"][0].content)
 ```
-Note: Full python file is stored in [libs/next_gen_ui_langgraph/readme_example.py](libs/next_gen_ui_langgraph/readme_example.py).
+Note: Full python file is stored in [libs/next_gen_ui_langgraph/readme_example.py](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/next_gen_ui_langgraph/readme_example.py).
 
 Running this assistant with user's questions `Play Toy Story movie trailer` generates following output of movies agent:
 
@@ -90,28 +90,28 @@ and Next Gen UI json rendering:
 
 For seamless integration with your AI application following frameworks are supported. 
 
-1. [LangGraph](./libs/next_gen_ui_langgraph/)
-2. [Llama-stack](./libs/next_gen_ui_llama_stack/)
-3. [BeeAI Framework](./libs/next_gen_ui_beeai/) - WIP
+1. [LangGraph](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_langgraph/)
+2. [Llama-stack](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack/)
+3. [BeeAI Framework](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_beeai/) - WIP
 
 Missing framework?
-[Create an issue](https://issues.redhat.com/projects/NGUI/issues) please.
+[Create an github issue](https://github.com/RedHat-UX/next-gen-ui-agent/issues) please.
 
 
 ## AI/UI Protocols
 
 Protocols provides standardization between client and agent and provides TypeScript / Python interoperability.
 
-1. [ACP](./libs/next_gen_ui_acp/) - WIP
+1. [ACP](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_acp/) - WIP
 2. A2A - TBD
 
 
 ## UI Frameworks
 
-1. [React/PatternFly](./libs_js/next_gen_ui_react/) - WIP
-2. [Hat Design System System](./libs/next_gen_ui_rhds_renderer/) - Server-side web component rendering
+1. [React/PatternFly](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs_js/next_gen_ui_react/) - WIP
+2. [Red Hat Design System System](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_rhds_renderer/) - Server-side web component rendering
 3. Text - TBD
 
 ## Contributing
 
-Follow the [CONTRIBUTING.md](./CONTRIBUTING.md)
+Follow the [CONTRIBUTING.md](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/CONTRIBUTING.md)

@@ -109,7 +109,7 @@ def run() -> None:
     movies_response = movies_agent.invoke(
         {"messages": [{"role": "user", "content": prompt}]}
     )
-    print("\n\n===Movies Text Answer===\n", movies_response["messages"][-1].content)
+    print("===Movies Text Answer===", movies_response["messages"][-1].content)
 
     # Run NGUI Agent to get UI component as JSON for client-side rendering
     ngui_response = asyncio.run(
@@ -117,10 +117,7 @@ def run() -> None:
         ngui_agent.ainvoke(movies_response, ngui_cfg),
     )
 
-    print(
-        f"\n\n===Next Gen UI {component_system} Rendition===\n",
-        ngui_response["renditions"][0].content,
-    )
+    print(f"===Next Gen UI {component_system} Rendition===", ngui_response["renditions"][0].content)
 
 
 if __name__ == "__main__":
