@@ -26,27 +26,29 @@ python_requirements(
 # Because this target has no source code, Pants cannot infer dependencies. We depend on `:lib`,
 #  which means we'll include all the non-test Python files in this directory, and any of
 #  their dependencies.
-python_distribution(
-    name="dist",
-    dependencies=[
-        ":lib",
-        ":reqs",
-    ],
-    provides=python_artifact(
-        name="next_gen_ui_beeai",
-        version=env("VERSION"),
-        license="Apache-2.0",
-        description="BeeAI Integration for Next Gen UI",
-        long_description_content_type="text/markdown",
-        classifiers=[
-            "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.11",
-            "Programming Language :: Python :: 3.12",
-            "Programming Language :: Python :: 3.13",
-            "License :: OSI Approved :: Apache Software License",
-        ],
-        url="https://github.com/RedHat-UX/next-gen-ui-agent",
-    ),
-    long_description_path="README.md",
-    generate_setup=True,
-)
+
+# POC !!! Do not publish distribution yet !!!
+# python_distribution(
+#     name="dist",
+#     dependencies=[
+#         ":lib",
+#         ":reqs",
+#     ],
+#     provides=python_artifact(
+#         name="next_gen_ui_beeai",
+#         version=env("VERSION"),
+#         license="Apache-2.0",
+#         description="BeeAI Integration for Next Gen UI",
+#         long_description_content_type="text/markdown",
+#         classifiers=[
+#             "Programming Language :: Python :: 3",
+#             "Programming Language :: Python :: 3.11",
+#             "Programming Language :: Python :: 3.12",
+#             "Programming Language :: Python :: 3.13",
+#             "License :: OSI Approved :: Apache Software License",
+#         ],
+#         url="https://github.com/RedHat-UX/next-gen-ui-agent",
+#     ),
+#     long_description_path="README.md",
+#     generate_setup=True,
+# )
