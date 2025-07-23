@@ -1,3 +1,11 @@
+## 0.1.1 (2025-07-23)
+
+### Feat
+
+- **[NGUI-256](https://issues.redhat.com/browse/NGUI-256)**: Add search plugin to docs [857ac](https://github.com//RedHat-UX/next-gen-ui-agent/commit/857acb0dcba7c817ccf47ab77177487d105d454c)
+- **[NGUI-255](https://issues.redhat.com/browse/NGUI-255)**: Add Changelog and spec and llama-stack to docs [62f4e](https://github.com//RedHat-UX/next-gen-ui-agent/commit/62f4ea03d9a17ccff3b9160e4212a4022d6ac1ed)
+- **[NGUI-241](https://issues.redhat.com/browse/NGUI-241)**: Publish docs to github pages [a89e7](https://github.com//RedHat-UX/next-gen-ui-agent/commit/a89e7208347863312501d046e0249d713227b82d)
+
 ## 0.1.0 (2025-07-22)
 
 ### Feat
