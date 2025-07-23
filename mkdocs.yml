@@ -64,12 +64,18 @@ nav:
       - installation.md
   - Guides:
     - Core concepts:
-      - user_guide/architecture.md
-      - user_guide/input_data.md
-      - user_guide/data_ui_blocks.md
+      - guide/architecture.md
+      - guide/input_data.md
+      - guide/data_ui_blocks.md
     - Development:
       - Contributing: development/contributing.md
-      - development/release_notes.md
+      - Llama Stack: development/llama_stack.md
+  - Reference:
+    - spec/component.md
+    - Changelog:
+      - changelog/index.md
+      - changelog/release_notes.md
+    
   - Examples:
     - example/langgraph_movies.md
     
