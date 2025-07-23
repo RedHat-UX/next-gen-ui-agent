@@ -5,6 +5,7 @@ repo_url: https://github.com/RedHat-UX/next-gen-ui-agent
 
 plugins:
   - include-markdown
+  - search
 
 theme:
   name: material
