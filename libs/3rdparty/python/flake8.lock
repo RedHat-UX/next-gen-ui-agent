@@ -6,7 +6,7 @@
 // {
 //   "version": 3,
 //   "valid_for_interpreter_constraints": [
-//     "CPython>=3.11"
+//     "CPython<3.14,>=3.11"
 //   ],
 //   "generated_with_requirements": [
 //     "flake8-logging"
@@ -139,7 +139,7 @@
     "flake8-logging"
   ],
   "requires_python": [
-    ">=3.11"
+    "<3.14,>=3.11"
   ],
   "resolver_version": "pip-2020-resolver",
   "style": "universal",

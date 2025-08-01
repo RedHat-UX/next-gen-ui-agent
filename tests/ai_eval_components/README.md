@@ -4,12 +4,19 @@ This module contains Dataset and code to generate the dataset and to run the UI 
 
 ## Setup Evaluation Environment
 
-Evaluation code requires running LlamaStack server. How to run local instance see [LLAMASTACK_DEV.md](../../LLAMASTACK_DEV.md).
+Evaluation code requires LlamaStack server. 
+
+Embedded LlamaStack is used by default, with configuration from `tests/ai_eval_components/llamastack-ollama.yaml`. It expects localhost [`ollama` (at port `11434`)](https://ollama.com/) running, hosting LLM model. 
+Other config file may be used thanks to `LLAMA_STACK_CONFIG_FILE`.
+
+Remote/external LlamaStack can be also used if configured using either `http://{LLAMA_STACK_HOST}:{LLAMA_STACK_PORT}` pair, or `LLAMA_STACK_URL`. How to run external LlamaStack on localhost see [LLAMASTACK_DEV.md](../../LLAMASTACK_DEV.md).
 
 Evaluation code accepts these environment variables:
-* `LLAMA_STACK_HOST` - defaults to `localhost`
-* `LLAMA_STACK_PORT` - defaults to `5001`
-* `INFERENCE_MODEL` - LLM used by the UI Agent, defaults to `granite3.2:2b` - this model must be available in the LlamaStack instance, see [LLAMASTACK_DEV.md](../../LLAMASTACK_DEV.md)!
+* `LLAMA_STACK_HOST` - remote/external LlamaStack server `http` host. 
+* `LLAMA_STACK_PORT` - remote/external LlamaStack server port, defaults to `5001`
+* `LLAMA_STACK_URL` - remote/external LlamaStack server url. Allows to define whole url instead of use `LLAMA_STACK_HOST` and `LLAMA_STACK_PORT`.
+* `LLAMA_STACK_CONFIG_FILE` - path of the embedded LlamaStack config file. Defaults to `tests/ai_eval_components/llamastack-ollama.yaml`.
+* `INFERENCE_MODEL` - LLM used by the UI Agent, defaults to `granite3.3:2b` - this model must be available in used LlamaStack instance!
 * `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 * `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
 

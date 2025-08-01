@@ -21,6 +21,7 @@ __pycache__/
 # temporary test files
 tests/ai_eval_components/errors/
 tests/ai_eval_components/llm_out/
+tests/ai_eval_components/llamastack-m*
 
 # Docs
 site/

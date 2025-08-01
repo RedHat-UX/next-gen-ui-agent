@@ -3,6 +3,7 @@ python_sources(
     name="lib",
     dependencies=[
         "libs/next_gen_ui_agent:lib",
+        ":reqs",
     ],
 )
 
@@ -13,6 +14,7 @@ python_tests(
         "libs/next_gen_ui_agent:lib",
         "libs/3rdparty/python:pytest",
         "libs/3rdparty/python:langchain",
+        ":reqs",
     ],
 )
 

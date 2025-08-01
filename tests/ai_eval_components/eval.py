@@ -29,6 +29,9 @@ from ai_eval_components.types import (
     DatasetRow,
     DatasetRowAgentEvalResult,
 )
+from llama_stack.distribution.library_client import (  # type: ignore[import-untyped]
+    AsyncLlamaStackAsLibraryClient,
+)
 from llama_stack_client import LlamaStackClient
 from next_gen_ui_agent import InputData
 from next_gen_ui_agent.component_selection import (
@@ -50,7 +53,10 @@ from next_gen_ui_agent.data_transform.validation.types import (
 from next_gen_ui_agent.data_transformation import get_data_transformer
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import ComponentSelectionStrategy, UIComponentMetadata
-from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAgentInference
+from next_gen_ui_llama_stack.llama_stack_inference import (
+    LlamaStackAgentInference,
+    LlamaStackAsyncAgentInference,
+)
 
 # allows to print system error traces to the stderr
 PRINT_SYS_ERR_TRACE = True
@@ -60,7 +66,6 @@ PRINT_SYS_ERR_TRACE = True
 INFERENCE_MODEL_DEFAULT = "granite3.3:2b"
 # INFERENCE_MODEL_DEFAULT = "granite3.3:8b"
 
-LLAMA_STACK_HOST_DEFAULT = "localhost"
 LLAMA_STACK_PORT_DEFAULT = "5001"
 
 TWO_STEP_COMPONENT_SELECTION = False
@@ -68,18 +73,43 @@ TWO_STEP_COMPONENT_SELECTION = False
 
 
 def init_inference() -> InferenceBase:
-    host = os.getenv("LLAMA_STACK_HOST", default=LLAMA_STACK_HOST_DEFAULT)
-    port = os.getenv("LLAMA_STACK_PORT", default=LLAMA_STACK_PORT_DEFAULT)
-    base_url = f"http://{host}:{port}"
-
     model = os.getenv("INFERENCE_MODEL", default=INFERENCE_MODEL_DEFAULT)
 
-    print(f"Creating UI Agent with LlamaStack host={base_url} and LLM={model}")
+    host = os.getenv("LLAMA_STACK_HOST")
+    url = os.getenv("LLAMA_STACK_URL")
+    if host or url:
+        # use remote llama stack if host or url is configured
+        if host:
+            port = os.getenv("LLAMA_STACK_PORT", default=LLAMA_STACK_PORT_DEFAULT)
+            base_url = f"http://{host}:{port}"
+        elif url:
+            base_url = url
 
-    client = LlamaStackClient(
-        base_url=base_url,
-    )
-    return LlamaStackAgentInference(client, model)
+        print(
+            f"Creating UI Agent with remote LlamaStack host={base_url} and LLM={model}"
+        )
+
+        client = LlamaStackClient(
+            base_url=base_url,
+        )
+
+        return LlamaStackAgentInference(client, model)
+
+    else:
+        # use embedded llama stack if remote not configured
+        config_file = os.getenv(
+            "LLAMA_STACK_CONFIG_FILE",
+            default="tests/ai_eval_components/llamastack-ollama.yaml",
+        )
+
+        print(
+            f"Creating UI Agent with embedded LlamaStack config='{config_file}' and LLM='{model}'"
+        )
+
+        client_a = AsyncLlamaStackAsLibraryClient(config_file)
+        asyncio.run(client_a.initialize())
+
+        return LlamaStackAsyncAgentInference(client_a, model)
 
 
 def check_result_explicit(
