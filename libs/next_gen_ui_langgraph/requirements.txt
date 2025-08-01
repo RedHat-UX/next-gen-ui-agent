@@ -1,1 +1,1 @@
-langgraph
+langgraph==0.3.34

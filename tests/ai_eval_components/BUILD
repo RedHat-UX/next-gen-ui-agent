@@ -4,6 +4,7 @@ python_sources(
     dependencies=[
         "libs/next_gen_ui_agent:lib",
         "libs/next_gen_ui_llama_stack:lib",
+        ":llama-stack",
     ],
 )
 
@@ -13,4 +14,9 @@ python_tests(
         "libs/3rdparty/python:pytest",
         "libs/3rdparty/python:langchain",
     ],
+)
+
+python_requirements(
+    name="llama-stack",
+    source="llama-stack-requirements.txt",
 )

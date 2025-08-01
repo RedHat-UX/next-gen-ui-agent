@@ -1,0 +1,10 @@
+llama-stack==0.2.12
+fastapi
+opentelemetry-sdk
+opentelemetry-exporter-otlp
+opentelemetry-instrumentation
+aiosqlite
+litellm
+uvicorn
+blobfile
+ollama

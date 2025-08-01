@@ -5,9 +5,8 @@
 export OLLAMA_MODEL=granite3.3:2b
 #export OLLAMA_MODEL=granite3.3:8b
 
-export LLAMASTACK_VERSION=0.1.9
 #export LLAMASTACK_VERSION=latest
-#export LLAMASTACK_VERSION=0.2.1
+export LLAMASTACK_VERSION=0.2.16
 
 if [ -z "$INFERENCE_MODEL" ]; then
     echo INFERENCE_MODEL env variable not set, setting it to default value $OLLAMA_MODEL
@@ -29,7 +28,7 @@ echo "Starting LlamaStack $LLAMASTACK_VERSION container..."
 podman run -it --rm \
   -p 5001:5001 \
   -v ~/.llama:/root/.llama:z \
-  llamastack/distribution-ollama:$LLAMASTACK_VERSION \
+  llamastack/distribution-starter:$LLAMASTACK_VERSION \
   --port 5001 \
   --env INFERENCE_MODEL=$INFERENCE_MODEL \
   --env OLLAMA_URL=http://host.containers.internal:11434

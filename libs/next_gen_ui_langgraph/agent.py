@@ -119,7 +119,7 @@ class NextGenUILangGraphAgent:
             return Command(goto="design_system_handler")
 
         # TODO is this really correct, shouldn't json renderer be used by default?
-        return Command(goto=END)  # type: ignore
+        return Command(goto=END)
 
     def design_system_handler(self, state: AgentState, config: RunnableConfig):
         logger.debug("\n\n---CALL design_system_handler---")
