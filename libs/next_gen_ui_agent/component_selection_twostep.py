@@ -3,6 +3,7 @@ import json
 import logging
 
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
+from next_gen_ui_agent.component_selection import trim_to_json
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import (
     AgentInput,
@@ -129,14 +130,14 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         data = reduce_arrays(json_data, 6)
         json_data = str(data)
 
-        response_1 = remove_until_json_start(
+        response_1 = trim_to_json(
             await self.inference_step_1(inference, user_prompt, json_data)
         )
 
         if self.select_component_only:
             return [response_1]
 
-        response_2 = remove_until_json_start(
+        response_2 = trim_to_json(
             await self.inference_step_2(inference, response_1, user_prompt, json_data)
         )
 
@@ -231,22 +232,6 @@ For every field provide "data_path" containing path to get the value from the "D
         response = await inference.call_model(sys_msg_content, prompt)
         logger.debug("Component configuration LLM response: %s", response)
         return response
-
-
-def remove_until_json_start(text: str) -> str:
-    """
-    Remove all characters from the string until the first occurrence of '{' or '[' character.
-
-    Args:
-        text: The input string to process
-
-    Returns:
-        The string starting from the first '{' or '[' character, or the original string if neither character is found
-    """
-    for i, char in enumerate(text):
-        if char in "{[":
-            return text[i:]
-    return text
 
 
 def get_sys_prompt_component_extensions(component: str) -> str:
@@ -405,4 +390,3 @@ Response example 2:
 ]
 """,
 }
-remove_until_json_start
