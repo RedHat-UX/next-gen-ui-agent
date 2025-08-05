@@ -100,7 +100,7 @@ class DataTransformerBase(ABC, Generic[T]):
             for i, field in enumerate(self._component_data.fields):
                 fn = f"fields[{i}]."
                 sanitized_data_path = sanitize_data_path(field.data_path)
-                if not sanitized_data_path:
+                if not sanitized_data_path or sanitized_data_path == "":
                     errors.append(
                         ComponentDataValidationError(
                             fn + "data_path.invalid_format",
