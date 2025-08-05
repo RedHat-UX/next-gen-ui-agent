@@ -132,7 +132,7 @@ Response example for one-item data:
         logger.debug("LLM system message:\n%s", sys_msg_content)
         logger.debug("LLM prompt:\n%s", prompt)
 
-        response = await inference.call_model(sys_msg_content, prompt)
+        response = trim_to_json(await inference.call_model(sys_msg_content, prompt))
         logger.debug("Component metadata LLM response: %s", response)
 
         return [response]
@@ -169,3 +169,38 @@ Response example for one-item data:
         except Exception as e:
             logger.exception("Cannot decode the json from LLM response")
             raise e
+
+
+def trim_to_json(text: str) -> str:
+    """
+    Remove all characters from the string until the first occurrence of '{' or '[' character. String is not modified if these character are not found.
+    Everything after the last '}' or ']' character is stripped also.
+
+    Args:
+        text: The input string to process
+
+    Returns:
+        The string starting from the first '{' or '[' character and ending at the last '}' or ']' character,
+        or the original string if neither character is found
+    """
+    # Find the start of JSON (first { or [)
+    start_index = -1
+    for i, char in enumerate(text):
+        if char in "{[":
+            start_index = i
+            break
+
+    if start_index == -1:
+        return text
+
+    # Find the end of JSON (last } or ])
+    end_index = -1
+    for i in range(len(text) - 1, start_index - 1, -1):
+        if text[i] in "]}":
+            end_index = i + 1
+            break
+
+    if end_index == -1:
+        return text[start_index:]
+
+    return text[start_index:end_index]

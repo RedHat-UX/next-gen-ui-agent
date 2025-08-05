@@ -7,7 +7,7 @@ from next_gen_ui_agent.types import AgentInput
 from pytest import fail
 
 from . import InputData
-from .component_selection import OnestepLLMCallComponentSelectionStrategy
+from .component_selection import OnestepLLMCallComponentSelectionStrategy, trim_to_json
 from .model import LangChainModelInference
 
 movies_data = """[
@@ -101,6 +101,39 @@ async def test_component_selection() -> None:
         ids.append(r.id)
     assert "1" in ids
     assert "2" in ids
+
+
+def test_trim_to_json_basic_object():
+    text = '{"name": "John", "age": 30}'
+    result = trim_to_json(text)
+    assert result == '{"name": "John", "age": 30}'
+
+
+def test_trim_to_json_basic_array():
+    text = '["item1", "item2", "item3"]'
+    result = trim_to_json(text)
+    assert result == '["item1", "item2", "item3"]'
+
+
+def test_trim_to_json_around_object():
+    text = 'Prefix {"user": {"name": "John", "details": {"age": 30, "city": "NYC"}}} suffix'
+    result = trim_to_json(text)
+    assert result == '{"user": {"name": "John", "details": {"age": 30, "city": "NYC"}}}'
+
+
+def test_trim_to_json_around_array():
+    text = 'Prefix [ {"user": {"name": "John", "details": {"age": 30, "city": "NYC"}}} ] suffix'
+    result = trim_to_json(text)
+    assert (
+        result
+        == '[ {"user": {"name": "John", "details": {"age": 30, "city": "NYC"}}} ]'
+    )
+
+
+def test_trim_to_json_textonly():
+    text = "Prefix suffix"
+    result = trim_to_json(text)
+    assert result == "Prefix suffix"
 
 
 if __name__ == "__main__":
