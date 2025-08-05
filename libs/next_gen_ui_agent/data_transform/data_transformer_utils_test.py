@@ -108,6 +108,28 @@ def test_sanitize_data_path() -> None:
     )  # multiple array accesses are not allowed (descriptive + numeric)
 
 
+def test_sanitize_data_path_gemini_flash() -> None:
+    # Gemini flash LLMs outputs sanitizations
+    assert sanitize_data_path("$[0].subscription.name") == "$..[0].subscription.name"
+    assert (
+        sanitize_data_path("$[any text].subscription.name")
+        == "$..[*].subscription.name"
+    )
+    assert sanitize_data_path("[0].subscription.name") == "$..[0].subscription.name"
+    assert sanitize_data_path("[0].name") == "$..[0].name"
+    assert (
+        sanitize_data_path("[any text].subscription.name") == "$..[*].subscription.name"
+    )
+    assert (
+        sanitize_data_path("subscriptions[size up to 6][*].name")
+        == "$..subscriptions[*].name"
+    )
+    assert (
+        sanitize_data_path("subscriptions[size up to 6].name")
+        == "$..subscriptions[*].name"
+    )
+
+
 def test_get_data_value_for_path_INVALID() -> None:
     data = json.loads(
         """

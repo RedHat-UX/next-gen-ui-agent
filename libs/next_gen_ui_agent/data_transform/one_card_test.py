@@ -116,9 +116,9 @@ def test_validate_INVALID() -> None:
     assert errors[0].code == "fields[1].data_path.invalid_format"
     assert errors[0].message == "Generated data_path='' is not valid"
     assert errors[1].code == "fields[2].data_path.invalid_format"
-    assert errors[1].message == "Generated data_path='$' is not valid"
+    assert errors[1].message == "Generated data_path='' is not valid"
     assert errors[2].code == "fields[3].data_path.invalid"
     assert (
         errors[2].message
-        == "No value found in input data for data_path='movie.unknown'"
+        == "No value found in input data for data_path='$..movie.unknown'"
     )
