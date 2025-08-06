@@ -122,7 +122,8 @@ def sanitize_matched_simple_data(
     if matched_data_list:
         # remove None values
         for r in matched_data_list:
-            if r:
+            # r may contain Boolean values, so we need to check explicitly if the value is not None
+            if r is not None:
                 result.append(r)
 
         # Array with array of values - transform to array with values
