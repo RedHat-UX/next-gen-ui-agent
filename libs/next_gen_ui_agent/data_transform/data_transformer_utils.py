@@ -108,6 +108,9 @@ def get_data_value_for_path(data_path: str | None, json_data: Any) -> list[Any] 
                 matched_data.append(match.value)
         return matched_data
     except Exception:
+        # patch for "object in array in root" case, where used JSONPath library can't get values correctly for path starting with `$..` which are correct when I try them on web JSONPath playground
+        if data_path.startswith("$..["):
+            return get_data_value_for_path(data_path.replace("$..[", "$["), json_data)
         logger.exception("Cannot match data for JSONPath '%s'", data_path)
         return None
 
