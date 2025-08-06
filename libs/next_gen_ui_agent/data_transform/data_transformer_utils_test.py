@@ -230,7 +230,7 @@ SIMPLE_OBJECT = json.loads(
       },
       "arrayonestring":["USA"],
       "string":"Toy Story",
-      "boolean": true,
+      "boolean": false,
       "url":"https://themoviedb.org/movie/862",
       "date":"1995-11-22",
       "arrayofstrings":[
@@ -297,7 +297,9 @@ def test_fill_fields_with_data_SIMPLE_OBJECT() -> None:
     assert fields[0].data == ["Toy Story"]  # String
     assert fields[1].data == [1995]  # Number Int
     assert fields[2].data == [8.3]  # Nested number float
-    assert fields[3].data == [True]  # Boolean
+    assert fields[3].data == [
+        False
+    ]  # Boolean, we have to check False value as it may be removed with incorrect if statements for None checks
     assert fields[4].data == ["1995-11-22"]  # Date
     assert fields[5].data == [
         "Jim Varney",
