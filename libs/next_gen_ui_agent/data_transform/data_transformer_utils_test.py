@@ -641,6 +641,122 @@ def test_fill_fields_with_data_ARRAY_IN_ROOT() -> None:
     )  # one subfield from array of objects - patched in JSONPath sanitization to retun empty array so we can detect the error
 
 
+SIMPLE_OBJECT_IN_ARRAY_IN_ROOT = json.loads(
+    """
+[
+    {
+      "arrayempty":[],
+      "numberint":1995,
+      "nested": {
+        "string":"0114709",
+        "numberfloat":8.3,
+        "numberint":591836
+      },
+      "arrayonestring":["USA"],
+      "string":"Toy Story",
+      "boolean": false,
+      "url":"https://themoviedb.org/movie/862",
+      "date":"1995-11-22",
+      "arrayofstrings":[
+        "Jim Varney",
+        "Tim Allen",
+        "Tom Hanks",
+        "Don Rickles"
+      ],
+      "arrayofobjects":[
+        {"id":1},
+        {"id":2},
+        {"id":3},
+        {"id":4}
+      ],
+      "nullfield": null
+    }
+]
+"""
+)
+
+
+def test_fill_fields_with_data_SIMPLE_OBJECT_IN_ARRAY_IN_ROOT() -> None:
+    fields: list[
+        DataFieldSimpleValue
+    ] = ComponentDataBaseWithSimpleValueFileds.model_validate(
+        {
+            "id": "1",
+            "component": "one-card",
+            "title": "Toy Story Details",
+            "fields": [
+                {"name": "String", "data_path": "[0].string"},
+                {"name": "Number Int", "data_path": "[*].numberint"},
+                {
+                    "name": "Nested number float",
+                    "data_path": "nested.numberfloat",
+                },
+                {"name": "Boolean", "data_path": "boolean"},
+                {"name": "Date", "data_path": "date"},
+                {"name": "Array of strings", "data_path": "arrayofstrings[*]"},
+                {"name": "Array of strings without [*]", "data_path": "arrayofstrings"},
+                {"name": "Array one string", "data_path": "arrayonestring[*]"},
+                {"name": "Empty array", "data_path": "arrayempty[*]"},
+                {"name": "Null Field", "data_path": "nullfield"},
+                {"name": "Unknown Field", "data_path": "unknownfield"},
+                {
+                    "name": "Unknown Array Field",
+                    "data_path": "nested.unknownarray[*]",
+                },
+                {
+                    "name": "One subfield from array of objects",
+                    "data_path": "arrayofobjects[*].id",
+                },
+                {"name": "Nested object", "data_path": "nested"},
+                {
+                    "name": "Objects from array of objects",
+                    "data_path": "arrayofobjects[*]",
+                },
+            ],
+        }
+    ).fields
+
+    fill_fields_with_simple_data(fields, SIMPLE_OBJECT_IN_ARRAY_IN_ROOT)
+
+    assert fields[0].data == ["Toy Story"]  # String
+    assert fields[1].data == [1995]  # Number Int
+    assert fields[2].data == [8.3]  # Nested number float
+    assert fields[3].data == [
+        False
+    ]  # Boolean, we have to check False value as it may be removed with incorrect if statements for None checks
+    assert fields[4].data == ["1995-11-22"]  # Date
+    assert fields[5].data == [
+        "Jim Varney",
+        "Tim Allen",
+        "Tom Hanks",
+        "Don Rickles",
+    ]  # Array of strings
+    assert fields[6].data == [
+        "Jim Varney",
+        "Tim Allen",
+        "Tom Hanks",
+        "Don Rickles",
+    ]  # Array of strings from path without [*] - is updated by sanitization
+    assert fields[7].data == ["USA"]  # Array one string
+    assert fields[8].data == []  # Empty array in the field
+    assert (
+        fields[9].data == []
+    )  # Null field leads to None from JSONPath, which is removed by sanitization
+    assert (
+        fields[10].data == []
+    )  # Unknown field - this is not good for evaluations as we can't distinguish between fields with empty array and unknown field, but what to do :-(
+    assert (
+        fields[11].data == []
+    )  # Unknown array field - this is not good for evaluations as we can't distinguish between fields with empty array and unknown field, but what to do :-(
+    assert fields[12].data == [1, 2, 3, 4]  # One subfield from array of objects
+    assert (
+        fields[13].data == []
+    )  # Nested object - is removed by sanitization so array stays empty
+    assert (
+        fields[14].data == []
+    )  # Objects from array of objects - are removed by sanitization so array stays empty
+
+
 def test_find_image_BY_image_url_suffix() -> None:
     # add some non-image url fields and mixed case to test correct selection
     fields: list[
