@@ -1,0 +1,96 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Granite 3.1 8B
+Env: Server API
+
+Note: 
+* most of errors - strugles to pick correct component or data_path for array of object combined with simple object if prompt also or exclusively targets that array
+* image component selected once but not url field (other fields was generated)
+* never selected `table` for array data, always `set-of-cards`
+
+
+Agent errors: 22
+Agent warnings: 0
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 1,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 12,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 9,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1652,
+  "mean": 2428,
+  "avg": 2428,
+  "perc95": 3504,
+  "max": 3837
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1652,
+    "mean": 2054,
+    "avg": 2054,
+    "perc95": 2255,
+    "max": 2505
+  },
+  "one-card": {
+    "min": 1988,
+    "mean": 2655,
+    "avg": 2655,
+    "perc95": 3712,
+    "max": 3837
+  },
+  "set-of-cards": {
+    "min": 2119,
+    "mean": 2704,
+    "avg": 2704,
+    "perc95": 3175,
+    "max": 3816
+  },
+  "table": {
+    "min": 2307,
+    "mean": 2901,
+    "avg": 2901,
+    "perc95": 3481,
+    "max": 3497
+  },
+  "video-player": {
+    "min": 1972,
+    "mean": 2092,
+    "avg": 2092,
+    "perc95": 2217,
+    "max": 2834
+  }
+}

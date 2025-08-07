@@ -1,0 +1,98 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Gemini 2.5 Flash
+Env: Google Gemini API
+
+Note: 
+* After data_path sanitizations improvement and data pickup improvements
+* This model tends to select more fields to be shown if user prompt is more generic (not targeting any concrete info available in data) with our current system prompts.
+* data_path in one case were `$.['subscriptions[size up to 6]'][*].id` which is wrong
+* It selected video-player for "What about Toy Story?" prompt in one case instead of one-card, which may be OK
+* LLM ignores array size info provided in the field name, and takes real array size. So table is not selected in many cases. So prompt would be tuned for the LLM to instruct it to take that info into account.
+
+Dataset items evalueated: 171
+Agent errors: 2
+Agent warnings: 0
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 1,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 1,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1573,
+  "mean": 3797,
+  "avg": 3797,
+  "perc95": 7118,
+  "max": 13370
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1676,
+    "mean": 2394,
+    "avg": 2394,
+    "perc95": 2736,
+    "max": 3220
+  },
+  "one-card": {
+    "min": 2099,
+    "mean": 4979,
+    "avg": 4979,
+    "perc95": 8462,
+    "max": 13370
+  },
+  "set-of-cards": {
+    "min": 2939,
+    "mean": 4660,
+    "avg": 4660,
+    "perc95": 7302,
+    "max": 8570
+  },
+  "table": {
+    "min": 2880,
+    "mean": 4991,
+    "avg": 4991,
+    "perc95": 7522,
+    "max": 9594
+  },
+  "video-player": {
+    "min": 1573,
+    "mean": 2418,
+    "avg": 2418,
+    "perc95": 3092,
+    "max": 3101
+  }
+}

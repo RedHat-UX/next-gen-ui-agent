@@ -1,0 +1,98 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Mistral 7B Instruct v0.3
+Env: Server API
+
+Note: 
+* selected one-card instead of image multiple times (ass image errors)
+* strugles in simple object combined with array of values cases (movie info and array of actors names)
+* strugles to generate correct data_path for "objects directly in the root array" case, some field name is added before array accessor []
+* selected one-card instead of table
+* missing url for video-player
+
+Dataset items evalueated: 171
+Agent errors: 35
+Agent warnings: 14
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 5,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 15,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 4,
+    "num_err_system": 0,
+    "num_warn_agent": 7
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 2,
+    "num_err_system": 0,
+    "num_warn_agent": 7
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 9,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1755,
+  "mean": 2916,
+  "avg": 2916,
+  "perc95": 4840,
+  "max": 10396
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1929,
+    "mean": 2324,
+    "avg": 2324,
+    "perc95": 2969,
+    "max": 4478
+  },
+  "one-card": {
+    "min": 1995,
+    "mean": 3253,
+    "avg": 3253,
+    "perc95": 5033,
+    "max": 10396
+  },
+  "set-of-cards": {
+    "min": 2260,
+    "mean": 3547,
+    "avg": 3547,
+    "perc95": 4781,
+    "max": 5436
+  },
+  "table": {
+    "min": 2531,
+    "mean": 3938,
+    "avg": 3938,
+    "perc95": 4922,
+    "max": 5016
+  },
+  "video-player": {
+    "min": 1755,
+    "mean": 2151,
+    "avg": 2151,
+    "perc95": 2314,
+    "max": 2813
+  }
+}

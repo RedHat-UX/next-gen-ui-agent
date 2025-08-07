@@ -61,15 +61,20 @@ from next_gen_ui_llama_stack.llama_stack_inference import (
 # allows to print system error traces to the stderr
 PRINT_SYS_ERR_TRACE = True
 
-# INFERENCE_MODEL_DEFAULT = "llama3.2:latest"
-# INFERENCE_MODEL_DEFAULT = "granite3.2:2b"
+TWO_STEP_COMPONENT_SELECTION = False
+""" Allows to switch between one and two step (LLM inference calls) component selection process """
+
 INFERENCE_MODEL_DEFAULT = "granite3.3:2b"
-# INFERENCE_MODEL_DEFAULT = "granite3.3:8b"
+
+# Ollama models:
+# export INFERENCE_MODEL_DEFAULT=granite3.3:8b
+# export INFERENCE_MODEL_DEFAULT=llama3.2:latest
+
+# Gemini API models:
+# export INFERENCE_MODEL_DEFAULT=gemini/gemini-2.0-flash
+# export INFERENCE_MODEL_DEFAULT=gemini/gemini-2.5-flash
 
 LLAMA_STACK_PORT_DEFAULT = "5001"
-
-TWO_STEP_COMPONENT_SELECTION = False
-""" Allows to switch between one and two step component selection process """
 
 
 def init_inference() -> InferenceBase:

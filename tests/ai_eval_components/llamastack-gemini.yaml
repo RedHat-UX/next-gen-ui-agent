@@ -1,0 +1,36 @@
+version: '2'
+image_name: nextgen-ui-agent-eval-llama-stack-configuration
+container_image: null
+ 
+distribution_spec:
+  local:
+    services:
+      - inference
+      - telemetry
+ 
+apis:
+  - inference
+  - telemetry
+ 
+providers:
+  inference:
+    - provider_id: gemini
+      provider_type: remote::gemini
+      config:
+        api_key: ${env.GEMINI_API_KEY}
+  telemetry:
+    - provider_id: meta-reference
+      provider_type: inline::meta-reference
+      config:
+        sinks: []
+
+# model id is like `gemini/gemini-2.0-flash` or `gemini/gemini-2.5-flash` or `gemini/gemini-2.0-flash-lite`
+# note that flash-lite models are not supported by LlamaStack Gemini provider now, PR has been provided. But you can update the LlamaStack code locally to support it for testing purposes.
+models:
+  - model_id: ${env.INFERENCE_MODEL}
+    provider_id: gemini
+    model_type: llm
+    provider_model_id: null
+ 
+server:
+  port: 5001
