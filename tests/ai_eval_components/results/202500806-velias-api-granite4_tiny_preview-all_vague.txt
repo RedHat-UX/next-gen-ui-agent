@@ -1,0 +1,95 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Granite 4 Tiny Preview
+Env: Server API
+
+Note: 
+* responses with time around 50s are here due to API throttling, all performance stats except `min` are affected so I removed them!
+* many wrong component selections for image component, and even set-of-card or table instead of one-card, or video-player instead of one-card for lots of movie related evals.
+
+Dataset items evalueated: 171
+Agent errors: 38
+Agent warnings: 5
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 6,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 30,
+    "num_err_system": 0,
+    "num_warn_agent": 5
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 2,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1246,
+  "mean": ,
+  "avg": ,
+  "perc95": ,
+  "max": 
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1246,
+    "mean": 13144,
+    "avg": 13144,
+    "perc95": 55005,
+    "max": 56012
+  },
+  "one-card": {
+    "min": 1414,
+    "mean": 15771,
+    "avg": 15771,
+    "perc95": 55166,
+    "max": 55398
+  },
+  "set-of-cards": {
+    "min": 1733,
+    "mean": 14569,
+    "avg": 14569,
+    "perc95": 53370,
+    "max": 54379
+  },
+  "table": {
+    "min": 1686,
+    "mean": 13043,
+    "avg": 13043,
+    "perc95": 54014,
+    "max": 54893
+  },
+  "video-player": {
+    "min": 1434,
+    "mean": 15330,
+    "avg": 15330,
+    "perc95": 55173,
+    "max": 57469
+  }
+}

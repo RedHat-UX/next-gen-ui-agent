@@ -22,7 +22,6 @@ __pycache__/
 tests/ai_eval_components/errors/
 tests/ai_eval_components/llm_out/
 tests/ai_eval_components/llamastack-m*
-tests/ai_eval_components/llamastack-g*
 
 # Docs
 site/

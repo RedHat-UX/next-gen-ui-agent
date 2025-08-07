@@ -1,0 +1,98 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Granite 3.2 8B Instruct
+Env: Server API
+
+Note: 
+* responses with time around 50s are here due to API throttling, all performance stats except `min` are affected so I removed them!
+* strugles on movie actors names array cases, also on some actor object array cases (where nests `actors` field into `movie`, but it is next of it)
+* one-card instead of set-of-cards, mainly in array of objects with actor info and actors related prompts, where it shows only one actor
+* set-of-cards used often instead of table (even "More than 6 items in the data" is shown in reaon, so LLM seems to know array size)
+
+Dataset items evalueated: 171
+Agent errors: 23
+Agent warnings: 0
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 1,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 12,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 10,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1755,
+  "mean": ,
+  "avg": ,
+  "perc95": ,
+  "max": 
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1755,
+    "mean": 13486,
+    "avg": 13486,
+    "perc95": 54351,
+    "max": 54587
+  },
+  "one-card": {
+    "min": 1943,
+    "mean": 15730,
+    "avg": 15730,
+    "perc95": 53117,
+    "max": 55377
+  },
+  "set-of-cards": {
+    "min": 2273,
+    "mean": 14476,
+    "avg": 14476,
+    "perc95": 52367,
+    "max": 52689
+  },
+  "table": {
+    "min": 2325,
+    "mean": 13212,
+    "avg": 13212,
+    "perc95": 51412,
+    "max": 52798
+  },
+  "video-player": {
+    "min": 1978,
+    "mean": 15341,
+    "avg": 15341,
+    "perc95": 53925,
+    "max": 54562
+  }
+}
+

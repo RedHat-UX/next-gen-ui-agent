@@ -1,0 +1,9 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Gemini 2.5 Pro
+Env: Google Gemini API
+
+Note: 
+* After data_path sanitizations improvement and data pickup improvements
+
+Experiment stopped after 20 evals on image component. Every LLM inference took more than 10s. 4 errors, two times LLM produced invalid JSON, two times one-card component has been selected.

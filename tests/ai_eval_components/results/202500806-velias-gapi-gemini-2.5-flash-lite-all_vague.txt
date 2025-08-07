@@ -1,0 +1,98 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Gemini 2.5 Flash-Lite
+Env: Google Gemini API
+
+Note: 
+* After data_path sanitizations improvement and data pickup improvements
+* This model tends to select more fields to be shown if user prompt is more generic (not targeting any concrete info available in data) with our current system prompts.
+* All 31 errors - data_path is wrong, putting in nested fields which are not in data - generating `movie.actors` paths where `actors` field is next to `movie` in the data, not inside
+* This LLM understands array size provided in field name.
+
+
+Dataset items evalueated: 171
+Agent errors: 31
+Agent warnings: 0
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 23,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 8,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 933,
+  "mean": 2004,
+  "avg": 2004,
+  "perc95": 2378,
+  "max": 2712
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1128,
+    "mean": 1873,
+    "avg": 1873,
+    "perc95": 2075,
+    "max": 2088
+  },
+  "one-card": {
+    "min": 1775,
+    "mean": 2134,
+    "avg": 2134,
+    "perc95": 2522,
+    "max": 2712
+  },
+  "set-of-cards": {
+    "min": 1994,
+    "mean": 2150,
+    "avg": 2150,
+    "perc95": 2309,
+    "max": 2319
+  },
+  "table": {
+    "min": 1771,
+    "mean": 2026,
+    "avg": 2026,
+    "perc95": 2243,
+    "max": 2337
+  },
+  "video-player": {
+    "min": 933,
+    "mean": 1828,
+    "avg": 1828,
+    "perc95": 2030,
+    "max": 2193
+  }
+}

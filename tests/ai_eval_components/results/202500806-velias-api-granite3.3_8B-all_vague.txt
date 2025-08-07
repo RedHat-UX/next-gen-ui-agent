@@ -1,0 +1,98 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Granite 3.3 8B Instruct
+Env: Server API
+
+Note: 
+* responses with time around 50s are here due to API throttling, all performance stats except `min` are affected so I removed them!
+* data_path like `['editUrl']` are sometimes generated for array of objects in the root use case (Warnings)
+* strugles on movie actors names array cases, also on some actor object array cases (where nests `actors` field into `movie`, but it is next of it)
+* one-card instead of set-of-cards in two cases
+* set-of-cards used often instead of table
+
+Dataset items evalueated: 171
+Agent errors: 18
+Agent warnings: 6
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 14,
+    "num_err_system": 0,
+    "num_warn_agent": 2
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 4,
+    "num_err_system": 0,
+    "num_warn_agent": 1
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 3
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1598,
+  "mean": ,
+  "avg": ,
+  "perc95": ,
+  "max": 
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1703,
+    "mean": 12998,
+    "avg": 12998,
+    "perc95": 53643,
+    "max": 54528
+  },
+  "one-card": {
+    "min": 1598,
+    "mean": 14747,
+    "avg": 14747,
+    "perc95": 52835,
+    "max": 56010
+  },
+  "set-of-cards": {
+    "min": 2085,
+    "mean": 16285,
+    "avg": 16285,
+    "perc95": 52850,
+    "max": 53428
+  },
+  "table": {
+    "min": 2255,
+    "mean": 13214,
+    "avg": 13214,
+    "perc95": 50856,
+    "max": 52747
+  },
+  "video-player": {
+    "min": 2007,
+    "mean": 15338,
+    "avg": 15338,
+    "perc95": 53654,
+    "max": 53893
+  }
+}
