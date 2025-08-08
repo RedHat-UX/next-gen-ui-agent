@@ -1,0 +1,95 @@
+Date: 2025-08-07
+Components: all with vague component type check
+LLM: Llama 3.3 70B Instruct FP8 dynamic
+Env: Server API
+
+Note:
+* responses with time around 50s are here due to API throttling, all performance stats except `min` are affected so I removed them!
+* seems to understand best even data for table vs set-of cards selection
+
+Dataset items evalueated: 171
+Agent errors: 0
+Agent warnings: 0
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 4318,
+  "mean": 
+  "avg": 
+  "perc95": 
+  "max":
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 4318,
+    "mean": 13629,
+    "avg": 13629,
+    "perc95": 45899,
+    "max": 46376
+  },
+  "one-card": {
+    "min": 5465,
+    "mean": 15600,
+    "avg": 15600,
+    "perc95": 40661,
+    "max": 48949
+  },
+  "set-of-cards": {
+    "min": 6595,
+    "mean": 14707,
+    "avg": 14707,
+    "perc95": 38607,
+    "max": 39393
+  },
+  "table": {
+    "min": 6867,
+    "mean": 13319,
+    "avg": 13319,
+    "perc95": 32512,
+    "max": 34639
+  },
+  "video-player": {
+    "min": 4499,
+    "mean": 15124,
+    "avg": 15124,
+    "perc95": 46029,
+    "max": 46192
+  }
+}
