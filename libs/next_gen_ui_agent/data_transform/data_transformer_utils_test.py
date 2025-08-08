@@ -104,11 +104,10 @@ def test_sanitize_data_path() -> None:
         sanitize_data_path("orders[latest order].items[0].name") is None
     )  # multiple array accesses are not allowed (descriptive + numeric)
     assert (
-        sanitize_data_path("customers[active users][0].profile") is None
+        sanitize_data_path("customers[active users][0].profile")
+        == "$..customers[0].profile"
     )  # multiple array accesses are not allowed (descriptive + numeric)
 
-
-def test_sanitize_data_path_gemini_flash() -> None:
     # Gemini flash LLMs outputs sanitizations
     assert sanitize_data_path("$[0].subscription.name") == "$..[0].subscription.name"
     assert (
@@ -125,9 +124,28 @@ def test_sanitize_data_path_gemini_flash() -> None:
         == "$..subscriptions[*].name"
     )
     assert (
+        sanitize_data_path("subscriptions[size up to 6][0].name")
+        == "$..subscriptions[0].name"
+    )
+    assert (
         sanitize_data_path("subscriptions[size up to 6].name")
         == "$..subscriptions[*].name"
     )
+
+    # Normalize another variants of field references valid in JSON path
+    assert sanitize_data_path("['name']") == "$..name"
+    assert sanitize_data_path("['order']['name']['first']") == "$..order.name.first"
+    assert (
+        sanitize_data_path("['order']['name']['first'][ssssss]")
+        == "$..order.name.first"
+    )
+    assert sanitize_data_path("['order'].name") == "$..order.name"
+    assert sanitize_data_path("order.['name']") == "$..order.name"
+    assert sanitize_data_path("$['name']") == "$..name"
+    assert sanitize_data_path("['order'][0].name") == "$..order[0].name"
+    assert sanitize_data_path("['order'][*].name") == "$..order[*].name"
+    assert sanitize_data_path("['order[size up to 6]'].name") == "$..order[*].name"
+    assert sanitize_data_path("['order[size up to 6]']['name']") == "$..order[*].name"
 
 
 def test_get_data_value_for_path_INVALID() -> None:
