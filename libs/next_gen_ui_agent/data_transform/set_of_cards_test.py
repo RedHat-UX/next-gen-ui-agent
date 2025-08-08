@@ -59,7 +59,7 @@ def test_validate_OK() -> None:
     )
     data = InputData(
         id="test_id_1",
-        data="""{"movies": [{"title": "Toy Story"}]}""",
+        data="""{"movies": [{"title": "Toy Story"}, {"title": "Toy Story 2"}]}""",
     )
     errors: list[ComponentDataValidationError] = []
     SetOfCardsDataTransformer().validate(c, data, errors)
@@ -86,13 +86,18 @@ def test_validate_INVALID() -> None:
     )
     errors: list[ComponentDataValidationError] = []
     SetOfCardsDataTransformer().validate(c, data, errors)
-    assert len(errors) == 3
-    assert errors[0].code == "fields[1].data_path.invalid_format"
-    assert errors[0].message == "Generated data_path='' is not valid"
-    assert errors[1].code == "fields[2].data_path.invalid_format"
-    assert errors[1].message == "Generated data_path='' is not valid"
-    assert errors[2].code == "fields[3].data_path.invalid"
+    assert len(errors) == 4
+    assert errors[0].code == "fields[0].data_path.not_enough_values"
     assert (
-        errors[2].message
+        errors[0].message
+        == "Not enough values for array component found in the input data for data_path='$..movies[*].title'"
+    )
+    assert errors[1].code == "fields[1].data_path.invalid_format"
+    assert errors[1].message == "Generated data_path='' is not valid"
+    assert errors[2].code == "fields[2].data_path.invalid_format"
+    assert errors[2].message == "Generated data_path='' is not valid"
+    assert errors[3].code == "fields[3].data_path.invalid"
+    assert (
+        errors[3].message
         == "No value found in input data for data_path='$..movies[*].unknown'"
     )

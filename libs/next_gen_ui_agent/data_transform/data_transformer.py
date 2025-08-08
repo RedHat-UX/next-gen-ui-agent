@@ -97,6 +97,8 @@ class DataTransformerBase(ABC, Generic[T]):
         if isinstance(
             self._component_data, ComponentDataBaseWithSimpleValueFileds
         ) or isinstance(self._component_data, ComponentDataBaseWithArrayValueFileds):
+            # variable for check of data length used for array components only. start with minimal data len here, until we fill it with real data len from field, to make sure all fields select data of the same length
+            data_len = 2
             for i, field in enumerate(self._component_data.fields):
                 fn = f"fields[{i}]."
                 sanitized_data_path = sanitize_data_path(field.data_path)
@@ -120,5 +122,18 @@ class DataTransformerBase(ABC, Generic[T]):
                             f"No value found in input data for data_path='{field.data_path}'",
                         )
                     )
+                elif isinstance(
+                    self._component_data, ComponentDataBaseWithArrayValueFileds
+                ):
+                    # check of data length used for array components only
+                    if len(field.data) < data_len:
+                        errors.append(
+                            ComponentDataValidationError(
+                                fn + "data_path.not_enough_values",
+                                f"Not enough values for array component found in the input data for data_path='{field.data_path}'",
+                            )
+                        )
+                    else:
+                        data_len = len(field.data)
 
         return self._component_data
