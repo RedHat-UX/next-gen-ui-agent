@@ -6,13 +6,15 @@ import numpy as np
 perf_stats: dict[str, list] = {"all": []}
 
 
-def report_perf_stats(time_start: int, time_end: int, component: str):
+def report_perf_stats(time_start_ms: int, time_end_ms: int, component: str):
     """Report performance for one evaluation run"""
-    time = time_end - time_start
-    perf_stats["all"].append(time)
-    if component not in perf_stats:
-        perf_stats[component] = []
-    perf_stats[component].append(time)
+    time = time_end_ms - time_start_ms
+    # remove too long times as they are caused by the API throttling
+    if time < 30000:
+        perf_stats["all"].append(time)
+        if component not in perf_stats:
+            perf_stats[component] = []
+        perf_stats[component].append(time)
 
 
 def compute_perf_status(times: list[int]):

@@ -44,8 +44,9 @@ If args are used, evaluation script automatically switches UI Agent to the mode 
 message `UI Agent switched to 'all UI components' mode` is provided in this case.
 
 
-During the run, basic info about running process and errors is written to the console. At the end, aggregated results 
-are provided, together with basic AI inference performance statistics.
+During the run, basic info about running process and errors is written to the console. At the end, aggregated results
+are provided, together with basic AI inference performance statistics. Inference times over 30s are not added to
+the performance statistics, as they are mostly result of API throttling.
 
 Detailed error info is written to the files in the specified directory (see above).
 Separate error file is created for each dataset file, `.json` suffix is replaced by `-errors.txt` suffix. 
