@@ -52,9 +52,7 @@ class NextGenUIAgent:
         else:
             unsupported_components = self.config.get("unsupported_components", False)
 
-        if strategy_name == "default":
-            return OnestepLLMCallComponentSelectionStrategy(unsupported_components)
-        elif strategy_name == "one_llm_call":
+        if strategy_name == "default" or strategy_name == "one_llm_call":
             return OnestepLLMCallComponentSelectionStrategy(unsupported_components)
         elif strategy_name == "two_llm_calls":
             return TwostepLLMCallComponentSelectionStrategy(unsupported_components)
