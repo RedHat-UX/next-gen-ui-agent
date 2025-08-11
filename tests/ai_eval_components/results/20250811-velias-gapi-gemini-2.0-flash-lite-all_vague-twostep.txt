@@ -1,0 +1,96 @@
+Date: 2025-08-06
+Components: all with vague component type check
+LLM: Gemini 2.0 Flash-Lite
+Env: Google Gemini API
+
+Note: 
+* two step LLM inference, separate for component selection and configuration.
+* data_paths are incorrect sometimes, mostly for array type components which might be better tuned
+
+
+Dataset items evalueated: 171
+Agent errors: 10
+Agent warnings: 2
+System errors: 2
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 2,
+    "num_err_system": 1,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 8,
+    "num_err_system": 1,
+    "num_warn_agent": 1
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 1
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1553,
+  "mean": 3924,
+  "avg": 3924,
+  "perc95": 5290,
+  "max": 9580
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 2328,
+    "mean": 3635,
+    "avg": 3635,
+    "perc95": 4474,
+    "max": 4863
+  },
+  "one-card": {
+    "min": 2788,
+    "mean": 4236,
+    "avg": 4236,
+    "perc95": 5803,
+    "max": 6234
+  },
+  "set-of-cards": {
+    "min": 3566,
+    "mean": 4569,
+    "avg": 4569,
+    "perc95": 5603,
+    "max": 9580
+  },
+  "table": {
+    "min": 3674,
+    "mean": 4056,
+    "avg": 4056,
+    "perc95": 4793,
+    "max": 5004
+  },
+  "video-player": {
+    "min": 1553,
+    "mean": 3220,
+    "avg": 3220,
+    "perc95": 4054,
+    "max": 4132
+  }
+}
