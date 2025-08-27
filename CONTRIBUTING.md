@@ -90,6 +90,39 @@ pants run libs/next_gen_ui_llama_stack/agent_test.py
 pants fmt lint check ::
 ```
 
+### Dependency Management
+
+Dependencies are controled by Pants build. All 3rd party dependencies are managed in [libs/3rdparty/python/](./libs/3rdparty/python/) 
+directory and categorized by frameworks.
+During build/tests Pants automatically detects your dependencies from your source code and creates your dependency tree.
+
+To check your dependencies you can run `pants dependencies --transitive tests/ai_eval_components/types.py` to see your dependencies of particular file.
+The final list of required dependencies is in generated `setup.py` in the package in `dist` folder. Simply unzip the package.
+
+All transitive dependencies should work. However some libraries does not manage their transitive dependencies very well resp. ask
+the client to add needed dependencies manually. In this case we have to explicitly name them in BUILD file. For example `llama-stack-client`
+has missing `fire` dependencies so we name them explicitly in [libs/next_gen_ui_llama_stack/BUILD](./libs/next_gen_ui_llama_stack/BUILD) file.
+
+#### Adding a new dependencies
+
+When adding a new module with net new libraries define them in separate requirements file in [libs/3rdparty/python/](./libs/3rdparty/python/) directory
+and include it in the [libs/3rdparty/python/BUILD](./libs/3rdparty/python/BUILD) file.
+It's recommendet to define a range which is supported.
+
+Then regenerate lock file `pants generate-lockfiles` and refresh your virtual environtment by `pants export`.
+
+#### Dependency constrains
+
+The `llama-stack-client` is special dependency because it's used in [libs/next_gen_ui_llama_stack](./libs/next_gen_ui_llama_stack/) module as library 
+dependency (with defined version range) but also we use llama-stack-client to run evaluations.
+
+To pin exact version for running evals it's pinned in constraint 
+file [libs/3rdparty/python/llama-stack-client-constraints.txt](./libs/3rdparty/python/llama-stack-client-constraints.txt) and 
+defined in [BUILD](./BUILD) file. Beacuse of this constain the generated lock file will use only pinned version but same time 
+the [libs/next_gen_ui_llama_stack](./libs/next_gen_ui_llama_stack/) module will require dependency range as defined in 
+[libs/3rdparty/python/llama-stack-client-requirements.txt](./libs/3rdparty/python/llama-stack-client-requirements.txt).
+
+
 ### Testing
 
 #### Unit tests

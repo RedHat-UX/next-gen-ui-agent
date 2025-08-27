@@ -2,21 +2,11 @@
 python_sources(
     name="lib",
     dependencies=[
-        "libs/next_gen_ui_agent:lib",
-        "libs/next_gen_ui_llama_stack:lib",
-        ":llama-stack",
+        # Has to be explicitly noted because of missing trans deps in llama-stack-client
+        "libs/3rdparty/python:llama-stack",
     ],
 )
 
 python_tests(
     name="tests",
-    dependencies=[
-        "libs/3rdparty/python:pytest",
-        "libs/3rdparty/python:langchain",
-    ],
-)
-
-python_requirements(
-    name="llama-stack",
-    source="llama-stack-requirements.txt",
 )

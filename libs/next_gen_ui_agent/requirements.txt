@@ -1,3 +1,0 @@
-stevedore==5.4.1
-jsonpath-ng
-pydantic

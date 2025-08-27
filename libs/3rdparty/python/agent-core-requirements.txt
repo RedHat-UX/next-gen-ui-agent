@@ -1,0 +1,5 @@
+stevedore==5.4.1
+jsonpath-ng
+pydantic
+pydantic-core
+typing_extensions

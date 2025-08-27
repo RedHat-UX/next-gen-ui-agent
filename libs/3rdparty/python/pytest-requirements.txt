@@ -6,3 +6,4 @@ pytest-asyncio
 pytest-html
 pytest-icdiff
 pygments
+numpy
