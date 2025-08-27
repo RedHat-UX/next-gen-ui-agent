@@ -96,7 +96,8 @@ Dependencies are controled by Pants build. All 3rd party dependencies are manage
 directory and categorized by frameworks.
 During build/tests Pants automatically detects your dependencies from your source code and creates your dependency tree.
 
-To check your dependencies you can run `pants dependencies --transitive tests/ai_eval_components/types.py` to see your dependencies.
+To check your dependencies you can run `pants dependencies --transitive tests/ai_eval_components/types.py` to see your dependencies of particular file.
+The final list of required dependencies is in generated `setup.py` in the package in `dist` folder. Simply unzip the package.
 
 All transitive dependencies should work. However some libraries does not manage their transitive dependencies very well resp. ask
 the client to add needed dependencies manually. In this case we have to explicitly name them in BUILD file. For example `llama-stack-client`
@@ -106,6 +107,9 @@ has missing `fire` dependencies so we name them explicitly in [libs/next_gen_ui_
 
 When adding a new module with net new libraries define them in separate requirements file in [libs/3rdparty/python/](./libs/3rdparty/python/) directory
 and include it in the [libs/3rdparty/python/BUILD](./libs/3rdparty/python/BUILD) file.
+It's recommendet to define a range which is supported.
+
+Then regenerate lock file `pants generate-lockfiles` and refresh your virtual environtment by `pants export`.
 
 #### Dependency constrains
 

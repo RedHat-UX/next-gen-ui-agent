@@ -2,6 +2,7 @@
 python_sources(
     name="lib",
     dependencies=[
+        # Has to be explicitly noted because of missing trans deps in llama-stack-client
         "libs/3rdparty/python:llama-stack",
     ],
 )
