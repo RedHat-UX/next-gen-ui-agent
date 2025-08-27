@@ -5,22 +5,17 @@ python_sources(
         "**/*.py",
         "!**/*_test.py",
     ],
+    dependencies=[
+        "libs/3rdparty/python:agent-core",
+    ],
 )
 
 # This target sets the metadata for all the Python test files in this directory.
 python_tests(
     name="tests",
-    dependencies=[
-        "libs/3rdparty/python:pytest",
-        "libs/3rdparty/python:langchain",
-    ],
     sources=[
         "**/*_test.py",
     ],
-)
-
-python_requirements(
-    name="reqs",
 )
 
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
@@ -33,7 +28,6 @@ python_distribution(
     name="dist",
     dependencies=[
         ":lib",
-        ":reqs",
     ],
     provides=python_artifact(
         name="next_gen_ui_agent",

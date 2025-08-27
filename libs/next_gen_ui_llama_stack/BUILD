@@ -2,8 +2,8 @@
 python_sources(
     name="lib",
     dependencies=[
-        "libs/next_gen_ui_agent:lib",
-        ":reqs",
+        # Has to be explicitly noted because of missing trans deps in llama-stack-client
+        "libs/3rdparty/python:llama-stack-client",
     ],
 )
 
@@ -11,16 +11,11 @@ python_sources(
 python_tests(
     name="tests",
     dependencies=[
-        "libs/next_gen_ui_agent:lib",
-        "libs/next_gen_ui_testing:tests",
-        "libs/3rdparty/python:pytest",
-        ":reqs",
+        # Has to be explicitly noted because of missing trans deps in llama-stack-client
+        "libs/3rdparty/python:llama-stack-client",
     ],
 )
 
-python_requirements(
-    name="reqs",
-)
 
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
 #  `setup.py`. See https://www.pantsbuild.org/docs/python-distributions.
@@ -32,7 +27,6 @@ python_distribution(
     name="dist",
     dependencies=[
         ":lib",
-        ":reqs",
     ],
     provides=python_artifact(
         name="next_gen_ui_llama_stack",
