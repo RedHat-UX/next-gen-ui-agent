@@ -21,17 +21,41 @@ This update introduces a complete end-to-end example of the Next Gen UI (NGUI) s
 Follow these steps to test the complete chat, AI, and UI generation flow:
 
 1.  **Install Ollama**:
-    ```bash
-    ollama pull llama3.2:3b
-    ```
+
+```bash
+ollama pull llama3.2:3b
+```
+
 2.  **Start the Backend**:
-    ```bash
-    uvicorn main:app --reload
-    ```
-3.  **Start the Frontend**: Navigate to the `NGUI-e2e` folder and run:
-    ```bash
-    npm run dev
-    ```
+
+Set up Python in project root directory.
+
+```bash
+pants export
+# change `3.11.13` in the path to your python version, or to `latest` for venv symlink created from `CONTRIBUTING.md`!
+source dist/export/python/virtualenvs/python-default/3.11.13/bin/activate
+export PYTHONPATH=./libs:./tests:$PYTHONPATH
+```
+
+Start Assisten API
+
+```bash
+python tests/ngui-e2e/main.py
+python main.py # if running in VS Code
+```
+You can check it's running under [http://127.0.0.1:5000/docs](http://127.0.0.1:5000/docs)
+
+3.  **Start the Frontend**:
+
+Navigate to the `NGUI-e2e` folder and run:
+
+```bash
+npm install
+npm link dynamicui
+npm run dev
+```
+
+Note: It's expected you already build `dynamicui` package located in [libs_js/next_gen_ui_react](/libs_js/next_gen_ui_react/)
 
 ---
 
