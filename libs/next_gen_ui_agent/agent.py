@@ -23,6 +23,7 @@ from next_gen_ui_agent.types import (
     InputData,
     Rendition,
     UIComponentMetadata,
+    UIComponentMetadataHandBuildComponent,
 )
 from stevedore import ExtensionManager
 
@@ -37,6 +38,9 @@ class NextGenUIAgent:
             namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
         )
         self.config = config
+        self._hand_build_components_mapping = self.config.get(
+            "hand_build_components_mapping"
+        )
         self._component_selection_strategy = self._create_component_selection_strategy()
 
     def _create_component_selection_strategy(self) -> ComponentSelectionStrategy:
@@ -76,6 +80,9 @@ class NextGenUIAgent:
             raise ValueError(
                 "config field 'inference' is not defined neither in input parameter nor agent's config"
             )
+
+        # select hand build components for items where defined, for rest run LLM powered component selection, then join results together
+        # TODO use hand_build_components = self.__select_hand_build_component(input.input_data)
         return await self._component_selection_strategy.select_components(
             inference, input
         )
@@ -116,3 +123,24 @@ class NextGenUIAgent:
             factory = self._extension_manager[component_system].obj
 
         return _design_system_handler(components, factory)
+
+    def _select_hand_build_component(
+        self, input_data: InputData
+    ) -> Optional[UIComponentMetadataHandBuildComponent]:
+        """Select hand-build component based on input data type."""
+        type = input_data["type"]
+        if (
+            self._hand_build_components_mapping
+            and type
+            and type in self._hand_build_components_mapping
+        ):
+            return UIComponentMetadataHandBuildComponent.model_validate(
+                {
+                    "id": input_data["id"],
+                    "title": "",
+                    "component": "hand-build-component",
+                    "component_type": self._hand_build_components_mapping[type],
+                    "fields": [],
+                }
+            )
+        return None
