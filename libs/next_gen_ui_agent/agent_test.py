@@ -9,7 +9,7 @@ from next_gen_ui_agent.component_selection import (
 from next_gen_ui_agent.component_selection_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
 )
-from next_gen_ui_agent.types import AgentConfig
+from next_gen_ui_agent.types import AgentConfig, InputData
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
 from pydantic_core import from_json
 
@@ -174,6 +174,39 @@ class TestCreateComponentSelectionStrategy:
             # Should use config strategy and environment unsupported_components
             assert isinstance(strategy, TwostepLLMCallComponentSelectionStrategy)
             assert strategy.unsupported_components is True
+
+
+def test_method__select_hand_build_component_EXISTING() -> None:
+    agent = NextGenUIAgent(
+        config=AgentConfig(
+            hand_build_components_mapping={"my.type": "one-card-special"}
+        )
+    )
+    input_data = InputData(id="1", data="{}", type="my.type")
+    result = agent._select_hand_build_component(input_data)
+    assert result is not None
+    assert result.component == "hand-build-component"
+    assert result.id == "1"
+    assert result.title == ""
+    assert result.component_type == "one-card-special"
+
+
+def test_method__select_hand_build_component_NON_EXISTING() -> None:
+    agent = NextGenUIAgent(
+        config=AgentConfig(
+            hand_build_components_mapping={"my.type": "one-card-special"}
+        )
+    )
+    input_data = InputData(id="1", data="{}", type="my.type2")
+    result = agent._select_hand_build_component(input_data)
+    assert result is None
+
+
+def test_method__select_hand_build_component_NOT_CONFIGURED() -> None:
+    agent = NextGenUIAgent(config=AgentConfig())
+    input_data = InputData(id="1", data="{}", type="my.type2")
+    result = agent._select_hand_build_component(input_data)
+    assert result is None
 
 
 if __name__ == "__main__":

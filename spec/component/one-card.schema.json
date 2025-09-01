@@ -49,9 +49,11 @@
       "type": "string"
     },
     "id": {
+      "description": "id of the backend data this component is for",
       "type": "string"
     },
     "title": {
+      "description": "title of the component",
       "type": "string"
     },
     "fields": {
