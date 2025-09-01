@@ -82,10 +82,27 @@ class NextGenUIAgent:
             )
 
         # select hand build components for items where defined, for rest run LLM powered component selection, then join results together
-        # TODO use hand_build_components = self.__select_hand_build_component(input.input_data)
-        return await self._component_selection_strategy.select_components(
-            inference, input
-        )
+        ret: list[UIComponentMetadata] = []
+        to_dynamic_selection: list[InputData] = []
+        for input_data in input["input_data"]:
+            hbc = self._select_hand_build_component(input_data)
+            if hbc:
+                ret.append(hbc)
+            else:
+                to_dynamic_selection.append(input_data)
+
+        if to_dynamic_selection:
+            input_to_dynamic_selection = AgentInput(
+                user_prompt=input["user_prompt"], input_data=to_dynamic_selection
+            )
+            from_dynamic_selection = (
+                await self._component_selection_strategy.select_components(
+                    inference, input_to_dynamic_selection
+                )
+            )
+            ret.extend(from_dynamic_selection)
+
+        return ret
 
     def data_transformation(
         self, input_data: list[InputData], components: list[UIComponentMetadata]
@@ -128,19 +145,20 @@ class NextGenUIAgent:
         self, input_data: InputData
     ) -> Optional[UIComponentMetadataHandBuildComponent]:
         """Select hand-build component based on input data type."""
-        type = input_data["type"]
-        if (
-            self._hand_build_components_mapping
-            and type
-            and type in self._hand_build_components_mapping
-        ):
-            return UIComponentMetadataHandBuildComponent.model_validate(
-                {
-                    "id": input_data["id"],
-                    "title": "",
-                    "component": "hand-build-component",
-                    "component_type": self._hand_build_components_mapping[type],
-                    "fields": [],
-                }
-            )
+        if "type" in input_data:
+            type = input_data["type"]
+            if (
+                self._hand_build_components_mapping
+                and type
+                and type in self._hand_build_components_mapping
+            ):
+                return UIComponentMetadataHandBuildComponent.model_validate(
+                    {
+                        "id": input_data["id"],
+                        "title": "",
+                        "component": "hand-build-component",
+                        "component_type": self._hand_build_components_mapping[type],
+                        "fields": [],
+                    }
+                )
         return None
