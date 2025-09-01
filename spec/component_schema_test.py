@@ -8,8 +8,12 @@ from next_gen_ui_agent.data_transform import (
     OneCardDataTransformer,
     VideoPlayerDataTransformer,
 )
+from next_gen_ui_agent.data_transform.hand_build_component import (
+    HandBuildComponentDataTransformer,
+)
 from next_gen_ui_agent.data_transform.json_schema_config import CustomGenerateJsonSchema
 from next_gen_ui_agent.data_transform.types import (
+    ComponentDataHandBuildComponent,
     ComponentDataImage,
     ComponentDataOneCard,
     ComponentDataVideo,
@@ -56,6 +60,18 @@ def test_video_schema() -> None:
     assert json.dumps(schema, indent=2) == file_content
 
 
+def test_hand_build_component_schema() -> None:
+    schema = ComponentDataHandBuildComponent.model_json_schema(
+        schema_generator=CustomGenerateJsonSchema
+    )
+    with open(
+        schema_file_path(HandBuildComponentDataTransformer.COMPONENT_NAME), "r"
+    ) as file:
+        file_content = file.read()
+    assert '"title": "Title"' not in file_content
+    assert json.dumps(schema, indent=2) == file_content
+
+
 def schema_file_path(component_name) -> str:
     return os.path.abspath(
         os.path.join(
@@ -89,6 +105,12 @@ def regenerate_schemas() -> None:
     save_schema(
         VideoPlayerDataTransformer.COMPONENT_NAME,
         ComponentDataVideo.model_json_schema(schema_generator=CustomGenerateJsonSchema),
+    )
+    save_schema(
+        HandBuildComponentDataTransformer.COMPONENT_NAME,
+        ComponentDataHandBuildComponent.model_json_schema(
+            schema_generator=CustomGenerateJsonSchema
+        ),
     )
 
 
