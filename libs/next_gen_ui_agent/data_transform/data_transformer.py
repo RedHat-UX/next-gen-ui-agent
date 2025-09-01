@@ -13,6 +13,8 @@ from next_gen_ui_agent.data_transform.types import (
     ComponentDataBase,
     ComponentDataBaseWithArrayValueFileds,
     ComponentDataBaseWithSimpleValueFileds,
+    ComponentDataBaseWithTitle,
+    ComponentDataHandBuildComponent,
     ComponentDataImage,
     ComponentDataOneCard,
     ComponentDataSetOfCards,
@@ -27,12 +29,14 @@ from next_gen_ui_agent.types import InputData, UIComponentMetadata
 T = TypeVar(
     "T",
     ComponentDataBase,
+    ComponentDataBaseWithTitle,
     ComponentDataAudio,
     ComponentDataImage,
     ComponentDataOneCard,
     ComponentDataSetOfCards,
     ComponentDataTable,
     ComponentDataVideo,
+    ComponentDataHandBuildComponent,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,8 +50,9 @@ class DataTransformerBase(ABC, Generic[T]):
 
     def preprocess_rendering_context(self, component: UIComponentMetadata):
         """Prepare _component_data property for further use in the transformer"""
-        self._component_data.title = component.title
         self._component_data.id = component.id  # type: ignore
+        if isinstance(self._component_data, ComponentDataBaseWithTitle):
+            self._component_data.title = component.title
         if isinstance(self._component_data, ComponentDataBaseWithSimpleValueFileds):
             self._component_data.fields = copy_simple_fields_from_ui_component_metadata(
                 component.fields

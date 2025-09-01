@@ -6,9 +6,14 @@ from pydantic import BaseModel, Field
 class ComponentDataBase(BaseModel):
     """Component Data base with really basic attributes like title and id"""
 
-    component: Any
-    id: str
-    title: str
+    component: Any = Field(description="component type")
+    id: str = Field(description="id of the backend data this component is for")
+
+
+class ComponentDataBaseWithTitle(ComponentDataBase):
+    """Component Data base with really basic attributes like title and id"""
+
+    title: str = Field(description="title of the component")
 
 
 class DataFieldBase(BaseModel):
@@ -36,7 +41,7 @@ class DataFieldSimpleValue(DataFieldBase):
     """Data matching `data_path` from `input_data`"""
 
 
-class ComponentDataBaseWithSimpleValueFileds(ComponentDataBase):
+class ComponentDataBaseWithSimpleValueFileds(ComponentDataBaseWithTitle):
     """Component Data base extended by fields"""
 
     fields: list[DataFieldSimpleValue]
@@ -58,13 +63,13 @@ class DataFieldArrayValue(DataFieldBase):
 
 
 # TODO do we really want data to be stored in fields, or in a complete separate field?
-class ComponentDataBaseWithArrayValueFileds(ComponentDataBase):
+class ComponentDataBaseWithArrayValueFileds(ComponentDataBaseWithTitle):
     """Component Data base extended by fields"""
 
     fields: list[DataFieldArrayValue]
 
 
-class ComponentDataAudio(ComponentDataBase):
+class ComponentDataAudio(ComponentDataBaseWithTitle):
     """Component Data for Audio."""
 
     component: Literal["audio"] = "audio"
@@ -128,7 +133,7 @@ VIDEO_DATA_PATH_SUFFIXES = (
 )
 
 
-class ComponentDataImage(ComponentDataBase):
+class ComponentDataImage(ComponentDataBaseWithTitle):
     """Component Data for Image"""
 
     component: Literal["image"] = "image"
@@ -157,11 +162,23 @@ class ComponentDataTable(ComponentDataBaseWithArrayValueFileds):
     component: Literal["table"] = "table"
 
 
-class ComponentDataVideo(ComponentDataBase):
+class ComponentDataVideo(ComponentDataBaseWithTitle):
     """Component Data for Video."""
 
     component: Literal["video-player"] = "video-player"
     video: Optional[str] = Field(description="Video URL", default=None)
     video_img: Optional[str] = Field(
         description="URL of the Image for Video", default=None
+    )
+
+
+class ComponentDataHandBuildComponent(ComponentDataBase):
+    """Component Data for HandBuildComponent rendered by hand-build code registered in the renderer for given `component_type`."""
+
+    component: Literal["hand-build-component"] = "hand-build-component"
+    component_type: str = Field(
+        description="type of the component to be used in renderer to select hand-build rendering implementation"
+    )
+    data: Any = Field(
+        description="JSON backend data to be rendered by the hand-build rendering implementation"
     )

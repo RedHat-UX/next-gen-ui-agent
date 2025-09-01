@@ -3,6 +3,9 @@ import logging
 
 from next_gen_ui_agent.data_transform.audio import AudioPlayerDataTransformer
 from next_gen_ui_agent.data_transform.data_transformer import DataTransformerBase
+from next_gen_ui_agent.data_transform.hand_build_component import (
+    HandBuildComponentDataTransformer,
+)
 from next_gen_ui_agent.data_transform.image import ImageDataTransformer
 from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
@@ -20,6 +23,7 @@ COMPONENT_TRANSFORMERS_REGISTRY: dict[str, DataTransformerBase] = {
     AudioPlayerDataTransformer.COMPONENT_NAME: AudioPlayerDataTransformer(),
     TableDataTransformer.COMPONENT_NAME: TableDataTransformer(),
     SetOfCardsDataTransformer.COMPONENT_NAME: SetOfCardsDataTransformer(),
+    HandBuildComponentDataTransformer.COMPONENT_NAME: HandBuildComponentDataTransformer(),
 }
 
 
