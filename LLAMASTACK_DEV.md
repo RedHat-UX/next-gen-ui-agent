@@ -25,15 +25,15 @@ Ollama model must be running during the LlamaStack startup, so you have to run i
 ollama run granite3.2:2b --keepalive 60m 
 ```
 
-Start [LlamaStack Ollama distribution](https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/ollama.html#ollama-distribution) container.
+Start [LlamaStack Starter distribution](https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/starter.html) container.
 
-Version of the LlamaStack server distribution must be the same as version of the [LlamaStack client used by the UI Agent, see](./libs/3rdparty/python/llama-stack-client-constraints.txt)!
+Version of the LlamaStack server distribution must be the same as version of the [LlamaStack client used by the UI Agent, see](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/3rdparty/python/llama-stack-client-constraints.txt)!
 
 ```sh
 podman run -it --rm \
   -p 5001:5001 \
   -v ~/.llama:/root/.llama:z \
-  llamastack/distribution-ollama:0.1.9 \
+  llamastack/distribution-starter:0.2.16 \
   --port 5001 \
   --env INFERENCE_MODEL="granite3.2:2b" \
   --env OLLAMA_URL=http://host.containers.internal:11434
