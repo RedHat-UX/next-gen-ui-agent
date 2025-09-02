@@ -1,0 +1,30 @@
+FROM registry.access.redhat.com/ubi9/python-312
+
+# Set work directory
+WORKDIR /opt/app-root/
+
+# Install dependencies
+RUN pip install a2a-sdk a2a-sdk[http-server] uvicorn langchain_openai
+
+
+# Copy Python Project Files (Container context must be the `python` directory)
+COPY . /opt/app-root
+
+USER root
+
+# Install next_gen_ui dependencies
+RUN pip install \
+    /opt/ngui-dist/next_gen_ui_agent*.whl \
+    /opt/ngui-dist/next_gen_ui_rhds*.whl
+
+
+# Allow non-root user to access the everything in app-root
+RUN chgrp -R root /opt/app-root/ && chmod -R g+rwx /opt/app-root/
+
+# Expose default port (change if needed)
+EXPOSE 9999
+
+USER 1001
+
+# Run the agent
+CMD python .
