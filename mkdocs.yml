@@ -68,6 +68,7 @@ nav:
       - guide/architecture.md
       - guide/input_data.md
       - guide/data_ui_blocks.md
+      - guide/hand_build_components.md
     - Development:
       - Contributing: development/contributing.md
       - Llama Stack: development/llama_stack.md
