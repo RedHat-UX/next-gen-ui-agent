@@ -42,6 +42,9 @@ agent = NextGenUIAgent(
 When data piece is send to *UI Agent* for processing, agent consults this mapping, and if `type` is found here, HBC is selected.
 If `type` is not found in this mapping, AI powered component selection and configuration is performed for that data piece.
 
+*UI Agent*'s' LlamaStack and LanGraph AI framework bindings propagate tool name as an `InputData.type`, so HBC can be mapped based 
+on the tool name of the tool used to load given data.
+
 ### Requested in `InputData.hand_build_component_type`
 
 If your *Controlling assistant* needs/is able to directly define HBC component type to visualize some piece of data, it can 
