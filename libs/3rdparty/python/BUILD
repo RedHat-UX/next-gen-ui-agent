@@ -38,3 +38,8 @@ python_requirements(
     name="rich",
     source="rich-requirements.txt",
 )
+
+python_requirements(
+    name="a2a",
+    source="a2a-requirements.txt",
+)
