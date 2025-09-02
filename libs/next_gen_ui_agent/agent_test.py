@@ -106,12 +106,6 @@ async def test_component_selection_hbc_mixed() -> None:
 @pytest.mark.asyncio
 async def test_component_selection_hbc_only() -> None:
     """Test that hand-build components alone are selected correctly."""
-    mocked_llm_component = UIComponentMetadata(
-        component="one-card",
-        id="1",
-        title="Toy Story",
-        fields=[DataField(name="Title", data_path="movie.title")],
-    )
     agent = NextGenUIAgent(
         config=AgentConfig(
             hand_build_components_mapping={
@@ -123,14 +117,22 @@ async def test_component_selection_hbc_only() -> None:
     input = AgentInput(
         user_prompt="Test prompt",
         input_data=[
+            # mapped HBC
             InputData(id="1", data='{"title": "HBC data"}', type="my.type"),
+            # HBC directly requested by component type, it has precedence over type mapping (tested here also)!
+            InputData(
+                id="3",
+                data='{"title": "Toy Story"}',
+                type="other.type",
+                hand_build_component_type="provided-special",
+            ),
+            # mapped HBC
             InputData(id="4", data='{"title": "Toy Story"}', type="other.type"),
         ],
     )
-    components = await agent.component_selection(
-        input=input, inference=MockedInference(mocked_llm_component)
-    )
-    assert len(components) == 2
+    # inference is not necessary!
+    components = await agent.component_selection(input=input)
+    assert len(components) == 3
     # order of components in result is implementation detail of the `agent.component_selection` method!
     assert isinstance(components[0], UIComponentMetadataHandBuildComponent)
     assert components[0].component == "hand-build-component"
@@ -138,8 +140,12 @@ async def test_component_selection_hbc_only() -> None:
     assert components[0].component_type == "one-card-special"
     assert isinstance(components[1], UIComponentMetadataHandBuildComponent)
     assert components[1].component == "hand-build-component"
-    assert components[1].id == "4"
-    assert components[1].component_type == "table-special"
+    assert components[1].id == "3"
+    assert components[1].component_type == "provided-special"
+    assert isinstance(components[2], UIComponentMetadataHandBuildComponent)
+    assert components[2].component == "hand-build-component"
+    assert components[2].id == "4"
+    assert components[2].component_type == "table-special"
 
 
 @pytest.mark.asyncio
@@ -176,6 +182,23 @@ async def test_component_selection_llm_only() -> None:
     assert components[2].component == "one-card"
     assert components[2].id == "5"
     assert components[2].title == "Toy Story"
+
+
+@pytest.mark.asyncio
+async def test_component_selection_llm_inference_necessar() -> None:
+    """Test that LLM inference object is required when inference is necessary."""
+    agent = NextGenUIAgent(config=AgentConfig())
+    input = AgentInput(
+        user_prompt="Test prompt",
+        input_data=[
+            InputData(id="2", data='{"title": "Toy Story"}'),
+        ],
+    )
+    with pytest.raises(
+        ValueError,
+        match="config field 'inference' is not defined neither in input parameter nor agent's config",
+    ):
+        await agent.component_selection(input=input)
 
 
 class TestCreateComponentSelectionStrategy:

@@ -74,24 +74,36 @@ class NextGenUIAgent:
     async def component_selection(
         self, input: AgentInput, inference: Optional[InferenceBase] = None
     ) -> list[UIComponentMetadata]:
-        """Generate component metadata."""
-        inference = inference if inference else self.config.get("inference")
-        if not inference:
-            raise ValueError(
-                "config field 'inference' is not defined neither in input parameter nor agent's config"
-            )
+        """STEP 1: Select component and generate its configuration metadata."""
 
         # select hand build components for items where defined, for rest run LLM powered component selection, then join results together
         ret: list[UIComponentMetadata] = []
         to_dynamic_selection: list[InputData] = []
         for input_data in input["input_data"]:
-            hbc = self._select_hand_build_component(input_data)
+            # look for requested HBC component type first
+            hbc_type = (
+                input_data.get("hand_build_component_type")
+                if "hand_build_component_type" in input_data
+                else None
+            )
+            if hbc_type:
+                hbc = self._construct_hbc_metadata(hbc_type, input_data)
+            else:
+                # try to find HBC from configured mapping
+                hbc = self._select_hand_build_component(input_data)
+
             if hbc:
                 ret.append(hbc)
             else:
                 to_dynamic_selection.append(input_data)
 
         if to_dynamic_selection:
+            inference = inference if inference else self.config.get("inference")
+            if not inference:
+                raise ValueError(
+                    "config field 'inference' is not defined neither in input parameter nor agent's config"
+                )
+
             input_to_dynamic_selection = AgentInput(
                 user_prompt=input["user_prompt"], input_data=to_dynamic_selection
             )
@@ -107,7 +119,7 @@ class NextGenUIAgent:
     def data_transformation(
         self, input_data: list[InputData], components: list[UIComponentMetadata]
     ) -> list[ComponentDataBase]:
-        """Transform components to Agent Data Output."""
+        """STEP 2: Transform generated metadata into component metadata including data values taken from InputData JSON."""
         return enhance_component_by_input_data(
             input_data=input_data, components=components
         )
@@ -117,8 +129,8 @@ class NextGenUIAgent:
         components: list[ComponentDataBase],
         component_system: Optional[str] = None,
     ) -> list[Rendition]:
-        """Handle rendering of the component with the chosen component system
-        either via config or parameter."""
+        """STEP 3: Render the component with the chosen component system,
+        either via AgentConfig or parameter provided to this method."""
 
         component_system = (
             component_system
@@ -144,21 +156,25 @@ class NextGenUIAgent:
     def _select_hand_build_component(
         self, input_data: InputData
     ) -> Optional[UIComponentMetadataHandBuildComponent]:
-        """Select hand-build component based on input data type."""
-        if "type" in input_data:
+        """Select hand-build component based on InputData type and configured mapping."""
+        if self._hand_build_components_mapping and ("type" in input_data):
             type = input_data["type"]
-            if (
-                self._hand_build_components_mapping
-                and type
-                and type in self._hand_build_components_mapping
-            ):
-                return UIComponentMetadataHandBuildComponent.model_validate(
-                    {
-                        "id": input_data["id"],
-                        "title": "",
-                        "component": "hand-build-component",
-                        "component_type": self._hand_build_components_mapping[type],
-                        "fields": [],
-                    }
+            if type and type in self._hand_build_components_mapping:
+                return self._construct_hbc_metadata(
+                    self._hand_build_components_mapping[type], input_data
                 )
         return None
+
+    def _construct_hbc_metadata(
+        self, component_type: str, input_data: InputData
+    ) -> Optional[UIComponentMetadataHandBuildComponent]:
+        """Construct hand-build component metadata for component_type and input data."""
+        return UIComponentMetadataHandBuildComponent.model_validate(
+            {
+                "id": input_data["id"],
+                "title": "",
+                "component": "hand-build-component",
+                "component_type": component_type,
+                "fields": [],
+            }
+        )
