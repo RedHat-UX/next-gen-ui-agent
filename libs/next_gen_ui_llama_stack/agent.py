@@ -16,22 +16,30 @@ logger = logging.getLogger(__name__)
 
 
 class NextGenUILlamaStackAgent:
-    """Next Gen UI Agen as Llama stack agen."""
+    """Next Gen UI Agen as Llama stack agent."""
 
     def __init__(
         self,
         client: LlamaStackClient | AsyncLlamaStackClient,
         model: str,
         inference: Optional[InferenceBase] = None,
+        config: Optional[AgentConfig] = None,
     ):
-        if not inference:
+        """
+        Initialize Next Gen UI Agent as Llama stack agent.
+        Inference is created based on provided client and model if not provided (either directly or in config).
+        """
+        if not inference and (not config or not config["inference"]):
             if isinstance(client, LlamaStackClient):
                 inference = LlamaStackAgentInference(client, model)
             else:
                 inference = LlamaStackAsyncAgentInference(client, model)
 
         self.client = client
-        self.ngui_agent = NextGenUIAgent(AgentConfig(inference=inference))
+        config = config if config else AgentConfig()
+        if inference:
+            config["inference"] = inference
+        self.ngui_agent = NextGenUIAgent(config=config)
 
     def _data_selection(self, steps: list[Step]) -> list[InputData]:
         """Get data from all tool messages."""
@@ -40,7 +48,7 @@ class NextGenUILlamaStackAgent:
             if not s.step_type == "tool_execution":
                 continue
             for r in s.tool_responses:
-                d = InputData(id=r.call_id, data=str(r.content))
+                d = InputData(id=r.call_id, data=str(r.content), type=r.tool_name)
                 data.append(d)
 
         return data
@@ -53,6 +61,13 @@ class NextGenUILlamaStackAgent:
     async def create_turn(
         self, user_prompt, steps: list[Step], component_system: Optional[str] = None
     ) -> AsyncIterator[ResponseEvent]:
+        """
+        Process one conversation turn to render UI.
+        Get data from all tool messages found in provided turn steps, and runs
+        'UI Agent' for them to generate UI components.
+        `ToolResponse.tool_name` is used as `InputData.type` so can be used for
+        HBC selection through mapping in UI Agent's configuration."""
+
         logger.debug("create_turn. user_prompt: %s", user_prompt)
         tool_data_list = self._data_selection(steps)
         components = await self._component_selection(user_prompt, tool_data_list)

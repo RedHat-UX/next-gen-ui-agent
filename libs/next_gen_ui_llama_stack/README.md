@@ -2,6 +2,10 @@
 
 Support for [Llama Stack](https://github.com/meta-llama/llama-stack).
 
+`NextGenUILlamaStackAgent` takes all tool messages from provided conversation turn steps, and process data from them into UI components.
+
+Tool name is used as `InputData.type` for each tool message, so can be used for [Hand Build Component](../../docs/guide/hand_build_components.md) selection based on mapping in UI Agent's configuration.
+
 ## Installation
 
 ```sh
