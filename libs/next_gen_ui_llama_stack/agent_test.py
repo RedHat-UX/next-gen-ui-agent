@@ -6,7 +6,12 @@ import pytest
 from llama_stack_client import AsyncLlamaStackClient, LlamaStackClient
 from llama_stack_client.types.inference_step import InferenceStep
 from llama_stack_client.types.tool_execution_step import ToolExecutionStep
-from next_gen_ui_agent.types import Rendition, UIComponentMetadata
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    Rendition,
+    UIComponentMetadata,
+    UIComponentMetadataHandBuildComponent,
+)
 from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedInference
@@ -140,6 +145,27 @@ async def test_agent_turn_from_steps_async() -> None:
             payload: UIComponentMetadata = ng_event["payload"][0]
             logger.info("Result: %s", payload)
             assert payload.component == "one-card"
+
+
+@pytest.mark.asyncio
+async def test_agent_turn_from_steps_async_hbc() -> None:
+    """Test that hand-build components are selected correctly based on tool name."""
+    client = AsyncLlamaStackClient()
+    ngui_agent = NextGenUILlamaStackAgent(
+        client,
+        "not-used",
+        # register HBC for `movies` tool_name
+        config=AgentConfig(hand_build_components_mapping={"movies": "my-ui-component"}),
+    )
+
+    async for ng_event in ngui_agent.create_turn(
+        user_input, steps=[step1, step2, step3], component_system="json"
+    ):
+        if ng_event["event_type"] == "component_metadata":
+            payload: UIComponentMetadataHandBuildComponent = ng_event["payload"][0]
+            logger.info("Result: %s", payload)
+            assert payload.component == "hand-build-component"
+            assert payload.component_type == "my-ui-component"
 
 
 if __name__ == "__main__":
