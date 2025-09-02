@@ -46,10 +46,15 @@ class GraphConfig(TypedDict):
 class NextGenUILangGraphAgent:
     """Next Gen UI Agent in LangGraph."""
 
-    def __init__(self, model: BaseChatModel):
+    def __init__(self, model: BaseChatModel, config: Optional[AgentConfig] = None):
+        """Initialize Next Gen UI Agent in LangGraph. Inference is created from model if not provided in config."""
         super().__init__()
-        inference = LangChainModelInference(model)
-        self.ngui_agent = NextGenUIAgent(config=AgentConfig(inference=inference))
+        config = config if config else AgentConfig()
+        if "inference" not in config:
+            inference = LangChainModelInference(model)
+            config["inference"] = inference
+
+        self.ngui_agent = NextGenUIAgent(config=config)
 
     # Nodes
     async def data_selection(self, state: AgentInputState, config: RunnableConfig):
@@ -74,7 +79,7 @@ class NextGenUILangGraphAgent:
                 # and (m.name and not m.name.startswith("ngui"))
             ):
                 # TODO: Handle m.content as list and remove type: ignore
-                backend_data.append({"id": m.tool_call_id, "data": m.content})  # type: ignore
+                backend_data.append({"id": m.tool_call_id, "data": m.content, "type": m.name})  # type: ignore
             if m.type == "human" and not user_prompt:
                 user_prompt = m.content  # type: ignore
             if user_prompt != "" and len(backend_data) > 0:
@@ -92,7 +97,8 @@ class NextGenUILangGraphAgent:
     async def component_selection(self, state: AgentState, config: RunnableConfig):
         user_prompt = state["user_prompt"]
         input_data = [
-            InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
+            InputData(id=d["id"], data=d["data"], type=d["type"])
+            for d in state["backend_data"]
         ]
         input = AgentInput(user_prompt=user_prompt, input_data=input_data)
         components = await self.ngui_agent.component_selection(input=input)
@@ -101,7 +107,8 @@ class NextGenUILangGraphAgent:
     def data_transformation(self, state: AgentState, config: RunnableConfig):
         components = state["components"]
         input_data = [
-            InputData(id=d["id"], data=d["data"]) for d in state["backend_data"]
+            InputData(id=d["id"], data=d["data"], type=d["type"])
+            for d in state["backend_data"]
         ]
 
         data = self.ngui_agent.data_transformation(
