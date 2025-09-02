@@ -32,8 +32,8 @@ class AgentConfig(TypedDict):
 
     hand_build_components_mapping: NotRequired[dict[str, str]]
     """
-    Mapping from `InputData.type` to Hand-coded `component_type`.
-    LLM powered component selection and configuration is skipped in this case, data are propagated "as is", and only
+    Mapping from `InputData.type` to hand-build `component_type` (aka HBC).
+    LLM powered component selection and configuration is skipped for HBC, data are propagated "as is", and only
     rendering is performed by hand-build code registered in the renderer for given `component_type`.
     """
 
@@ -42,12 +42,20 @@ class InputData(TypedDict):
     """Agent Input Data."""
 
     id: str
-    """Unique ID of the input data so we can reference them during the agent processing."""
+    """
+    ID of the input data so we can reference them during the agent processing.
+    Must be unique for each `InputData` in one UI Agent call (in one `AgentInput`).
+    """
     data: str
     """JSON data to be processed."""
     type: NotRequired[str]
     """
-    Optional type identification of the input data. Used for "hand-build" component selection based on Agent's configuration. See `AgentConfig.hand_build_components_mapping`.
+    Optional type identification of the input data. Used for "hand-build component" selection
+    based on Agent's configuration. See `AgentConfig.hand_build_components_mapping`.
+    """
+    hand_build_component_type: NotRequired[str]
+    """
+    Optional `component_type` of the "hand-build component" to be used for UI rendering.
     """
 
 
