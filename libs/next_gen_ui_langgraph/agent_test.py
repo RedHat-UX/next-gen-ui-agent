@@ -5,8 +5,16 @@ import pytest
 from langchain_core.language_models import FakeMessagesListChatModel
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, ToolMessage
 from next_gen_ui_agent import UIComponentMetadata
-from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
-from next_gen_ui_agent.types import InputData, Rendition
+from next_gen_ui_agent.data_transform.types import (
+    ComponentDataHandBuildComponent,
+    ComponentDataOneCard,
+)
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    InputData,
+    Rendition,
+    UIComponentMetadataHandBuildComponent,
+)
 from next_gen_ui_langgraph.agent import GraphConfig, NextGenUILangGraphAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 from pytest import fail
@@ -99,11 +107,15 @@ async def test_agent_MESSAGESIN_WITH_COMPONENT_SYSTEM() -> None:
 
 
 @pytest.mark.asyncio
-async def test_agent_MESSAGESIN_WITHOUT_COMPONENT_SYSTEM() -> None:
+async def test_agent_MESSAGESIN_WITHOUT_COMPONENT_SYSTEM_HBC() -> None:
     msg = AIMessage(content=LLM_RESPONSE)
     llm = FakeMessagesListChatModel(responses=[msg])
 
-    agent = NextGenUILangGraphAgent(model=llm)
+    # HBC selection is configured here based on tool call name
+    agent = NextGenUILangGraphAgent(
+        model=llm,
+        config=AgentConfig(hand_build_components_mapping={"movies": "my-ui-component"}),
+    )
     graph = agent.build_graph()
 
     tool_message = ToolMessage(
@@ -121,22 +133,20 @@ async def test_agent_MESSAGESIN_WITHOUT_COMPONENT_SYSTEM() -> None:
         config={"configurable": configurable},
     )
     components = result["components"]
-    c: UIComponentMetadata = components[0]
+    c: UIComponentMetadataHandBuildComponent = components[0]
     print("\n--RESULT---")
     print(c.component)
-    assert "one-card" == c.component
-    assert c.fields
-    field = c.fields[0]
-    assert field.name == "Title"
+    assert "hand-build-component" == c.component
+    assert "my-ui-component" == c.component_type
+    assert c.id == "call_Jja7J89XsjrOLA5r!MEOW!SL"
 
     components_data = result["components_data"]
     assert len(components_data) == 1
-    c_data: ComponentDataOneCard = components_data[0]
-    assert c_data.component == "one-card"
-    assert c_data.fields
-    c_field = c_data.fields[0]
-    assert c_field.name == "Title"
-    assert c_field.data == ["Toy Story"]
+    c_data: ComponentDataHandBuildComponent = components_data[0]
+    assert c_data.component == "hand-build-component"
+    assert c_data.id == "call_Jja7J89XsjrOLA5r!MEOW!SL"
+    assert c_data.component_type == "my-ui-component"
+    assert c_data.data == json.loads(MOVIES_DATA)
 
     try:
         result["renditions"]
