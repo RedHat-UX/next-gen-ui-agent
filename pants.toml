@@ -50,6 +50,7 @@ search_path = ["<PATH>", "<PYENV>"]
 [tailor]
 ignore_paths = [
     'tests/distribution-all/**',
+    '**/node_modules/**',
 ]
 
 [pytest]
