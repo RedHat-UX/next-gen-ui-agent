@@ -3,7 +3,7 @@ from uuid import uuid4
 import pytest
 from a2a.server.agent_execution import SimpleRequestContextBuilder
 from a2a.server.events import EventQueue
-from a2a.types import Message, MessageSendParams, Part, Role, TextPart, DataPart
+from a2a.types import DataPart, Message, MessageSendParams, Part, Role, TextPart
 from langchain_core.language_models import FakeMessagesListChatModel
 from langchain_core.messages import AIMessage
 from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
