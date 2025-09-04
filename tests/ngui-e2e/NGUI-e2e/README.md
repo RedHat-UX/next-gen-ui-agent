@@ -16,19 +16,58 @@ This update introduces a complete end-to-end example of the Next Gen UI (NGUI) s
 
 ---
 
-## 🧪 How to Test
+## ⚡ Quick Start
+
+For experienced users, here's the essential command sequence:
+
+```bash
+# 1. Check/Start Ollama
+ollama serve &  # Start in background if not running
+ollama pull granite3-dense:8b  # Ensure model is available
+
+# 2. Start Backend API
+cd tests/ngui-e2e
+uvicorn main:app --reload
+
+# 3. Start Frontend (in another terminal)
+cd tests/ngui-e2e/NGUI-e2e
+npm install && npm run dev
+```
+
+---
+
+## 🧪 Detailed Setup Instructions
 
 Follow these steps to test the complete chat, AI, and UI generation flow:
 
 1.  **Install Ollama**:
 
 ```bash
-ollama pull llama3.2:3b
+# Install Ollama if not already installed
+# Visit: https://ollama.com/download
+
+# Pull the required model for this demo
+ollama pull granite3-dense:8b
 ```
 
 2.  **Start the Backend**:
 
-Set up Python in project root directory.
+First, ensure Ollama is running (required for AI model inference):
+
+```bash
+# Check if Ollama is running
+curl -s http://localhost:11434/api/tags > /dev/null
+if [ $? -ne 0 ]; then
+    echo "Starting Ollama..."
+    ollama serve &
+    sleep 3  # Wait for Ollama to start
+fi
+
+# Pull required model if not already available
+ollama pull granite3-dense:8b
+```
+
+Set up Python environment in project root directory:
 
 ```bash
 pants export
@@ -37,12 +76,13 @@ source dist/export/python/virtualenvs/python-default/3.11.13/bin/activate
 export PYTHONPATH=./libs:./tests:$PYTHONPATH
 ```
 
-Start Assisten API
+Start the API server:
 
 ```bash
-python tests/ngui-e2e/main.py
-python main.py # if running in VS Code
+cd tests/ngui-e2e
+uvicorn main:app --reload
 ```
+
 You can check it's running under [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 3.  **Start the Frontend**:
@@ -65,3 +105,39 @@ Note: It's expected you already build `dynamicui` package located in [libs_js/ne
 - **Flexible Configuration**: The system is more adaptable, allowing for different AI models to be used.
 - **Complete Working Example**: Provides a clear, functional reference for the entire NGUI system.
 - **Clear Documentation**: The improved documentation simplifies the setup and testing process.
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**1. CORS Error: "Access to fetch blocked by CORS policy"**
+- **Cause**: Ollama is not running or the backend crashed before sending CORS headers
+- **Solution**: Ensure Ollama is running first with `ollama serve`, then restart the backend
+
+**2. API Connection Error: "Connection refused"**
+- **Cause**: Ollama service stopped or not accessible on port 11434
+- **Solution**: Start Ollama with `ollama serve` and verify it's running with `curl http://localhost:11434/api/tags`
+
+**3. Backend 500 Error: "No data transformer found for component"**
+- **Cause**: LLM generated invalid component names
+- **Solution**: This is typically resolved by ensuring Ollama is properly running and the model is loaded
+
+**4. Port Conflicts**
+- **Backend runs on**: `localhost:8000`
+- **Frontend runs on**: `localhost:5173` (default Vite dev server)
+- **Ollama runs on**: `localhost:11434`
+
+### Verification Steps
+
+```bash
+# Check Ollama is running
+curl -s http://localhost:11434/api/tags
+
+# Check backend is running
+curl -I http://localhost:8000/docs
+
+# Test API endpoint
+curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"prompt": "Tell me about Toy Story"}'
+```
