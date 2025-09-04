@@ -43,7 +43,7 @@ Start Assisten API
 python tests/ngui-e2e/main.py
 python main.py # if running in VS Code
 ```
-You can check it's running under [http://127.0.0.1:5000/docs](http://127.0.0.1:5000/docs)
+You can check it's running under [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
 
 3.  **Start the Frontend**:
 
