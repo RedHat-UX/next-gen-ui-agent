@@ -1,1 +1,2 @@
-export { default as DynamicComponent } from "./components/DynamicComponents";
+import DynamicComponent from "./components/DynamicComponents";
+export default DynamicComponent;
