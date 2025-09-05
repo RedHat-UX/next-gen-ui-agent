@@ -22,7 +22,7 @@ This approach is usefull if you want to completely decouple UI component selecti
 
 Each `InputData` send to *UI Agent* can have `type` defined, which is a string identifier of the data piece
 type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
-to define and use these types, but it might bee a good idea to use tree like hierarchy here.
+to define and use these types, but it might be a good idea to use tree like hierarchy here.
 
 During the *UI Agent* construction, you can define mapping from data piece `type` to `component_type` like:
 
@@ -59,6 +59,7 @@ Once HBC is selected, *UI Agent* core generates [`ComponentDataHandBuildComponen
 from its "data generation" step, which is propagated into rendering step.
 
 It contains these most important fields:
+
 * `component_type` is identification of the component type coming from the selection process. Hand written code MUST be 
 registered for this type in the renderer. That code must be able to take values/fields from `data` and visualize them 
 using UI technology/design system used in that renderer. Each of component type has own code for the rendering. 
