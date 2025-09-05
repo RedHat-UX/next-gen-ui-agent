@@ -1,6 +1,15 @@
 # Next Gen UI BeeAI Framework Integration
 
+Module category: `AI framework`  
+Module status: `Tech Preview`
+
 Support for [BeeAI Framework](https://github.com/i-am-bee/beeai-framework).
+
+As `ACP` is the agentic protocol used by BeeAI, UI Agent binding into assistant app should use ACP protocol binding provided in another module.
+
+Provides:
+
+* `BeeAIInference` - ability to use BeeAI framework exposed LLM for UI Agent
 
 ## Installation
 

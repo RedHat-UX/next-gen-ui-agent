@@ -1,6 +1,13 @@
 # Next Gen UI ACP Server
 
+Module category: `AI Protocol`  
+Module status: `Tech Preview`
+
 Support for [Agent Communication Protocol (ACP)](https://agentcommunicationprotocol.dev/)
+
+Provides:
+
+* `NextGenUIACPAgent` - code for easy implementation of ACP server
 
 ## Installation
 

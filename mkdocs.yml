@@ -69,9 +69,16 @@ nav:
       - guide/input_data.md
       - guide/data_ui_blocks.md
       - guide/hand_build_components.md
+    - Binding into AI application: 
+      - Overview: guide/ai_apps_binding_overview.md
+      - Llama Stack: guide/ai_apps_binding_llamastack.md
+      - LangGraph: guide/ai_apps_binding_langgraph.md
+      - BeeAI: guide/ai_apps_binding_beeai.md
+      - ACP: guide/ai_apps_binding_acp.md
+      - Python Library: guide/ai_apps_binding_pythonlib.md
     - Development:
       - Contributing: development/contributing.md
-      - Llama Stack: development/llama_stack.md
+      - Running Llama Stack: development/llama_stack.md
   - Reference:
     - spec/component.md
     - Changelog:

@@ -191,6 +191,73 @@ To perform actual release bump the version (see above).
 
 ## Documentation
 
+### Documenting modules in source repo
+
+Each folder in the source repo with separate project module, like library (python or Node.js), testing app, evaluation tool, has to have `README.md` file.
+
+This file is used as a library package description during package release (into pip or NPM repo), so make sure it makes sense at this locations. 
+But it is also included into projects documentation site (see next chapter). 
+Be carefull when putting links into this file, you should always use absolute links here, not relative ones!
+
+The file must start with the 1st level Heading with the part name. Name of rhe released packages (PIP, NPM) should start wih the `Next Gen UI `.
+
+Then there has to be two sections with description of the module (separated by two spaces and new line to be rendered as simple line break).
+
+`Module category:` is one of:
+
+* `Core` - UI agent's core functionality
+* `Testing` - testing related module. Eg. library, evaluation framework or dataset, testing app etc.
+* `AI framework` - AI framework binding
+* `AI Protocol` - AI protocol support/server
+* `UI renderer` - UI renderer
+
+`Module status:` is one of:
+
+* `Tech Preview` - code/package which is in development and is not fully supported yet
+* `Supported` - code/package which is supported. Some functionality included in it can be `Tech Preview` still.
+* `Deprecated` - code/package which is deprecated and will be removed in the future
+
+Then provide some general info, what is the module about, with link to implemented frameworks etc.
+
+Then there must be section `Provides:` with list of exposed functionalities, code points etc. You can mark some of them as `Tech Preview` here.
+
+Example: 
+
+```md
+# Next Gen UI Core Functionality
+
+Module category: `Core`  
+Module status: `Supported`
+
+This module contains UI Agent Core functionality.
+
+Provides:
+
+* `NextGenUIAgent` providing agent configuration and methods for individual processing steps
+* extensible framework for "data transformation" step
+* plugable "UI renderer" framework for rendering + default `json` renderer used for Client-Side renderers
+* abstraction of the LLM inference
+  * `InferenceBase` interface
+  * `LangChainModelInference` implementation using LangChain `chat_models`.
+
+...
+
+```
+
+Then there must be sections about module installation, configuration, examples of use etc.
+
+### Documentation site
+
+Source files (markdown files, images) of the site are stored in `docs` directory. 
+
+Main config file is `mkdocs.yml` in the project root. Documentation menu and other things are described here.
+
+Some files are provided in `docs` directory, but some are copied from source directory structure, mainly modules `REDAME.md`s. 
+Be carefull as linking between content in the `docs` directory and source directory structure doesn't work well - absolute 
+links have to be used. So try to minimize use of source structure files in the docs.
+
+### Running site locally
+
 Install [MkDocs Material](https://squidfunk.github.io/mkdocs-material/).
 This should be already done as installed from `requirements_dev.txt`.
 
@@ -205,14 +272,16 @@ Serve documentation locally
 mkdocs serve
 ```
 
-and contribute in `docs` directory.
+URL is shown in the console, where documentation site is available, typically [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-### Build documentation
+Contribute in `docs` directory, local documentation site is automatically refreshed.
+
+#### Build documentation
 
 ```sh
 mkdocs build
 ```
 
-### Publish documentation
+#### Publish documentation
 
 Documentation is automatically published to Github Pages on every commit / PR merge to `main` branch.

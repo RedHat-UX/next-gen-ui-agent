@@ -27,7 +27,7 @@ ollama run granite3.2:2b --keepalive 60m
 
 Start [LlamaStack Starter distribution](https://llama-stack.readthedocs.io/en/latest/distributions/self_hosted_distro/starter.html) container.
 
-Version of the LlamaStack server distribution must be the same as version of the [LlamaStack client used by the UI Agent, see](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/3rdparty/python/llama-stack-client-constraints.txt)!
+Version of the LlamaStack server distribution must be the same as version of the [LlamaStack client used by the UI Agent, see](libs/3rdparty/python/llama-stack-client-constraints.txt)!
 
 ```sh
 podman run -it --rm \
@@ -56,6 +56,7 @@ INFO:     Uvicorn running on http://['::', '0.0.0.0']:5001 (Press CTRL+C to quit
 ```
 
 
-You can use **`run-llamastack-ollama.sh`** script found in this directory, which performs described steps to run LLamaStack.
+You can use [**`run-llamastack-ollama.sh`**](run-llamastack-ollama.sh) script found in this directory, which performs described steps to run LLamaStack.
 
-You can export `INFERENCE_MODEL` environment variable before running it, to select different model to be used.
+You can export `INFERENCE_MODEL` environment variable before running it, to select different LLM model to be used. This environment variable is 
+shared with other tools in this project, like evaluation framework.
