@@ -1,6 +1,14 @@
 # Next Gen UI Agent A2A Protocol Integration
 
-Support for [A2A Protocol](https://a2a-protocol.org/). 
+[A2A Protocol](https://a2a-protocol.org/) provides standard how to communicate with agent
+and provides interoparability by client SDKs in different languages.
+
+This package provides resp. helps you build:
+1. Standard A2A API to the Next Gen UI agent
+2. HTTP Server to run the A2A API and execute the agent
+3. Docker image
+
+To interact with agent via A2A protocol use any A2A client implemntation.
 
 ## Installation
 
