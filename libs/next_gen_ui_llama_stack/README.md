@@ -1,8 +1,14 @@
 # Next Gen UI Llama Stack Agent
 
+Module category: `AI framework`  
+Module status: `Supported`
+
 Support for [Llama Stack](https://github.com/meta-llama/llama-stack).
 
-`NextGenUILlamaStackAgent` takes all tool messages from provided conversation turn steps, and process data from them into UI components.
+Provides:
+
+* `NextGenUILlamaStackAgent` - takes all tool messages from provided conversation turn steps (Llama Stack Agent API), and process data from them into UI components.
+* `LlamaStackAgentInference` and `LlamaStackAsyncAgentInference` to use LLM hosted in Llama Stack server (Llama Stack Chat Completion API)
 
 Tool name is used as `InputData.type` for each tool message, so can be used for [Hand Build Component](../../docs/guide/hand_build_components.md) selection based on mapping in UI Agent's configuration.
 

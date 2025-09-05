@@ -1,6 +1,9 @@
-# Dynamic UI NPM Package
+# Next Gen UI Agent Dynamic UI NPM Package
 
-A collection of reusable React components to support dynamic UI rendering. This package includes wrappers for markdown, tables, accordions, messages, and more.
+Module category: `UI renderer`  
+Module status: `Supported`
+
+A collection of reusable React/Patternfly components to support dynamic UI rendering for Next Gen UI Agent. This package includes wrappers for markdown, tables, accordions, messages, and more.
 
 ## Project Structure
 

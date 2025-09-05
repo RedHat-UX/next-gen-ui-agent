@@ -3,14 +3,17 @@
 The goal of this AI agent is to generate personalised and rich UI components based on 
 the user prompt, chat history and backend data provided by other agent in your assistant.
 
+In the future, this agent will also maintain UI state and view layouts to keep UI and flows 
+consistent, handle personalized values formating, and many other features. Stay tuned ;-)
+
 ## Why use Next Gen UI?
 
-* `Rich user experience` - Extends simple text based LLM applications output by UI components like card, table, chart, 
-video-player, image gallery etc.
-* `Extensible architecture` - Developer's choice to which AI framwork to choose and which UI component framework.
+* `Rich user experience` - Extends simple text based LLM applications output by rich GUI components like card, table, chart, 
+video-player, image gallery etc. Possibility to plug in own components.
+* `Extensible architecture` - Developer's choice to which AI framwork to plug and which UI component framework to render.
 * `AI Frameworks integration` - Seamless integration of various AI framworks.
 * `Server (Agent) side UI rendering` - Powerful agent centralized HTML (e.g. web component) rendition.
-* `Client side UI rendering` - Client side rendering for more control over the rendition.
+* `Client side UI rendering` - Client side rendering for more control over the rendition - React/PatternFly NPM.
 
 Example of rich card component including image and structured data.
 
@@ -88,27 +91,32 @@ and Next Gen UI json rendering:
 
 ## AI Frameworks
 
-For seamless integration with your AI application following frameworks are supported. 
+For seamless integration of the UI Agent into your AI application following frameworks are supported. 
 
 1. [LangGraph](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_langgraph/)
-2. [Llama-stack](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack/)
-3. [BeeAI Framework](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_beeai/) - WIP
+2. [Llama Stack](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack/)
+3. [BeeAI Framework](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_beeai/) - Tech Preview
 
 Missing framework?
 [Create an github issue](https://github.com/RedHat-UX/next-gen-ui-agent/issues) please.
 
 
-## AI/UI Protocols
+## AI Protocols
 
 Protocols provides standardization between client and agent and provides TypeScript / Python interoperability.
+These modules provide way to integrate protocol into your AI application, servers to run it as a service, 
+and even container images to run it easily.
 
-1. [ACP](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_acp/) - WIP
-2. A2A - TBD
+1. [ACP](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_acp/) - Tech Preview
+2. A2A - WIP
+3. MCP - WIP
 
 
 ## UI Frameworks
 
-1. [React/PatternFly](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs_js/next_gen_ui_react/) - WIP
+Renders for distinct UI frameworks
+
+1. [React/PatternFly NPM](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs_js/next_gen_ui_react/) - Client-Side React components
 2. [Red Hat Design System System](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_rhds_renderer/) - Server-side web component rendering
 3. Text - TBD
 
