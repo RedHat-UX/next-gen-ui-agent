@@ -37,9 +37,5 @@ class JsonStrategyFactory(StrategyFactory):
                 return VideoRenderStrategy()
             case AudioPlayerRenderStrategy.COMPONENT_NAME:
                 return AudioPlayerRenderStrategy()
-            case HandBuildComponentRenderStrategy.COMPONENT_NAME:
+            case _:  # for unknown component type use hand-build component renderer which simply renders JSON. Might be made pluggable in the future.
                 return HandBuildComponentRenderStrategy()
-            case _:
-                raise ValueError(
-                    f"This component: {component.component} is not supported by rendering plugin."
-                )

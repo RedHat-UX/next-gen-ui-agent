@@ -2,16 +2,11 @@
   "description": "Component Data for HandBuildComponent rendered by hand-build code registered in the renderer for given `component_type`.",
   "properties": {
     "component": {
-      "const": "hand-build-component",
-      "default": "hand-build-component",
+      "description": "type of the component to be used in renderer to select hand-build rendering implementation",
       "type": "string"
     },
     "id": {
       "description": "id of the backend data this component is for",
-      "type": "string"
-    },
-    "component_type": {
-      "description": "type of the component to be used in renderer to select hand-build rendering implementation",
       "type": "string"
     },
     "data": {
@@ -19,8 +14,8 @@
     }
   },
   "required": [
+    "component",
     "id",
-    "component_type",
     "data"
   ],
   "title": "ComponentDataHandBuildComponent",

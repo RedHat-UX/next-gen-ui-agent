@@ -175,8 +175,7 @@ class ComponentDataVideo(ComponentDataBaseWithTitle):
 class ComponentDataHandBuildComponent(ComponentDataBase):
     """Component Data for HandBuildComponent rendered by hand-build code registered in the renderer for given `component_type`."""
 
-    component: Literal["hand-build-component"] = "hand-build-component"
-    component_type: str = Field(
+    component: str = Field(
         description="type of the component to be used in renderer to select hand-build rendering implementation"
     )
     data: Any = Field(

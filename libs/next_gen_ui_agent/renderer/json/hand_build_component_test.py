@@ -29,8 +29,7 @@ def test_render_json_output() -> None:
                     {"title": "Toy Story 2", "authors": ["A3"]},
                 ]
             },
-            "component": "hand-build-component",
-            "component_type": "one-card-special",
+            "component": "one-card-special",
         }
     )
     resultStr = strategy.render(c)

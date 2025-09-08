@@ -23,4 +23,4 @@ class HandBuildComponentDataTransformer(
             raise ValueError(f"Component {component.id} is not a hand-build component")
 
         self._component_data.data = json_data
-        self._component_data.component_type = component.component_type
+        self._component_data.component = component.component_type

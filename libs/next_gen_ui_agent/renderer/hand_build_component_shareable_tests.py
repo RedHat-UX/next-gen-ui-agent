@@ -7,8 +7,7 @@ from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 
 SAMPLE_HAND_BUILD_COMPONENT_DATA = {
     "id": "DUMMY_ID",
-    "component": "hand-build-component",
-    "component_type": "DUMMY_COMPONENT_TYPE",
+    "component": "DUMMY_COMPONENT_TYPE",
     "data": {
         "DUMMY_DATA": "DUMMY_VALUE",
     },

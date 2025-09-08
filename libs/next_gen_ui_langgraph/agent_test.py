@@ -145,7 +145,7 @@ async def test_agent_MESSAGESIN_WITHOUT_COMPONENT_SYSTEM_HBC() -> None:
     c_data: ComponentDataHandBuildComponent = components_data[0]
     assert c_data.component == "hand-build-component"
     assert c_data.id == "call_Jja7J89XsjrOLA5r!MEOW!SL"
-    assert c_data.component_type == "my-ui-component"
+    assert c_data.component == "my-ui-component"
     assert c_data.data == json.loads(MOVIES_DATA)
 
     try:
