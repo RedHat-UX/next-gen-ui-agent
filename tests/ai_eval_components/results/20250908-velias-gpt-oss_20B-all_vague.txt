@@ -1,0 +1,53 @@
+Date: 2025-09-08
+Components: all with vague component type check
+LLM: gpt-oss 20B
+Env: local ollama
+
+Note: 
+* Performance was very poor due to insufficient GPU and "reasoning" type of LLM
+* "image" - 4 errors are LLM error with empty `fields`, once `one-card` has been selected which is not fully incorrect due to the nature of the Prompt
+* "one-card" - 4 cases is due to bad sanitization of paths like "movie['languages[size up to 6]']" and "movie['countries[size up to 6]']"
+* "one-card" and "table" - warning is for object directly in array cases, where LLM put `data` into path which is incorrect
+* for generic "info" prompts over single item data, it tends to put a lot of fields into component
+* never selected a table as it looked at real num of items in array, rather than size info from our optimization - prompt change necessary
+
+
+Evaluations finished:
+Dataset items evalueated: 171
+Agent errors: 9
+Agent warnings: 2
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 5,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 4,
+    "num_err_system": 0,
+    "num_warn_agent": 1
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 1
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
