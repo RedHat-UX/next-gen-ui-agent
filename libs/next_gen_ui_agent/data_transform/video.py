@@ -93,10 +93,28 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
             ):
                 video_url = str(field_name_like_url.data[0])
 
+        # Try to find poster/picture image URL for video_img
+        if not self._component_data.video_img:
+            from next_gen_ui_agent.data_transform.types import IMAGE_DATA_PATH_SUFFIXES
+            poster_field = (
+                data_transformer_utils.find_simple_value_field_by_data_path(
+                    fields,
+                    lambda name: name.lower().endswith(IMAGE_DATA_PATH_SUFFIXES),
+                )
+            )
+            if (
+                poster_field
+                and len(poster_field.data) > 0
+                and is_url_http(str(poster_field.data[0]))
+            ):
+                self._component_data.video_img = str(poster_field.data[0])
+
         if not video_url:
             logger.warning("No video url found in Video Component")
             self._component_data.video = None
-            self._component_data.video_img = None
+            # Only clear video_img if no poster was found independently
+            if not self._component_data.video_img:
+                self._component_data.video_img = None
         else:
             self._component_data.video = str(video_url)
 
