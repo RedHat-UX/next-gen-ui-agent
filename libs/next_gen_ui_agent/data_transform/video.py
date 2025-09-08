@@ -96,11 +96,10 @@ class VideoPlayerDataTransformer(DataTransformerBase[ComponentDataVideo]):
         # Try to find poster/picture image URL for video_img
         if not self._component_data.video_img:
             from next_gen_ui_agent.data_transform.types import IMAGE_DATA_PATH_SUFFIXES
-            poster_field = (
-                data_transformer_utils.find_simple_value_field_by_data_path(
-                    fields,
-                    lambda name: name.lower().endswith(IMAGE_DATA_PATH_SUFFIXES),
-                )
+
+            poster_field = data_transformer_utils.find_simple_value_field_by_data_path(
+                fields,
+                lambda name: name.lower().endswith(IMAGE_DATA_PATH_SUFFIXES),
             )
             if (
                 poster_field

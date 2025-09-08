@@ -50,7 +50,10 @@ async def generate_response(request: GenerateRequest):
         movie_response = movies_agent.invoke(
             {
                 "messages": [
-                    {"role": "user", "content": prompt or "Give me details of toy story"}
+                    {
+                        "role": "user",
+                        "content": prompt or "Give me details of toy story",
+                    }
                 ]
             }
         )
@@ -67,21 +70,20 @@ async def generate_response(request: GenerateRequest):
             return {
                 "error": "No UI components generated",
                 "details": "NGUI agent failed to generate any renditions",
-                "raw_response": str(ngui_response)
+                "raw_response": str(ngui_response),
             }
-        
         if len(ngui_response["renditions"]) == 0:
             print("ERROR: Empty renditions list")
             return {
-                "error": "Empty renditions list", 
+                "error": "Empty renditions list",
                 "details": "NGUI agent returned empty renditions array",
-                "raw_response": str(ngui_response)
+                "raw_response": str(ngui_response),
             }
 
         # Step 4: Extract and parse the response
         rendition_content = ngui_response["renditions"][0].content
         print(f"Rendition content: {rendition_content}")
-        
+
         try:
             parsed_response = json.loads(rendition_content)
             print(f"Successfully parsed response: {parsed_response}")
@@ -91,17 +93,18 @@ async def generate_response(request: GenerateRequest):
             return {
                 "error": "Invalid JSON response",
                 "details": f"JSON parse error: {str(e)}",
-                "raw_content": rendition_content
+                "raw_content": rendition_content,
             }
 
     except Exception as e:
         print(f"ERROR: Unexpected error in generate_response: {e}")
         import traceback
+
         print(f"Full traceback: {traceback.format_exc()}")
         return {
             "error": "Internal server error",
             "details": str(e),
-            "type": type(e).__name__
+            "type": type(e).__name__,
         }
 
 
