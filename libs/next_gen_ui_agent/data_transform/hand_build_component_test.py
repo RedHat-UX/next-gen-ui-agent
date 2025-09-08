@@ -34,7 +34,7 @@ def test_process() -> None:
     )
     result = HandBuildComponentDataTransformer().process(c, data)
     assert result.id == "test_id_1"
-    assert result.component_type == "one-card-special"
+    assert result.component == "one-card-special"
     assert result.data == {
         "movies": [
             {"title": "Toy Story", "authors": ["A1", "A2"]},
@@ -48,7 +48,7 @@ def test_validate_OK() -> None:
         {
             "id": "test_id_1",
             "title": "Toy Story Details",
-            "component": "set-of-cards",
+            "component": "hand-build-component",
             "component_type": "one-card-special",
             "fields": [],
         }
@@ -59,4 +59,5 @@ def test_validate_OK() -> None:
     )
     errors: list[ComponentDataValidationError] = []
     HandBuildComponentDataTransformer().validate(c, data, errors)
+    # no any errors as any validation is not performed for hand-build component
     assert len(errors) == 0

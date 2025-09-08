@@ -68,6 +68,7 @@ class RhdsStrategyFactory(StrategyFactory):
             case RhdsAudioPlayerRenderStrategy.COMPONENT_NAME:
                 return RhdsAudioPlayerRenderStrategy()
             case _:
+                # TODO: use pluggable component renderer here for eg. HBC, only throw error if no rendering code is plugged into it
                 raise ValueError(
                     f"This component: {component.component} is not supported by Red Hat Design System rendering plugin."
                 )

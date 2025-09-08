@@ -24,12 +24,12 @@ Each `InputData` send to *UI Agent* can have `type` defined, which is a string i
 type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
 to define and use these types, but it might be a good idea to use tree like hierarchy here.
 
-During the *UI Agent* construction, you can define mapping from data piece `type` to `component_type` like:
+During the *UI Agent* construction, you can define mapping from `InputData.type` to `hand_build_component_type` like:
 
 ```python
 hbc_mapping={
-    "movies.movie-detail": "movie-detail-view",
-    "movies.movies-list": "movies-list-view",
+    "movies.movie-detail": "movies:movie-detail-view",
+    "movies.movies-list": "movies:movies-list-view",
 }
 
 agent = NextGenUIAgent(
@@ -58,21 +58,23 @@ This HBC selection happens even before mapping from `InputData.type`.
 Once HBC is selected, *UI Agent* core generates [`ComponentDataHandBuildComponent`](../spec/component.md#hand-build-component) 
 from its "data generation" step, which is propagated into rendering step.
 
+Be cautious when selecting identification (`hand_build_component_type`) for your HBC, as they are "mixed" with *UI Agent* dynamic 
+component types in the metadata sent to renderer. Ideally add some prefix to these names, like `movies:` used in the example.
+
 It contains these most important fields:
 
-* `component_type` is identification of the component type coming from the selection process. Hand written code MUST be 
-registered for this type in the renderer. That code must be able to take values/fields from `data` and visualize them 
+* `component` is identification of the component type (`hand_build_component_type`) coming from the selection process. Hand build code MUST be 
+registered for this type in the UI renderer. That code must be able to take values/fields from `data` and visualize them 
 using UI technology/design system used in that renderer. Each of component type has own code for the rendering. 
 For details refer documentation of the renderer you are using please.
-* `data` are simply parsed JSON data sent into *UI Agent*
+* `data` are simply parsed JSON data originally sent into *UI Agent*
 
 Example of the `ComponentDataHandBuildComponent` as JSON:
 
 ```json
 {
     "id": "4585-8554-af54-54c8",
-    "component": "hand-build-component",
-    "component_type": "my-nice-component-for-movie-detail",
+    "component": "movies:movie-detail-view",
     "data": {
         "title": "Toy Story",
         "year": 1995,
