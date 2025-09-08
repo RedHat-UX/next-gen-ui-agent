@@ -16,6 +16,7 @@ import OneCardWrapper from "../components/OneCardWrapper";
 import QuickResponse from "../components/QuickResponse";
 import TableWrapper from "../components/TableWrapper";
 import Text from "../components/Text";
+import VideoPlayerWrapper from "../components/VideoPlayerWrapper";
 
 export const componentsMap = {
   accordion: AccordionWrapper,
@@ -33,4 +34,5 @@ export const componentsMap = {
   "one-card": OneCardWrapper,
   quickResponse: QuickResponse,
   table: TableWrapper,
+  "video-player": VideoPlayerWrapper,
 };
