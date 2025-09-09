@@ -1,15 +1,16 @@
-# Data UI Blocks
+# AI selected and configured dynamic components
 
-Next Gen UI Agent generates output and visualize them in Data UI Blocks.
-This chapter list all available data blocks that the agent can generate and render.
+These fully AI selected and generated *Data UI Blocks* are now supported by *UI Agent*. 
 
 ## Card
+
+Component identification: [`one-card`](../spec/component.md#one-card)
 
 Card is UI block that displays:
 
   * Title
   * Facts list
-  * Image (if present)
+  * Image (if present in input data)
 
 Facts are name-value pairs, where the `name` is AI generated and the `value` is gathered from agent's input data.
 Value can be simple text or number. List (array) of values is supported as well.
@@ -19,6 +20,8 @@ Example rendering by Red Hat Design System for user prompt `Tell me details abou
 ![Card Data UI Block rendering by Red Hat Design System](../img/data_ui_block_card.png "Card Data UI Block rendering by Red Hat Design System")
 
 ## Image
+
+Component identification: [`image`](../spec/component.md#image)
 
 Image is UI block to display a single image with a title.
 
@@ -30,7 +33,9 @@ Image is found by agent from backend-data either by field value or by field name
 
 ## Video Player
 
-Video player is UI block to play a single video from provided URL e.g. youtube.
+Component identification: [`video-player`](../spec/component.md#video-player)
+
+Video player is UI block to play a single video from provided URL (only youtube supported ATM).
 
 Example rendering by Red Hat Design System for a prompt `Play trailer of Toy Story movie`:
 

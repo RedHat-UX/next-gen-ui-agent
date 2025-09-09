@@ -1,7 +1,9 @@
 # UI Components Spec
 
-How types are then generated to e.g. TS you can test here: [https://transform.tools/json-schema-to-typescript](https://transform.tools/json-schema-to-typescript)
+Specification of the json format (as JSON Schema) of the `Data UI Blocks` produced by the *UI Agent*. 
+Mainly usefull to implement client-side renderers as they consume this format.
 
+How relevant object types are generated to TypeScript then can be tested here: [https://transform.tools/json-schema-to-typescript](https://transform.tools/json-schema-to-typescript)
 
 ## One Card
 [One Card JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/one-card.schema.json)
@@ -85,16 +87,17 @@ Example JSON output:
 
 ## Hand Build Component
 
-**Note:** this output expects there is a hand build code implemented and registered in used UI renderer, which is able to visualize/show JSON from the `data` field, which is simply input data into the UI Agent. How to register hand-build code for `component_type` depends on the renderer type, see renderers documentation please.
+This output expects there is a hand build code implemented and registered in the UI renderer for `component` value, 
+which is able to visualize/show JSON from the `data` field, which is simply input data into the UI Agent. 
+How to register hand-build code for `component` depends on the renderer type, see renderers documentation please.
 
 [JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/hand-build-component.schema.json)
 
 Example JSON output:
 ```json
 {
-  "component": "hand-build-component",
   "id": "test-id",
-  "component_type": "movie-detail",
+  "component": "movies:movie-detail",
   "data": {
     "movie": {
       "title": "Toy Story",

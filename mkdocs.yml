@@ -67,8 +67,10 @@ nav:
     - Core concepts:
       - guide/architecture.md
       - guide/input_data.md
-      - guide/data_ui_blocks.md
-      - guide/hand_build_components.md
+      - Data UI Blocks:
+        - Overview: guide/data_ui_blocks_overview.md
+        - Dynamic Components: guide/dynamic_components.md
+        - guide/hand_build_components.md
     - Binding into AI application: 
       - Overview: guide/ai_apps_binding_overview.md
       - Llama Stack: guide/ai_apps_binding_llamastack.md
