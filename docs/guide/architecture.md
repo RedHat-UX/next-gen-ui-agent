@@ -34,7 +34,7 @@ Example mockup of the *Controlling assistant* GUI:
 
 *UI Agent* core works with abstract representation of the [`Data UI Block`](data_ui_blocks_overview.md). 
 They can be rendered using pluggable GUI component system renderers, and integrated into the GUI of the *Controlling assistant*. 
-We provide renderers for several UI component systems, either Server-Side or Client-Side (**ToDo** link to the relevant chapter).
+We provide renderers for several UI component systems, either Server-Side or Client-Side, see [Binding into UI](renderer_overview.md).
 
 *UI Agent* can be integrated into *Controlling Assistant* developed using multiple AI frameworks or AI protocols, see [Binding into AI application](ai_apps_binding_overview.md).
 
