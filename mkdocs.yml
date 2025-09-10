@@ -78,6 +78,13 @@ nav:
       - BeeAI: guide/ai_apps_binding_beeai.md
       - ACP: guide/ai_apps_binding_acp.md
       - Python Library: guide/ai_apps_binding_pythonlib.md
+    - Binding into UI:
+      - Overview: guide/renderer_overview.md
+      - Server-Side:
+        - Implementing: guide/renderer_implementing_serverside.md
+        - RHDS/Web Components: guide/renderer_rhds.md
+      - Client-Side:
+        - PatternFly/React NPM: guide/renderer_patternfly_npm.md
     - Development:
       - Contributing: development/contributing.md
       - Running Llama Stack: development/llama_stack.md
