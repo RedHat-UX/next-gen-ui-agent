@@ -9,6 +9,7 @@
   "files": [
     "dist"
   ],
+  "license": "MIT",
   "exports": {
     "import": "./dist/index.es.js",
     "require": "./dist/index.cjs.js"
