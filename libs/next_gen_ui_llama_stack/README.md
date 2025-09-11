@@ -1,5 +1,7 @@
 # Next Gen UI Llama Stack Agent
 
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
+
 Module category: `AI framework`  
 Module status: `Supported`
 

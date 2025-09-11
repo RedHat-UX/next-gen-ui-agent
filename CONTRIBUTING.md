@@ -195,36 +195,43 @@ To perform actual release bump the version (see above).
 
 Each folder in the source repo with separate project module, like library (python or Node.js), testing app, evaluation tool, has to have `README.md` file.
 
-This file is used as a library package description during package release (into pip or NPM repo), so make sure it makes sense at this locations. 
+This file is used as a library package description during package release into PIPI or NPM repo, so make sure it makes sense at this locations.
 But it is also included into projects documentation site (see next chapter). 
-Be carefull when putting links into this file, you should always use absolute links here, not relative ones!
 
-The file must start with the 1st level Heading with the part name. Name of rhe released packages (PIP, NPM) should start wih the `Next Gen UI `.
+Be carefull when putting links into this file, you should always use absolute links here to work at all locations!
 
-Then there has to be two sections with description of the module (separated by two spaces and new line to be rendered as simple line break).
+The file must start with the 1st level Heading with the module name. For the released packages (PIP, NPM), name must start wih the `Next Gen UI `.
+
+Released packages must contain link pointing to the project repository `https://github.com/RedHat-UX/next-gen-ui-agent`, see example below.
+
+Then there has to be two sections with categorization of the module (separated by two spaces and new line to be rendered as simple line break).
 
 `Module category:` is one of:
 
 * `Core` - UI agent's core functionality
 * `Testing` - testing related module. Eg. library, evaluation framework or dataset, testing app etc.
-* `AI framework` - AI framework binding
-* `AI Protocol` - AI protocol support/server
-* `UI renderer` - UI renderer
+* `AI framework` - AI framework binding, including inference providers
+* `AI Protocol` - AI protocol suppor/server
+* `UI renderer` - UI renderer - in general info below, mention if it is a Server-Side or Client-Side.
 
 `Module status:` is one of:
 
-* `Tech Preview` - code/package which is in development and is not fully supported yet
+* `Tech Preview` - code/package which is in development and is not fully stable and supported yet. So API can change etc.
 * `Supported` - code/package which is supported. Some functionality included in it can be `Tech Preview` still.
-* `Deprecated` - code/package which is deprecated and will be removed in the future
+* `Deprecated` - code/package which is deprecated and will be removed in the future.
 
 Then provide some general info, what is the module about, with link to implemented frameworks etc.
 
 Then there must be section `Provides:` with list of exposed functionalities, code points etc. You can mark some of them as `Tech Preview` here.
 
+Then there must be sections about module installation, configuration, examples of use etc.
+
 Example: 
 
 ```md
 # Next Gen UI Core Functionality
+
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
 Module category: `Core`  
 Module status: `Supported`
@@ -244,7 +251,7 @@ Provides:
 
 ```
 
-Then there must be sections about module installation, configuration, examples of use etc.
+
 
 ### Documentation site
 

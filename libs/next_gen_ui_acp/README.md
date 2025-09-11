@@ -1,5 +1,7 @@
 # Next Gen UI ACP Server
 
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
+
 Module category: `AI Protocol`  
 Module status: `Tech Preview`
 
@@ -7,7 +9,7 @@ Support for [Agent Communication Protocol (ACP)](https://agentcommunicationproto
 
 Provides:
 
-* `NextGenUIACPAgent` - code for easy implementation of ACP server
+* `NextGenUIACPAgent` - code for easy implementation of the ACP server
 
 ## Installation
 

@@ -1,9 +1,11 @@
-# Next Gen UI Patternfly Plugin
+# Next Gen UI Patternfly Renderer
+
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
 Module category: `UI renderer`  
 Module status: `Deprecated`
 
-This Python package provides a plugin which will enable a renderer for Next Gen UI Agent that produces Patternfly JavaScript components code as an output.
+This Python package provides a Server-Side renderer for Next Gen UI Agent that produces Patternfly JavaScript components code as an output.
 
 Next Gen UI Agent utilises [Stevedore Plugin framework](https://docs.openstack.org/stevedore/latest/index.html) which automates to a high degree how you can configure this plugin to work in your deployment.
 

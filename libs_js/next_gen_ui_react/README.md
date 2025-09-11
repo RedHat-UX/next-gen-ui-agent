@@ -1,7 +1,9 @@
 # Next Gen UI Agent Dynamic UI NPM Package
 
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
+
 Module category: `UI renderer`  
-Module status: `Supported`
+Module status: `Tech Preview`
 
 A collection of reusable React/Patternfly components to support dynamic UI rendering for Next Gen UI Agent. This package includes wrappers for markdown, tables, accordions, messages, and more.
 

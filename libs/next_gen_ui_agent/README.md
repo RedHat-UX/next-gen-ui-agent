@@ -1,5 +1,7 @@
 # Next Gen UI Core Functionality
 
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
+
 Module category: `Core`  
 Module status: `Supported`
 
