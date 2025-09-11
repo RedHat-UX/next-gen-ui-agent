@@ -55,7 +55,7 @@ This HBC selection happens even before mapping from `InputData.type`.
 
 ## How is UI rendered for HBC
 
-Once HBC is selected, *UI Agent* core generates [`ComponentDataHandBuildComponent`](../spec/component.md#hand-build-component) 
+Once HBC is selected, *UI Agent* core generates [`ComponentDataHandBuildComponent`](../../spec/component.md#hand-build-component) 
 from its "data generation" step, which is propagated into rendering step.
 
 Be cautious when selecting identification (`hand_build_component_type`) for your HBC, as they are "mixed" with *UI Agent* dynamic 

@@ -1,4 +1,4 @@
-# Next Gen UI LangGraph Agent
+# Next Gen UI LangGraph Integration
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
@@ -11,7 +11,7 @@ Provides:
 
 * `NextGenUILangGraphAgent` - takes all tool messages from provided LanGraph states, and process data from them into UI components.
 
-Tool name is used as `InputData.type` for each tool message, so can be used for [Hand Build Component](../../docs/guide/hand_build_components.md) selection based on mapping in UI Agent's configuration.
+Tool name is used as `InputData.type` for each tool message, so can be used for [Hand Build Component](../../docs/guide/data_ui_blocks/hand_build_components.md) selection based on mapping in UI Agent's configuration.
 
 ## Installation
 

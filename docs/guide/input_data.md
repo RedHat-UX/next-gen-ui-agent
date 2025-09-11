@@ -184,8 +184,8 @@ Data field value can be `null` also in JSON.
 ### Image URL
 
 To interpret data field as an url pointing to the image, it must match any of this:
-* data field value must be http/s url pointing to the file with [image extension defined in `IMAGE_URL_SUFFIXES`](../../libs/next_gen_ui_agent/data_transform/types.py)
-* data field value must be http/s url and data field name must end with [extension defined in `IMAGE_DATA_PATH_SUFFIXES`](../../libs/next_gen_ui_agent/data_transform/types.py)
+* data field value must be http/s url pointing to the file with [image extension defined in `IMAGE_URL_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
+* data field value must be http/s url and data field name must end with [extension defined in `IMAGE_DATA_PATH_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
 
 Field with Image URL is important for `image` component, but is used also in `one-card` to show optional main image.
 

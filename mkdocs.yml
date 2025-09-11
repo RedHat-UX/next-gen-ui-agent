@@ -68,23 +68,23 @@ nav:
       - guide/architecture.md
       - guide/input_data.md
       - Data UI Blocks:
-        - Overview: guide/data_ui_blocks_overview.md
-        - Dynamic Components: guide/dynamic_components.md
-        - guide/hand_build_components.md
+        - guide/data_ui_blocks/index.md
+        - Dynamic Components: guide/data_ui_blocks/dynamic_components.md
+        - guide/data_ui_blocks/hand_build_components.md
     - Binding into AI application: 
-      - Overview: guide/ai_apps_binding_overview.md
-      - Llama Stack: guide/ai_apps_binding_llamastack.md
-      - LangGraph: guide/ai_apps_binding_langgraph.md
-      - BeeAI: guide/ai_apps_binding_beeai.md
-      - ACP: guide/ai_apps_binding_acp.md
-      - Python Library: guide/ai_apps_binding_pythonlib.md
+      - guide/ai_apps_binding/index.md
+      - Llama Stack: guide/ai_apps_binding/llamastack.md
+      - LangGraph: guide/ai_apps_binding/langgraph.md
+      - BeeAI: guide/ai_apps_binding/beeai.md
+      - ACP: guide/ai_apps_binding/acp.md
+      - Python Library: guide/ai_apps_binding/pythonlib.md
     - Binding into UI:
-      - Overview: guide/renderer_overview.md
-      - Server-Side:
-        - Implementing: guide/renderer_implementing_serverside.md
-        - RHDS/Web Components: guide/renderer_rhds.md
-      - Client-Side:
-        - PatternFly/React NPM: guide/renderer_patternfly_npm.md
+      - guide/renderer/index.md
+      - Server-Side renderer:
+        - Implementing: guide/renderer/implementing_serverside.md
+        - RHDS/Web Components: guide/renderer/rhds.md
+      - Client-Side renderer:
+        - PatternFly/React NPM: guide/renderer/patternfly_npm.md
     - Development:
       - Contributing: development/contributing.md
       - Running Llama Stack: development/llama_stack.md

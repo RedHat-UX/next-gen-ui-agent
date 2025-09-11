@@ -9,7 +9,7 @@ In the future, this agent will also maintain `UI state` and view layouts to keep
 Example of the generated `Data UI Block`:
 ![Example of the Data UI Block](../img/data_ui_block_card.png "Example of the Data UI Block")
 
-*UI Agent* also suports [*Hand Build Components*](hand_build_components.md) for pieces of data where UI component exists already, or where 
+*UI Agent* also suports [*Hand Build Components*](data_ui_blocks/hand_build_components.md) for pieces of data where UI component exists already, or where 
 it is needed to provide special visualization or use features on top of
 AI generated UI components.
 
@@ -32,10 +32,10 @@ data summarizations, insights based on the data, proposals of the user actions, 
 Example mockup of the *Controlling assistant* GUI:
 ![Example mockup of the Controlling assistant GUI](../img/architecture_gui_mockup.png "Example mockup of the Controlling assistant GUI")
 
-*UI Agent* core works with abstract representation of the [`Data UI Block`](data_ui_blocks_overview.md). 
+*UI Agent* core works with abstract representation of the [`Data UI Block`](data_ui_blocks/index.md). 
 They can be rendered using pluggable GUI component system renderers, and integrated into the GUI of the *Controlling assistant*. 
-We provide renderers for several UI component systems, either Server-Side or Client-Side, see [Binding into UI](renderer_overview.md).
+We provide renderers for several UI component systems, either Server-Side or Client-Side, see [Binding into UI](renderer/index.md).
 
-*UI Agent* can be integrated into *Controlling Assistant* developed using multiple AI frameworks or AI protocols, see [Binding into AI application](ai_apps_binding_overview.md).
+*UI Agent* can be integrated into *Controlling Assistant* developed using multiple AI frameworks or AI protocols, see [Binding into AI application](ai_apps_binding/index.md).
 
-
+You can also refer ["Choose your framework"](../installation.md).
