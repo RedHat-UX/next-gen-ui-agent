@@ -67,6 +67,7 @@ nav:
     - Core concepts:
       - guide/architecture.md
       - guide/input_data.md
+      - guide/llm.md
       - Data UI Blocks:
         - guide/data_ui_blocks/index.md
         - Dynamic Components: guide/data_ui_blocks/dynamic_components.md
