@@ -2,6 +2,8 @@ name: next_gen_ui_react tests
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'libs_js/next_gen_ui_react/**'
       - '.github/workflows/next_gen_ui_react_tests.yml'
