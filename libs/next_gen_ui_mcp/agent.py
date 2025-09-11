@@ -1,9 +1,8 @@
 import json
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Literal
 
-from fastmcp import FastMCP
-from fastmcp.server.server import Transport
+from mcp.server.fastmcp import FastMCP
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData
@@ -28,9 +27,9 @@ class NextGenUIMCPAgent:
     def _setup_mcp_tools(self):
         """Set up MCP tools for the agent."""
 
-        @self.mcp.tool
+        @self.mcp.tool()
         async def generate_ui(
-            user_prompt: str, input_data: List[Dict[str, Any]]
+            user_prompt: str, input_data: List[InputData]
         ) -> List[Dict[str, Any]]:
             """Generate UI components from user prompt and input data.
 
@@ -47,15 +46,8 @@ class NextGenUIMCPAgent:
                 List of rendered UI components ready for display
             """
             try:
-                # Convert to InputData format
-                formatted_input_data: List[InputData] = [
-                    {"id": item["id"], "data": item["data"]} for item in input_data
-                ]
-
                 # Create agent input
-                agent_input = AgentInput(
-                    user_prompt=user_prompt, input_data=formatted_input_data
-                )
+                agent_input = AgentInput(user_prompt=user_prompt, input_data=input_data)
 
                 # Run the complete agent pipeline
                 # 1. Component selection
@@ -65,7 +57,7 @@ class NextGenUIMCPAgent:
 
                 # 2. Data transformation
                 components_data = self.ngui_agent.data_transformation(
-                    input_data=formatted_input_data, components=components
+                    input_data=input_data, components=components
                 )
 
                 # 3. Design system rendering
@@ -96,40 +88,18 @@ class NextGenUIMCPAgent:
                     "component_system": self.component_system,
                     "description": "Next Gen UI Agent exposed via MCP protocol",
                     "capabilities": [
-                        "UI component selection",
-                        "Data transformation",
-                        "Design system rendering",
+                        "UI component generation based of user prompt and input data"
                     ],
                 }
             )
 
-        @self.mcp.prompt()
-        def ui_generation_prompt(user_request: str) -> str:
-            """Generate a prompt for UI component creation.
-
-            Args:
-                user_request: The user's request for UI components
-
-            Returns:
-                Formatted prompt for UI generation
-            """
-            return f"""
-            Generate appropriate UI components for the following request:
-
-            User Request: {user_request}
-
-            Please provide input data in the following format:
-            - id: unique identifier for the data item
-            - data: the actual data content (JSON string)
-
-            The system will automatically select and render the most appropriate UI components.
-            """
-
-    def run(self, transport: Transport = "stdio", **kwargs):
+    def run(
+        self, transport: Literal["stdio", "sse", "streamable-http"] = "stdio", **kwargs
+    ):
         """Run the MCP server.
 
         Args:
-            transport: Transport type ('stdio', 'http', 'sse')
+            transport: Transport type ('stdio', 'sse', 'streamable-http')
             **kwargs: Additional arguments for the transport
         """
         self.mcp.run(transport=transport, **kwargs)
