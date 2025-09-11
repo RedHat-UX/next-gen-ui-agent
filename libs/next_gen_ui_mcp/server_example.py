@@ -3,17 +3,11 @@
 Example MCP server using Next Gen UI Agent.
 
 This script demonstrates how to run the Next Gen UI MCP server
-that can be accessed by any MCP client with different inference providers.
+that uses MCP sampling to leverage the client's LLM capabilities.
 
 Usage:
-    # Run with mocked inference (default)
+    # Run with stdio transport (default)
     python server_example.py
-
-    # Run with LlamaStack inference
-    python server_example.py --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
-
-    # Run with BeeAI inference
-    python server_example.py --provider beeai --model granite3.3-8b
 
     # Run with SSE transport (for HTTP clients)
     python server_example.py --transport sse --host 127.0.0.1 --port 8000
@@ -30,138 +24,35 @@ from pathlib import Path
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from next_gen_ui_agent.model import InferenceBase  # noqa: E402
-from next_gen_ui_agent.types import UIComponentMetadata  # noqa: E402
 from next_gen_ui_mcp.agent import NextGenUIMCPAgent  # noqa: E402
-from next_gen_ui_testing.model import MockedInference  # noqa: E402
 
 
-def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
-    """Create LlamaStack inference provider with dynamic import.
-
-    Args:
-        model: Model name to use
-        llama_url: URL of the LlamaStack server
+def create_agent() -> NextGenUIMCPAgent:
+    """Create NextGenUIMCPAgent that uses MCP sampling.
 
     Returns:
-        LlamaStack inference instance
-
-    Raises:
-        ImportError: If llama-stack-client is not installed
-        RuntimeError: If connection to LlamaStack fails
-    """
-    try:
-        from llama_stack_client import LlamaStackClient
-        from next_gen_ui_llama_stack.llama_stack_inference import (
-            LlamaStackAgentInference,
-        )
-    except ImportError as e:
-        raise ImportError(
-            "LlamaStack dependencies not found. Install with: "
-            "pip install llama-stack-client>=0.1.9,<=0.2.15"
-        ) from e
-
-    try:
-        client = LlamaStackClient(base_url=llama_url)
-        return LlamaStackAgentInference(client, model)
-    except Exception as e:
-        raise RuntimeError(
-            f"Failed to connect to LlamaStack at {llama_url}: {e}"
-        ) from e
-
-
-def create_beeai_inference(model: str) -> InferenceBase:
-    """Create BeeAI inference provider with dynamic import.
-
-    Args:
-        model: Model name to use
-
-    Returns:
-        BeeAI inference instance
-
-    Raises:
-        ImportError: If beeai-framework is not installed
-        RuntimeError: If model initialization fails
-    """
-    try:
-        from next_gen_ui_beeai.beeai_inference import BeeAIInference
-    except ImportError as e:
-        raise ImportError(
-            "BeeAI dependencies not found. Install with: " "pip install beeai-framework"
-        ) from e
-
-    try:
-        return BeeAIInference(model)
-    except Exception as e:
-        raise RuntimeError(f"Failed to initialize BeeAI model {model}: {e}") from e
-
-
-def create_mocked_inference() -> InferenceBase:
-    """Create mocked inference for testing.
-
-    Returns:
-        Mocked inference instance
-    """
-    # Setup mocked component for testing
-    mocked_component = UIComponentMetadata.model_validate(
-        {
-            "title": "Movie Card",
-            "reasonForTheComponentSelection": "Single movie data item",
-            "confidenceScore": "100%",
-            "component": "one-card",
-            "fields": [
-                {"name": "Title", "data_path": "movie.title"},
-                {"name": "Year", "data_path": "movie.year"},
-                {"name": "IMDB Rating", "data_path": "movie.imdbRating"},
-                {"name": "Description", "data_path": "movie.description"},
-            ],
-            "id": "test-movie-card",
-        }
-    )
-
-    return MockedInference(mocked_component)
-
-
-def create_agent(inference: InferenceBase) -> NextGenUIMCPAgent:
-    """Create NextGenUIMCPAgent with the given inference provider.
-
-    Args:
-        inference: Inference provider to use
-
-    Returns:
-        Configured NextGenUIMCPAgent
+        Configured NextGenUIMCPAgent that uses sampling
     """
     return NextGenUIMCPAgent(
-        component_system="json", inference=inference, name="NextGenUI-MCP-Server"
+        component_system="json", name="NextGenUI-MCP-Server"
     )
-
-
-def create_mocked_agent():
-    """Create a NextGenUIMCPAgent with mocked inference for testing.
-
-    Deprecated: Use create_agent(create_mocked_inference()) instead.
-    """
-    return create_agent(create_mocked_inference())
 
 
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
-        description="Next Gen UI MCP Server",
+        description="Next Gen UI MCP Server with Sampling",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Run with mocked inference (default)
+  # Run with stdio transport (default)
   python server_example.py
 
-  # Run with LlamaStack inference
-  python server_example.py --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
-
-  # Run with BeeAI inference
-  python server_example.py --provider beeai --model granite3.3-8b
-
-  # Run with SSE transport
+  # Run with SSE transport (for web clients)
   python server_example.py --transport sse --host 127.0.0.1 --port 8000
+
+  # Run with streamable-http transport
+  python server_example.py --transport streamable-http --host 127.0.0.1 --port 8000
         """,
     )
 
@@ -176,24 +67,6 @@ Examples:
     parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
-    # Inference provider arguments
-    parser.add_argument(
-        "--provider",
-        choices=["mocked", "llamastack", "beeai"],
-        default="mocked",
-        help="Inference provider to use",
-    )
-    parser.add_argument(
-        "--model", help="Model name to use (required for llamastack and beeai)"
-    )
-
-    # LlamaStack specific arguments
-    parser.add_argument(
-        "--llama-url",
-        default="http://localhost:5001",
-        help="LlamaStack server URL (default: http://localhost:5001)",
-    )
-
     args = parser.parse_args()
 
     # Configure logging
@@ -204,33 +77,10 @@ Examples:
 
     logger = logging.getLogger(__name__)
     logger.info(f"Starting Next Gen UI MCP Server with {args.transport} transport")
+    logger.info("Using MCP sampling - will leverage client's LLM capabilities")
 
-    # Validate arguments
-    if args.provider in ["llamastack", "beeai"] and not args.model:
-        parser.error(f"--model is required when using {args.provider} provider")
-
-    # Create inference provider
-    try:
-        if args.provider == "mocked":
-            logger.info("Using mocked inference")
-            inference = create_mocked_inference()
-        elif args.provider == "llamastack":
-            logger.info(
-                f"Using LlamaStack inference with model {args.model} at {args.llama_url}"
-            )
-            inference = create_llamastack_inference(args.model, args.llama_url)
-        elif args.provider == "beeai":
-            logger.info(f"Using BeeAI inference with model {args.model}")
-            inference = create_beeai_inference(args.model)
-        else:
-            raise ValueError(f"Unknown provider: {args.provider}")
-
-        # Create the agent
-        agent = create_agent(inference)
-
-    except (ImportError, RuntimeError) as e:
-        logger.error(f"Failed to initialize {args.provider} provider: {e}")
-        sys.exit(1)
+    # Create the agent (always uses sampling)
+    agent = create_agent()
 
     # Run the server
     try:
