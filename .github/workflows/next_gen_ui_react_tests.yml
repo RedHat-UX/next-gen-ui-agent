@@ -6,11 +6,9 @@ on:
       - main
     paths:
       - 'libs_js/next_gen_ui_react/**'
-      - '.github/workflows/next_gen_ui_react_tests.yml'
   pull_request:
     paths:
       - 'libs_js/next_gen_ui_react/**'
-      - '.github/workflows/next_gen_ui_react_tests.yml'
 
 jobs:
   test:
