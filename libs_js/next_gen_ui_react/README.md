@@ -31,29 +31,13 @@ npm install <package-name>
 Note: Requires React 18+ and TypeScript.
 
 Available Components:
-- AccordianWrapper
-- CodeBlockWrapper
-- CustomLink
 - DynamicComponents
-- ListWrapper
-- MarkdownWrapper
-- Message
-- QuickResponse
+- OneCardWrapper
 - TableWrapper
 
 
 ## Usage Example
 ```js
-// <-- Accordian Component -->
-import { AccordianWrapper } from '<package-name>';
-
-function App() {
-  return (
-    <AccordianWrapper title="Click me">
-      <p>This is hidden content!</p>
-    </AccordianWrapper>
-  );
-}
 
 // <-- OneCard Component -->
 import { OneCardWrapper } from '<package-name>';
