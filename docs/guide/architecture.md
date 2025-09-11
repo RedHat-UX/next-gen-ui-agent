@@ -2,7 +2,8 @@
 
 This guide shows how to use *NextGen UI Agent* in your application.
 
-In short, *UI Agent* takes `User Prompt` and [`Structured Data`](./input_data.md) relevant to this prompt as an input, and generates UI component to visualize that piece of data to the user. We call it `Data UI Block`. AI (LLM) is used in this step, to understand the `User Prompt` and data structure and select the best UI component and displayed data values. 
+In short, *UI Agent* takes `User Prompt` and [`Structured Data`](input_data.md) relevant to this prompt as an input, and generates UI component to visualize that piece of data to the user. 
+We call it `Data UI Block`. [AI (LLM) is used](llm.md) in this step, to understand the `User Prompt` and data structure and select the best UI component and displayed data values. 
 
 In the future, this agent will also maintain `UI state` and view layouts to keep UI and flows consistent, handle personalized values formating, and many other features. Stay tuned ;-)
 
