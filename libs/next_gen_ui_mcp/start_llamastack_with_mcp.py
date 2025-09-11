@@ -7,6 +7,9 @@ This script demonstrates how to:
 2. Register the NextGenUI MCP server with Llama Stack
 3. Keep the server running for client connections
 
+The NextGenUI MCP agent uses MCP sampling protocol for LLM inference, allowing it to
+leverage the connected client's LLM capabilities through the MCP sampling interface.
+
 Usage:
     # Run with default configuration
     python start_llamastack_with_mcp.py
@@ -23,6 +26,7 @@ Usage:
 The script will:
 - Initialize Llama Stack as a library
 - Register the NextGenUI MCP server (assumes server_example.py is running in stdio mode)
+- Create an MCP agent that uses sampling for LLM inference
 - Keep running until interrupted
 """
 
@@ -46,7 +50,6 @@ except ImportError as e:
     print("Please install with: pip install llama-stack-client>=0.1.9,<=0.2.15")
     sys.exit(1)
 
-from next_gen_ui_llama_stack.llama_stack_inference import LlamaStackAsyncAgentInference
 from next_gen_ui_mcp.agent import NextGenUIMCPAgent
 
 logger = logging.getLogger(__name__)
@@ -122,17 +125,15 @@ class LlamaStackMCPManager:
 
         logger.info("Creating NextGenUI MCP agent for testing...")
         
-        # Create inference provider using the embedded Llama Stack
-        inference = LlamaStackAsyncAgentInference(self.llama_client, self.model)
-        
-        # Create MCP agent
+        # Create MCP agent (no inference parameter needed - uses MCP sampling)
+        # The agent will use sampling through the MCP protocol when connected to clients
         self.mcp_agent = NextGenUIMCPAgent(
             component_system="json",
-            inference=inference,
             name="NextGenUI-MCP-Server-Embedded"
         )
         
         logger.info("NextGenUI MCP agent created successfully")
+        logger.info("Agent will use MCP sampling when called by clients")
 
     async def run_server(self) -> None:
         """Keep the server running."""

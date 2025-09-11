@@ -9,11 +9,23 @@ python_sources(
 # This target sets the metadata for all the Python test files in this directory.
 python_tests(
     name="tests",
+    sources=["agent_test.py"],
     dependencies=[
         "libs/next_gen_ui_agent:lib",
         "libs/next_gen_ui_beeai:lib",
         "libs/next_gen_ui_testing:tests",
         "libs/3rdparty/python:pytest",
+    ],
+)
+
+# Integration test that requires Llama Stack dependencies (optional)
+python_tests(
+    name="integration_tests",
+    sources=["llamastack_mcp_integration_test.py"],
+    dependencies=[
+        "libs/next_gen_ui_agent:lib",
+        "libs/3rdparty/python:pytest",
+        ":lib",
     ],
 )
 

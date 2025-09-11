@@ -2,7 +2,9 @@ import json
 import logging
 from typing import Any, Dict, List, Literal
 
-from mcp.server.fastmcp import FastMCP
+from mcp import types
+from mcp.server.fastmcp import Context, FastMCP
+from mcp.server.session import ServerSession
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData
@@ -10,16 +12,64 @@ from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData
 logger = logging.getLogger(__name__)
 
 
+class MCPSamplingInference(InferenceBase):
+    """Inference implementation that uses MCP sampling for LLM calls."""
+    
+    def __init__(self, ctx: Context[ServerSession, None]):
+        self.ctx = ctx
+    
+    async def call_model(self, system_msg: str, prompt: str) -> str:
+        """Call the LLM model using MCP sampling.
+        
+        Args:
+            system_msg: System message for the LLM
+            prompt: User prompt for the LLM
+            
+        Returns:
+            The LLM response as a string
+        """
+        try:
+            # Create sampling message for the LLM call
+            user_message = types.SamplingMessage(
+                role="user",
+                content=types.TextContent(type="text", text=prompt)
+            )
+            
+            # Use the MCP session to make a sampling request
+            result = await self.ctx.session.create_message(
+                messages=[user_message],
+                system_prompt=system_msg,
+                temperature=0.0  # Deterministic responses as required
+            )
+            
+            # Extract the text content from the response
+            if isinstance(result.content, types.TextContent):
+                return result.content.text
+            elif isinstance(result.content, str):
+                return result.content
+            else:
+                # Handle list of content items
+                content_text = ""
+                for item in result.content:
+                    if isinstance(item, types.TextContent):
+                        content_text += item.text
+                    elif hasattr(item, 'text'):
+                        content_text += item.text
+                return content_text
+                
+        except Exception as e:
+            logger.error(f"MCP sampling failed: {e}")
+            raise RuntimeError(f"Failed to call model via MCP sampling: {e}") from e
+
+
 class NextGenUIMCPAgent:
-    """Next Gen UI Agent as MCP server."""
+    """Next Gen UI Agent as MCP server that always uses sampling."""
 
     def __init__(
         self,
-        inference: InferenceBase,
-        component_system: str,
+        component_system: str = "json",
         name: str = "NextGenUIMCPAgent",
     ):
-        self.ngui_agent = NextGenUIAgent(AgentConfig(inference=inference))
         self.component_system = component_system
         self.mcp: FastMCP = FastMCP(name)
         self._setup_mcp_tools()
@@ -29,41 +79,54 @@ class NextGenUIMCPAgent:
 
         @self.mcp.tool()
         async def generate_ui(
-            user_prompt: str, input_data: List[InputData]
+            user_prompt: str, input_data: List[InputData], ctx: Context[ServerSession, None]
         ) -> List[Dict[str, Any]]:
-            """Generate UI components from user prompt and input data.
+            """Generate UI components from user prompt and input data using MCP sampling.
 
-            This is the main tool that wraps the entire Next Gen UI Agent functionality:
-            - Component selection based on user prompt and data
-            - Data transformation to match selected components
-            - Design system rendering to produce final UI
+            This tool dynamically creates an InferenceBase using MCP sampling capabilities
+            and instantiates a NextGenUIAgent as part of the tool execution. This allows
+            the tool to leverage the client's LLM via the MCP sampling protocol.
 
             Args:
                 user_prompt: User's request or prompt describing what UI to generate
                 input_data: List of input data items with 'id' and 'data' keys
+                ctx: MCP context providing access to sampling capabilities
 
             Returns:
                 List of rendered UI components ready for display
             """
             try:
+                # Create sampling-based inference using the MCP context
+                sampling_inference = MCPSamplingInference(ctx)
+                
+                # Instantiate NextGenUIAgent with the sampling inference
+                ngui_agent = NextGenUIAgent(AgentConfig(inference=sampling_inference))
+                
+                await ctx.info("Starting UI generation with MCP sampling...")
+
                 # Create agent input
                 agent_input = AgentInput(user_prompt=user_prompt, input_data=input_data)
 
-                # Run the complete agent pipeline
+                # Run the complete agent pipeline using sampling-based inference
                 # 1. Component selection
-                components = await self.ngui_agent.component_selection(
+                await ctx.info("Performing component selection...")
+                components = await ngui_agent.component_selection(
                     input=agent_input
                 )
 
                 # 2. Data transformation
-                components_data = self.ngui_agent.data_transformation(
+                await ctx.info("Transforming data to match components...")
+                components_data = ngui_agent.data_transformation(
                     input_data=input_data, components=components
                 )
 
                 # 3. Design system rendering
-                renditions = self.ngui_agent.design_system_handler(
+                await ctx.info("Rendering final UI components...")
+                renditions = ngui_agent.design_system_handler(
                     components=components_data, component_system=self.component_system
                 )
+
+                await ctx.info(f"Successfully generated {len(renditions)} UI components")
 
                 # Format output as artifacts
                 return [
@@ -77,6 +140,7 @@ class NextGenUIMCPAgent:
 
             except Exception as e:
                 logger.exception("Error during UI generation")
+                await ctx.error(f"UI generation failed: {e}")
                 return [{"error": str(e), "name": "error"}]
 
         @self.mcp.resource("system://info")
@@ -94,15 +158,26 @@ class NextGenUIMCPAgent:
             )
 
     def run(
-        self, transport: Literal["stdio", "sse", "streamable-http"] = "stdio", **kwargs
+        self, transport: Literal["stdio", "sse", "streamable-http"] = "stdio", host: str = "127.0.0.1", port: int = 8000, mount_path: str | None = None
     ):
         """Run the MCP server.
 
         Args:
             transport: Transport type ('stdio', 'sse', 'streamable-http')
-            **kwargs: Additional arguments for the transport
+            host: Host to bind to (for sse and streamable-http transports)
+            port: Port to bind to (for sse and streamable-http transports)
+            mount_path: Mount path for SSE transport
         """
-        self.mcp.run(transport=transport, **kwargs)
+        # Configure host and port in FastMCP settings for non-stdio transports
+        if transport in ["sse", "streamable-http"]:
+            self.mcp.settings.host = host
+            self.mcp.settings.port = port
+        
+        # Run with appropriate parameters based on transport
+        if transport == "sse":
+            self.mcp.run(transport=transport, mount_path=mount_path)
+        else:
+            self.mcp.run(transport=transport)
 
     def get_mcp_server(self) -> FastMCP:
         """Get the underlying FastMCP server instance."""
