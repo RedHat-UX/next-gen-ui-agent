@@ -10,6 +10,7 @@ import {
 import AccordionWrapper from "../components/AccordionWrapper";
 import { CodeBlockWrapper } from "../components/CodeBloackWrapper";
 import CustomLink from "../components/CustomLink";
+import ImageComponent from "../components/ImageComponent";
 import ListWrapper from "../components/ListWrapper";
 import Message from "../components/Message";
 import OneCardWrapper from "../components/OneCardWrapper";
@@ -27,6 +28,7 @@ export const componentsMap = {
   codeblock: CodeBlockWrapper,
   text: Text,
   button: Button,
+  image: ImageComponent,
   list: ListWrapper,
   link: CustomLink,
   message: Message,
