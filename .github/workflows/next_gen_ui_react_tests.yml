@@ -1,4 +1,4 @@
-name: next_gen_ui_react tests
+name: React Tests
 
 on:
   push:
