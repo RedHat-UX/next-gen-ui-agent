@@ -39,7 +39,8 @@ class MCPSamplingInference(InferenceBase):
             result = await self.ctx.session.create_message(
                 messages=[user_message],
                 system_prompt=system_msg,
-                temperature=0.0  # Deterministic responses as required
+                temperature=0.0,  # Deterministic responses as required
+                max_tokens=2048   # Add required max_tokens parameter
             )
             
             # Extract the text content from the response
