@@ -106,3 +106,4 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
 };
 
 export default DynamicComponent;
+
