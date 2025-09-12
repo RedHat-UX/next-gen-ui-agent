@@ -1,61 +1,74 @@
-# Next Gen UI Agent Dynamic UI NPM Package
+# Next Gen UI - Patternfly React Renderer
 
-This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
+[![Module Status](https://img.shields.io/badge/status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Category](https://img.shields.io/badge/category-UI%20Renderer-blue)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-Module category: `UI renderer`  
-Module status: `Tech Preview`
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-A collection of reusable React/Patternfly components to support dynamic UI rendering for Next Gen UI Agent. This package includes wrappers for markdown, tables, accordions, messages, and more.
+**Module Category**: `UI Renderer`  
+**Module Status**: `Tech Preview` 
 
-## Project Structure
+## Provides:
 
-public/ # Public static assets
-src/
-├── components/ # Core reusable components
-├── constants/ # Component mapping logic
-├── index.tsx # Entry point
-└── test
-        └── components
-           └──/ # Unit tests
-        └── setup.ts
-└── index.html
-└── vite.config.ts
-└── package.json
-└── package-lock.json
-└── README.md
+* React + PatternFly components that support dynamic UI rendering.
+* enables runtime-driven UIs in the Next Gen UI Agent project.
+* Reusable React wrappers for common UI patterns like mardown, tables, accordion, messages, and more. See the full list [here](#-available-components)
+* Consistent PatternFly styling
+* Integration with dynamic rendering logic
 
+## Table of Contents
+
+- [Installation](#-installation)
+- [Available Components](#-available-components)
+- [Usage Examples](#-usage-examples)
+- [Project Structure](#-project-structure)
+- [Development](#-development)
+- [Testing](#-testing)
+- [Authors and Acknowledgement](#-authors-and-acknowledgments)
 
 ## Installation
 
+```bash
 npm install <package-name>
-Note: Requires React 18+ and TypeScript.
+```
 
-Available Components:
-- AccordianWrapper
-- CodeBlockWrapper
-- CustomLink
-- DynamicComponents
-- ListWrapper
-- MarkdownWrapper
-- Message
-- QuickResponse
-- TableWrapper
+**Requirements:**
+- React 18+
+- TypeScript
 
+## Available Components
 
-## Usage Example
-```js
-// <-- Accordian Component -->
-import { AccordianWrapper } from '<package-name>';
+| Component | Description |
+|-----------|-------------|
+| `AccordionWrapper` | Collapsible content sections |
+| `CodeBlockWrapper` | Syntax-highlighted code blocks |
+| `CustomLink` | Enhanced link component |
+| `DynamicComponents` | Dynamic component renderer |
+| `ListWrapper` | Structured list display |
+| `MarkdownWrapper` | Markdown content renderer |
+| `Message` | Alert and notification messages |
+| `QuickResponse` | Quick action responses |
+| `TableWrapper` | Data table component |
+
+## Usage Examples
+
+### Accordion Component
+
+```jsx
+import { AccordionWrapper } from '<package-name>';
 
 function App() {
   return (
-    <AccordianWrapper title="Click me">
+    <AccordionWrapper title="Click me">
       <p>This is hidden content!</p>
-    </AccordianWrapper>
+    </AccordionWrapper>
   );
 }
+```
 
-// <-- OneCard Component -->
+### OneCard Component
+
+```jsx
 import { OneCardWrapper } from '<package-name>';
 
 const mockData = {
@@ -87,62 +100,85 @@ function App() {
 }
 ```
 
+## Project Structure
+
+```
+libs_js/next_gen_ui_react/
+├── public/                    # Public static assets
+├── src/
+│   ├── components/           # Core reusable components
+│   ├── constants/            # Component mapping logic
+│   ├── test/
+│   │   └── components/       # Unit tests
+│   │   └── setup.ts         # Test configuration
+│   ├── index.tsx            # Entry point
+│   └── index.html           # HTML template
+├── vite.config.ts           # Vite configuration
+├── package.json             # Dependencies and scripts
+├── package-lock.json        # Lock file
+└── README.md               # This file
+```
+
 ## Development
 
-npm install
-npm run build #Generates the package in /dist
-npm link dynamicui
+### Setup
 
+```bash
+# Install dependencies
+npm install
+
+# Build the package
+npm run build  # Generates the package in /dist
+
+# Link for local development
+npm link dynamicui
+```
+
+### Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run build` | Build the package for production |
+| `npm test` | Run tests in watch mode |
+| `npm run test:ci` | Run tests once (CI mode) |
 
 ## Testing
-- Running Tests
 
-Below are detailed instructions for running your tests.
+### Running Tests
 
-`Install Dependencies`
-npm install
--Installs all project dependencies, including the internal test setup package.
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+   Installs all project dependencies, including the internal test setup package.
 
-1. Run All Tests (Watch Mode)
-npm test
--Starts Jest in watch mode, re-running relevant tests as you save changes.
+2. **Run All Tests (Watch Mode)**
+   ```bash
+   npm test
+   ```
+   Starts Jest in watch mode, re-running relevant tests as you save changes.
 
-2. Run Tests Once (CI Mode)
-npm run test:ci
--Executes the entire test suite a single time without watching.
+3. **Run Tests Once (CI Mode)**
+   ```bash
+   npm run test:ci
+   ```
+   Executes the entire test suite a single time without watching.
 
-3. Run a Specific Test File
-You can target a single test file like so:
+4. **Run a Specific Test File**
+   ```bash
+   npm test -- src/test/components/ComponentName.test.tsx
+   ```
+   Or using the run keyword:
+   ```bash
+   npm run test -- src/test/components/ComponentName.test.tsx
+   ```
 
-npm test -- src/test/components/ComponentName.test.tsx 
+### Test Configuration
 
-Or using the run keyword:
+- **Global config**: Handled by `setupTests.ts` via internal npm package
+- **Test files**: Follow pattern `*.test.tsx` or `*.test.js`
+- **Location**: Placed in `tests/` folders
 
-npm run test -- src/test/components/ComponentName.test.tsx 
+## 👥 Authors and Acknowledgments
 
-Replace ComponentName with the actual file name you wish to test.
-
-`NPM Scripts`
-The following scripts are available via package.json:
-
-{
-  "scripts": {
-    "test": "jest",
-  }
-}
-npm test → Runs all tests in watch mode.
-npm run test:ci → Runs all tests once, useful for CI pipelines.
-
-`Test Setup Details`
-Global config (e.g., @testing-library/jest-dom) is handled by setupTests.ts via our internal npm package.
-Test files follow the pattern *.test.tsx or *.test.js and are placed in: tests folders
-
-
-## License
-For open source projects, say how it is licensed.
-
-## Authors and acknowledgment
 Show your appreciation to those who have contributed to the project.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
