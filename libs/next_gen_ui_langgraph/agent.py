@@ -1,6 +1,6 @@
 import logging
 import uuid
-from typing import Literal, Optional, TypedDict
+from typing import Literal, Optional
 
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
@@ -11,6 +11,7 @@ from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponent
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.model import LangChainModelInference
 from next_gen_ui_agent.types import AgentConfig, Rendition
+from typing_extensions import TypedDict
 
 logger = logging.getLogger(__name__)
 
