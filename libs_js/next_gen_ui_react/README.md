@@ -1,11 +1,22 @@
-# Next Gen UI Agent - Dynamic UI
+# Next Gen UI - Patternfly React Renderer
 
 [![Module Status](https://img.shields.io/badge/status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 [![Module Category](https://img.shields.io/badge/category-UI%20Renderer-blue)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-A collection of reusable React/PatternFly components for dynamic UI rendering in the Next Gen UI Agent project. This package provides wrappers for markdown, tables, accordions, messages, and more.
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-## 📋 Table of Contents
+**Module Category**: `UI Renderer`  
+**Module Status**: `Tech Preview` 
+
+## Provides:
+
+* React + PatternFly components that support dynamic UI rendering.
+* enables runtime-driven UIs in the Next Gen UI Agent project.
+* Reusable React wrappers for common UI patterns like mardown, tables, accordion, messages, and more. See the full list [here](#-available-components)
+* Consistent PatternFly styling
+* Integration with dynamic rendering logic
+
+## Table of Contents
 
 - [Installation](#-installation)
 - [Available Components](#-available-components)
@@ -13,12 +24,9 @@ A collection of reusable React/PatternFly components for dynamic UI rendering in
 - [Project Structure](#-project-structure)
 - [Development](#-development)
 - [Testing](#-testing)
-- [Contributing](#-contributing)
-- [License](#-license)
 - [Authors and Acknowledgement](#-authors-and-acknowledgments)
-- [Project Status](#-project-status)
 
-## 🚀 Installation
+## Installation
 
 ```bash
 npm install <package-name>
@@ -28,7 +36,7 @@ npm install <package-name>
 - React 18+
 - TypeScript
 
-## 🧩 Available Components
+## Available Components
 
 | Component | Description |
 |-----------|-------------|
@@ -42,7 +50,7 @@ npm install <package-name>
 | `QuickResponse` | Quick action responses |
 | `TableWrapper` | Data table component |
 
-## 💡 Usage Examples
+## Usage Examples
 
 ### Accordion Component
 
@@ -92,7 +100,7 @@ function App() {
 }
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 libs_js/next_gen_ui_react/
@@ -111,7 +119,7 @@ libs_js/next_gen_ui_react/
 └── README.md               # This file
 ```
 
-## 🛠️ Development
+## Development
 
 ### Setup
 
@@ -134,7 +142,7 @@ npm link dynamicui
 | `npm test` | Run tests in watch mode |
 | `npm run test:ci` | Run tests once (CI mode) |
 
-## 🧪 Testing
+## Testing
 
 ### Running Tests
 
@@ -171,23 +179,6 @@ npm link dynamicui
 - **Test files**: Follow pattern `*.test.tsx` or `*.test.js`
 - **Location**: Placed in `tests/` folders
 
-## 🤝 Contributing
-
-This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent). 
-
-For contribution guidelines, please follow [CONTRIBUTING.md](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/CONTRIBUTING.md).
-
-## 📄 License
-
-This project is licensed under the terms specified in the main Next Gen UI Agent repository.
-
 ## 👥 Authors and Acknowledgments
 
 Show your appreciation to those who have contributed to the project.
-
-## 📊 Project Status
-
-**Status**: Tech Preview  
-**Category**: UI Renderer
-
-This module is currently in tech preview. Development is active and contributions are welcome.
