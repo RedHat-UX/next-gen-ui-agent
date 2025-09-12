@@ -11,7 +11,8 @@ on:
       - 'libs_js/next_gen_ui_react/**'
 
 jobs:
-  test:
+  react-tests:
+    name: React unit tests
     runs-on: ubuntu-latest
     defaults:
       run:
