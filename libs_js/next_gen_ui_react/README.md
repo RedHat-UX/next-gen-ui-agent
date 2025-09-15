@@ -16,16 +16,6 @@ This module is part of the [Next Gen UI Agent project](https://github.com/RedHat
 * Consistent PatternFly styling
 * Integration with dynamic rendering logic
 
-## Table of Contents
-
-- [Installation](#-installation)
-- [Available Components](#-available-components)
-- [Usage Examples](#-usage-examples)
-- [Project Structure](#-project-structure)
-- [Development](#-development)
-- [Testing](#-testing)
-- [Authors and Acknowledgement](#-authors-and-acknowledgments)
-
 ## Installation
 
 ```bash
