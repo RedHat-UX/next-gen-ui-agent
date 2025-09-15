@@ -64,14 +64,16 @@ class MCPSamplingInference(InferenceBase):
 
 
 class NextGenUIMCPAgent:
-    """Next Gen UI Agent as MCP server that always uses sampling."""
+    """Next Gen UI Agent as MCP server that can use sampling or external inference."""
 
     def __init__(
         self,
         component_system: str = "json",
+        inference: InferenceBase = None,
         name: str = "NextGenUIMCPAgent",
     ):
         self.component_system = component_system
+        self.external_inference = inference  # If None, will use MCP sampling
         self.mcp: FastMCP = FastMCP(name)
         self._setup_mcp_tools()
 
@@ -82,11 +84,11 @@ class NextGenUIMCPAgent:
         async def generate_ui(
             user_prompt: str, input_data: List[InputData], ctx: Context[ServerSession, None]
         ) -> List[Dict[str, Any]]:
-            """Generate UI components from user prompt and input data using MCP sampling.
+            """Generate UI components from user prompt and input data.
 
-            This tool dynamically creates an InferenceBase using MCP sampling capabilities
-            and instantiates a NextGenUIAgent as part of the tool execution. This allows
-            the tool to leverage the client's LLM via the MCP sampling protocol.
+            This tool can use either external inference providers or MCP sampling capabilities.
+            When external inference is provided, it uses that directly. Otherwise, it creates
+            an InferenceBase using MCP sampling to leverage the client's LLM.
 
             Args:
                 user_prompt: User's request or prompt describing what UI to generate
@@ -96,19 +98,27 @@ class NextGenUIMCPAgent:
             Returns:
                 List of rendered UI components ready for display
             """
+
             try:
-                # Create sampling-based inference using the MCP context
-                sampling_inference = MCPSamplingInference(ctx)
+                # Choose inference provider based on configuration
+                if self.external_inference is not None:
+                    # Use external inference provider
+                    inference = self.external_inference
+                    await ctx.info("Using external inference provider...")
+                else:
+                    # Create sampling-based inference using the MCP context
+                    inference = MCPSamplingInference(ctx)
+                    await ctx.info("Using MCP sampling to leverage client's LLM...")
                 
-                # Instantiate NextGenUIAgent with the sampling inference
-                ngui_agent = NextGenUIAgent(AgentConfig(inference=sampling_inference))
+                # Instantiate NextGenUIAgent with the chosen inference
+                ngui_agent = NextGenUIAgent(AgentConfig(inference=inference))
                 
-                await ctx.info("Starting UI generation with MCP sampling...")
+                await ctx.info("Starting UI generation...")
 
                 # Create agent input
                 agent_input = AgentInput(user_prompt=user_prompt, input_data=input_data)
 
-                # Run the complete agent pipeline using sampling-based inference
+                # Run the complete agent pipeline using the configured inference
                 # 1. Component selection
                 await ctx.info("Performing component selection...")
                 components = await ngui_agent.component_selection(
