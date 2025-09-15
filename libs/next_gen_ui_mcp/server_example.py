@@ -12,8 +12,11 @@ Usage:
     # Run with LlamaStack inference
     python server_example.py --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
 
-    # Run with BeeAI inference
-    python server_example.py --provider beeai --model granite3.3-8b
+    # Run with LangChain OpenAI inference
+    python server_example.py --provider langchain --model gpt-3.5-turbo
+
+    # Run with LangChain via Ollama (local)
+    python server_example.py --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
 
     # Run with SSE transport (for HTTP clients)
     python server_example.py --transport sse --host 127.0.0.1 --port 8000
@@ -33,7 +36,7 @@ from pathlib import Path
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from next_gen_ui_agent.model import InferenceBase  # noqa: E402
+from next_gen_ui_agent.model import InferenceBase, LangChainModelInference  # noqa: E402
 from next_gen_ui_mcp.agent import NextGenUIMCPAgent  # noqa: E402
 
 
@@ -71,30 +74,47 @@ def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
         ) from e
 
 
-def create_beeai_inference(model: str) -> InferenceBase:
-    """Create BeeAI inference provider with dynamic import.
+def create_langchain_inference(model: str, base_url: str = None, api_key: str = None, temperature: float = 0.0) -> InferenceBase:
+    """Create LangChain inference provider with ChatOpenAI.
 
     Args:
-        model: Model name to use
+        model: Model name to use (e.g., 'gpt-4', 'gpt-3.5-turbo', 'llama3.2')
+        base_url: Optional base URL for custom OpenAI-compatible endpoints
+        api_key: Optional API key (uses OPENAI_API_KEY env var if not provided)
+        temperature: Temperature for the model (default: 0.0 for deterministic responses)
 
     Returns:
-        BeeAI inference instance
+        LangChain inference instance
 
     Raises:
-        ImportError: If beeai-framework is not installed
+        ImportError: If langchain-openai is not installed
         RuntimeError: If model initialization fails
     """
     try:
-        from next_gen_ui_beeai.beeai_inference import BeeAIInference
+        from langchain_openai import ChatOpenAI
     except ImportError as e:
         raise ImportError(
-            "BeeAI dependencies not found. Install with: " "pip install beeai-framework"
+            "LangChain OpenAI dependencies not found. Install with: "
+            "pip install langchain-openai"
         ) from e
 
     try:
-        return BeeAIInference(model)
+        llm_settings = {
+            "model": model,
+            "temperature": temperature,
+            "disable_streaming": True,
+        }
+        
+        # Add optional parameters if provided
+        if base_url:
+            llm_settings["base_url"] = base_url
+        if api_key:
+            llm_settings["api_key"] = api_key
+            
+        llm = ChatOpenAI(**llm_settings)
+        return LangChainModelInference(llm)
     except Exception as e:
-        raise RuntimeError(f"Failed to initialize BeeAI model {model}: {e}") from e
+        raise RuntimeError(f"Failed to initialize LangChain model {model}: {e}") from e
 
 
 def create_agent(component_system: str = "json", inference: InferenceBase = None) -> NextGenUIMCPAgent:
@@ -125,8 +145,11 @@ Examples:
   # Run with LlamaStack inference
   python server_example.py --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
 
-  # Run with BeeAI inference
-  python server_example.py --provider beeai --model granite3.3-8b
+  # Run with LangChain OpenAI inference
+  python server_example.py --provider langchain --model gpt-3.5-turbo
+
+  # Run with LangChain via Ollama (local)
+  python server_example.py --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
 
 
   # Run with SSE transport (for web clients)
@@ -163,12 +186,12 @@ Examples:
     # Inference provider arguments
     parser.add_argument(
         "--provider",
-        choices=["mcp", "llamastack", "beeai"],
+        choices=["mcp", "llamastack", "langchain"],
         default="mcp",
         help="Inference provider to use (default: mcp - uses MCP sampling)",
     )
     parser.add_argument(
-        "--model", help="Model name to use (required for llamastack and beeai)"
+        "--model", help="Model name to use (required for llamastack and langchain)"
     )
 
     # LlamaStack specific arguments
@@ -176,6 +199,22 @@ Examples:
         "--llama-url",
         default="http://localhost:5001",
         help="LlamaStack server URL (default: http://localhost:5001)",
+    )
+
+    # LangChain specific arguments
+    parser.add_argument(
+        "--base-url",
+        help="Base URL for OpenAI-compatible API (e.g., http://localhost:11434/v1 for Ollama)",
+    )
+    parser.add_argument(
+        "--api-key",
+        help="API key for the LLM provider (uses OPENAI_API_KEY env var if not provided)",
+    )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Temperature for LangChain model (default: 0.0 for deterministic responses)",
     )
 
     args = parser.parse_args()
@@ -191,7 +230,7 @@ Examples:
     logger.info(f"Using component system: {args.component_system}")
 
     # Validate arguments
-    if args.provider in ["llamastack", "beeai"] and not args.model:
+    if args.provider in ["llamastack", "langchain"] and not args.model:
         parser.error(f"--model is required when using {args.provider} provider")
 
     # Create inference provider
@@ -205,9 +244,16 @@ Examples:
                 f"Using LlamaStack inference with model {args.model} at {args.llama_url}"
             )
             inference = create_llamastack_inference(args.model, args.llama_url)
-        elif args.provider == "beeai":
-            logger.info(f"Using BeeAI inference with model {args.model}")
-            inference = create_beeai_inference(args.model)
+        elif args.provider == "langchain":
+            logger.info(f"Using LangChain inference with model {args.model}")
+            if args.base_url:
+                logger.info(f"Using custom base URL: {args.base_url}")
+            inference = create_langchain_inference(
+                model=args.model,
+                base_url=args.base_url,
+                api_key=args.api_key,
+                temperature=args.temperature
+            )
         else:
             raise ValueError(f"Unknown provider: {args.provider}")
 
