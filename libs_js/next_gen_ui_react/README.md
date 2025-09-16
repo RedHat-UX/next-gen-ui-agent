@@ -1,7 +1,7 @@
 # Next Gen UI - Patternfly React Renderer
 
-[![Module Status](https://img.shields.io/badge/status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
-[![Module Category](https://img.shields.io/badge/category-UI%20Renderer-blue)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module_Status-Tech_Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Category](https://img.shields.io/badge/Module_Category-UI_Renderer-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent)
 
