@@ -28,6 +28,3 @@ site/
 
 # Custom .gitmessage template
 .gitmessage
-
-# React package
-libs_js/next_gen_ui_react/LICENSE
