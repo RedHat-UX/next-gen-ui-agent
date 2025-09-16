@@ -1,0 +1,35 @@
+version: '2'
+image_name: nextgen-ui-agent-eval-llama-stack-configuration
+container_image: null
+ 
+distribution_spec:
+  local:
+    services:
+      - inference
+      - telemetry
+ 
+apis:
+  - inference
+  - telemetry
+ 
+providers:
+  inference:
+    - provider_id: ollama
+      provider_type: remote::ollama
+      config:
+        url: http://localhost:11434
+  telemetry:
+    - provider_id: meta-reference
+      provider_type: inline::meta-reference
+      config:
+        sinks: []
+
+# model id is like `granite3.3:2b` or `granite3.3:8b`
+models:
+  - model_id: ${env.INFERENCE_MODEL:granite3.3:2b}
+    provider_id: ollama
+    model_type: llm
+    provider_model_id: null
+ 
+server:
+  port: 5001

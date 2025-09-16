@@ -76,6 +76,7 @@ nav:
       - guide/ai_apps_binding/index.md
       - Llama Stack: guide/ai_apps_binding/llamastack.md
       - LangGraph: guide/ai_apps_binding/langgraph.md
+      - Embedded Llama Stack Server: guide/ai_apps_binding/llamastack_embedded.md
       - BeeAI: guide/ai_apps_binding/beeai.md
       - ACP: guide/ai_apps_binding/acp.md
       - Python Library: guide/ai_apps_binding/pythonlib.md
