@@ -1,15 +1,17 @@
 {
   "name": "dynamicui",
-  "private": true,
+  "private": false,
   "version": "0.0.1",
   "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
-  "license": "MIT",
+  "license": "Apache-2.0",
   "exports": {
     "import": "./dist/index.es.js",
     "require": "./dist/index.cjs.js"
@@ -21,7 +23,8 @@
     "test:ci": "vitest --run",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepack": "cp -f ../../LICENSE ./LICENSE"
   },
   "dependencies": {
     "@patternfly/chatbot": "^6.3.2",
