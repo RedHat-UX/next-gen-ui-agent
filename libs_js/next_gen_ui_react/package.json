@@ -1,7 +1,8 @@
 {
-  "name": "dynamicui",
+  "name": "@rhngui/patternfly-react-renderer",
   "private": false,
   "version": "0.0.1",
+  "description": "Patternfly React component wrappers for the Next Gen UI Agent",
   "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
@@ -12,6 +13,10 @@
     "LICENSE"
   ],
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "exports": {
     "import": "./dist/index.es.js",
     "require": "./dist/index.cjs.js"
@@ -24,7 +29,8 @@
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepack": "cp -f ../../LICENSE ./LICENSE"
+    "prepack": "cp -f ../../LICENSE ./LICENSE",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@patternfly/chatbot": "^6.3.2",
