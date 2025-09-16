@@ -1,5 +1,4 @@
 import asyncio
-import os
 import time
 from traceback import print_exception
 
@@ -29,10 +28,6 @@ from ai_eval_components.types import (
     DatasetRow,
     DatasetRowAgentEvalResult,
 )
-from llama_stack.distribution.library_client import (  # type: ignore[import-untyped]
-    AsyncLlamaStackAsLibraryClient,
-)
-from llama_stack_client import LlamaStackClient
 from next_gen_ui_agent import InputData
 from next_gen_ui_agent.component_selection import (
     OnestepLLMCallComponentSelectionStrategy,
@@ -53,10 +48,7 @@ from next_gen_ui_agent.data_transform.validation.types import (
 from next_gen_ui_agent.data_transformation import get_data_transformer
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import ComponentSelectionStrategy, UIComponentMetadata
-from next_gen_ui_llama_stack.llama_stack_inference import (
-    LlamaStackAgentInference,
-    LlamaStackAsyncAgentInference,
-)
+from next_gen_ui_llama_stack_embedded import init_inference_from_env
 
 # allows to print system error traces to the stderr
 PRINT_SYS_ERR_TRACE = True
@@ -74,47 +66,7 @@ INFERENCE_MODEL_DEFAULT = "granite3.3:2b"
 # export INFERENCE_MODEL_DEFAULT=gemini/gemini-2.0-flash
 # export INFERENCE_MODEL_DEFAULT=gemini/gemini-2.5-flash
 
-LLAMA_STACK_PORT_DEFAULT = "5001"
-
-
-def init_inference() -> InferenceBase:
-    model = os.getenv("INFERENCE_MODEL", default=INFERENCE_MODEL_DEFAULT)
-
-    host = os.getenv("LLAMA_STACK_HOST")
-    url = os.getenv("LLAMA_STACK_URL")
-    if host or url:
-        # use remote llama stack if host or url is configured
-        if host:
-            port = os.getenv("LLAMA_STACK_PORT", default=LLAMA_STACK_PORT_DEFAULT)
-            base_url = f"http://{host}:{port}"
-        elif url:
-            base_url = url
-
-        print(
-            f"Creating UI Agent with remote LlamaStack host={base_url} and LLM={model}"
-        )
-
-        client = LlamaStackClient(
-            base_url=base_url,
-        )
-
-        return LlamaStackAgentInference(client, model)
-
-    else:
-        # use embedded llama stack if remote not configured
-        config_file = os.getenv(
-            "LLAMA_STACK_CONFIG_FILE",
-            default="tests/ai_eval_components/llamastack-ollama.yaml",
-        )
-
-        print(
-            f"Creating UI Agent with embedded LlamaStack config='{config_file}' and LLM='{model}'"
-        )
-
-        client_a = AsyncLlamaStackAsLibraryClient(config_file)
-        asyncio.run(client_a.initialize())
-
-        return LlamaStackAsyncAgentInference(client_a, model)
+LLAMASTACK_CONFIG_PATH_DEFAULT = "tests/ai_eval_components/llamastack-ollama.yaml"
 
 
 def check_result_explicit(
@@ -246,7 +198,13 @@ if __name__ == "__main__":
     errors_dir_path = get_errors_dir()
     llm_output_dir_path = get_llm_output_dir(arg_write_llm_output)
     dataset_files = get_dataset_files(arg_dataset_file)
-    inference = init_inference()
+    inference = init_inference_from_env(
+        default_model=INFERENCE_MODEL_DEFAULT,
+        default_config_file=LLAMASTACK_CONFIG_PATH_DEFAULT,
+    )
+    if not inference:
+        print("Inference not initialized because not configured in env variables")
+        exit(1)
 
     run_components, unsupported_components = select_run_components(
         arg_ui_component, arg_dataset_file

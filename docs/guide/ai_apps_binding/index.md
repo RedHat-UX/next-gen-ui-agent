@@ -6,6 +6,7 @@ Binding UI Agent core functionality into your AI application (AI assistant backe
 
 * [Llama Stack](llamastack.md)
 * [LangGraph](langgraph.md)
+* [Embedded Llama Stack Server Inference](llamastack_embedded.md)
 * [BeeAI](beeai.md) - Tech Preview
 
 ## AI Protocol bindings/servers
