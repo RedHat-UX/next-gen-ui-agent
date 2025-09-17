@@ -137,8 +137,9 @@ npm run test:ci → Runs all tests once, useful for CI pipelines.
 Global config (e.g., @testing-library/jest-dom) is handled by setupTests.ts via our internal npm package.
 Test files follow the pattern *.test.tsx or *.test.js and are placed in: tests folders
 
+
 ## License
-Licensed under the Apache License 2.0 — see the [LICENSE](./LICENSE) file.
+For open source projects, say how it is licensed.
 
 ## Authors and acknowledgment
 Show your appreciation to those who have contributed to the project.
