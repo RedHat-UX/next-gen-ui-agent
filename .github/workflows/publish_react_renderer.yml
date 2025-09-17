@@ -1,0 +1,37 @@
+name: Publish Patternfly React Renderer to NPM
+
+on:
+  push:
+    tags:
+      - '@rhngui/patternfly-react-renderer@*'
+
+jobs:
+  publish:
+    name: Publish package
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: libs_js/next_gen_ui_react
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with: 
+          node-version-file: 'libs_js/next_gen_ui_react/.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+
+
+
