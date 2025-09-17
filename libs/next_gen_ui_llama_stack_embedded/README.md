@@ -2,12 +2,12 @@
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
-Module category: `AI framework`  
-Module status: `Supported`
+[![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Framework-darkred)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 Support for LLM inference using [Embedded Llama Stack server](https://github.com/meta-llama/llama-stack).
 
-Provides:
+## Provides
 
 * `LlamaStackEmbeddedAsyncAgentInference` to use LLM hosted in embedded Llama Stack server, started from provided [Llama Stack config file](https://llama-stack.readthedocs.io/en/latest/distributions/configuration.html).
 * `init_inference_from_env` method to init Llama Stack inference (remote or embedded) based on environment variables
@@ -60,3 +60,9 @@ else:
     print("Inference not initialized because not configured in env variables")
 
 ```
+
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/llamastack_embedded/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack_embedded)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)

@@ -2,12 +2,12 @@
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
-Module category: `Core`  
-Module status: `Supported`
+[![Module Category](https://img.shields.io/badge/Module%20Category-Core-blue)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-This module contains UI Agent Core functionality and framework.
+This module contains UI Agent Core functionality and frameworks.
 
-Provides:
+## Provides
 
 * `NextGenUIAgent` providing agent configuration and methods for individual processing steps
 * Produced *UI Data Blocks*:
@@ -42,3 +42,9 @@ agent = NextGenUIAgent(
 # API is not very friendly ATM, as you have to call methods for individual processing steps. We plan to improve it iit the near future.
 
 ```
+
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)

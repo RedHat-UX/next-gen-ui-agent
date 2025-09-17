@@ -2,12 +2,12 @@
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
-Module category: `AI framework`  
-Module status: `Supported`
+[![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Framework-darkred)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-Support for [Llama Stack](https://github.com/meta-llama/llama-stack).
+Support for [Llama Stack](https://github.com/meta-llama/llama-stack) framework.
 
-Provides:
+## Provides
 
 * `NextGenUILlamaStackAgent` - takes all tool messages from provided conversation turn steps (Llama Stack Agent API), and process data from them into UI components.
 * `LlamaStackAgentInference` and `LlamaStackAsyncAgentInference` to use LLM hosted in Llama Stack server (Llama Stack Chat Completion API)
@@ -62,3 +62,9 @@ from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 ngui_agent = NextGenUILlamaStackAgent(client, INFERENCE_MODEL)
 result = await ngui_agent.turn_from_steps(user_input, steps=response.steps)
 ```
+
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/llamastack/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
