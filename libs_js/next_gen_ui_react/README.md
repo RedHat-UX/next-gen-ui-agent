@@ -22,7 +22,7 @@ This npm package provides a collection of reusable Patternfly React components t
 - TypeScript
 
 ```bash
-npm install <package-name>
+npm install @rhngui/patternfly-react-renderer
 ```
 
 ## Usage Examples
@@ -30,7 +30,7 @@ npm install <package-name>
 ### OneCard Component
 
 ```jsx
-import { OneCardWrapper } from '<package-name>';
+import { OneCardWrapper } from '@rhngui/patternfly-react-renderer';
 
 const mockData = {
   title: "Movie Details",
