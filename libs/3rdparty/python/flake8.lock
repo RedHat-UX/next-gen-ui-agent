@@ -6,7 +6,7 @@
 // {
 //   "version": 3,
 //   "valid_for_interpreter_constraints": [
-//     "CPython<3.14,>=3.11"
+//     "CPython<3.14,>=3.12"
 //   ],
 //   "generated_with_requirements": [
 //     "flake8-logging"
@@ -54,13 +54,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "289cd90fb4db8b74db3c661b33c5323b0275d9c64ff617ec811843d41eb3f147",
-              "url": "https://files.pythonhosted.org/packages/30/ce/cbc1526e21e7e50583a1a1dbe03d4963af1876f28a85ef6e15431b9850e8/flake8_logging-1.7.0-py3-none-any.whl"
+              "hash": "bb3fcf0fb2b4f35d7ebb0c1dc02af16db00c7c858c5a018370172e939dd6f225",
+              "url": "https://files.pythonhosted.org/packages/7d/a3/0192ec49e7fe062130d545f4f6188142ca448b9b63a2622a4ba8ce7e728d/flake8_logging-1.8.0-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "5347f77e746669d2a49d22f251f7a648bbdf285b7140b69aa867f7b42a29da96",
-              "url": "https://files.pythonhosted.org/packages/97/a8/8df2ce37b1ea3e8342bc00ff38e885ce4da99a289ae21ea7d1beb54e3e7f/flake8_logging-1.7.0.tar.gz"
+              "hash": "765046763d44d1dc051071c047fe0fa056d71a524505207c3fbdc47532e7d8af",
+              "url": "https://files.pythonhosted.org/packages/46/f0/572bd165c171c7a9ac1f82354c11edd09d0b86f35fa914b6db8cf64cce4f/flake8_logging-1.8.0.tar.gz"
             }
           ],
           "project_name": "flake8-logging",
@@ -68,7 +68,7 @@
             "flake8!=3.2,>=3"
           ],
           "requires_python": ">=3.9",
-          "version": "1.7.0"
+          "version": "1.8.0"
         },
         {
           "artifacts": [
@@ -139,7 +139,7 @@
     "flake8-logging"
   ],
   "requires_python": [
-    "<3.14,>=3.11"
+    "<3.14,>=3.12"
   ],
   "resolver_version": "pip-2020-resolver",
   "style": "universal",

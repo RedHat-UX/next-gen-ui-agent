@@ -1,4 +1,4 @@
-llama-stack==0.2.12
+llama-stack==0.2.20
 fastapi
 opentelemetry-sdk
 opentelemetry-exporter-otlp

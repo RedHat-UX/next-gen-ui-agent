@@ -6,7 +6,7 @@ export OLLAMA_MODEL=granite3.3:2b
 #export OLLAMA_MODEL=granite3.3:8b
 
 #export LLAMASTACK_VERSION=latest
-export LLAMASTACK_VERSION=0.2.16
+export LLAMASTACK_VERSION=0.2.20
 
 if [ -z "$INFERENCE_MODEL" ]; then
     echo INFERENCE_MODEL env variable not set, setting it to default value $OLLAMA_MODEL

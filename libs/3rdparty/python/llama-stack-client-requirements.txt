@@ -1,4 +1,4 @@
-llama-stack-client>=0.1.9,<=0.2.15
+llama-stack-client>=0.2.15
 overrides
 fire
 requests

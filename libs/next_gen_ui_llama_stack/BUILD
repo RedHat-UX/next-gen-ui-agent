@@ -5,6 +5,7 @@ python_sources(
         # Has to be explicitly noted because of missing trans deps in llama-stack-client
         "libs/3rdparty/python:llama-stack-client",
     ],
+    interpreter_constraints=["CPython>=3.12,<3.14"],
 )
 
 # This target sets the metadata for all the Python test files in this directory.
@@ -36,7 +37,6 @@ python_distribution(
         long_description_content_type="text/markdown",
         classifiers=[
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.11",
             "Programming Language :: Python :: 3.12",
             "Programming Language :: Python :: 3.13",
             "License :: OSI Approved :: Apache Software License",

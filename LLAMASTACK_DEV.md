@@ -33,7 +33,7 @@ Version of the LlamaStack server distribution must be the same as version of the
 podman run -it --rm \
   -p 5001:5001 \
   -v ~/.llama:/root/.llama:z \
-  llamastack/distribution-starter:0.2.16 \
+  llamastack/distribution-starter:0.2.20 \
   --port 5001 \
   --env INFERENCE_MODEL="granite3.2:2b" \
   --env OLLAMA_URL=http://host.containers.internal:11434
