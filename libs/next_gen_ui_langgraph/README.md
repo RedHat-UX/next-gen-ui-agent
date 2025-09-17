@@ -2,12 +2,12 @@
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
-Module category: `AI framework`  
-Module status: `Supported`
+[![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Framework-darkred)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-Support for [LangGraph](https://www.langchain.com/langgraph). 
+Support for [LangGraph](https://www.langchain.com/langgraph) framework.
 
-Provides:
+## Provides
 
 * `NextGenUILangGraphAgent` - takes all tool messages from provided LanGraph states, and process data from them into UI components.
 
@@ -18,7 +18,6 @@ Tool name is used as `InputData.type` for each tool message, so can be used for 
 ```sh
 pip install -U next_gen_ui_langgraph
 ```
-
 
 ## Example
 
@@ -160,3 +159,9 @@ Narrator: "One toy stands tall."
     'video_img': 'https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg'
 }
 ```
+
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/langgraph/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_langgraph)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)

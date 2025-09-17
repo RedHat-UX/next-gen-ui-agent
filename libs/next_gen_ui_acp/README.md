@@ -2,12 +2,12 @@
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
-Module category: `AI Protocol`  
-Module status: `Tech Preview`
+[![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 Support for [Agent Communication Protocol (ACP)](https://agentcommunicationprotocol.dev/)
 
-Provides:
+## Provides
 
 * `NextGenUIACPAgent` - code for easy implementation of the ACP server
 
@@ -68,3 +68,9 @@ if __name__ == "__main__":
     logging.getLogger().setLevel(logging.DEBUG)
     server.run(port=8001)
 ```
+
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/acp/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_acp)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)

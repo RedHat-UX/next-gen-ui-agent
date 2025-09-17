@@ -1,5 +1,8 @@
 # Evaluations of the UI component selection and configuration AI functionality
 
+[![Module Category](https://img.shields.io/badge/Module%20Category-Testing/Evaluation-darkmagenta)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
+
 This module contains Dataset and code to generate the dataset and to run the UI Component selection AI functionality evaluations.
 
 ## Setup Evaluation Environment

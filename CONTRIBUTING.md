@@ -204,41 +204,56 @@ The file must start with the 1st level Heading with the module name. For the rel
 
 Released packages must contain link pointing to the project repository `https://github.com/RedHat-UX/next-gen-ui-agent`, see example below.
 
-Then there has to be two sections with categorization of the module (separated by two spaces and new line to be rendered as simple line break).
+Then there has to be two badges with categorization of the module.
 
-`Module category:` is one of:
+Module category badge is one of:
 
-* `Core` - UI agent's core functionality
-* `Testing` - testing related module. Eg. library, evaluation framework or dataset, testing app etc.
-* `AI framework` - AI framework binding, including inference providers
-* `AI Protocol` - AI protocol suppor/server
-* `UI renderer` - UI renderer - in general info below, mention if it is a Server-Side or Client-Side.
+* `Core` - UI agent's core functionality. 
+    * Badge markup: `[![Module Category](https://img.shields.io/badge/Module%20Category-Core-blue)](https://github.com/RedHat-UX/next-gen-ui-agent)`
+* `Testing/Evaluation` - testing and evaluation related module. Eg. library, evaluation framework or dataset, testing app etc.
+    * Badge markup: `[![Module Category](https://img.shields.io/badge/Module%20Category-Testing/Evaluation-darkmagenta)](https://github.com/RedHat-UX/next-gen-ui-agent)`
+* `AI framework` - AI framework binding, including inference providers. 
+    * Badge markup: `[![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Framework-darkred)](https://github.com/RedHat-UX/next-gen-ui-agent)`
+* `AI Protocol` - AI protocol suppor/server. 
+    * Badge markup: `[![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)`
+* `UI renderer` - UI renderer - in general info below, mention if it is a Server-Side or Client-Side. 
+    * Badge markup: `[![Module Category](https://img.shields.io/badge/Module%20Category-UI%20Renderer-darkgreen)](https://github.com/RedHat-UX/next-gen-ui-agent)`
 
-`Module status:` is one of:
+Module status badge is one of:
 
-* `Tech Preview` - code/package which is in development and is not fully stable and supported yet. So API can change etc.
-* `Supported` - code/package which is supported. Some functionality included in it can be `Tech Preview` still.
-* `Deprecated` - code/package which is deprecated and will be removed in the future.
+* `Tech Preview` - code/package which is in development and is not fully stable and supported yet. So API can change etc. 
+    * Badge markup: `[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)`
+* `Supported` - code/package which is supported. Some functionality included in it can be `Tech Preview` still. 
+    * Badge markup: `[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)`
+* `Deprecated` - code/package which is deprecated and will be removed in the future. 
+    * Badge markup: `[![Module Status](https://img.shields.io/badge/Module%20Status-Deprecated-lightgray)](https://github.com/RedHat-UX/next-gen-ui-agent)`
 
 Then provide some general info, what is the module about, with link to implemented frameworks etc.
 
-Then there must be section `Provides:` with list of exposed functionalities, code points etc. You can mark some of them as `Tech Preview` here.
+Then there must be `Provides` chapter with list of exposed functionalities, code points etc. You can mark some of them as `Tech Preview` here.
 
-Then there must be sections about module installation, configuration, examples of use etc.
+For modules published as a library to repositories like `PyPI` or `NPM`, there must be `Links` chapter at the end, providing 
+links to the Documentation, Source Codes, and Contributing info (in the documentation site).
 
-Example: 
+Then there may be chapters about module installation, configuration, examples of use, screenshots etc. 
+But generally not too much details should be here for modules which are covered in the documentation site (then details 
+has to be in the documentation site), and mainly for modules published as a library to repositories like `PyPI` or `NPM`.
+But include details for modules which are not covered in the documentation (eg. test apps etc.).
+
+
+Example of the README for module published as a library into repo: 
 
 ```md
 # Next Gen UI Core Functionality
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
-Module category: `Core`  
-Module status: `Supported`
+[![Module Category](https://img.shields.io/badge/Module%20Category-Core-blue)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-This module contains UI Agent Core functionality.
+This module contains UI Agent Core functionality and frameworks.
 
-Provides:
+## Provides
 
 * `NextGenUIAgent` providing agent configuration and methods for individual processing steps
 * extensible framework for "data transformation" step
@@ -247,11 +262,13 @@ Provides:
   * `InferenceBase` interface
   * `LangChainModelInference` implementation using LangChain `chat_models`.
 
-...
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
 
 ```
-
-
 
 ### Documentation site
 
