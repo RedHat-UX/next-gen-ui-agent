@@ -1,37 +1,41 @@
 #!/usr/bin/env python3
 """
-Example MCP server using Next Gen UI Agent.
+Next Gen UI MCP Server Module Entry Point.
 
-This script demonstrates how to run the Next Gen UI MCP server
-that can use MCP sampling (default) or external LLM providers.
+This module provides the Next Gen UI MCP server that can use MCP sampling
+(default) or external LLM providers.
 
 Usage:
     # Run with MCP sampling (default - leverages client's LLM)
-    python server_example.py
+    python -m next_gen_ui_mcp
 
     # Run with LlamaStack inference
-    python server_example.py --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
+    python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
 
     # Run with LangChain OpenAI inference
-    python server_example.py --provider langchain --model gpt-3.5-turbo
+    python -m next_gen_ui_mcp --provider langchain --model gpt-3.5-turbo
 
     # Run with LangChain via Ollama (local)
-    python server_example.py --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
+    python -m next_gen_ui_mcp --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
+
+    # Run with MCP sampling and custom max tokens
+    python -m next_gen_ui_mcp --sampling-max-tokens 4096
 
     # Run with SSE transport (for HTTP clients)
-    python server_example.py --transport sse --host 127.0.0.1 --port 8000
+    python -m next_gen_ui_mcp --transport sse --host 127.0.0.1 --port 8000
 
     # Run with streamable-http transport
-    python server_example.py --transport streamable-http --host 127.0.0.1 --port 8000
+    python -m next_gen_ui_mcp --transport streamable-http --host 127.0.0.1 --port 8000
 
     # Run with patternfly component system
-    python server_example.py --component-system patternfly
+    python -m next_gen_ui_mcp --component-system patternfly
 """
 
 import argparse
 import logging
 import sys
 from pathlib import Path
+from typing import Optional
 
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -55,8 +59,8 @@ def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
         RuntimeError: If connection to LlamaStack fails
     """
     try:
-        from llama_stack_client import LlamaStackClient
-        from next_gen_ui_llama_stack.llama_stack_inference import (
+        from llama_stack_client import LlamaStackClient  # pants: no-infer-dep
+        from next_gen_ui_llama_stack.llama_stack_inference import (  # pants: no-infer-dep
             LlamaStackAgentInference,
         )
     except ImportError as e:
@@ -74,7 +78,12 @@ def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
         ) from e
 
 
-def create_langchain_inference(model: str, base_url: str = None, api_key: str = None, temperature: float = 0.0) -> InferenceBase:
+def create_langchain_inference(
+    model: str,
+    base_url: Optional[str] = None,
+    api_key: Optional[str] = None,
+    temperature: float = 0.0,
+) -> InferenceBase:
     """Create LangChain inference provider with ChatOpenAI.
 
     Args:
@@ -91,7 +100,7 @@ def create_langchain_inference(model: str, base_url: str = None, api_key: str = 
         RuntimeError: If model initialization fails
     """
     try:
-        from langchain_openai import ChatOpenAI
+        from langchain_openai import ChatOpenAI  # pants: no-infer-dep
     except ImportError as e:
         raise ImportError(
             "LangChain OpenAI dependencies not found. Install with: "
@@ -104,31 +113,39 @@ def create_langchain_inference(model: str, base_url: str = None, api_key: str = 
             "temperature": temperature,
             "disable_streaming": True,
         }
-        
+
         # Add optional parameters if provided
         if base_url:
             llm_settings["base_url"] = base_url
         if api_key:
             llm_settings["api_key"] = api_key
-            
-        llm = ChatOpenAI(**llm_settings)
+
+        llm = ChatOpenAI(**llm_settings)  # type: ignore
         return LangChainModelInference(llm)
     except Exception as e:
         raise RuntimeError(f"Failed to initialize LangChain model {model}: {e}") from e
 
 
-def create_agent(component_system: str = "json", inference: InferenceBase = None) -> NextGenUIMCPAgent:
+def create_agent(
+    component_system: str = "json",
+    inference: Optional[InferenceBase] = None,
+    sampling_max_tokens: int = 2048,
+) -> NextGenUIMCPAgent:
     """Create NextGenUIMCPAgent with optional external inference provider.
 
     Args:
         component_system: Component system to use (json, patternfly, rhds)
         inference: External inference provider (if None, uses MCP sampling)
+        sampling_max_tokens: Maximum tokens for MCP sampling inference
 
     Returns:
         Configured NextGenUIMCPAgent
     """
     return NextGenUIMCPAgent(
-        component_system=component_system, inference=inference, name="NextGenUI-MCP-Server"
+        component_system=component_system,
+        inference=inference,
+        sampling_max_tokens=sampling_max_tokens,
+        name="NextGenUI-MCP-Server",
     )
 
 
@@ -140,29 +157,31 @@ def main():
         epilog="""
 Examples:
   # Run with MCP sampling (default - leverages client's LLM)
-  python server_example.py
+  python -m next_gen_ui_mcp
 
   # Run with LlamaStack inference
-  python server_example.py --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
+  python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
 
   # Run with LangChain OpenAI inference
-  python server_example.py --provider langchain --model gpt-3.5-turbo
+  python -m next_gen_ui_mcp --provider langchain --model gpt-3.5-turbo
 
   # Run with LangChain via Ollama (local)
-  python server_example.py --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
+  python -m next_gen_ui_mcp --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
 
+  # Run with MCP sampling and custom max tokens
+  python -m next_gen_ui_mcp --sampling-max-tokens 4096
 
   # Run with SSE transport (for web clients)
-  python server_example.py --transport sse --host 127.0.0.1 --port 8000
+  python -m next_gen_ui_mcp --transport sse --host 127.0.0.1 --port 8000
 
   # Run with streamable-http transport
-  python server_example.py --transport streamable-http --host 127.0.0.1 --port 8000
+  python -m next_gen_ui_mcp --transport streamable-http --host 127.0.0.1 --port 8000
 
   # Run with patternfly component system
-  python server_example.py --component-system rhds
+  python -m next_gen_ui_mcp --component-system rhds
 
   # Run with rhds component system via SSE transport
-  python server_example.py --transport sse --component-system rhds --port 8000
+  python -m next_gen_ui_mcp --transport sse --component-system rhds --port 8000
         """,
     )
 
@@ -179,7 +198,7 @@ Examples:
         "--component-system",
         choices=["json", "patternfly", "rhds"],
         default="json",
-        help="Component system to use for rendering (default: json)"
+        help="Component system to use for rendering (default: json)",
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
@@ -217,6 +236,14 @@ Examples:
         help="Temperature for LangChain model (default: 0.0 for deterministic responses)",
     )
 
+    # MCP sampling specific arguments
+    parser.add_argument(
+        "--sampling-max-tokens",
+        type=int,
+        default=2048,
+        help="Maximum tokens for MCP sampling inference (default: 2048)",
+    )
+
     args = parser.parse_args()
 
     # Configure logging
@@ -226,8 +253,8 @@ Examples:
     )
 
     logger = logging.getLogger(__name__)
-    logger.info(f"Starting Next Gen UI MCP Server with {args.transport} transport")
-    logger.info(f"Using component system: {args.component_system}")
+    logger.info("Starting Next Gen UI MCP Server with %s transport", args.transport)
+    logger.info("Using component system: %s", args.component_system)
 
     # Validate arguments
     if args.provider in ["llamastack", "langchain"] and not args.model:
@@ -245,23 +272,27 @@ Examples:
             )
             inference = create_llamastack_inference(args.model, args.llama_url)
         elif args.provider == "langchain":
-            logger.info(f"Using LangChain inference with model {args.model}")
+            logger.info("Using LangChain inference with model %s", args.model)
             if args.base_url:
-                logger.info(f"Using custom base URL: {args.base_url}")
+                logger.info("Using custom base URL: %s", args.base_url)
             inference = create_langchain_inference(
                 model=args.model,
                 base_url=args.base_url,
                 api_key=args.api_key,
-                temperature=args.temperature
+                temperature=args.temperature,
             )
         else:
             raise ValueError(f"Unknown provider: {args.provider}")
 
         # Create the agent
-        agent = create_agent(component_system=args.component_system, inference=inference)
+        agent = create_agent(
+            component_system=args.component_system,
+            inference=inference,
+            sampling_max_tokens=args.sampling_max_tokens,
+        )
 
     except (ImportError, RuntimeError) as e:
-        logger.error(f"Failed to initialize {args.provider} provider: {e}")
+        logger.exception("Failed to initialize %s provider: %s", args.provider, e)
         sys.exit(1)
 
     # Run the server
@@ -270,15 +301,15 @@ Examples:
             logger.info("Server running on stdio - connect with MCP clients")
             agent.run(transport="stdio")
         elif args.transport == "sse":
-            logger.info(f"Server running on http://{args.host}:{args.port}/sse")
+            logger.info("Server running on http://%s:%s/sse", args.host, args.port)
             agent.run(transport="sse", host=args.host, port=args.port)
         elif args.transport == "streamable-http":
-            logger.info(f"Server running on http://{args.host}:{args.port}")
+            logger.info("Server running on http://%s:%s", args.host, args.port)
             agent.run(transport="streamable-http", host=args.host, port=args.port)
     except KeyboardInterrupt:
         logger.info("Server stopped by user")
     except Exception as e:
-        logger.error(f"Server error: {e}")
+        logger.exception("Server error: %s", e)
         sys.exit(1)
 
 

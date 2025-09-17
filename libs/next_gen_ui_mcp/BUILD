@@ -2,8 +2,8 @@
 python_sources(
     name="lib",
     dependencies=[
-        "libs/next_gen_ui_agent:lib",
-    ],
+        "libs/3rdparty/python:mcp",
+    ]
 )
 
 # This target sets the metadata for all the Python test files in this directory.
@@ -11,10 +11,9 @@ python_tests(
     name="tests",
     sources=["agent_test.py"],
     dependencies=[
-        "libs/next_gen_ui_agent:lib",
-        "libs/next_gen_ui_beeai:lib",
-        "libs/next_gen_ui_testing:tests",
         "libs/3rdparty/python:pytest",
+        "libs/3rdparty/python:mcp",
+        "libs/3rdparty/python:agent-core",
     ],
 )
 
@@ -23,14 +22,11 @@ python_tests(
     name="integration_tests",
     sources=["llamastack_mcp_integration_test.py"],
     dependencies=[
-        "libs/next_gen_ui_agent:lib",
         "libs/3rdparty/python:pytest",
-        ":lib",
+        "libs/3rdparty/python:mcp",
+        "libs/3rdparty/python:llama-stack",
+        "libs/3rdparty/python:agent-core",
     ],
-)
-
-python_requirements(
-    name="reqs",
 )
 
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
@@ -43,7 +39,6 @@ python_distribution(
     name="dist",
     dependencies=[
         ":lib",
-        ":reqs",
     ],
     provides=python_artifact(
         name="next_gen_ui_mcp",

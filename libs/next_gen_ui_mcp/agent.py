@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, Optional
 
 from mcp import types
 from mcp.server.fastmcp import Context, FastMCP
@@ -14,35 +14,35 @@ logger = logging.getLogger(__name__)
 
 class MCPSamplingInference(InferenceBase):
     """Inference implementation that uses MCP sampling for LLM calls."""
-    
-    def __init__(self, ctx: Context[ServerSession, None]):
+
+    def __init__(self, ctx: Context[ServerSession, None], max_tokens: int = 2048):
         self.ctx = ctx
-    
+        self.max_tokens = max_tokens
+
     async def call_model(self, system_msg: str, prompt: str) -> str:
         """Call the LLM model using MCP sampling.
-        
+
         Args:
             system_msg: System message for the LLM
             prompt: User prompt for the LLM
-            
+
         Returns:
             The LLM response as a string
         """
         try:
             # Create sampling message for the LLM call
             user_message = types.SamplingMessage(
-                role="user",
-                content=types.TextContent(type="text", text=prompt)
+                role="user", content=types.TextContent(type="text", text=prompt)
             )
-            
+
             # Use the MCP session to make a sampling request
             result = await self.ctx.session.create_message(
                 messages=[user_message],
                 system_prompt=system_msg,
                 temperature=0.0,  # Deterministic responses as required
-                max_tokens=2048   # Add required max_tokens parameter
+                max_tokens=self.max_tokens,  # Use configurable max_tokens parameter
             )
-            
+
             # Extract the text content from the response
             if isinstance(result.content, types.TextContent):
                 return result.content.text
@@ -54,12 +54,12 @@ class MCPSamplingInference(InferenceBase):
                 for item in result.content:
                     if isinstance(item, types.TextContent):
                         content_text += item.text
-                    elif hasattr(item, 'text'):
+                    elif hasattr(item, "text"):
                         content_text += item.text
                 return content_text
-                
+
         except Exception as e:
-            logger.error(f"MCP sampling failed: {e}")
+            logger.exception("MCP sampling failed")
             raise RuntimeError(f"Failed to call model via MCP sampling: {e}") from e
 
 
@@ -69,11 +69,13 @@ class NextGenUIMCPAgent:
     def __init__(
         self,
         component_system: str = "json",
-        inference: InferenceBase = None,
+        inference: Optional[InferenceBase] = None,
         name: str = "NextGenUIMCPAgent",
+        sampling_max_tokens: int = 2048,
     ):
         self.component_system = component_system
         self.external_inference = inference  # If None, will use MCP sampling
+        self.sampling_max_tokens = sampling_max_tokens
         self.mcp: FastMCP = FastMCP(name)
         self._setup_mcp_tools()
 
@@ -82,7 +84,9 @@ class NextGenUIMCPAgent:
 
         @self.mcp.tool()
         async def generate_ui(
-            user_prompt: str, input_data: List[InputData], ctx: Context[ServerSession, None]
+            user_prompt: str,
+            input_data: List[InputData],
+            ctx: Context[ServerSession, None],
         ) -> List[Dict[str, Any]]:
             """Generate UI components from user prompt and input data.
 
@@ -107,12 +111,14 @@ class NextGenUIMCPAgent:
                     await ctx.info("Using external inference provider...")
                 else:
                     # Create sampling-based inference using the MCP context
-                    inference = MCPSamplingInference(ctx)
+                    inference = MCPSamplingInference(
+                        ctx, max_tokens=self.sampling_max_tokens
+                    )
                     await ctx.info("Using MCP sampling to leverage client's LLM...")
-                
+
                 # Instantiate NextGenUIAgent with the chosen inference
                 ngui_agent = NextGenUIAgent(AgentConfig(inference=inference))
-                
+
                 await ctx.info("Starting UI generation...")
 
                 # Create agent input
@@ -121,9 +127,7 @@ class NextGenUIMCPAgent:
                 # Run the complete agent pipeline using the configured inference
                 # 1. Component selection
                 await ctx.info("Performing component selection...")
-                components = await ngui_agent.component_selection(
-                    input=agent_input
-                )
+                components = await ngui_agent.component_selection(input=agent_input)
 
                 # 2. Data transformation
                 await ctx.info("Transforming data to match components...")
@@ -137,7 +141,9 @@ class NextGenUIMCPAgent:
                     components=components_data, component_system=self.component_system
                 )
 
-                await ctx.info(f"Successfully generated {len(renditions)} UI components")
+                await ctx.info(
+                    f"Successfully generated {len(renditions)} UI components"
+                )
 
                 # Format output as artifacts
                 return [
@@ -169,7 +175,11 @@ class NextGenUIMCPAgent:
             )
 
     def run(
-        self, transport: Literal["stdio", "sse", "streamable-http"] = "stdio", host: str = "127.0.0.1", port: int = 8000, mount_path: str | None = None
+        self,
+        transport: Literal["stdio", "sse", "streamable-http"] = "stdio",
+        host: str = "127.0.0.1",
+        port: int = 8000,
+        mount_path: str | None = None,
     ):
         """Run the MCP server.
 
@@ -183,7 +193,7 @@ class NextGenUIMCPAgent:
         if transport in ["sse", "streamable-http"]:
             self.mcp.settings.host = host
             self.mcp.settings.port = port
-        
+
         # Run with appropriate parameters based on transport
         if transport == "sse":
             self.mcp.run(transport=transport, mount_path=mount_path)
