@@ -32,7 +32,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     from llama_stack_client import AsyncLlamaStackClient
-    from llama_stack_client.types.tool_runtime import ToolRuntimeConfig
+
+    # ToolRuntimeConfig may not be available in current version
+    try:
+        from llama_stack_client.types.tool_runtime import ToolRuntimeConfig
+    except ImportError:
+        # Create a dummy type for compatibility
+        ToolRuntimeConfig = dict
 except ImportError as e:
     print(f"Error: Llama Stack dependencies not found: {e}")
     print("Please install with: pip install llama-stack-client>=0.1.9,<=0.2.15")
@@ -59,17 +65,22 @@ class MCPRegistrationManager:
 
     async def connect_to_llama_stack(self) -> None:
         """Connect to existing Llama Stack instance."""
-        logger.info(f"Connecting to Llama Stack at: {self.llama_stack_url}")
+        logger.info("Connecting to Llama Stack at: %s", self.llama_stack_url)
 
         self.client = AsyncLlamaStackClient(base_url=self.llama_stack_url)
-        
+
         # Test the connection
         try:
             # Try to list models to verify connection
             models = await self.client.models.list()
-            logger.info(f"Connected successfully. Available models: {[m.model_id for m in models]}")
+            logger.info(
+                "Connected successfully. Available models: %s",
+                [getattr(m, "model_id", getattr(m, "id", str(m))) for m in models],
+            )
         except Exception as e:
-            raise RuntimeError(f"Failed to connect to Llama Stack at {self.llama_stack_url}: {e}")
+            raise RuntimeError(
+                f"Failed to connect to Llama Stack at {self.llama_stack_url}: {e}"
+            )
 
     async def register_mcp_server(self) -> None:
         """Register the NextGenUI MCP server with Llama Stack."""
@@ -77,7 +88,7 @@ class MCPRegistrationManager:
             raise RuntimeError("Not connected to Llama Stack")
 
         logger.info("Registering NextGenUI MCP server...")
-        logger.info(f"MCP server command: {' '.join(self.mcp_server_command)}")
+        logger.info("MCP server command: %s", " ".join(self.mcp_server_command))
 
         try:
             # Register the MCP server as a tool runtime
@@ -86,19 +97,32 @@ class MCPRegistrationManager:
                 config={
                     "command": self.mcp_server_command,
                     "env": {},  # Add any environment variables if needed
-                }
+                },
             )
 
             # Register the tool runtime with Llama Stack
-            await self.client.tool_runtime.register_tool_runtime(
-                tool_runtime_id="nextgen_ui_mcp",
-                tool_runtime_config=tool_runtime_config
+            # Check if the method exists and handle different API versions
+            if hasattr(self.client.tool_runtime, "register_tool_runtime"):
+                await self.client.tool_runtime.register_tool_runtime(
+                    tool_runtime_id="nextgen_ui_mcp",
+                    tool_runtime_config=tool_runtime_config,
+                )
+            elif hasattr(self.client.tool_runtime, "register"):
+                await self.client.tool_runtime.register(
+                    runtime_id="nextgen_ui_mcp",
+                    config=tool_runtime_config,
+                )
+            else:
+                raise RuntimeError(
+                    "Llama Stack tool runtime registration method not found"
+                )
+
+            logger.info(
+                "NextGenUI MCP server registered successfully with ID: nextgen_ui_mcp"
             )
 
-            logger.info("NextGenUI MCP server registered successfully with ID: nextgen_ui_mcp")
-
         except Exception as e:
-            logger.error(f"Failed to register MCP server: {e}")
+            logger.exception("Failed to register MCP server: %s", e)
             raise
 
     async def list_tool_runtimes(self) -> None:
@@ -107,12 +131,21 @@ class MCPRegistrationManager:
             raise RuntimeError("Not connected to Llama Stack")
 
         try:
-            runtimes = await self.client.tool_runtime.list_tool_runtimes()
+            # Handle different API versions
+            if hasattr(self.client.tool_runtime, "list_tool_runtimes"):
+                runtimes = await self.client.tool_runtime.list_tool_runtimes()
+            elif hasattr(self.client.tool_runtime, "list"):
+                runtimes = await self.client.tool_runtime.list()
+            else:
+                logger.warning("Tool runtime listing method not found")
+                return
             logger.info("Registered tool runtimes:")
             for runtime in runtimes:
-                logger.info(f"  - {runtime.tool_runtime_id}: {runtime.tool_runtime_type}")
+                logger.info(
+                    "  - %s: %s", runtime.tool_runtime_id, runtime.tool_runtime_type
+                )
         except Exception as e:
-            logger.warning(f"Failed to list tool runtimes: {e}")
+            logger.warning("Failed to list tool runtimes: %s", e)
 
     async def test_mcp_tool(self) -> None:
         """Test the registered MCP tool."""
@@ -120,7 +153,7 @@ class MCPRegistrationManager:
             raise RuntimeError("Not connected to Llama Stack")
 
         logger.info("Testing NextGenUI MCP tool...")
-        
+
         try:
             # Test calling the MCP tool through Llama Stack
             test_input = {
@@ -128,22 +161,25 @@ class MCPRegistrationManager:
                 "input_data": [
                     {
                         "id": "movie1",
-                        "data": '{"title": "Inception", "year": 2010, "director": "Christopher Nolan", "rating": 8.8}'
+                        "data": '{"title": "Inception", "year": 2010, "director": "Christopher Nolan", "rating": 8.8}',
                     }
-                ]
+                ],
             }
 
+            # Cast to the expected type for the API
+            from typing import Any, Dict, cast
+
+            test_input_typed = cast(Dict[str, Any], test_input)
             result = await self.client.tool_runtime.invoke_tool(
-                tool_name="generate_ui",
-                kwargs=test_input
+                tool_name="generate_ui", kwargs=test_input_typed
             )
-            
+
             logger.info("MCP tool test successful!")
-            logger.info(f"Result type: {type(result)}")
-            logger.info(f"Result: {result}")
-            
+            logger.info("Result type: %s", type(result))
+            logger.info("Result: %s", result)
+
         except Exception as e:
-            logger.error(f"MCP tool test failed: {e}")
+            logger.exception("MCP tool test failed: %s", e)
             logger.info("Make sure the NextGenUI MCP server is running and accessible")
 
     async def run(self, test_tool: bool = False) -> None:
@@ -152,14 +188,14 @@ class MCPRegistrationManager:
             await self.connect_to_llama_stack()
             await self.register_mcp_server()
             await self.list_tool_runtimes()
-            
+
             if test_tool:
                 await self.test_mcp_tool()
-                
+
             logger.info("Registration completed successfully!")
-            
+
         except Exception as e:
-            logger.error(f"Registration failed: {e}")
+            logger.exception("Registration failed: %s", e)
             raise
 
 
@@ -212,8 +248,7 @@ Prerequisites:
     # Configure logging
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(
-        level=log_level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     logger.info("Starting NextGenUI MCP server registration with Llama Stack")
@@ -230,9 +265,10 @@ Prerequisites:
     except KeyboardInterrupt:
         logger.info("Registration cancelled by user")
     except Exception as e:
-        logger.error(f"Registration failed: {e}")
+        logger.exception("Registration failed: %s", e)
         if args.debug:
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 

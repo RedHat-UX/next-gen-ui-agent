@@ -35,22 +35,27 @@ import asyncio
 import logging
 import os
 import sys
-import time
 from pathlib import Path
 from typing import Optional
+
+from next_gen_ui_mcp.agent import NextGenUIMCPAgent
 
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
     from llama_stack.distribution.library_client import AsyncLlamaStackAsLibraryClient
-    from llama_stack_client.types.tool_runtime import ToolRuntimeConfig
+
+    # ToolRuntimeConfig may not be available in current version
+    try:
+        from llama_stack_client.types.tool_runtime import ToolRuntimeConfig
+    except ImportError:
+        # Create a dummy type for compatibility
+        ToolRuntimeConfig = dict
 except ImportError as e:
     print(f"Error: Llama Stack dependencies not found: {e}")
     print("Please install with: pip install llama-stack-client>=0.1.9,<=0.2.15")
     sys.exit(1)
-
-from next_gen_ui_mcp.agent import NextGenUIMCPAgent
 
 logger = logging.getLogger(__name__)
 
@@ -77,15 +82,17 @@ class LlamaStackMCPManager:
 
     async def initialize_llama_stack(self) -> None:
         """Initialize Llama Stack as a library."""
-        logger.info(f"Initializing Llama Stack with config: {self.config_file}")
-        logger.info(f"Using model: {self.model}")
+        logger.info("Initializing Llama Stack with config: %s", self.config_file)
+        logger.info("Using model: %s", self.model)
 
         if not os.path.exists(self.config_file):
-            raise FileNotFoundError(f"Llama Stack config file not found: {self.config_file}")
+            raise FileNotFoundError(
+                f"Llama Stack config file not found: {self.config_file}"
+            )
 
         self.llama_client = AsyncLlamaStackAsLibraryClient(self.config_file)
         await self.llama_client.initialize()
-        
+
         logger.info("Llama Stack initialized successfully")
 
     async def register_mcp_server(self) -> None:
@@ -94,7 +101,7 @@ class LlamaStackMCPManager:
             raise RuntimeError("Llama Stack client not initialized")
 
         logger.info("Registering NextGenUI MCP server...")
-        logger.info(f"MCP server command: {' '.join(self.mcp_server_command)}")
+        logger.info("MCP server command: %s", " ".join(self.mcp_server_command))
 
         try:
             # Register the MCP server as a tool runtime
@@ -103,19 +110,19 @@ class LlamaStackMCPManager:
                 config={
                     "command": self.mcp_server_command,
                     "env": {},  # Add any environment variables if needed
-                }
+                },
             )
 
             # Register the tool runtime with Llama Stack
             await self.llama_client.tool_runtime.register_tool_runtime(
                 tool_runtime_id="nextgen_ui_mcp",
-                tool_runtime_config=tool_runtime_config
+                tool_runtime_config=tool_runtime_config,
             )
 
             logger.info("NextGenUI MCP server registered successfully")
 
         except Exception as e:
-            logger.error(f"Failed to register MCP server: {e}")
+            logger.exception("Failed to register MCP server: %s", e)
             raise
 
     async def create_mcp_agent(self) -> None:
@@ -124,14 +131,13 @@ class LlamaStackMCPManager:
             raise RuntimeError("Llama Stack client not initialized")
 
         logger.info("Creating NextGenUI MCP agent for testing...")
-        
+
         # Create MCP agent (no inference parameter needed - uses MCP sampling)
         # The agent will use sampling through the MCP protocol when connected to clients
         self.mcp_agent = NextGenUIMCPAgent(
-            component_system="json",
-            name="NextGenUI-MCP-Server-Embedded"
+            component_system="json", name="NextGenUI-MCP-Server-Embedded"
         )
-        
+
         logger.info("NextGenUI MCP agent created successfully")
         logger.info("Agent will use MCP sampling when called by clients")
 
@@ -145,11 +151,11 @@ class LlamaStackMCPManager:
             # Keep the server running
             while True:
                 await asyncio.sleep(1)
-                
+
         except KeyboardInterrupt:
             logger.info("Server stopped by user")
         except Exception as e:
-            logger.error(f"Server error: {e}")
+            logger.exception("Server error: %s", e)
             raise
 
     async def start(self) -> None:
@@ -160,7 +166,7 @@ class LlamaStackMCPManager:
             await self.create_mcp_agent()
             await self.run_server()
         except Exception as e:
-            logger.error(f"Failed to start Llama Stack with MCP: {e}")
+            logger.exception("Failed to start Llama Stack with MCP: %s", e)
             raise
 
     async def cleanup(self) -> None:
@@ -178,7 +184,7 @@ async def test_mcp_integration(manager: LlamaStackMCPManager) -> None:
         return
 
     logger.info("Testing MCP integration...")
-    
+
     try:
         # Test calling the MCP tool through Llama Stack
         test_input = {
@@ -186,21 +192,23 @@ async def test_mcp_integration(manager: LlamaStackMCPManager) -> None:
             "input_data": [
                 {
                     "id": "movie1",
-                    "data": '{"title": "Inception", "year": 2010, "director": "Christopher Nolan", "rating": 8.8}'
+                    "data": '{"title": "Inception", "year": 2010, "director": "Christopher Nolan", "rating": 8.8}',
                 }
-            ]
+            ],
         }
 
         result = await manager.llama_client.tool_runtime.invoke_tool(
-            tool_name="generate_ui",
-            kwargs=test_input
+            tool_name="generate_ui", kwargs=test_input
         )
-        
+
         logger.info("MCP tool test successful!")
-        logger.info(f"Result: {result}")
-        
+        logger.info("Result: %s", result)
+
     except Exception as e:
-        logger.warning(f"MCP tool test failed (this is expected if MCP server is not running): {e}")
+        logger.warning(
+            "MCP tool test failed (this is expected if MCP server is not running): %s",
+            e,
+        )
 
 
 def main():
@@ -255,8 +263,7 @@ Note: Make sure the NextGenUI MCP server (server_example.py) is available to be 
     # Configure logging
     log_level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(
-        level=log_level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     logger.info("Starting Llama Stack with NextGenUI MCP server integration")
@@ -274,9 +281,10 @@ Note: Make sure the NextGenUI MCP server (server_example.py) is available to be 
         except KeyboardInterrupt:
             logger.info("Received interrupt signal")
         except Exception as e:
-            logger.error(f"Error during execution: {e}")
+            logger.exception("Error during execution: %s", e)
             if args.debug:
                 import traceback
+
                 traceback.print_exc()
         finally:
             await manager.cleanup()
@@ -287,7 +295,7 @@ Note: Make sure the NextGenUI MCP server (server_example.py) is available to be 
     except KeyboardInterrupt:
         logger.info("Server stopped")
     except Exception as e:
-        logger.error(f"Fatal error: {e}")
+        logger.exception("Fatal error: %s", e)
         sys.exit(1)
 
 
