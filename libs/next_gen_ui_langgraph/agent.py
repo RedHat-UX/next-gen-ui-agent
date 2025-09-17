@@ -97,7 +97,7 @@ class NextGenUILangGraphAgent:
     async def component_selection(self, state: AgentState, config: RunnableConfig):
         user_prompt = state["user_prompt"]
         input_data = [
-            InputData(id=d["id"], data=d["data"], type=d["type"])
+            InputData(id=d["id"], data=d["data"], type=d.get("type"))
             for d in state["backend_data"]
         ]
         input = AgentInput(user_prompt=user_prompt, input_data=input_data)
@@ -107,7 +107,7 @@ class NextGenUILangGraphAgent:
     def data_transformation(self, state: AgentState, config: RunnableConfig):
         components = state["components"]
         input_data = [
-            InputData(id=d["id"], data=d["data"], type=d["type"])
+            InputData(id=d["id"], data=d["data"], type=d.get("type"))
             for d in state["backend_data"]
         ]
 

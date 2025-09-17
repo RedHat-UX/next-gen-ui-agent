@@ -29,7 +29,7 @@ class NextGenUILlamaStackAgent:
         Initialize Next Gen UI Agent as Llama stack agent.
         Inference is created based on provided client and model if not provided (either directly or in config).
         """
-        if not inference and (not config or not config["inference"]):
+        if not inference and (not config or not config.get("inference")):
             if isinstance(client, LlamaStackClient):
                 inference = LlamaStackAgentInference(client, model)
             else:

@@ -48,12 +48,12 @@ class InputData(TypedDict):
     """
     data: str
     """JSON data to be processed."""
-    type: NotRequired[str]
+    type: NotRequired[str | None]
     """
     Optional type identification of the input data. Used for "hand-build component" selection
     based on Agent's configuration. See `AgentConfig.hand_build_components_mapping`.
     """
-    hand_build_component_type: NotRequired[str]
+    hand_build_component_type: NotRequired[str | None]
     """
     Optional `component_type` of the "hand-build component" to be used for UI rendering.
     """
