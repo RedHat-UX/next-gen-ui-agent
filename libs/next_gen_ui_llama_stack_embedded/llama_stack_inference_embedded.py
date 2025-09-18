@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 
-from llama_stack.distribution.library_client import (  # type: ignore[import-untyped]
+from llama_stack.core.library_client import (  # type: ignore[import-untyped]
     AsyncLlamaStackAsLibraryClient,
 )
 from llama_stack_client import LlamaStackClient

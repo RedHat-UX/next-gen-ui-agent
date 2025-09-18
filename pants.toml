@@ -19,7 +19,7 @@ root_patterns = ["/libs", "/tests", "/spec"]
 
 [python]
 # Project supported versions.
-interpreter_constraints = ["CPython>=3.11,<3.14"]
+interpreter_constraints = ["CPython>=3.12,<3.14"]
 
 # Enable the "resolves" mechanism, which turns on lockfiles for user code. See
 # https://www.pantsbuild.org/docs/python-third-party-dependencies. This also adds the

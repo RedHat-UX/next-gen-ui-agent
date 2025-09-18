@@ -23,6 +23,12 @@ Evaluation code accepts these environment variables:
 * `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 * `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
 
+### Create missing directories if needed
+
+```sh
+mkdir ~/.llama/providers.d
+```
+
 ## Run Evaluation
 
 ```sh

@@ -26,7 +26,7 @@ providers:
 
 # model id is like `granite3.3:2b` or `granite3.3:8b`
 models:
-  - model_id: ${env.INFERENCE_MODEL:granite3.3:2b}
+  - model_id: ${env.INFERENCE_MODEL:=granite3.3:2b}
     provider_id: ollama
     model_type: llm
     provider_model_id: null

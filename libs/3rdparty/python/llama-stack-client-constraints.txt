@@ -1,1 +1,1 @@
-llama-stack-client==0.2.12
+llama-stack-client==0.2.20
