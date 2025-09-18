@@ -9,11 +9,11 @@ Full working example is stored in [libs/next_gen_ui_langgraph/readme_example.py]
 
 ## Prerequisites
 
-Before you start this quickstart, ensure you have have installed [Python 3.11](https://www.python.org/downloads/) or higher:
+Before you start this quickstart, ensure you have have installed [Python 3.12](https://www.python.org/downloads/) or higher:
 
 ```sh
 python --version
-# Python 3.11.13
+# Python 3.13.0
 ```
 
 For LLM configure [Open API Key](https://platform.openai.com/api-keys) stored in env. variable `OPENAI_API_KEY` or 
