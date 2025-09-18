@@ -12,7 +12,7 @@ Requirements:
 
 Usage:
     # Start the MCP server first (in another terminal):
-    python libs/next_gen_ui_mcp/server_example.py --transport sse --port 8000
+    python libs/next_gen_ui_mcp --transport sse --port 8000
 
     # Then run this client:
     python libs/next_gen_ui_mcp/mcp_client_example.py

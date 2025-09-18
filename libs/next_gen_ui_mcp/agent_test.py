@@ -145,15 +145,6 @@ async def test_mcp_agent_with_sampling_inference() -> None:
     year_field = next(f for f in inner_content["fields"] if f["name"] == "Year")
     assert year_field["data"] == [1995]
 
-    # Verify that the custom sampling_max_tokens value was used
-    # Note: This verification would need access to the mock instance, which is complex in this test structure
-    # The test already verifies functionality by successfully running with the custom value
-
-    logger.info(
-        "MCP generate_ui tool test with custom sampling_max_tokens=4048 passed: %s",
-        text_content,
-    )
-
 
 @pytest.mark.asyncio
 async def test_mcp_agent_with_external_inference() -> None:
