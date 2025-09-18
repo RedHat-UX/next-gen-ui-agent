@@ -71,8 +71,8 @@ Set up Python environment in project root directory:
 
 ```bash
 pants export
-# change `3.11.13` in the path to your python version, or to `latest` for venv symlink created from `CONTRIBUTING.md`!
-source dist/export/python/virtualenvs/python-default/3.11.13/bin/activate
+# change `3.12.11` in the path to your python version, or to `latest` for venv symlink created from `CONTRIBUTING.md`!
+source dist/export/python/virtualenvs/python-default/3.12.11/bin/activate
 export PYTHONPATH=./libs:./tests:$PYTHONPATH
 ```
 

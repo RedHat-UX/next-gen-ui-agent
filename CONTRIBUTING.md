@@ -13,7 +13,7 @@ Here are some things to keep in mind for all types of contributions:
 
 ## Setup
 
-Python 3.11+ has to be installed on the computer.
+Python 3.12+ has to be installed on the computer.
 
 Install [Pants Build](https://www.pantsbuild.org/stable/docs/getting-started/installing-pants).
 
