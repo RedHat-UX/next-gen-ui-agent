@@ -39,6 +39,8 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from next_gen_ui_agent.types import AgentConfig
+
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -102,7 +104,7 @@ def create_langchain_inference(
         RuntimeError: If model initialization fails
     """
     try:
-        from langchain_openai import ChatOpenAI  # pants: no-infer-dep
+        from langchain_openai import ChatOpenAI
     except ImportError as e:
         raise ImportError(
             "LangChain OpenAI dependencies not found. Install with: "
@@ -129,23 +131,20 @@ def create_langchain_inference(
 
 
 def create_agent(
-    component_system: str = "json",
-    inference: Optional[InferenceBase] = None,
+    config: AgentConfig = AgentConfig(component_system="json"),
     sampling_max_tokens: int = 2048,
 ) -> NextGenUIMCPAgent:
     """Create NextGenUIMCPAgent with optional external inference provider.
 
     Args:
-        component_system: Component system to use (json, patternfly, rhds)
-        inference: External inference provider (if None, uses MCP sampling)
+        config: AgentConfig to use for the agent
         sampling_max_tokens: Maximum tokens for MCP sampling inference
 
     Returns:
         Configured NextGenUIMCPAgent
     """
     return NextGenUIMCPAgent(
-        component_system=component_system,
-        inference=inference,
+        config=config,
         sampling_max_tokens=sampling_max_tokens,
         name="NextGenUI-MCP-Server",
     )
@@ -288,8 +287,9 @@ Examples:
 
         # Create the agent
         agent = create_agent(
-            component_system=args.component_system,
-            inference=inference,
+            config=AgentConfig(
+                component_system=args.component_system, inference=inference
+            ),
             sampling_max_tokens=args.sampling_max_tokens,
         )
 
