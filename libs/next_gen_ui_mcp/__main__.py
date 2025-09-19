@@ -3,7 +3,9 @@
 Next Gen UI MCP Server Module Entry Point.
 
 This module provides the Next Gen UI MCP server that can use MCP sampling
-(default) or external LLM providers.
+(default) or external LLM providers. The next_gen_ui_mcp package does not require
+the necessary dependencies to run the server with custom inference providers, nor component systems.
+You have to install the dependencies yourself as per your needs. By default MCP Sampling will be used for inference.
 
 Usage:
     # Run with MCP sampling (default - leverages client's LLM)

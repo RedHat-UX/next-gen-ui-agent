@@ -1,6 +1,6 @@
 # Next Gen UI MCP Server
 
-This package wraps our NextGenUI agent in a Model Context Protocol (MCP) tool using the standard MCP SDK. Since MCP adoption is so strong these days and there is an apetite to use this protocol also for handling agentic AI, we wanted to also deliver this way of consuming our agent. Saying that the current vision for MCP tools is to provide them to LLM to choose and execute with certain parameters. This approach doesn't make sense for NextGenUI agent as you want to call it at specific moment after gathering data for response and also you don't want LLM to try to pass the prompt and JSON content as it makes no sense. It's more natural and reliable to invoke this MCP tool directly with the parameters as part of your main application logic.
+This package wraps our NextGenUI agent in a Model Context Protocol (MCP) tool using the standard MCP SDK. Since MCP adoption is so strong these days and there is an apetite to use this protocol also for handling agentic AI, we wanted to also deliver this way of consuming our agent. The most common way of utilising MCP tools is to provide them to LLM to choose and execute with certain parameters. This approach doesn't make sense for NextGenUI agent as you want to call it at specific moment after gathering data for response and also you don't want LLM to try to pass the prompt and JSON content as it may lead to unnecessary errors in the content. It's more natural and reliable to invoke this MCP tool directly with the parameters as part of your main application logic.
 
 ## Installation
 
@@ -8,60 +8,65 @@ This package wraps our NextGenUI agent in a Model Context Protocol (MCP) tool us
 pip install -U next_gen_ui_mcp
 ```
 
-Additionally you'll also need one of inference providers to run the MCP agent. You can find one in next_gen_ui_beeai or next_gen_ui_llama_stack packages.
+Depending on your use case you may need additional packages for inference provider or design component renderers. More about this in the next sections.
 
-## Example
+## Usage
 
-### Testing with Real MCP Clients
-
-The package includes comprehensive tests that demonstrate both direct server testing and real client-server communication:
-
-- `agent_test.py` - Contains multiple test scenarios including realistic client-server tests
-- `server_example.py` - Standalone server for testing with external MCP clients
-
-#### Running the standalone server:
+### Running the standalone server:
 
 ```bash
-# Run with stdio (for command-line MCP clients)
-python libs/next_gen_ui_mcp/server_example.py
+  # Run with MCP sampling (default - leverages client's LLM)
+  python -m next_gen_ui_mcp
 
-# Run with HTTP SSE (for web-based clients)
-python libs/next_gen_ui_mcp/server_example.py --transport sse --port 8000
+  # Run with LlamaStack inference
+  python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
 
-# Run with streamable HTTP
-python libs/next_gen_ui_mcp/server_example.py --transport streamable-http --port 8000
+  # Run with LangChain OpenAI inference
+  python -m next_gen_ui_mcp --provider langchain --model gpt-3.5-turbo
+
+  # Run with LangChain via Ollama (local)
+  python -m next_gen_ui_mcp --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
+
+  # Run with MCP sampling and custom max tokens
+  python -m next_gen_ui_mcp --sampling-max-tokens 4096
+
+  # Run with SSE transport (for web clients)
+  python -m next_gen_ui_mcp --transport sse --host 127.0.0.1 --port 8000
+
+  # Run with streamable-http transport
+  python -m next_gen_ui_mcp --transport streamable-http --host 127.0.0.1 --port 8000
+
+  # Run with patternfly component system
+  python -m next_gen_ui_mcp --component-system rhds
+
+  # Run with rhds component system via SSE transport
+  python -m next_gen_ui_mcp --transport sse --component-system rhds --port 8000
 ```
 
-#### Testing with MCP Client:
+As the above examples show you can choose to configure `llamastack` or `langchain` provided. You have to add the necessary dependencies to your python environment to do so, otherwise the application will complain about them missing
 
-```python
-import asyncio
-from mcp import ClientSession, StdioServerParameters
-from mcp.client.stdio import stdio_client
+Similarly pluggable component systems such as `rhds` also require certain imports, `next_gen_ui_rhds_renderer` in this particular case.
 
-async def test_client():
-    server_params = StdioServerParameters(
-        command="python",
-        args=["libs/next_gen_ui_mcp/server_example.py"]
-    )
-    
-    async with stdio_client(server_params) as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
-            
-            # List available tools
-            tools = await session.list_tools()
-            print("Available tools:", [tool.name for tool in tools])
-            
-            # Call the generate_ui tool
-            result = await session.call_tool("generate_ui", {
-                "user_prompt": "Show movie details",
-                "input_data": [{"id": "movie1", "data": '{"title": "Inception", "year": 2010}'}]
-            })
-            print("Result:", result)
+If you are running this from inside of our [NextGenUI Agent GitHub repo](https://github.com/RedHat-UX/next-gen-ui-agent) then our `pants` repository manager can help you satisfy all dependencies. In such case you can run the commands in the following way:
 
-asyncio.run(test_client())
+```bash
+  # Run with MCP sampling (default - leverages client's LLM)
+  pants run libs/next_gen_ui_mcp/server_example.py:extended
+
+  # Run with SSE transport and Red Hat Design System component system for rendering
+  pants run libs/next_gen_ui_mcp/server_example.py:extended --run-args="--transport sse --component-system rhds"
 ```
+
+### Testing with MCP Client:
+
+As part of the GitHub repository we also provide [an example client](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/next_gen_ui_mcp/mcp_client_example.py). This example client implementation uses MCP SDK client libraries and ollama for MCP sampling inference provision.
+
+You can run it via this command:
+
+```bash
+pants --concurrent run libs/next_gen_ui_mcp/mcp_client_example.py
+```
+The `--concurrent` parameter is there only to allow calling it while you use `pants run` for starting the server. By default `pants` restrict parallel invocations.
 
 ### Using NextGenUI MCP Agent through Llama Stack
 
@@ -95,88 +100,3 @@ Returns system information about the Next Gen UI Agent including:
 - Component system being used
 - Available capabilities
 - Description
-
-## Running Different Transports
-
-### Stdio (Default)
-```py
-agent.run()  # Uses stdio transport by default
-```
-
-### Server-Sent Events (SSE)
-```py
-agent.run(transport="sse", host="127.0.0.1", port=8000)
-```
-
-### Streamable HTTP
-```py
-agent.run(transport="streamable-http", host="127.0.0.1", port=8000)
-```
-
-## Llama Stack Integration
-
-### Starting Llama Stack as Library with MCP Server
-
-Use `start_llamastack_with_mcp.py` to start Llama Stack as an embedded library and register the NextGenUI MCP server:
-
-```bash
-# Run with default configuration
-python libs/next_gen_ui_mcp/start_llamastack_with_mcp.py
-
-# Run with custom config and model
-python libs/next_gen_ui_mcp/start_llamastack_with_mcp.py --config /path/to/llamastack-config.yaml --model granite3.3:8b
-
-# Run with debug logging
-python libs/next_gen_ui_mcp/start_llamastack_with_mcp.py --debug
-```
-
-This script will:
-1. Initialize Llama Stack as a library using `AsyncLlamaStackAsLibraryClient`
-2. Register the NextGenUI MCP server as a tool runtime
-3. Keep the server running for client connections
-
-### Registering MCP Server with Existing Llama Stack
-
-If you already have Llama Stack running, use `register_mcp_with_llamastack.py` to register the NextGenUI MCP server:
-
-```bash
-# Register with default Llama Stack URL (http://localhost:5001)
-python libs/next_gen_ui_mcp/register_mcp_with_llamastack.py
-
-# Register with custom URL
-python libs/next_gen_ui_mcp/register_mcp_with_llamastack.py --llama-url http://localhost:5001
-
-# Register and test the tool
-python libs/next_gen_ui_mcp/register_mcp_with_llamastack.py --test
-```
-
-### Using the Registered MCP Tool
-
-Once registered, you can invoke the NextGenUI tool through Llama Stack:
-
-```python
-from llama_stack_client import AsyncLlamaStackClient
-
-client = AsyncLlamaStackClient(base_url="http://localhost:5001")
-
-# Call the NextGenUI MCP tool
-result = await client.tool_runtime.invoke_tool(
-    tool_name="generate_ui",
-    kwargs={
-        "user_prompt": "Show movie details",
-        "input_data": [
-            {
-                "id": "movie1", 
-                "data": '{"title": "Inception", "year": 2010, "director": "Christopher Nolan"}'
-            }
-        ]
-    }
-)
-```
-
-## Component Systems
-
-The agent supports various component systems such as:
-- `rhds` - Red Hat Design System, available through `next_gen_ui_rhds_renderer` package
-- `patternfly` - PatternFly Design System, available through `next_gen_ui_patternfly_renderer` package
-- `json` - JSON renderer for testing, available by default

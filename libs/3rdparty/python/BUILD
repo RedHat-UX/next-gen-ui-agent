@@ -43,3 +43,8 @@ python_requirements(
     name="mcp",
     source="mcp-requirements.txt",
 )
+
+python_requirements(
+    name="custom-renderers",
+    source="custom-renderers-requirements.txt",
+)

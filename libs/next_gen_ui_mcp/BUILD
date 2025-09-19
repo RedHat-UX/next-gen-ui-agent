@@ -3,6 +3,24 @@ python_sources(
     name="lib",
     dependencies=[
         "libs/3rdparty/python:mcp",
+        "libs/next_gen_ui_agent:lib",
+    ],
+    sources=["!server_example.py","!mcp_client_example.py","**/*.py"]
+)
+
+# This target is specifically made for playing with the MCP server and client
+# It hooks up additional renderer libraries to be able to use them with the client
+python_sources(
+    name="extended",
+    sources=["server_example.py","mcp_client_example.py"],
+    dependencies=[
+        "libs/3rdparty/python:mcp",
+        "libs/3rdparty/python:custom-renderers",
+        "libs/3rdparty/python:agent-core",
+        "libs/3rdparty/python:llama-stack",
+        "libs/3rdparty/python:langchain",
+        "libs/next_gen_ui_llama_stack:lib",
+        "libs/next_gen_ui_agent:lib",
     ]
 )
 
@@ -14,18 +32,7 @@ python_tests(
         "libs/3rdparty/python:pytest",
         "libs/3rdparty/python:mcp",
         "libs/3rdparty/python:agent-core",
-    ],
-)
-
-# Integration test that requires Llama Stack dependencies (optional)
-python_tests(
-    name="integration_tests",
-    sources=["llamastack_mcp_integration_test.py"],
-    dependencies=[
-        "libs/3rdparty/python:pytest",
-        "libs/3rdparty/python:mcp",
-        "libs/3rdparty/python:llama-stack",
-        "libs/3rdparty/python:agent-core",
+        "libs/next_gen_ui_testing:tests",
     ],
 )
 
