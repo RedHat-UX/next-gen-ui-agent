@@ -9,7 +9,7 @@ from mcp.server.fastmcp import Context
 from mcp.server.lowlevel.helper_types import ReadResourceContents
 from mcp.server.session import ServerSession
 from mcp.types import TextContent
-from next_gen_ui_agent.types import InputData, UIComponentMetadata
+from next_gen_ui_agent.types import AgentConfig, InputData, UIComponentMetadata
 from next_gen_ui_mcp.agent import NextGenUIMCPAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedInference
@@ -62,7 +62,9 @@ async def test_mcp_agent_with_sampling_inference() -> None:
 
     # Create agent with custom sampling max tokens
     ngui_agent = NextGenUIMCPAgent(
-        component_system="json", name="TestAgent", sampling_max_tokens=4048
+        config=AgentConfig(component_system="json"),
+        name="TestAgent",
+        sampling_max_tokens=4048,
     )
 
     # Get the FastMCP server
@@ -173,7 +175,8 @@ async def test_mcp_agent_with_external_inference() -> None:
 
     # Create agent with external inference (not using MCP sampling)
     ngui_agent = NextGenUIMCPAgent(
-        component_system="json", inference=external_inference, name="TestAgentExternal"
+        config=AgentConfig(component_system="json", inference=external_inference),
+        name="TestAgentExternal",
     )
 
     # Get the FastMCP server
@@ -250,16 +253,14 @@ async def test_mcp_agent_with_external_inference() -> None:
     # Verify that the mock_info was called with the external inference message
     mock_info.assert_any_call("Using external inference provider...")
 
-    logger.info(
-        "MCP generate_ui tool with external inference test passed: %s", text_content
-    )
-
 
 @pytest.mark.asyncio
 async def test_mcp_agent_system_info_resource() -> None:
     """Test the MCP agent's system info resource."""
     # Create agent (no inference parameter needed with new MCP sampling approach)
-    ngui_agent = NextGenUIMCPAgent(component_system="rhds", name="TestAgent")
+    ngui_agent = NextGenUIMCPAgent(
+        config=AgentConfig(component_system="rhds"), name="TestAgent"
+    )
 
     # Get the FastMCP server
     mcp_server = ngui_agent.get_mcp_server()

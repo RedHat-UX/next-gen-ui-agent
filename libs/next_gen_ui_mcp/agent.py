@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Literal
 
 from mcp import types
 from mcp.server.fastmcp import Context, FastMCP
@@ -68,13 +68,11 @@ class NextGenUIMCPAgent:
 
     def __init__(
         self,
-        component_system: str = "json",
-        inference: Optional[InferenceBase] = None,
+        config: AgentConfig = AgentConfig(component_system="json"),
         name: str = "NextGenUIMCPAgent",
         sampling_max_tokens: int = 2048,
     ):
-        self.component_system = component_system
-        self.external_inference = inference  # If None, will use MCP sampling
+        self.config = config
         self.sampling_max_tokens = sampling_max_tokens
         self.mcp: FastMCP = FastMCP(name)
         self._setup_mcp_tools()
@@ -104,20 +102,23 @@ class NextGenUIMCPAgent:
             """
 
             try:
+                # Create a copy of the config to avoid modifying the original config but preserve type
+                config_copy = AgentConfig(**self.config)
+
                 # Choose inference provider based on configuration
-                if self.external_inference is not None:
-                    # Use external inference provider
-                    inference = self.external_inference
-                    await ctx.info("Using external inference provider...")
-                else:
+                if config_copy.get("inference") is None:
                     # Create sampling-based inference using the MCP context
                     inference = MCPSamplingInference(
                         ctx, max_tokens=self.sampling_max_tokens
                     )
+                    config_copy["inference"] = inference
                     await ctx.info("Using MCP sampling to leverage client's LLM...")
+                else:
+                    # Using external inference provider
+                    await ctx.info("Using external inference provider...")
 
                 # Instantiate NextGenUIAgent with the chosen inference
-                ngui_agent = NextGenUIAgent(AgentConfig(inference=inference))
+                ngui_agent = NextGenUIAgent(config=config_copy)
 
                 await ctx.info("Starting UI generation...")
 
@@ -138,7 +139,8 @@ class NextGenUIMCPAgent:
                 # 3. Design system rendering
                 await ctx.info("Rendering final UI components...")
                 renditions = ngui_agent.design_system_handler(
-                    components=components_data, component_system=self.component_system
+                    components=components_data,
+                    component_system=self.config.get("component_system"),
                 )
 
                 await ctx.info(
@@ -166,7 +168,7 @@ class NextGenUIMCPAgent:
             return json.dumps(
                 {
                     "agent_name": "NextGenUIMCPAgent",
-                    "component_system": self.component_system,
+                    "component_system": self.config.get("component_system"),
                     "description": "Next Gen UI Agent exposed via MCP protocol",
                     "capabilities": [
                         "UI component generation based of user prompt and input data"
