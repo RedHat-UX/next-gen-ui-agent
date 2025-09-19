@@ -5,14 +5,14 @@ python_sources(
         "libs/3rdparty/python:mcp",
         "libs/next_gen_ui_agent:lib",
     ],
-    sources=["!server_example.py","!mcp_client_example.py","**/*.py"]
+    sources=["!server_example.py", "!mcp_client_example.py", "**/*.py"],
 )
 
 # This target is specifically made for playing with the MCP server and client
 # It hooks up additional renderer libraries to be able to use them with the client
 python_sources(
     name="extended",
-    sources=["server_example.py","mcp_client_example.py"],
+    sources=["server_example.py", "mcp_client_example.py"],
     dependencies=[
         "libs/3rdparty/python:mcp",
         "libs/3rdparty/python:custom-renderers",
@@ -21,7 +21,7 @@ python_sources(
         "libs/3rdparty/python:langchain",
         "libs/next_gen_ui_llama_stack:lib",
         "libs/next_gen_ui_agent:lib",
-    ]
+    ],
 )
 
 # This target sets the metadata for all the Python test files in this directory.

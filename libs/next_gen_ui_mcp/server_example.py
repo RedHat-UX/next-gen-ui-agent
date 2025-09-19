@@ -11,11 +11,12 @@ For any other purpose, you should use the __main__.py file.
 Usage:
     pants run libs/next_gen_ui_mcp/server_example.py --run-args="[options]"
     e.g. pants run libs/next_gen_ui_mcp/server_example.py --run-args="--transport sse --component-system rhds"
-    
+
 All command line options from __main__.py are supported.
 """
 
 if __name__ == "__main__":
     # Import and call the main function from __main__.py
     from next_gen_ui_mcp.__main__ import main
+
     main()
