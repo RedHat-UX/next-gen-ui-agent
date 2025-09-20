@@ -1,18 +1,31 @@
-# NGUI: End-to-End Demo
+# NGUI: End-to-End Demo Application
 
 ## ✨ Summary
 
-This update introduces a complete end-to-end example of the Next Gen UI (NGUI) system, featuring a new demo, improved configuration, and comprehensive documentation. This makes it easier for new contributors to get started and provides a flexible foundation for development.
+This is a complete end-to-end example of the Next Gen UI (NGUI) system with **split server/client architecture**. The application demonstrates AI-driven UI component generation using FastAPI backend and React frontend, making it easier for contributors to understand the full NGUI workflow.
 
 ---
 
-## 📋 Changes
+## 🏗️ Architecture Overview
 
-- **New Demo**: Added a React Vite project with a `OneCard` component demo.
-- **Enhanced Documentation**: The `README` now includes complete setup instructions for Ollama, the backend, and the frontend.
-- **Configurable Backend**: The `main.py` file has been made more generic to support different AI models like Ollama, OpenAI, and others.
-- **Configuration Guide**: A new `MODEL_CONFIGURATION.md` file provides detailed setup examples.
-- **Fixed Imports**: Updated the `DynamicComponent` import to work correctly with the npm-linked UI package.
+```
+ngui-e2e/
+├── server/           # FastAPI backend with NGUI agent
+│   ├── main.py      # API server with LangGraph integration
+│   └── BUILD        # Pants build configuration
+└── client/          # React frontend application
+    ├── src/         # React components and hooks
+    ├── package.json # Frontend dependencies
+    └── vite.config.ts # Build configuration
+```
+
+## 📋 Recent Changes
+
+- **Split Architecture**: Separated backend (`server/`) and frontend (`client/`) for better deployment flexibility
+- **Enhanced Documentation**: Complete setup instructions for both server and client components
+- **Configurable Backend**: The `server/main.py` supports different AI models (Ollama, OpenAI, models.corp)
+- **React Frontend**: Vite-based React app with `OneCard` component demo and ChatBot interface
+- **Deployment Ready**: Prepared for Lightrail (backend) + Vercel/SSR (frontend) deployment
 
 ---
 
@@ -23,14 +36,14 @@ For experienced users, here's the essential command sequence:
 ```bash
 # 1. Check/Start Ollama
 ollama serve &  # Start in background if not running
-ollama pull granite3-dense:8b  # Ensure model is available
+ollama pull llama3.2:3b  # Ensure model is available (updated model)
 
-# 2. Start Backend API
-cd tests/ngui-e2e
+# 2. Start Backend API (from ngui-e2e directory)
+cd server
 uvicorn main:app --reload
 
-# 3. Start Frontend (in another terminal)
-cd tests/ngui-e2e/NGUI-e2e
+# 3. Start Frontend (in another terminal, from ngui-e2e directory)
+cd client
 npm install && npm run dev
 ```
 
@@ -47,7 +60,7 @@ Follow these steps to test the complete chat, AI, and UI generation flow:
 # Visit: https://ollama.com/download
 
 # Pull the required model for this demo
-ollama pull granite3-dense:8b
+ollama pull llama3.2:3b
 ```
 
 2.  **Start the Backend**:
@@ -64,7 +77,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # Pull required model if not already available
-ollama pull granite3-dense:8b
+ollama pull llama3.2:3b
 ```
 
 Set up Python environment in project root directory:
@@ -79,7 +92,7 @@ export PYTHONPATH=./libs:./tests:$PYTHONPATH
 Start the API server:
 
 ```bash
-cd tests/ngui-e2e
+cd tests/ngui-e2e/server
 uvicorn main:app --reload
 ```
 
@@ -87,9 +100,10 @@ You can check it's running under [http://127.0.0.1:8000/docs](http://127.0.0.1:8
 
 3.  **Start the Frontend**:
 
-Navigate to the `NGUI-e2e` folder and run:
+Navigate to the `client` folder and run:
 
 ```bash
+cd tests/ngui-e2e/client
 npm install
 npm link dynamicui
 npm run dev
