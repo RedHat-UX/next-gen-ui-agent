@@ -306,7 +306,7 @@ Examples:
             logger.info("Server running on http://%s:%s/sse", args.host, args.port)
             agent.run(transport="sse", host=args.host, port=args.port)
         elif args.transport == "streamable-http":
-            logger.info("Server running on http://%s:%s", args.host, args.port)
+            logger.info("Server running on http://%s:%s/mcp", args.host, args.port)
             agent.run(transport="streamable-http", host=args.host, port=args.port)
     except KeyboardInterrupt:
         logger.info("Server stopped by user")
