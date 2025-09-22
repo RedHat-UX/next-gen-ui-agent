@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import NotRequired, Optional, TypedDict
+from typing import Optional
 
 from next_gen_ui_agent.model import InferenceBase
 from pydantic import BaseModel, ConfigDict, Field
+from typing_extensions import NotRequired, TypedDict
 
 
 # Intentionaly TypeDict because of passing ABC class InferenceBase
