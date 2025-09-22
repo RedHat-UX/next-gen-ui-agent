@@ -64,8 +64,8 @@ def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
     """
     try:
         from llama_stack_client import LlamaStackClient  # pants: no-infer-dep
-        from next_gen_ui_llama_stack.llama_stack_inference import (  # pants: no-infer-dep
-            LlamaStackAgentInference,
+        from next_gen_ui_llama_stack.llama_stack_inference import (
+            LlamaStackAgentInference,  # pants: no-infer-dep
         )
     except ImportError as e:
         raise ImportError(
@@ -104,7 +104,7 @@ def create_langchain_inference(
         RuntimeError: If model initialization fails
     """
     try:
-        from langchain_openai import ChatOpenAI
+        from langchain_openai import ChatOpenAI  # pants: no-infer-dep
     except ImportError as e:
         raise ImportError(
             "LangChain OpenAI dependencies not found. Install with: "

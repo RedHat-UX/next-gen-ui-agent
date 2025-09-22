@@ -5,7 +5,12 @@ python_sources(
         "libs/3rdparty/python:mcp",
         "libs/next_gen_ui_agent:lib",
     ],
-    sources=["!server_example.py", "!mcp_client_example.py", "**/*.py"],
+    sources=[
+        "!server_example.py",
+        "!mcp_client_example.py",
+        "!**/*_test.py",
+        "**/*.py",
+    ],
 )
 
 # This target is specifically made for playing with the MCP server and client
