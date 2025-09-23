@@ -1,0 +1,228 @@
+*** 1. Current: Info about Toy Story. Previous: subscriptions table - change of the data entity ***
+
+Response one previous component: {
+  "id": "1",
+  "title": "Toy Story",
+  "reasonForTheComponentSelection": "One item available in the data, user query is for basic info",
+  "confidenceScore": "100%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Title",
+      "data_path": "movie.title"
+    },
+    {
+      "name": "Year",
+      "data_path": "movie.year"
+    },
+    {
+      "name": "Language",
+      "data_path": "movies[size up to 6].language"
+    },
+    {
+      "name": "Countries",
+      "data_path": "movie.countries"
+    },
+    {
+      "name": "Trailer URL",
+      "data_path": "trailerUrl"
+    }
+  ]
+}
+
+Response multipleprevious prompts: {
+  "id": "1",
+  "title": "Toy Story",
+  "reasonForTheComponentSelection": "One item available in the data, suitable for showing multiple fields from one-item data",
+  "confidenceScore": "95%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Title",
+      "data_path": "movie.title"
+    },
+    {
+      "name": "Year",
+      "data_path": "movie.year"
+    },
+    {
+      "name": "Language",
+      "data_path": "languages[size up to 6][0]"
+    },
+    {
+      "name": "Countries",
+      "data_path": "countries[size up to 6]"
+    },
+    {
+      "name": "Trailer URL",
+      "data_path": "trailerUrl"
+    },
+    {
+      "name": "Plot Summary",
+      "data_path": "plot"
+    },
+    {
+      "name": "Revenue",
+      "data_path": "revenue"
+    },
+    {
+      "name": "IMDb Rating",
+      "data_path": "imdb.rating"
+    },
+    {
+      "name": "Budget",
+      "data_path": "budget"
+    }
+  ]
+}
+
+Response no history: {
+  "id": "1",
+  "title": "Toy Story",
+  "reasonForTheComponentSelection": "One item available in the data, containing image and video URL",
+  "confidenceScore": "100%",
+  "component": "image-card",
+  "fields": [
+    {
+      "name": "Image",
+      "data_path": "movie.pictureUrl"
+    },
+    {
+      "name": "Trailer Link",
+      "data_path": "movie.trailerUrl"
+    }
+  ]
+}
+
+*** 2. Current: When was the movie released? Previous: Info about Toy Story - additional info asked about data entity from previous conversation step ***
+
+Response one previous component: {
+  "id": "1",
+  "title": "Movie Release Date",
+  "reasonForTheComponentSelection": "User query matches with 'released' field in the data",
+  "confidenceScore": "95%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Release Date",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+Response multiple previous prompts: {
+  "id": "1",
+  "title": "Movie Release Date",
+  "reasonForTheComponentSelection": "Single item data with a specific release date field available in the data",
+  "confidenceScore": "95%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Release Date",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+Response no history: {
+  "id": "1",
+  "title": "Movie Release Date",
+  "reasonForTheComponentSelection": "One item available in the data, contains a date field",
+  "confidenceScore": "100%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Released Date",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+*** 3. Current: Show me the poster only. Previous: Info about Toy Story - the same data entity, but user prompt asks for different UI component  ***
+
+Response one previous component: {
+  "id": "1",
+  "title": "Toy Story Poster",
+  "reasonForTheComponentSelection": "One item available in the data, User Query matches with 'poster'",
+  "confidenceScore": "100%",
+  "component": "image",
+  "fields": [
+    {
+      "name": "Poster",
+      "data_path": "movie.pictureUrl"
+    }
+  ]
+}
+
+Response multiple previous prompts: {
+  "id": "1",
+  "title": "Toy Story Poster",
+  "reasonForTheComponentSelection": "One image available in the data",
+  "confidenceScore": "100%",
+  "component": "image",
+  "fields": [
+    {
+      "name": "Poster",
+      "data_path": "movie.pictureUrl"
+    }
+  ]
+}
+
+Response no history: {
+  "id": "1",
+  "title": "Toy Story Poster",
+  "reasonForTheComponentSelection": "One image available in the data",
+  "confidenceScore": "100%",
+  "component": "image",
+  "fields": [
+    {
+      "name": "Poster",
+      "data_path": "movie.pictureUrl"
+    }
+  ]
+}
+
+*** 4. Current: When was the movie released? Previous: Poster only, Info about Toy Story, Subscriptions table - multiple previous conversation steps including entity change and then component type change to another and back ***
+
+Response one previous component: {
+  "id": "1",
+  "title": "Movie Release Date",
+  "reasonForTheComponentSelection": "User query matches with 'released' field in the data",
+  "confidenceScore": "95%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Release Date",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+Response multiple previous prompts: {
+  "id": "1",
+  "title": "Release Date of Toy Story",
+  "reasonForTheComponentSelection": "One item available in the data, and the query is about a specific date",
+  "confidenceScore": "100%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Release Date",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+Response no history: {
+  "id": "1",
+  "title": "Movie Release Date",
+  "reasonForTheComponentSelection": "Single item data with a specific release date field",
+  "confidenceScore": "100%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Release Date",
+      "data_path": "movie.released"
+    }
+  ]
+}
+

@@ -84,6 +84,7 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
+        previous_user_prompts: list[str] | None = None,
     ) -> list[str]:
         """Run Component Selection inference."""
 
