@@ -26,6 +26,6 @@ metadata:
 spec:
   owner: group:redhat/next-gen-ui
   lifecycle: Implementing
-  type: service
+  type: library
   dependencyOf:
     - component:uxe/next-gen-ui-agent-e2e-testing
