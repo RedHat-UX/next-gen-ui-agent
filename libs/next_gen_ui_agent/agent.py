@@ -2,6 +2,7 @@ import logging
 import os
 from typing import Optional
 
+from next_gen_ui_agent.agent_config import parse_config_yaml
 from next_gen_ui_agent.component_selection import (
     OnestepLLMCallComponentSelectionStrategy,
 )
@@ -33,11 +34,15 @@ logger = logging.getLogger(__name__)
 class NextGenUIAgent:
     """Next Gen UI Agent."""
 
-    def __init__(self, config: AgentConfig = AgentConfig()):
+    def __init__(self, config: AgentConfig | str = AgentConfig()):
         self._extension_manager = ExtensionManager(
             namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
         )
-        self.config = config
+        if isinstance(config, str):
+            self.config = parse_config_yaml(config)
+        else:
+            self.config = config
+
         self._hand_build_components_mapping = self.config.get(
             "hand_build_components_mapping"
         )
@@ -48,13 +53,14 @@ class NextGenUIAgent:
         strategy_name = self.config.get("component_selection_strategy", "default")
 
         # select which kind of components should be geneated
+        unsupported_components = False
         if "unsupported_components" not in self.config.keys():
             unsupported_components = (
                 os.getenv("NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS", "false").lower()
                 == "true"
             )
-        else:
-            unsupported_components = self.config.get("unsupported_components", False)
+        elif self.config.get("unsupported_components") is True:
+            unsupported_components = True
 
         if strategy_name == "default" or strategy_name == "one_llm_call":
             return OnestepLLMCallComponentSelectionStrategy(unsupported_components)
