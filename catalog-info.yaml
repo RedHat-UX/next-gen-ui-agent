@@ -5,7 +5,7 @@ metadata:
   name: next-gen-ui-agent
   title: Next Gen UI Agent
   namespace: uxe
-  description: "An AI agent that generates UI components based on the user's prompt\r\nhttps://spaces.redhat.com/spaces/NextGenUI/pages/669844131/Next+Gen+UI "
+  description: "An AI agent that helps to generate intelligent UI at runtime."
   annotations:
     backstage.io/techdocs-ref: dir:./docs/index.md
   tags:
