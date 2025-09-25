@@ -4,18 +4,33 @@ The Next Gen UI Agent can be configured in two ways: `programmatically` using Py
 
 ## Configuration Options
 
-### Core Settings
+### `inference` [`InferenceBase`, required]
+The LLM inference engine to use for component selection and configuration.
 
-- **`inference`** (`InferenceBase`): The LLM inference engine to use for component selection and configuration
-- **`component_system`** (`str`, optional): Component system for rendering (default: `"json"`)
-- **`unsupported_components`** (`bool`, optional): Whether to allow unsupported UI components (default: `False`)
-- **`component_selection_strategy`** (`str`, optional): Strategy for component selection (default: `"default"`)
-- **`hand_build_components_mapping`** (`dict[str, str]`, optional): Mapping from input data types to hand-built component types
+The `inference` parameter accepts any class that extends `InferenceBase`. The Next Gen UI Agent provides the following built-in inference implementations:
 
-### Component Selection Strategies
+- `next_gen_ui_agent.model.LangChainModelInference`: Wrapper for LangChain-compatible language models. Supports any LangChain LLM implementation including ChatOllama, ChatOpenAI, ChatAnthropic, and other LangChain model providers.
+- `next_gen_ui_llama_stack.LlamaStackAgentInference`: Integration with Standalone Llama Stack
+- `next_gen_ui_llama_stack_embedded.LlamaStackEmbeddedAsyncAgentInference`: Integration with Embedded Llama Stack
 
-- **`"default"` / `"one_llm_call"`**: Uses single LLM call for component selection and configuration
-- **`"two_llm_calls"`**: Uses two-step LLM process - first selects component type, then configures it
+
+### `component_system` [`str`, optional]
+
+Component system for rendering (default: `"json"`)
+
+### `unsupported_components` [`bool`, optional]
+
+Whether to allow unsupported UI components (default: `False`)
+
+### `component_selection_strategy` [`str`, optional]
+
+Strategy for component selection (default: `"default"`)
+
+### `hand_build_components_mapping` [`dict[str, str]`, optional]
+
+Mapping from input data types to hand-built component types
+
+See [Hand Build Components chapter](./data_ui_blocks/hand_build_components.md)
 
 ## Programmatic Configuration
 

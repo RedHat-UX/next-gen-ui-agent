@@ -35,6 +35,11 @@ class NextGenUIAgent:
     """Next Gen UI Agent."""
 
     def __init__(self, config: AgentConfig | str = AgentConfig()):
+        """
+        Initialize NextGenUIAgent.
+
+        * `config` - agent config either `AgentConfig` or string with YAML configuraiton.
+        """
         self._extension_manager = ExtensionManager(
             namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
         )

@@ -53,6 +53,7 @@ def test_design_system_handler_json() -> None:
 def test_renderers() -> None:
     agent = NextGenUIAgent()
     assert len(agent.renderers) > 0
+    assert agent.renderers.index("json") == 0
 
 
 @pytest.mark.asyncio
