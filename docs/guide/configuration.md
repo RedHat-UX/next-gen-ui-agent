@@ -26,8 +26,8 @@ Whether to allow unsupported UI components (default: `False`)
 
 Strategy for component selection
 
-- `"one_llm_call"` / `"default"`: Uses single LLM call for component selection and configuration
-- `"two_llm_calls"`: Uses two-step LLM process - first selects component type, then configures it
+- `one_llm_call` / `default`: Uses single LLM call for component selection and configuration
+- `two_llm_calls`: Uses two-step LLM process - first selects component type, then configures it
 
 ### `hand_build_components_mapping` [`dict[str, str]`, optional]
 
