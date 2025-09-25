@@ -1,0 +1,31 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: next-gen-ui-agent
+  title: Next Gen UI Agent
+  namespace: uxe
+  description: "An AI agent that helps to generate intelligent UI at runtime."
+  annotations:
+    backstage.io/techdocs-ref: dir:./docs/index.md
+  tags:
+    - "ai"
+    - "llm"
+    - "llama-stack"
+    - "python"
+    - "pytest"
+    - "react"
+    - "javascript"
+    - "nodejs"
+    - "vite"
+    - "eslint"
+    - "patternfly"
+    - "rhds"
+    - "library"
+    - "components"
+spec:
+  owner: group:redhat/next-gen-ui
+  lifecycle: Implementing
+  type: library
+  dependencyOf:
+    - component:uxe/next-gen-ui-agent-e2e-testing
