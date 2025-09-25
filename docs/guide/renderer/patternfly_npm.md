@@ -1,3 +1,3 @@
 {%
-    include-markdown "../../../libs_js/next_gen_ui_react/README.md"
+    include-markdown "https://raw.githubusercontent.com/RedHat-UX/next-gen-ui-react/refs/heads/main/README.md"
 %}
