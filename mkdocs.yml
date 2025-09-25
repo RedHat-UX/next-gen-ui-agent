@@ -72,6 +72,7 @@ nav:
         - guide/data_ui_blocks/index.md
         - Dynamic Components: guide/data_ui_blocks/dynamic_components.md
         - guide/data_ui_blocks/hand_build_components.md
+      - guide/configuration.md
     - Binding into AI application: 
       - guide/ai_apps_binding/index.md
       - Llama Stack: guide/ai_apps_binding/llamastack.md

@@ -13,16 +13,16 @@ class AgentConfig(TypedDict):
     inference: NotRequired[InferenceBase]
     """Inference to use to call LLM by the agent."""
 
-    component_system: NotRequired[str]
+    component_system: NotRequired[str | None]
     """Component system to use to render the component."""
 
-    unsupported_components: NotRequired[bool]
+    unsupported_components: NotRequired[bool | None]
     """
     If `False` (default), the agent can generate only fully supported UI components.
     If `True`, the agent can also generate unsupported UI components.
     """
 
-    component_selection_strategy: NotRequired[str]
+    component_selection_strategy: NotRequired[str | None]
     """
     Component selection strategy to use.
     Possible values:
@@ -31,7 +31,7 @@ class AgentConfig(TypedDict):
     - two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py
     """
 
-    hand_build_components_mapping: NotRequired[dict[str, str]]
+    hand_build_components_mapping: NotRequired[dict[str, str] | None]
     """
     Mapping from `InputData.type` to hand-build `component_type` (aka HBC).
     LLM powered component selection and configuration is skipped for HBC, data are propagated "as is", and only

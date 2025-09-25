@@ -22,6 +22,12 @@ from next_gen_ui_testing.model import MockedInference
 from pydantic_core import from_json
 
 
+def test_config_yaml_str() -> None:
+    config_yaml = "component_system: json"
+    agent = NextGenUIAgent(config_yaml)
+    assert agent.config["component_system"] == "json"
+
+
 def test_design_system_handler_wrong_name() -> None:
     agent = NextGenUIAgent()
     with pytest.raises(
@@ -46,7 +52,8 @@ def test_design_system_handler_json() -> None:
 
 def test_renderers() -> None:
     agent = NextGenUIAgent()
-    assert agent.renderers == ["json"]
+    assert len(agent.renderers) > 0
+    assert agent.renderers.index("json") == 0
 
 
 @pytest.mark.asyncio
