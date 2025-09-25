@@ -66,6 +66,6 @@ python_distribution(
         ],
         url="https://github.com/RedHat-UX/next-gen-ui-agent",
     ),
-    long_description_path="README.md",
+    long_description_path="libs/next_gen_ui_mcp/README.md",
     generate_setup=True,
 )
