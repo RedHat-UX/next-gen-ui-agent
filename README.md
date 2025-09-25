@@ -94,7 +94,7 @@ and Next Gen UI json rendering:
 For seamless integration of the UI Agent into your AI application following frameworks are supported. 
 
 1. [LangGraph](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_langgraph/)
-2. [Llama Stack](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack/)
+2. [Llama Stack](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack/) and [Llama Stack Embedded](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_llama_stack_embedded)
 3. [BeeAI Framework](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_beeai/) - Tech Preview
 
 Missing framework?
@@ -107,9 +107,9 @@ Protocols provides standardization between client and agent and provides TypeScr
 These modules provide way to integrate protocol into your AI application, servers to run it as a service, 
 and even container images to run it easily.
 
-1. [ACP](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_acp/) - Tech Preview
-2. A2A - WIP
-3. MCP - WIP
+1. [MCP](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_mcp)
+2. [ACP](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_acp/) - Tech Preview
+3. A2A - [WIP](https://github.com/RedHat-UX/next-gen-ui-agent/pull/149)
 
 
 ## UI Frameworks
