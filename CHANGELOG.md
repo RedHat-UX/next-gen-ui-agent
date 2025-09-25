@@ -1,3 +1,43 @@
+## 0.2.0 (2025-09-25)
+
+### Feat
+
+- **[NGUI-361](https://issues.redhat.com/browse/NGUI-361)**: Agent YAML file configuration (#169) [4d2eb](https://github.com//RedHat-UX/next-gen-ui-agent/commit/4d2ebb0f8ed84831b1a6188e5887db59ed451cd0)
+- **[NGUI-220](https://issues.redhat.com/browse/NGUI-220)**: MCP integration and standalone MCP server (#136) [76229](https://github.com//RedHat-UX/next-gen-ui-agent/commit/76229736617c4ba2bee15e37113329c4f0d29466)
+- **[NGUI-344](https://issues.redhat.com/browse/NGUI-344)**: LlamaStack version 0.2.20 and dropping Python 3.11 support (#162) [4a29f](https://github.com//RedHat-UX/next-gen-ui-agent/commit/4a29fe75de47a34b1b185bf43d424d80c54a9afc)
+- use Apache; copy root LICENSE in prepack script [d6a4c](https://github.com//RedHat-UX/next-gen-ui-agent/commit/d6a4cb51cfaa0a86aff5fe009da5e402e9a35d46)
+- add MIT license [df3d1](https://github.com//RedHat-UX/next-gen-ui-agent/commit/df3d1644ef28ffab365eb2e4712814794605ff35)
+- next_gen_ui_llama_stack_embedded module added [374c4](https://github.com//RedHat-UX/next-gen-ui-agent/commit/374c42b66e8a9b00b62828a6dfdd33547fe021a8)
+- **[NGUI-320](https://issues.redhat.com/browse/NGUI-320)**: add GH action to run next_gen_ui_react tests (#158) [c7bf4](https://github.com//RedHat-UX/next-gen-ui-agent/commit/c7bf4e2dfac3025082d9c1a23fa8bf7bdc85e931)
+- HBC - changed representation passed to renderer to accomodate other types of pluggable components in the future [7a925](https://github.com//RedHat-UX/next-gen-ui-agent/commit/7a92580e31d7ab7a9857852fd553fbf71129bf54)
+- **[NGUI-274](https://issues.redhat.com/browse/NGUI-274)**: patternfly end-to-end app (#147) [bb37d](https://github.com//RedHat-UX/next-gen-ui-agent/commit/bb37d3b5a316b12a010d95b87d737991b0a4dc46)
+- HBC mapped selection in LlamaStack agent based on tool_name [7be74](https://github.com//RedHat-UX/next-gen-ui-agent/commit/7be74a89ae47e19966b6b8de3e354338101c7b00)
+- HBC selection based on requested component type [e73bc](https://github.com//RedHat-UX/next-gen-ui-agent/commit/e73bcbca161dc8ff122093e2b7df1d1f684f1130)
+- HBC selection implemented in Agent's component_selection method [6a36c](https://github.com//RedHat-UX/next-gen-ui-agent/commit/6a36c9067acd7588e6fd3274ceba4967882212d5)
+- HBC data transformation and json renderer [3aef9](https://github.com//RedHat-UX/next-gen-ui-agent/commit/3aef9008962b4408f79b8bd428d0a6f1572b7a70)
+- HBC component registration and basic method for its selection in Agent [9679e](https://github.com//RedHat-UX/next-gen-ui-agent/commit/9679e18d5eec98cf605b745e333c775bdebfc176)
+- **[NGUI-231](https://issues.redhat.com/browse/NGUI-231)**: Improved dependency management by pants Dependency inference [36d67](https://github.com//RedHat-UX/next-gen-ui-agent/commit/36d67f93e430c4728735af83594f6b98590995ad)
+- **[evals](https://issues.redhat.com/browse/evals)**: long model response times from API throttling are omitted from perf stats [59658](https://github.com//RedHat-UX/next-gen-ui-agent/commit/596588d5519afb4bbc22b6bdf04a8db1fac41143)
+- evals improved to report not enough data in array component (indicating invalid data_path) [e45f5](https://github.com//RedHat-UX/next-gen-ui-agent/commit/e45f5cb59659e1f8d013447fcf027b07156330ad)
+- ComponentData JSON contains sanitized data_path now [80bf1](https://github.com//RedHat-UX/next-gen-ui-agent/commit/80bf1b1e0c9bb01edb41a704c7b8fa490b722644)
+- added trimming of characters before and after JSON in LLM inference output [9d02c](https://github.com//RedHat-UX/next-gen-ui-agent/commit/9d02c0d70f346fc551f51981477225398e91f5ff)
+- configurable embedded LlamaStack in evals. LlamaStack version upgraded. [4d9b1](https://github.com//RedHat-UX/next-gen-ui-agent/commit/4d9b15cbc53f5e3c216041a76cbf11e97fb81d72)
+- **[NGUI-244](https://issues.redhat.com/browse/NGUI-244)**: implemented component selection strategy abstraction in the NextGenUIAgent to make it switchable [84e49](https://github.com//RedHat-UX/next-gen-ui-agent/commit/84e49d2d6b88da8ce6f4f25b76f8d48c31a6a5fa)
+
+### Fix
+
+- updated the wrong gitignore [e13c7](https://github.com//RedHat-UX/next-gen-ui-agent/commit/e13c77102eda27456949dfda4d4bc5790c9b1bfb)
+- HBC test compatibility fixed [c586a](https://github.com//RedHat-UX/next-gen-ui-agent/commit/c586a402c92437fdb841c807a2fe6347b8e072be)
+- **[NGUI-274](https://issues.redhat.com/browse/NGUI-274)**: Resolve installation issues in ngui-e2e app (#150) [eb257](https://github.com//RedHat-UX/next-gen-ui-agent/commit/eb257aea6c364c1511a8c8596c768e7e24468766)
+- improved data_path sanitization for fields referenced by ['field'] [c02eb](https://github.com//RedHat-UX/next-gen-ui-agent/commit/c02ebfc9bbf197cf863f0f778999f9d5876c9209)
+- patched value pickup for one kind of paths for "object in array in the root" backend data [01f2f](https://github.com//RedHat-UX/next-gen-ui-agent/commit/01f2fe6a325b9386b5566035ddbdd3992992f3de)
+- patched boolean 'false' value pickup from backend data [10fe9](https://github.com//RedHat-UX/next-gen-ui-agent/commit/10fe976fcc3d87474f6cf858a7113376bdf71b69)
+
+### Refactor
+
+- **[NGUI-344](https://issues.redhat.com/browse/NGUI-344)**: Python 3.12 used in GH actions (#165) [10390](https://github.com//RedHat-UX/next-gen-ui-agent/commit/10390667c325f519772d38d8438d32f9c7aae4ed)
+- **[NGUI-322](https://issues.redhat.com/browse/NGUI-322)**: remove components not part of NGUI agent spec (#155) [aa042](https://github.com//RedHat-UX/next-gen-ui-agent/commit/aa0424fe03eaef94a879d50455d2a5d161eec2e8)
+
 ## 0.1.1 (2025-07-23)
 
 ### Feat
