@@ -183,6 +183,11 @@ def trim_to_json(text: str) -> str:
         The string starting from the first '{' or '[' character and ending at the last '}' or ']' character,
         or the original string if neither character is found
     """
+
+    # check if text contains </think> tag
+    if "</think>" in text:
+        text = text.split("</think>")[1]
+
     # Find the start of JSON (first { or [)
     start_index = -1
     for i, char in enumerate(text):

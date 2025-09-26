@@ -136,6 +136,12 @@ def test_trim_to_json_textonly():
     assert result == "Prefix suffix"
 
 
+def test_trim_to_json_text_with_think():
+    text = 'Prefix </think> other text { "name": "John" } suffix'
+    result = trim_to_json(text)
+    assert result == '{ "name": "John" }'
+
+
 if __name__ == "__main__":
     logging.basicConfig()
     logging.getLogger().setLevel(logging.DEBUG)

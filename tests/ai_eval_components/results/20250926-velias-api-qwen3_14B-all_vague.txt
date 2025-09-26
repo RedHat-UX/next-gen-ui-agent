@@ -1,0 +1,101 @@
+Date: 2025-09-26
+Components: all with vague component type check
+LLM: Qwen3 14B
+Env: Server API
+
+Note: 
+* in many cases (30+2 errors), LLM ignored instructions, and generated longer text with "thinking". Correct JSON was part of output after `</think>` tag. Unfortunatelly 
+  that thinking contained JSON examples so our JSON output sanitization was not able to pick up the correct final JSON as it took the first one.
+  Updated LLM output sanitization based on `</think>` tag helped to parse output correctly for these cases.
+* that one 'image' error might be interpretted as correct as one-card was selected showing image and info which kinda matches prompt
+* some data structures, mainly array next to the object, confused it and generated value path was incorrect (array path but put into that object)
+* is able to select `table` prety well if array is wrapped in field
+
+
+Evaluations finished:
+Dataset items evalueated: 171
+Agent errors: 17
+Agent warnings: 0
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 1,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 53,
+    "num_err_agent": 8,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 29,
+    "num_err_agent": 8,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 14,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 4968,
+  "mean": 13175,
+  "avg": 13175,
+  "perc95": 24720,
+  "max": 29275
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 5862,
+    "mean": 10226,
+    "avg": 10226,
+    "perc95": 22115,
+    "max": 23832
+  },
+  "one-card": {
+    "min": 8830,
+    "mean": 16024,
+    "avg": 16024,
+    "perc95": 26180,
+    "max": 29275
+  },
+  "set-of-cards": {
+    "min": 10100,
+    "mean": 16133,
+    "avg": 16133,
+    "perc95": 26405,
+    "max": 28205
+  },
+  "table": {
+    "min": 10779,
+    "mean": 15459,
+    "avg": 15459,
+    "perc95": 25021,
+    "max": 27047
+  },
+  "video-player": {
+    "min": 4968,
+    "mean": 8198,
+    "avg": 8198,
+    "perc95": 21428,
+    "max": 26083
+  }
+}
