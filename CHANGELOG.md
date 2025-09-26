@@ -1,3 +1,13 @@
+## 0.2.1 (2025-09-26)
+
+### Feat
+
+- add metadata file for backstage (#168) [df7a2](https://github.com//RedHat-UX/next-gen-ui-agent/commit/df7a27a26264df9d0cf35fe975debbd9b32fc117)
+
+### Fix
+
+- core package links fixed [c3307](https://github.com//RedHat-UX/next-gen-ui-agent/commit/c3307593552f4c979721f6273fdfc1ffc06be248)
+
 ## 0.2.0 (2025-09-25)
 
 ### Feat
