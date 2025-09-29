@@ -75,7 +75,7 @@ docker_image(
     source="Containerfile",
     repository="next-gen-ui/mcp",
     image_tags=[env("VERSION"), "latest", "dev"],
-    registries = [
+    registries=[
         "quay.io",
     ],
     dependencies=[
