@@ -134,7 +134,7 @@ jobs:
   publish_image:
     if: ${{!contains(github.ref, 'main')}}
     needs:
-      - build
+      - bump_version
     runs-on: ubuntu-latest
     name: "Publish Image"
     steps:
