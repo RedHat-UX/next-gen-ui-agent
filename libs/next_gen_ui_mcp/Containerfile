@@ -1,8 +1,11 @@
 # Next Gen UI MCP Server
 
-# Build:
-# podman run --rm -it next_gen_ui/mcp:latest
-
+# Build locally
+# pants package ::
+#
+# Run:
+# podman run --rm -it -p 5000:5000 quay.io/next-gen-ui/mcp:dev python -m next_gen_ui_mcp --transport streamable-http --provider langchain --model llama3.2 --base-url http://host.containers.internal:11434/v1 --api-key ollama --port 5000
+# podman run --rm -it -p 5000:5000 --env MCP_PORT="5000" --env NGUI_MODEL="llama3.2" --env NGUI_PROVIDER_API_BASE_URL=http://host.containers.internal:11434 --env NGUI_PROVIDER_API_KEY="ollama" quay.io/next-gen-ui/mcp:dev 
 FROM registry.access.redhat.com/ubi9/python-312-minimal:9.6
 
 # Set work directory
@@ -33,6 +36,7 @@ ENV MCP_PORT="5000"
 ENV NGUI_COMPONENT_SYSTEM="json"
 ENV NGUI_PROVIDER="langchain"
 ENV NGUI_PROVIDER_API_KEY=""
+ENV NGUI_PROVIDER_API_BASE_URL=""
 ENV NGUI_MODEL="gpt-4o"
 ENV NGUI_PROVIDER_LLAMA_URL=""
 
@@ -44,5 +48,5 @@ USER 1001
 
 # Run the MCP
 CMD python -m next_gen_ui_mcp --host "$MCP_HOST" --port "$MCP_PORT" --transport "$MCP_TRANSPORT" --component-system "$NGUI_COMPONENT_SYSTEM" \
-    --provider "$NGUI_PROVIDER" --model "$NGUI_MODEL" --api-key "$NGUI_PROVIDER_API_KEY" \
+    --provider "$NGUI_PROVIDER" --model "$NGUI_MODEL" --api-key "$NGUI_PROVIDER_API_KEY" --base-url "$NGUI_PROVIDER_API_BASE_URL" \
     --llama-url "$NGUI_PROVIDER_LLAMA_URL"

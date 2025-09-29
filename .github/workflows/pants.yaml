@@ -120,15 +120,6 @@ jobs:
         run: |
           echo $VERSION
           pants package ::
-      - name: Push To quay.io
-        id: push-to-quay
-        uses: redhat-actions/push-to-registry@v2
-        with:
-            image: next-gen-ui/mcp
-            tags: dev
-            registry: quay.io
-            username: ${{ secrets.QUAY_USERNAME }}
-            password: ${{ secrets.QUAY_TOKEN }}
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
@@ -139,6 +130,32 @@ jobs:
         with:
           name: distribution
           path: dist/
+  # Publish image
+  publish_image:
+    if: ${{!contains(github.ref, 'main')}}
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    name: "Publish Image"
+    steps:
+      - name: Push image to quay.io
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+            image: next-gen-ui/mcp
+            tags: dev
+            registry: quay.io
+            username: ${{ secrets.QUAY_USERNAME }}
+            password: ${{ secrets.QUAY_TOKEN }}
+      - name: push README to quay.io
+        uses: christian-korneck/update-container-description-action@v1
+        env:
+          DOCKER_APIKEY: ${{ secrets.QUAY_TOKEN }}
+        with:
+          destination_container_repo: quay.io/next-gen-ui/mcp
+          provider: quay
+          short_description: 'Next Gen UI MCP Server'
+          readme_file: 'README-containers.md'
   # Publish to test PyPI
   publish_test:
     name: "Publish to test PyPI"
