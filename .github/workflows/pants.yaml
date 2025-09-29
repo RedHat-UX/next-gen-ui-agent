@@ -130,14 +130,6 @@ jobs:
         with:
           name: distribution
           path: dist/
-  # Publish image
-  publish_image:
-    if: ${{!contains(github.ref, 'main')}}
-    needs:
-      - bump_version
-    runs-on: ubuntu-latest
-    name: "Publish Image"
-    steps:
       - name: Push image to quay.io
         id: push-to-quay
         uses: redhat-actions/push-to-registry@v2
@@ -155,7 +147,7 @@ jobs:
           destination_container_repo: quay.io/next-gen-ui/mcp
           provider: quay
           short_description: 'Next Gen UI MCP Server'
-          readme_file: 'README-containers.md'
+          readme_file: 'libs/next_gen_ui_mcp/README-containers.md'
   # Publish to test PyPI
   publish_test:
     name: "Publish to test PyPI"
