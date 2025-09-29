@@ -73,8 +73,8 @@ python_distribution(
 docker_image(
     name="docker",
     source="Containerfile",
-    repository="next_gen_ui/mcp",
-    image_tags=[env("VERSION"), "latest"],
+    repository="next-gen-ui/mcp",
+    image_tags=[env("VERSION"), "latest", "dev"],
     dependencies=[
         ":lib",
         ":dist",

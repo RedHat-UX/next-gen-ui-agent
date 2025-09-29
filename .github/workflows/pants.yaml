@@ -63,7 +63,7 @@ jobs:
     - name: Package / Run
       run: |
         # We also smoke test that our release process will work by running `package`.
-        pants package ::
+        pants package --filter-target-type=python_distribution ::
     - name: Test / distribution-all
       run: |
         # We also smoke test that our release process will work by running `package`.
@@ -120,6 +120,15 @@ jobs:
         run: |
           echo $VERSION
           pants package ::
+      - name: Push To quay.io
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+            image: next-gen-ui/mcp
+            tags: dev
+            registry: quay.io/quay-user
+            username: ${{ secrets.QUAY_USERNAME }}
+            password: ${{ secrets.QUAY_TOKEN }}
       - name: Upload build
         uses: actions/upload-artifact@v4
         with:
