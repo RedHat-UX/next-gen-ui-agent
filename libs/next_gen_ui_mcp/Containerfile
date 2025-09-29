@@ -4,8 +4,7 @@
 # pants package ::
 #
 # Run:
-# podman run --rm -it -p 5000:5000 quay.io/next-gen-ui/mcp:dev python -m next_gen_ui_mcp --transport streamable-http --provider langchain --model llama3.2 --base-url http://host.containers.internal:11434/v1 --api-key ollama --port 5000
-# podman run --rm -it -p 5000:5000 --env MCP_PORT="5000" --env NGUI_MODEL="llama3.2" --env NGUI_PROVIDER_API_BASE_URL=http://host.containers.internal:11434 --env NGUI_PROVIDER_API_KEY="ollama" quay.io/next-gen-ui/mcp:dev 
+# podman run --rm -it -p 5000:5000 --env MCP_PORT="5000" --env NGUI_MODEL="llama3.2" --env NGUI_PROVIDER_API_BASE_URL=http://host.containers.internal:11434 --env NGUI_PROVIDER_API_KEY="ollama" quay.io/next-gen-ui/mcp
 FROM registry.access.redhat.com/ubi9/python-312-minimal:9.6
 
 # Set work directory
@@ -24,6 +23,7 @@ USER root
 
 # Install dependencies
 RUN pip install *.whl \
+    llama-stack-client==0.2.20 \
     langchain_openai
 
 # Allow non-root user to access the everything in app-root

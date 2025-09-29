@@ -81,7 +81,6 @@ docker_image(
     dependencies=[
         ":dist",
         "libs/next_gen_ui_agent:dist",
-        "libs/next_gen_ui_llama_stack:dist",
         "libs/next_gen_ui_rhds_renderer:dist",
     ],
 )
