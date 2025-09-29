@@ -35,6 +35,12 @@ class AgentConfigFile(BaseModel):
     rendering is performed by hand-build code registered in the renderer for given `component_type`.
     """
 
+    input_data_json_wrapping: Optional[bool] = None
+    """
+    If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure.
+    If `False`, the agent will never wrap the JSON input data into data type field.
+    """
+
     # data_types: Optional[dict[str, UIComponentMetadata]] = None
     # """Data type configuration"""
 
@@ -49,6 +55,7 @@ def parse_config_yaml(stream) -> AgentConfig:
     ac: AgentConfig = {
         "component_system": agent_config.component_system,
         "hand_build_components_mapping": agent_config.hand_build_components_mapping,
+        "input_data_json_wrapping": agent_config.input_data_json_wrapping,
         # "data_types": agent_config.data_types,  # contains pydantic objects!
     }
     return ac

@@ -1,8 +1,10 @@
 import asyncio
 import json
 import logging
+from typing import Any
 
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
+from next_gen_ui_agent.json_data_wrapper import wrap_json_data
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import (
     AgentInput,
@@ -41,15 +43,20 @@ logger = logging.getLogger(__name__)
 class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
     """Component selection strategy using one LLM inference call for both component selection and configuration."""
 
-    def __init__(self, unsupported_components: bool):
+    def __init__(
+        self,
+        unsupported_components: bool = False,
+        input_data_json_wrapping: bool = True,
+    ):
         """
         Component selection strategy using one LLM inference call for both component selection and configuration.
 
         Args:
             unsupported_components: if True, generate all UI components, otherwise generate only supported UI components
-            select_component_only: if True, only generate the component, it is not necesary to generate it's configuration
+            input_data_json_wrapping: if True, wrap the JSON input data into data type field if necessary due to its structure
         """
         self.unsupported_components = unsupported_components
+        self.input_data_json_wrapping = input_data_json_wrapping
 
     async def select_components(
         self, inference: InferenceBase, input: AgentInput
@@ -57,7 +64,7 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         logger.debug("---CALL component_selection---")
         components = await asyncio.gather(
             *[
-                self.component_selection_run(input["user_prompt"], inference, data)
+                self.component_selection_run(inference, input["user_prompt"], data)
                 for data in input["input_data"]
             ]
         )
@@ -68,15 +75,16 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
     async def perform_inference(
         self,
-        user_prompt: str,
         inference: InferenceBase,
-        input_data: InputData,
+        user_prompt: str,
+        json_data: Any,
+        input_data_id: str,
     ) -> list[str]:
         """Run Component Selection inference."""
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(
-                "---CALL component_selection_inference--- id: %s", {input_data["id"]}
+                "---CALL component_selection_inference--- id: %s", {input_data_id}
             )
             # logger.debug(user_prompt)
             # logger.debug(input_data)
@@ -119,7 +127,6 @@ Response example for one-item data:
 }"""
 
         # we have to parse JSON data to reduce arrays
-        json_data = json.loads(input_data["data"])
         data = reduce_arrays(json_data, 6)
 
         prompt = f"""=== User query ===
@@ -138,7 +145,7 @@ Response example for one-item data:
         return [response]
 
     def parse_infernce_output(
-        self, inference_output: list[str], input_data: InputData
+        self, inference_output: list[str], input_data_id: str
     ) -> UIComponentMetadata:
         """Parse inference output and return UIComponentMetadata or throw exception if inference output is invalid."""
 
@@ -147,25 +154,32 @@ Response example for one-item data:
         result: UIComponentMetadata = UIComponentMetadata.model_validate(
             from_json(inference_output[0], allow_partial=True), strict=False
         )
-        result.id = input_data["id"]
+        result.id = input_data_id
         return result
 
     async def component_selection_run(
         self,
-        user_prompt: str,
         inference: InferenceBase,
+        user_prompt: str,
         input_data: InputData,
     ) -> UIComponentMetadata:
         """Run Component Selection task."""
 
-        logger.debug("---CALL component_selection_run--- id: %s", {input_data["id"]})
+        input_data_id = input_data["id"]
+        logger.debug("---CALL component_selection_run--- id: %s", {input_data_id})
+
+        json_data = json.loads(input_data["data"])
+        if self.input_data_json_wrapping:
+            json_data = wrap_json_data(json_data, input_data.get("type"))
 
         inference_output = await self.perform_inference(
-            user_prompt, inference, input_data
+            inference, user_prompt, json_data, input_data_id
         )
 
         try:
-            return self.parse_infernce_output(inference_output, input_data)
+            result = self.parse_infernce_output(inference_output, input_data_id)
+            result.json_data = json_data
+            return result
         except Exception as e:
             logger.exception("Cannot decode the json from LLM response")
             raise e
@@ -173,7 +187,8 @@ Response example for one-item data:
 
 def trim_to_json(text: str) -> str:
     """
-    Remove all characters from the string until the first occurrence of '{' or '[' character. String is not modified if these character are not found.
+    Remove all characters from the string before `</think>` tag if present.
+    Then remove all characters until the first occurrence of '{' or '[' character. String is not modified if these character are not found.
     Everything after the last '}' or ']' character is stripped also.
 
     Args:

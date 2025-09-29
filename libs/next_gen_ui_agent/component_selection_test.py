@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 
 import pytest
@@ -24,6 +25,18 @@ movies_data = """[
 }
 ]"""
 
+movies_data_TO_WRAP = """
+{
+    "year":1995,
+    "imdbRating":8.3,
+    "countries":[
+        "USA"
+    ],
+    "title":"Toy Story",
+    "url":"https://themoviedb.org/movie/862"
+}
+"""
+
 response = """
     {
         "title": "Toy Story Details",
@@ -43,7 +56,7 @@ response = """
 @pytest.mark.asyncio
 async def test_component_selection_run_OK() -> None:
     user_input = "Tell me brief details of Toy Story"
-    input_data = InputData({"id": "1", "data": movies_data})
+    input_data = InputData({"id": "1", "data": movies_data, "type": "movie.detail"})
 
     msg = {"type": "assistant", "content": response}
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
@@ -51,9 +64,51 @@ async def test_component_selection_run_OK() -> None:
 
     component_selection = OnestepLLMCallComponentSelectionStrategy(False)
     result = await component_selection.component_selection_run(
-        user_input, inference, input_data
+        inference, user_input, input_data
     )
     assert result.component == "one-card"
+    # assert json_data are not wrapped even it is enabled and type is provided, as there is only one item in the array
+    assert result.json_data == json.loads(movies_data)
+
+
+@pytest.mark.asyncio
+async def test_component_selection_run_json_wrapping_OK() -> None:
+    user_input = "Tell me brief details of Toy Story"
+    input_data = InputData(
+        {"id": "1", "data": movies_data_TO_WRAP, "type": "movie.detail"}
+    )
+
+    msg = {"type": "assistant", "content": response}
+    llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
+    inference = LangChainModelInference(llm)
+
+    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    result = await component_selection.component_selection_run(
+        inference, user_input, input_data
+    )
+    assert result.component == "one-card"
+    # assert json_data are wrapped as type is provided
+    assert result.json_data == json.loads(
+        '{ "movie_detail" :' + movies_data_TO_WRAP + "}"
+    )
+
+
+@pytest.mark.asyncio
+async def test_component_selection_run_json_wrapping_no_OK() -> None:
+    user_input = "Tell me brief details of Toy Story"
+    input_data = InputData({"id": "1", "data": movies_data_TO_WRAP})
+
+    msg = {"type": "assistant", "content": response}
+    llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
+    inference = LangChainModelInference(llm)
+
+    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    result = await component_selection.component_selection_run(
+        inference, user_input, input_data
+    )
+    assert result.component == "one-card"
+    # assert json_data are not wrapped as type is not provided
+    assert result.json_data == json.loads(movies_data_TO_WRAP)
 
 
 @pytest.mark.asyncio
@@ -68,7 +123,7 @@ async def test_component_selection_run_INVALID_LLM_RESPONSE() -> None:
     try:
         component_selection = OnestepLLMCallComponentSelectionStrategy(False)
         await component_selection.component_selection_run(
-            user_input, inference, input_data
+            inference, user_input, input_data
         )
         fail("Exception expected")
     except Exception as e:

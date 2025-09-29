@@ -67,10 +67,20 @@ class NextGenUIAgent:
         elif self.config.get("unsupported_components") is True:
             unsupported_components = True
 
+        input_data_json_wrapping = self.config.get("input_data_json_wrapping")
+        if input_data_json_wrapping is None:
+            input_data_json_wrapping = True
+
         if strategy_name == "default" or strategy_name == "one_llm_call":
-            return OnestepLLMCallComponentSelectionStrategy(unsupported_components)
+            return OnestepLLMCallComponentSelectionStrategy(
+                unsupported_components,
+                input_data_json_wrapping=input_data_json_wrapping,
+            )
         elif strategy_name == "two_llm_calls":
-            return TwostepLLMCallComponentSelectionStrategy(unsupported_components)
+            return TwostepLLMCallComponentSelectionStrategy(
+                unsupported_components,
+                input_data_json_wrapping=input_data_json_wrapping,
+            )
         else:
             raise ValueError(f"Unknown component_selection_strategy: {strategy_name}")
 

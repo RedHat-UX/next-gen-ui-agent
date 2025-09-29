@@ -7,6 +7,7 @@ from next_gen_ui_agent.agent_config import parse_config_yaml, read_config_yaml_f
 def test_config_yaml_str() -> None:
     config = parse_config_yaml("component_system: json")
     assert config["component_system"] == "json"
+    assert config.get("input_data_json_wrapping") is None
 
 
 @pytest.fixture()
@@ -18,6 +19,7 @@ def test_config_yaml_file(test_dir) -> None:
     config = read_config_yaml_file(os.path.join(test_dir, "agent_config_test.yaml"))
     assert config["component_system"] == "json"
     assert config.get("component_selection_strategy") is None
+    assert config.get("input_data_json_wrapping") is False
     assert config["hand_build_components_mapping"] is not None
     assert config["hand_build_components_mapping"]["my.type"] == "one-card-special"
 
