@@ -73,8 +73,11 @@ python_distribution(
 docker_image(
     name="docker",
     source="Containerfile",
-    repository="quay.io/next-gen-ui/mcp",
+    repository="next-gen-ui/mcp",
     image_tags=[env("VERSION"), "latest", "dev"],
+    registries = [
+        "quay.io",
+    ],
     dependencies=[
         ":lib",
         ":dist",
