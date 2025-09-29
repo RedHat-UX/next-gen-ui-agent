@@ -126,7 +126,7 @@ jobs:
         with:
             image: next-gen-ui/mcp
             tags: dev
-            registry: quay.io/quay-user
+            registry: quay.io
             username: ${{ secrets.QUAY_USERNAME }}
             password: ${{ secrets.QUAY_TOKEN }}
       - name: Upload build
