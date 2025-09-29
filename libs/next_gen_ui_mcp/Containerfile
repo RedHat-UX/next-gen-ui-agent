@@ -15,7 +15,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
-
 # Copy Python Project Files (Container context must be the `python` directory)
 COPY --chown=1001:root . /opt/app-root/src/
 
@@ -23,12 +22,10 @@ USER root
 
 # Install dependencies
 RUN pip install *.whl \
-    llama-stack-client==0.2.20 \
     langchain_openai
 
 # Allow non-root user to access the everything in app-root
 RUN chgrp -R root /opt/app-root/src && chmod -R g+rwx /opt/app-root/src
-
 
 ENV MCP_TRANSPORT="streamable-http"
 ENV MCP_HOST="0.0.0.0"
@@ -40,13 +37,13 @@ ENV NGUI_PROVIDER_API_BASE_URL=""
 ENV NGUI_MODEL="gpt-4o"
 ENV NGUI_PROVIDER_LLAMA_URL=""
 
-
 # Expose default port (change if needed)
 EXPOSE $MCP_PORT
 
 USER 1001
 
 # Run the MCP
+# TODO: Support natively env variables in the next_gen_ui_mcp module
 CMD python -m next_gen_ui_mcp --host "$MCP_HOST" --port "$MCP_PORT" --transport "$MCP_TRANSPORT" --component-system "$NGUI_COMPONENT_SYSTEM" \
     --provider "$NGUI_PROVIDER" --model "$NGUI_MODEL" --api-key "$NGUI_PROVIDER_API_KEY" --base-url "$NGUI_PROVIDER_API_BASE_URL" \
     --llama-url "$NGUI_PROVIDER_LLAMA_URL"
