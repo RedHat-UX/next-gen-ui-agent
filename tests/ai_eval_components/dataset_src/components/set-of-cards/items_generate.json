@@ -14,6 +14,13 @@
         "warn_only": true
     },
     {
+        "prompts_file": "prompts_subscriptions.json",
+        "input_data_type": "subscriptions",
+        "backend_data_files": [
+            "array_subscription_direct_short.json"
+        ]
+    },
+    {
         "prompts_file": "prompts_movie_actors.json",
         "backend_data_files": [
             "simple_movie_actorsObjects_camelCase.json",

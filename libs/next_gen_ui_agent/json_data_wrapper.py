@@ -53,10 +53,8 @@ def wrap_json_data(data: Any, data_type: str | None) -> Any:
     if isinstance(data, dict) and len(data) > 1:
         # Check if data is a dict with more than one field
         return {field_name: data}
-    elif (
-        isinstance(data, Iterable)
-        and not isinstance(data, (str, bytes, bytearray, dict))
-        and len(data) > 1  # type:ignore
+    elif isinstance(data, Iterable) and not isinstance(
+        data, (str, bytes, bytearray, dict)
     ):
         # Check if data is an array (iterable not a string, bytes, bytearray, or dict)
         return {field_name: data}

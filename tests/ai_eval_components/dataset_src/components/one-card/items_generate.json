@@ -2,12 +2,37 @@
     {
         "prompts_file": "prompts_subscription.json",
         "backend_data_files": [
-            "simple_subscription_direct.json",
             "simple_subscription_inobject.json",
             "simple_subscription_inobject_inarray.json"
         ]
     },
     {
+        "comment": "object directly in the root, with input data type so JSON wrapping is applied ",
+        "prompts_file": "prompts_subscription.json",
+        "input_data_type": "subscription.detail",
+        "backend_data_files": [
+            "simple_subscription_direct.json"
+        ]
+    },
+    {
+        "comment": "object directly in the root, without input data type so JSON wrapping is NOT applied ",
+        "prompts_file": "prompts_subscription.json",
+        "backend_data_files": [
+            "simple_subscription_direct.json"
+        ],
+        "warn_only": true
+    },
+    {
+        "comment": "array with one object in the root, with input data type so JSON wrapping is applied ",
+        "prompts_file": "prompts_subscription.json",
+        "input_data_type": "subscription.detail",
+        "backend_data_files": [
+            "simple_subscription_direct_inarray.json",
+            "simple_subscription_inobject_inarray.json"
+        ]
+    },
+    {
+        "comment": "array with one object in the root, without input data type so JSON wrapping is NOT applied ",
         "prompts_file": "prompts_subscription.json",
         "backend_data_files": [
             "simple_subscription_direct_inarray.json"

@@ -210,18 +210,18 @@ class TestWrapJsonData:
         expected = {"numbers": [1, 2, 3, 4, 5]}
         assert result == expected
 
-    def test_empty_list_not_wrapped(self):
+    def test_empty_list_is_wrapped(self):
         """Test that empty list gets wrapped."""
         data = []
         result = wrap_json_data(data, "items")
-        expected = []
+        expected = {"items": []}
         assert result == expected
 
-    def test_one_item_list_not_wrapped(self):
+    def test_one_item_list_is_wrapped(self):
         """Test that empty list gets wrapped."""
         data = [{}]
         result = wrap_json_data(data, "items")
-        expected = [{}]
+        expected = {"items": [{}]}
         assert result == expected
 
     def test_custom_iterable_gets_wrapped(self):

@@ -101,6 +101,7 @@ Dataset files itself must be `.json` containing JSON array of objects representi
 * `id` unique identifier of the dataset item, used in error reporting
 * `user_prompt` input for UI Agent
 * `backend_data` input for UI Agent, must be JSON stored as a string
+* `input_data_type` optional `type` of InputData - used for JSON wrapping feature
 * `expected_component` checked in UI Agent output during evaluation
 * `warn_only` optional boolean with `true` if this item results only in evaluation warning, not error - used for evaluation of optional features which we would like to see how they perform in evals still
 * `src` optional info about prompt and data source files in `dataset_src` directory for easier location
@@ -143,6 +144,8 @@ Component dataset source directory then contains:
   Contains array of objects with attributes:
   * `prompts_file` with name of the file to load prompts from. Prompts are defined in json files in this directory with `prompts_` prefix. It is JSON array containing individual prompts as string.
   * `backend_data_files` array with names of the backend data files. Backend data files are searched in local `backend_data/` subdirectory, if not found here then in `backend_data_shared/` directory.
+  * `input_data_type` optional `type` of InputData - used for JSON wrapping feature
+  * `comment` optional comment to descrive meaning of this part of the generation
 * `backend_data/` directory with backend data JSON files
 * `items/` directory allows to add individual items into the dataset. Usefull for exceptions, edge case test items etc.
   * Each item is defined in two separate files with the same name, but different extension. `.txt` file contains promp text, and `.json` file contains the JSON backend data. Eg. `item1.txt` and `item1.json`. 

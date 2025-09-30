@@ -47,6 +47,7 @@ from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
 from next_gen_ui_agent.data_transformation import get_data_transformer
+from next_gen_ui_agent.json_data_wrapper import wrap_json_data
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import ComponentSelectionStrategy, UIComponentMetadata
 from next_gen_ui_llama_stack_embedded import init_inference_from_env
@@ -137,6 +138,9 @@ def evaluate_agent_for_dataset_row(
     input_data_id = input_data["id"]
     json_data = json.loads(input_data["data"])
 
+    input_data_type = dsr.get("input_data_type")
+    json_data = wrap_json_data(json_data, input_data_type)
+
     component_selection: ComponentSelectionStrategy
     if not TWO_STEP_COMPONENT_SELECTION:
         component_selection = OnestepLLMCallComponentSelectionStrategy(
@@ -162,6 +166,7 @@ def evaluate_agent_for_dataset_row(
         component = component_selection.parse_infernce_output(
             llm_response, input_data_id
         )
+        component.json_data = json_data
     except Exception as e:
         errors.append(
             ComponentDataValidationError(
