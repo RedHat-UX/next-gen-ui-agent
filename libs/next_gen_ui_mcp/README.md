@@ -1,6 +1,20 @@
 # Next Gen UI MCP Server Library
 
-This package wraps our NextGenUI agent in a Model Context Protocol (MCP) tool using the standard MCP SDK. Since MCP adoption is so strong these days and there is an apetite to use this protocol also for handling agentic AI, we wanted to also deliver this way of consuming our agent. The most common way of utilising MCP tools is to provide them to LLM to choose and execute with certain parameters. This approach doesn't make sense for NextGenUI agent as you want to call it at specific moment after gathering data for response and also you don't want LLM to try to pass the prompt and JSON content as it may lead to unnecessary errors in the content. It's more natural and reliable to invoke this MCP tool directly with the parameters as part of your main application logic.
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
+
+[![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
+
+This package wraps Next Gen UI Agent in a [Model Context Protocol (MCP)](https://modelcontextprotocol.io) tools using the [official Python MCP SDK](https://modelcontextprotocol.io/docs/sdk).
+
+Since MCP adoption is so strong these days and there is an apetite to use this protocol also for handling agentic AI, we also deliver UI Agent this way. The most common way of utilising MCP tools is to provide them to LLM to choose and execute with certain parameters. This approach doesn't make too much sense for Next Gen UI Agent, as you want to call it at the specific moment, after gathering structured backend data for response. 
+Also you don't want LLM to try to pass the prompt and JSON content as it may lead to unnecessary errors in the content. 
+It's more natural and reliable to invoke this MCP tool directly with the parameters as part of your main application logic, also saving LLM tokens/price.
+
+## Provides
+
+* `__main__.py` to run the MCP server as the standalone server
+* `NextGenUIMCPAgent` to embed the UI Agent MCP server into your python code
 
 ## Installation
 
@@ -105,3 +119,9 @@ Returns system information about the Next Gen UI Agent including:
 - Component system being used
 - Available capabilities
 - Description
+
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_mcp)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
