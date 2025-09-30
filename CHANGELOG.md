@@ -1,3 +1,11 @@
+## 0.2.2 (2025-09-30)
+
+### Feat
+
+- **[NGUI-376](https://issues.redhat.com/browse/NGUI-376)**: MCP readiness and liveness health checks (#173) [02285](https://github.com//RedHat-UX/next-gen-ui-agent/commit/022859a80038b63180de8068d22ffd18597b0b1c)
+- **[NGUI-370](https://issues.redhat.com/browse/NGUI-370)**: MCP Container, documentation, image build in pipeline (#172) [86607](https://github.com//RedHat-UX/next-gen-ui-agent/commit/866071427e847d8d42811d501e235c70d3f8276f)
+- LLM output sanitization when </think> is present, Qwen3 14B evaluation results [53f75](https://github.com//RedHat-UX/next-gen-ui-agent/commit/53f7578f81044642f55ec36dad22da5d6c36cbab)
+
 ## 0.2.1 (2025-09-26)
 
 ### Feat
