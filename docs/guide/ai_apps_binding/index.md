@@ -11,7 +11,7 @@ Binding UI Agent core functionality into your AI application (AI assistant backe
 
 ## AI Protocol bindings/servers
 
-* MCP - WIP
+* MCP - [MCP Library](mcp.md) and [MCP Container](mcp-containers.md)
 * A2A - WIP
 * [ACP](acp.md) - Tech Preview
 

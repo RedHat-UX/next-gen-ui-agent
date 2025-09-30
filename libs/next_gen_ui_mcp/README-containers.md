@@ -1,4 +1,4 @@
-# Next Gen UI MCP Server
+# Next Gen UI MCP Server Container
 
 Next Gen UI MCP Server container image.
 
@@ -32,7 +32,42 @@ The MCP server container can be configured via environment variables. All config
 | `NGUI_MODEL`                 | `gpt-4o`          | Model name (required for non-MCP providers)            |
 | `NGUI_PROVIDER_API_BASE_URL` | -                 | Base URL for OpenAI-compatible API                     |
 | `NGUI_PROVIDER_API_KEY`      | -                 | API key for the LLM provider                           |
-| `NGUI_PROVIDER_LLAMA_URL`    | -                 | LlamaStack server URL (if `llamastac` is used)         |
+| `NGUI_PROVIDER_LLAMA_URL`    | -                 | LlamaStack server URL (if `llamastack` is used)         |
+
+### Providers
+
+The Next Gen UI MCP server supports three inference providers, controlled by the `NGUI_PROVIDER` environment variable:
+
+Selects the inference provider to use for generating UI components:
+
+#### Provider **`mcp`** 
+
+Uses Model Context Protocol sampling to leverage the client's LLM capabilities. No additional configuration required as it uses the connected MCP client's model.
+
+#### Provider **`langchain`**:
+
+Uses LangChain with OpenAI-compatible APIs.
+
+Requires:
+
+- `NGUI_MODEL`: Model name (e.g., `gpt-4o`, `llama3.2`)
+- `NGUI_PROVIDER_API_KEY`: API key for the provider
+- `NGUI_PROVIDER_API_BASE_URL` (optional): Custom base URL for OpenAI-compatible APIs like Ollama
+
+Examples:
+
+- OpenAI: `https://api.openai.com/v1` (default)
+- Ollama: `http://host.containers.internal:11434/v1`
+
+#### Provider **`llamastack`**:
+
+Uses LlamaStack server for inference.
+
+Requires:
+
+  - `NGUI_MODEL`: Model name available on the LlamaStack server
+  - `NGUI_PROVIDER_LLAMA_URL`: URL of the LlamaStack server
+
 
 ### Usage Examples
 
@@ -84,6 +119,7 @@ podman run --rm -it -p 5000:5000 \
 ### Network Configuration
 
 For local development connecting to services running on the host machine:
+
 - Use `host.containers.internal` to access host services (works with Podman and Docker Desktop)
 - For Linux with Podman, you may need to use `host.docker.internal` or the host's IP address
 - Ensure the target services (like Ollama) are accessible from containers
