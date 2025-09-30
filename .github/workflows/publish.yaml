@@ -44,10 +44,8 @@ jobs:
       - name: Push image to quay.io
         id: push-to-quay
         uses: redhat-actions/push-to-registry@v2
-        env:
-          VERSION: ${{github.ref_name}}
         with:
-            tags: quay.io/next-gen-ui/mcp:latest quay.io/next-gen-ui/mcp:$VERSION
+            tags: quay.io/next-gen-ui/mcp:latest quay.io/next-gen-ui/mcp:${{github.ref_name}}
             username: ${{ secrets.QUAY_USERNAME }}
             password: ${{ secrets.QUAY_TOKEN }}
   publish:
