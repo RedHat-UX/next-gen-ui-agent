@@ -137,15 +137,15 @@ jobs:
             tags: quay.io/next-gen-ui/mcp:dev
             username: ${{ secrets.QUAY_USERNAME }}
             password: ${{ secrets.QUAY_TOKEN }}
-    #   - name: push README to quay.io
-    #     uses: christian-korneck/update-container-description-action@v1
-    #     env:
-    #       DOCKER_APIKEY: ${{ secrets.QUAY_TOKEN }}
-    #     with:
-    #       destination_container_repo: quay.io/next-gen-ui/mcp
-    #       provider: quay
-    #       short_description: 'Next Gen UI MCP Server'
-    #       readme_file: 'libs/next_gen_ui_mcp/README-containers.md'
+      - name: push README to quay.io
+        uses: christian-korneck/update-container-description-action@v1
+        env:
+          DOCKER_APIKEY: ${{ secrets.QUAY_TOKEN }}
+        with:
+          destination_container_repo: quay.io/next-gen-ui/mcp
+          provider: quay
+          short_description: 'Next Gen UI MCP Server'
+          readme_file: 'libs/next_gen_ui_mcp/README-containers.md'
   # Publish to test PyPI
   publish_test:
     name: "Publish to test PyPI"
