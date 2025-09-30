@@ -39,6 +39,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+from mcp.server.fastmcp import FastMCP
 from next_gen_ui_agent.types import AgentConfig
 
 # Add libs to path for development
@@ -46,6 +47,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from next_gen_ui_agent.model import InferenceBase, LangChainModelInference  # noqa: E402
 from next_gen_ui_mcp.agent import NextGenUIMCPAgent  # noqa: E402
+
+logger = logging.getLogger(__name__)
 
 
 def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
@@ -148,6 +151,22 @@ def create_agent(
         sampling_max_tokens=sampling_max_tokens,
         name="NextGenUI-MCP-Server",
     )
+
+
+def add_health_routes(mcp: FastMCP):
+    """Add /liveness and /readiness via custom routes"""
+
+    from starlette.responses import JSONResponse  # pants: no-infer-dep
+
+    @mcp.custom_route("/liveness", methods=["GET"])
+    async def liveness(request) -> JSONResponse:
+        return JSONResponse({"status": "healthy", "service": "mcp-server"})
+
+    @mcp.custom_route("/readiness", methods=["GET"])
+    async def readiness(request) -> JSONResponse:
+        return JSONResponse({"status": "healthy", "service": "mcp-server"})
+
+    logger.info("Health checks available under /liveness and /readiness.")
 
 
 def main():
@@ -253,7 +272,6 @@ Examples:
         level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
-    logger = logging.getLogger(__name__)
     logger.info("Starting Next Gen UI MCP Server with %s transport", args.transport)
     logger.info("Using component system: %s", args.component_system)
 
@@ -269,7 +287,9 @@ Examples:
             # inference remains None for MCP sampling
         elif args.provider == "llamastack":
             logger.info(
-                f"Using LlamaStack inference with model {args.model} at {args.llama_url}"
+                "Using LlamaStack inference with model %s at %s",
+                args.model,
+                args.llama_url,
             )
             inference = create_llamastack_inference(args.model, args.llama_url)
         elif args.provider == "langchain":
@@ -303,10 +323,12 @@ Examples:
             logger.info("Server running on stdio - connect with MCP clients")
             agent.run(transport="stdio")
         elif args.transport == "sse":
-            logger.info("Server running on http://%s:%s/sse", args.host, args.port)
+            add_health_routes(agent.get_mcp_server())
+            logger.info("Starting server on http://%s:%s/sse", args.host, args.port)
             agent.run(transport="sse", host=args.host, port=args.port)
         elif args.transport == "streamable-http":
-            logger.info("Server running on http://%s:%s/mcp", args.host, args.port)
+            add_health_routes(agent.get_mcp_server())
+            logger.info("Starting server on http://%s:%s/mcp", args.host, args.port)
             agent.run(transport="streamable-http", host=args.host, port=args.port)
     except KeyboardInterrupt:
         logger.info("Server stopped by user")

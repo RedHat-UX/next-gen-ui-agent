@@ -53,8 +53,8 @@ If you are running this from inside of our [NextGenUI Agent GitHub repo](https:/
   # Run with MCP sampling (default - leverages client's LLM)
   pants run libs/next_gen_ui_mcp/server_example.py:extended
 
-  # Run with SSE transport and Red Hat Design System component system for rendering
-  pants run libs/next_gen_ui_mcp/server_example.py:extended --run-args="--transport sse --component-system rhds"
+  # Run with streamable-http transport and Red Hat Design System component system for rendering
+  pants run libs/next_gen_ui_mcp/server_example.py:extended --run-args="--transport streamable-http --component-system rhds"
 ```
 
 ### Testing with MCP Client:
