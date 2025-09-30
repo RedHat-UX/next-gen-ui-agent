@@ -63,7 +63,7 @@ jobs:
     - name: Package / Run
       run: |
         # We also smoke test that our release process will work by running `package`.
-        pants package ::
+        pants package --filter-target-type=python_distribution ::
     - name: Test / distribution-all
       run: |
         # We also smoke test that our release process will work by running `package`.
@@ -130,6 +130,22 @@ jobs:
         with:
           name: distribution
           path: dist/
+      - name: Push image to quay.io
+        id: push-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+            tags: quay.io/next-gen-ui/mcp:dev
+            username: ${{ secrets.QUAY_USERNAME }}
+            password: ${{ secrets.QUAY_TOKEN }}
+    #   - name: push README to quay.io
+    #     uses: christian-korneck/update-container-description-action@v1
+    #     env:
+    #       DOCKER_APIKEY: ${{ secrets.QUAY_TOKEN }}
+    #     with:
+    #       destination_container_repo: quay.io/next-gen-ui/mcp
+    #       provider: quay
+    #       short_description: 'Next Gen UI MCP Server'
+    #       readme_file: 'libs/next_gen_ui_mcp/README-containers.md'
   # Publish to test PyPI
   publish_test:
     name: "Publish to test PyPI"

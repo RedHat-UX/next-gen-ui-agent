@@ -69,3 +69,19 @@ python_distribution(
     long_description_path="libs/next_gen_ui_mcp/README.md",
     generate_setup=True,
 )
+
+docker_image(
+    name="docker",
+    source="Containerfile",
+    repository="next-gen-ui/mcp",
+    image_tags=[env("VERSION"), "latest", "dev"],
+    registries=[
+        "quay.io",
+    ],
+    dependencies=[
+        ":dist",
+        "libs/next_gen_ui_agent:dist",
+        "libs/next_gen_ui_llama_stack:dist",
+        "libs/next_gen_ui_rhds_renderer:dist",
+    ],
+)

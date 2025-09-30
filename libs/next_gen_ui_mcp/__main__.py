@@ -70,7 +70,7 @@ def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
     except ImportError as e:
         raise ImportError(
             "LlamaStack dependencies not found. Install with: "
-            "pip install llama-stack-client>=0.1.9,<=0.2.15"
+            "pip install llama-stack-client==0.2.20"
         ) from e
 
     try:

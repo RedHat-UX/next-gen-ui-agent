@@ -1,4 +1,4 @@
-# Next Gen UI MCP Server
+# Next Gen UI MCP Server Library
 
 This package wraps our NextGenUI agent in a Model Context Protocol (MCP) tool using the standard MCP SDK. Since MCP adoption is so strong these days and there is an apetite to use this protocol also for handling agentic AI, we wanted to also deliver this way of consuming our agent. The most common way of utilising MCP tools is to provide them to LLM to choose and execute with certain parameters. This approach doesn't make sense for NextGenUI agent as you want to call it at specific moment after gathering data for response and also you don't want LLM to try to pass the prompt and JSON content as it may lead to unnecessary errors in the content. It's more natural and reliable to invoke this MCP tool directly with the parameters as part of your main application logic.
 
@@ -80,16 +80,21 @@ result = client.tool_runtime.invoke_tool(tool_name="generate_ui", kwargs=input_d
 ## Available MCP Tools
 
 ### `generate_ui`
-The main tool that wraps the entire Next Gen UI Agent functionality. This single tool handles:
+The main tool that wraps the entire Next Gen UI Agent functionality.
+
+This single tool handles:
+
 - Component selection based on user prompt and data
 - Data transformation to match selected components  
 - Design system rendering to produce final UI
 
 **Parameters:**
+
 - `user_prompt` (str): User's prompt which we want to enrich with UI components
 - `input_data` (List[Dict]): List of input data to render within the UI components
 
 **Returns:**
+
 - List of rendered UI components ready for display
 
 ## Available MCP Resources
