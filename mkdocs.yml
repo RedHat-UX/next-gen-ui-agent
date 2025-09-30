@@ -76,8 +76,8 @@ nav:
     - Binding into AI application: 
       - guide/ai_apps_binding/index.md
       - Llama Stack: guide/ai_apps_binding/llamastack.md
+      - Llama Stack Embedded Server: guide/ai_apps_binding/llamastack_embedded.md
       - LangGraph: guide/ai_apps_binding/langgraph.md
-      - Embedded Llama Stack Server: guide/ai_apps_binding/llamastack_embedded.md
       - BeeAI: guide/ai_apps_binding/beeai.md
       - ACP: guide/ai_apps_binding/acp.md
       - MCP Library: guide/ai_apps_binding/mcp-library.md
