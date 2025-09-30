@@ -10,6 +10,7 @@ from mcp.server.lowlevel.helper_types import ReadResourceContents
 from mcp.server.session import ServerSession
 from mcp.types import TextContent
 from next_gen_ui_agent.types import AgentConfig, InputData, UIComponentMetadata
+from next_gen_ui_mcp.__main__ import add_health_routes
 from next_gen_ui_mcp.agent import NextGenUIMCPAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedInference
@@ -280,3 +281,15 @@ async def test_mcp_agent_system_info_resource() -> None:
     assert system_info["agent_name"] == "NextGenUIMCPAgent"
     assert system_info["component_system"] == "rhds"
     assert "capabilities" in system_info
+
+
+def test_liveness() -> None:
+    ngui_agent = NextGenUIMCPAgent(name="TestAgent")
+
+    mcp_server = ngui_agent.get_mcp_server()
+
+    add_health_routes(mcp_server)
+
+    assert len(mcp_server._custom_starlette_routes) == 2
+    assert mcp_server._custom_starlette_routes[0].path == "/liveness"
+    assert mcp_server._custom_starlette_routes[1].path == "/readiness"
