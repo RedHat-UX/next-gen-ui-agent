@@ -16,7 +16,14 @@ export function useFetch<T = any>() {
     const { method = "GET", body, headers } = config;
 
     setLoading(true);
+    setError(null);
+    
     try {
+      // Validate URL
+      if (!url || !url.trim()) {
+        throw new Error("URL is required");
+      }
+
       const res = await fetch(url, {
         method,
         headers: {
@@ -26,14 +33,48 @@ export function useFetch<T = any>() {
         body: body ? JSON.stringify(body) : body,
         signal: controller.signal,
       });
-      if (!res.ok) throw new Error(`Error: ${res.status}`);
+      
+      // Handle HTTP errors
+      if (!res.ok) {
+        let errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+        
+        try {
+          const errorData = await res.json();
+          if (errorData.error) {
+            errorMessage = errorData.error;
+            if (errorData.details) {
+              errorMessage += ` - ${errorData.details}`;
+            }
+          }
+        } catch {
+          // If response is not JSON, use the default error message
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
       const json = await res.json();
+      
+      // Validate response structure
+      if (!json) {
+        throw new Error("Empty response from server");
+      }
+      
       setData(json);
       setError(null);
       return json;
+      
     } catch (err) {
       if ((err as any).name !== "AbortError") {
-        setError(err as Error);
+        const error = err as Error;
+        console.error('Fetch error:', error);
+        setError(error);
+        
+        // Return error object for UI handling
+        return {
+          error: error.message,
+          details: error.message.includes('HTTP') ? 'Server error' : 'Network or parsing error'
+        };
       }
     } finally {
       setLoading(false);

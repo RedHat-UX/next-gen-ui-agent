@@ -1,0 +1,6 @@
+# Server dependencies
+python-dotenv>=1.0.0
+fastapi
+langchain-openai
+pydantic
+uvicorn
