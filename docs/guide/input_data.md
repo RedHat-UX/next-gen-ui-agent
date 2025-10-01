@@ -9,13 +9,20 @@ Non conforming data may work still to get reasonable `Data UI Block`, but result
 *UI Agent* expects that provided data are relevant to the current `User prompt`, as it generates UI which shows that data regarding to the user prompt. 
 Results for unrelated data are not guaranteed.
 
+## `InputData` fields
+
+* `data` - string with structured backend data to be processed to UI component
+* `type` - is a string identifier of the data piece type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
+   to define and use these types, but it might be a good idea to use tree like hierarchy here, and descriebe business meaning of the data. Other option is 
+   to use name of the LLM tool used to load backend data here, as implemented in some of our AI framework bindings.
+
 ## JSON format
 
 *UI Agent* expects [JSON formatted](https://datatracker.ietf.org/doc/html/rfc8259) input data. 
 [JSONPath](https://www.rfc-editor.org/rfc/rfc9535.html) is used to get values from the data during the UI component rendering. 
 So input data **MUST BE** in the JSON format.
 
-## Data field names
+## Field names
 
 LLM used in the *UI Agent* relies on the data field names heavily to understand what is the field value about, to use it correctly.
 So descriptive field names explaining business reason of the value are crucial to get good results out of the *UI Agent*.
@@ -39,7 +46,37 @@ For `Object`, UI component rendering one item is selected, like `one-card`, `ima
 `Array of objects` is rendered by UI component like `set-of-card`, `table`, `chart`, `image-gallery`.
 
 LLM used in the *UI Agent* struggles sometimes to generate correct paths pointing to the data values if they are stored directly in the root Object. 
-*UI Agent* works correctly if there is an JSON Object in the data root, containing exactly one field, which name describes business nature of the data. This helps LLM to better understand the data, match them with the user prompt, and generate correct paths pointing to the data values. This field can then contain `Object` or `Array of objects`.
+*UI Agent* works correctly if there is an JSON Object in the data root, containing exactly one field, which name describes business nature of the data. 
+This helps LLM to better understand the data, match them with the user prompt, and generate correct paths pointing to the data values. This field can then contain `Object` or `Array of objects`.
+
+### Automatic JSON wrapping
+
+If `InputData.type` field is provided, UI Agent automatically wraps problematic JSON structures the LLM struggles with ([see above](#data-root)). 
+Data are wrapped into new root JSON object with `InputData.type` value used as a field name (after sanitization),
+where the original JSON data are put into. 
+It expects that type contains reasonable value, ideally describing the business meaning of the data, [see above](#inputdata-fields).
+
+JSON wrapping is enabled by default, but can be disabled in the [UI Agent configuration](configuration.md#input_data_json_wrapping-bool-optional) if it causes some problems.
+
+For example, input data with `type`=`movie.detail` and content:
+
+```json
+{
+  "title": "Toy Story",
+  "year": 2005
+}
+```
+
+are wrapped as:
+
+```json
+{
+  "movie_detail": {
+    "title": "Toy Story",
+    "year": 2005
+  }
+}
+```
 
 ### One `Object` input data
 
@@ -56,7 +93,7 @@ Correct `Object` input data:
 ```
 Putting this structure into top level array (with one object only) is mostly interpreted as one `Object` with relevant UI component selected and generally works well.
 
-Potentially problematic `Object` input data, try to avoid it:
+Potentially problematic `Object` input data:
 ```json
 {
   "id": 254,
@@ -65,8 +102,10 @@ Potentially problematic `Object` input data, try to avoid it:
   ...
 }
 ```
-Why not to use this structure? LLM is typically looking at the field name to understan what are the data about. 
+Why not to use this structure? LLM is typically looking at the field name to understand what are the data about. 
 And because this object is not stored in any field, LLM do not know so well what is this object about.
+
+As of UI Agent `0.3.0`, [automatic JSON wrapping](#automatic-json-wrapping) is applied if enabled and data `type` is provided to prevent problems with this kind of data.
 
 ### `Array of objects` input data
 
@@ -90,7 +129,7 @@ Correct `Array of objects` input data:
 }
 ```
 
-Problematic `Array of objects` input data, DO NOT USE this structure:
+Problematic `Array of objects` input data:
 ```json
 [
   {
@@ -110,6 +149,8 @@ Problematic `Array of objects` input data, DO NOT USE this structure:
 Why not to use this structure? We have to shorten arrays in input data before putting in into the LLM context, 
 and in this case there is not a room where to put original array size necessary for correct UI compoennt selection, 
 as we put it into name of the field the array is stored in.
+
+As of UI Agent `0.3.0`, [automatic JSON wrapping](#automatic-json-wrapping) is applied if enabled and data `type` is provided to prevent problems with this kind of data.
 
 !!! warning
     Array with one object only is typically interpreted as a single `Object` and relevant UI component is used to show it's values.

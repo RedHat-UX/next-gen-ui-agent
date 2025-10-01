@@ -1,5 +1,6 @@
 ---
 component_system: json
+input_data_json_wrapping: false
 
 # TODO: Change to just "hbc" or move to data_types
 hand_build_components_mapping:

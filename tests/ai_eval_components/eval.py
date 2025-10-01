@@ -1,4 +1,5 @@
 import asyncio
+import json
 import time
 from traceback import print_exception
 
@@ -46,6 +47,7 @@ from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
 from next_gen_ui_agent.data_transformation import get_data_transformer
+from next_gen_ui_agent.json_data_wrapper import wrap_json_data
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import ComponentSelectionStrategy, UIComponentMetadata
 from next_gen_ui_llama_stack_embedded import init_inference_from_env
@@ -133,6 +135,12 @@ def evaluate_agent_for_dataset_row(
     errors: list[ComponentDataValidationError] = []
     input_data = InputData(id="myid", data=dsr["backend_data"])
 
+    input_data_id = input_data["id"]
+    json_data = json.loads(input_data["data"])
+
+    input_data_type = dsr.get("input_data_type")
+    json_data = wrap_json_data(json_data, input_data_type)
+
     component_selection: ComponentSelectionStrategy
     if not TWO_STEP_COMPONENT_SELECTION:
         component_selection = OnestepLLMCallComponentSelectionStrategy(
@@ -145,14 +153,20 @@ def evaluate_agent_for_dataset_row(
 
     # separate steps so we can see LLM response even if it is invalid JSON
     time_start = round(time.time() * 1000)
+
     llm_response = asyncio.run(
-        component_selection.perform_inference(dsr["user_prompt"], inference, input_data)
+        component_selection.perform_inference(
+            inference, dsr["user_prompt"], json_data, input_data_id
+        )
     )
     report_perf_stats(time_start, round(time.time() * 1000), dsr["expected_component"])
 
     component: UIComponentMetadata | None = None
     try:
-        component = component_selection.parse_infernce_output(llm_response, input_data)
+        component = component_selection.parse_infernce_output(
+            llm_response, input_data_id
+        )
+        component.json_data = json_data
     except Exception as e:
         errors.append(
             ComponentDataValidationError(
@@ -165,7 +179,7 @@ def evaluate_agent_for_dataset_row(
     if component:
         # load data so we can evaluate that pointers to data are correct
         # any exception from this code is "SYS" error
-        component.id = input_data["id"]
+        component.id = input_data_id
 
         check_result_explicit(
             component,

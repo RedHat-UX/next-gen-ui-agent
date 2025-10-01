@@ -79,7 +79,10 @@ class DataTransformerBase(ABC, Generic[T]):
         if not data_content:
             raise ValueError(f"No data content found for the component {data['id']}")
 
-        json_data = json.loads(data_content)
+        # if json_data is provided in `UIComponentMetadata`, use it, otherwise load from data_content
+        json_data = component.json_data
+        if not json_data:
+            json_data = json.loads(data_content)
 
         self.preprocess_rendering_context(component)
         self.main_processing(json_data, component)

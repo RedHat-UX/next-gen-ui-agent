@@ -23,9 +23,16 @@ from pydantic_core import from_json
 
 
 def test_config_yaml_str() -> None:
-    config_yaml = "component_system: json"
+    config_yaml = "component_system: json\ninput_data_json_wrapping: false"
     agent = NextGenUIAgent(config_yaml)
     assert agent.config["component_system"] == "json"
+    assert agent._component_selection_strategy.input_data_json_wrapping is False
+
+
+def test_config_input_data_json_wrapping_default() -> None:
+    agent = NextGenUIAgent()
+    # check that input_data_json_wrapping is True by default
+    assert agent._component_selection_strategy.input_data_json_wrapping is True
 
 
 def test_design_system_handler_wrong_name() -> None:

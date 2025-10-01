@@ -128,6 +128,10 @@ if __name__ == "__main__":
                     dataset_row["id"] = f"{component_name}-{id_per_component:06d}"
                     dataset_row["user_prompt"] = prompt
                     dataset_row["backend_data"] = backend_data
+                    if "input_data_type" in item_generate:
+                        dataset_row["input_data_type"] = item_generate[
+                            "input_data_type"
+                        ]
                     dataset_row["expected_component"] = component_name
                     dataset_row["warn_only"] = item_generate.get("warn_only", False)
                     if shared:
