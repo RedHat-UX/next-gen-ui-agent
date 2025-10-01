@@ -16,7 +16,14 @@ python_tests(
     sources=[
         "**/*_test.py",
     ],
+    dependencies=[":lib", ":test_resources"],
 )
+
+resources(
+    name="test_resources",
+    sources=["**/*test.yaml"],
+)
+
 
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating
 #  `setup.py`. See https://www.pantsbuild.org/docs/python-distributions.

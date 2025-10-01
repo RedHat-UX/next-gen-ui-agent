@@ -1,4 +1,4 @@
-from typing import NotRequired, Optional, TypedDict
+from typing import Optional
 
 from next_gen_ui_agent.data_transform.validation.assertions import (
     assert_array_not_empty,
@@ -9,6 +9,7 @@ from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
 from pydantic import BaseModel
+from typing_extensions import NotRequired, TypedDict
 
 ERR = "error-test"
 

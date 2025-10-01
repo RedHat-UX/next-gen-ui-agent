@@ -3,3 +3,4 @@ jsonpath-ng
 pydantic
 pydantic-core
 typing_extensions
+pyyaml>=5.3.1

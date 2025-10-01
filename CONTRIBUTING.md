@@ -19,6 +19,8 @@ Install [Pants Build](https://www.pantsbuild.org/stable/docs/getting-started/ins
 
 On Linux, you can run `./get-pants.sh` available in the repo root, as described/recommended in the Pants Installation docs.
 
+Install [Podman](https://podman.io/) to be able build images like `Next Gen UI MCP Server`.
+
 ### VSCode
 
 Run Pants export to create a virtual env
@@ -88,6 +90,12 @@ pants run libs/next_gen_ui_llama_stack/agent_test.py
 
 # Run formatter, linter, check
 pants fmt lint check ::
+
+# Build all packages including python and docker
+pants package ::
+
+# Build only Python packages
+pants package --filter-target-type=python_distribution ::
 ```
 
 ### Dependency Management
