@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 from next_gen_ui_langgraph.readme_example import search_movie
-from pydantic import BaseModel
+from pydantic import BaseModel, SecretStr
 
 # Load environment variables
 load_dotenv()
@@ -27,7 +27,7 @@ api_key = os.getenv("LLM_API_KEY")
 
 # Initialize ChatOpenAI with proper argument types
 if api_key:
-    llm = ChatOpenAI(model=model, base_url=base_url, api_key=api_key)
+    llm = ChatOpenAI(model=model, base_url=base_url, api_key=SecretStr(api_key))
 else:
     llm = ChatOpenAI(model=model, base_url=base_url)
 
