@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, EmptyState, EmptyStateBody, Title } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+// @ts-ignore - dynamicui module doesn't have type definitions
 import DynamicUILibrary from 'dynamicui';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -46,7 +47,7 @@ const ComponentNotAvailableMessage: React.FC<{ errors: string[]; config?: any; s
       marginBottom: '16px',
       color: 'var(--pf-v6-global--warning-color--100)'
     }}>
-      <ExclamationTriangleIcon size="lg" />
+      <ExclamationTriangleIcon size={48} />
     </div>
     <Title headingLevel="h4" size="md">
       Component Not Available

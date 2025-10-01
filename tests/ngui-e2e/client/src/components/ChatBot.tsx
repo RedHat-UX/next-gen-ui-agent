@@ -17,7 +17,7 @@ import { useFetch } from "../hooks/useFetch";
 
 export default function ChatBotPage() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
-  const [announcement, setAnnouncement] = useState<string>();
+  const [announcement] = useState<string>();
   const scrollToBottomRef = useRef<HTMLDivElement>(null);
   const isVisible = true;
   const displayMode = ChatbotDisplayMode.fullscreen;
@@ -119,7 +119,7 @@ export default function ChatBotPage() {
             isAttachmentDisabled
             isSendButtonDisabled={loading}
             isCompact
-            onSendMessage={handleSend}
+            onSendMessage={(message: string | number) => handleSend(String(message))}
           />
           <ChatbotFootnote label="ChatBot uses AI. Check for mistakes." />
         </ChatbotFooter>
