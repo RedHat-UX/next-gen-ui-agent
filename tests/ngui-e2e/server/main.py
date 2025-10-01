@@ -3,7 +3,6 @@ import os
 from dotenv import load_dotenv
 
 from fastapi import FastAPI
-from fastapi import Body
 from pydantic import BaseModel
 from langchain_openai import ChatOpenAI
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
