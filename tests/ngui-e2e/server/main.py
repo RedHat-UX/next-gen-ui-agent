@@ -21,7 +21,10 @@ for var in required_env_vars:
 
 # === Setup ===
 # Configuration loaded from environment variables
-llm = ChatOpenAI(model=os.getenv("LLM_MODEL"), base_url=os.getenv("LLM_BASE_URL"))
+llm = ChatOpenAI(
+    model=os.getenv("LLM_MODEL", "llama3.2:3b"),
+    base_url=os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
+)
 
 # Important: use the tool function directly (not call it)
 movies_agent = create_react_agent(
