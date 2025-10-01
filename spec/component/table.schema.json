@@ -1,0 +1,95 @@
+{
+  "$defs": {
+    "DataFieldArrayValue": {
+      "description": "Component Data with fields containing array of simple values obtained from the input_data.",
+      "properties": {
+        "name": {
+          "description": "Field name",
+          "type": "string"
+        },
+        "data_path": {
+          "description": "JSON Path to input data",
+          "type": "string"
+        },
+        "data": {
+          "default": [],
+          "description": "Data matching `data_path` from `input_data`",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    }
+                  ]
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "data_path"
+      ],
+      "title": "DataFieldArrayValue",
+      "type": "object"
+    }
+  },
+  "description": "Component Data for Table.",
+  "properties": {
+    "component": {
+      "const": "table",
+      "default": "table",
+      "type": "string"
+    },
+    "id": {
+      "description": "id of the backend data this component is for",
+      "type": "string"
+    },
+    "title": {
+      "description": "title of the component",
+      "type": "string"
+    },
+    "fields": {
+      "items": {
+        "$ref": "#/$defs/DataFieldArrayValue"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "title",
+    "fields"
+  ],
+  "title": "ComponentDataTable",
+  "type": "object"
+}
