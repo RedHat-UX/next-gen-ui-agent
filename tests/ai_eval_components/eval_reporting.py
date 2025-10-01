@@ -41,6 +41,9 @@ def report_success(
         f_out.write(f"==== DATASET ID {id} ====\n")
         f_out.write("Prompt:\n")
         f_out.write(dsr["user_prompt"])
+        if "input_data_type" in dsr and dsr["input_data_type"]:
+            f_out.write("\nInput data type: ")
+            f_out.write(dsr["input_data_type"])
         f_out.write("\nLLM outputs:\n")
         for llm_output in eval_result.llm_output:
             try:
@@ -116,6 +119,9 @@ def report_err_uiagent(
     )
     f_err.write("\nPrompt:\n")
     f_err.write(dsr["user_prompt"])
+    if "input_data_type" in dsr and dsr["input_data_type"]:
+        f_err.write("\nInput data type: ")
+        f_err.write(dsr["input_data_type"])
     f_err.write("\nLLM outputs:\n")
     for llm_output in eval_result.llm_output:
         try:

@@ -11,5 +11,12 @@
             "array_subscription_direct_long.json"
         ],
         "warn_only": true
+    },
+    {
+        "prompts_file": "prompts_subscriptions.json",
+        "input_data_type": "subscriptions",
+        "backend_data_files": [
+            "array_subscription_direct_long.json"
+        ]
     }
 ]

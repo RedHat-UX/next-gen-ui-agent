@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 from next_gen_ui_agent.model import InferenceBase
 from pydantic import BaseModel, ConfigDict, Field
@@ -36,6 +36,12 @@ class AgentConfig(TypedDict):
     Mapping from `InputData.type` to hand-build `component_type` (aka HBC).
     LLM powered component selection and configuration is skipped for HBC, data are propagated "as is", and only
     rendering is performed by hand-build code registered in the renderer for given `component_type`.
+    """
+
+    input_data_json_wrapping: NotRequired[bool | None]
+    """
+    If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure.
+    If `False`, the agent will never wrap the JSON input data into data type field.
     """
 
 
@@ -95,6 +101,12 @@ class UIComponentMetadata(BaseModel):
     fields: list[DataField]
     """Fields of the component."""
 
+    json_data: Optional[Any] = None
+    """
+    Parsed JSON data that was used to generate the component configuration.
+    May be altered against original InputData by json wrapping!
+    """
+
 
 class UIComponentMetadataHandBuildComponent(UIComponentMetadata):
     """UI Component Mentadata for hand-build component."""
@@ -115,6 +127,15 @@ class Rendition(BaseModel):
 class ComponentSelectionStrategy(ABC):
     """Abstract base class for LLM-based component selection and configuration strategies."""
 
+    input_data_json_wrapping: bool
+    """
+    If `True`, the agent will wrap the JSON input data into data type field if necessary due to its structure.
+    If `False`, the agent will never wrap the JSON input data into data type field.
+    """
+
+    def __init__(self, input_data_json_wrapping: bool):
+        self.input_data_json_wrapping = input_data_json_wrapping
+
     @abstractmethod
     async def select_components(
         self, inference: InferenceBase, input: AgentInput
@@ -125,16 +146,39 @@ class ComponentSelectionStrategy(ABC):
     @abstractmethod
     async def perform_inference(
         self,
-        user_prompt: str,
         inference: InferenceBase,
-        input_data: InputData,
+        user_prompt: str,
+        json_data: Any,
+        input_data_id: str,
     ) -> list[str]:
-        """Perform inference to select UI components and configure them. Multiple LLM calls can be performed and inference results can be returned as a list of strings."""
+        """
+        Perform inference to select UI components and configure them.
+        Multiple LLM calls can be performed and inference results can be returned as a list of strings.
+
+        Args:
+            inference: Inference to use to call LLM by the agent
+            user_prompt: User prompt to be processed
+            json_data: JSON data parsed into python objects to be processed
+            input_data_id: ID of the input data
+
+        Returns:
+            List of strings with LLM inference outputs
+        """
         pass
 
     @abstractmethod
     def parse_infernce_output(
-        self, inference_output: list[str], input_data: InputData
+        self, inference_output: list[str], input_data_id: str
     ) -> UIComponentMetadata:
-        """Parse LLM inference outputs from `perform_inference` and return UIComponentMetadata or throw exception if it can't be constructed because of invalid LLM outputs."""
+        """
+        Parse LLM inference outputs from `perform_inference` and return `UIComponentMetadata`
+        or throw exception if it can't be constructed because of invalid LLM outputs.
+
+        Args:
+            inference_output: List of strings with LLM inference outputs
+            input_data_id: ID of the input data
+
+        Returns:
+            `UIComponentMetadata`
+        """
         pass
