@@ -46,7 +46,41 @@ The server supports multiple AI model configurations:
 - **OpenAI**: Cloud-based AI model inference  
 - **models.corp**: Corporate AI model inference
 
-Model configuration is handled in `main.py` and can be customized based on your environment.
+### Environment Variables
+
+Configure the server using the following environment variables:
+
+- `LLM_MODEL`: The AI model to use (default: "llama3.2:3b")
+- `LLM_BASE_URL`: The base URL for the AI model API (default: "http://localhost:11434/v1")
+- `LLM_API_KEY`: API key for models.corp and other providers that require authentication (optional)
+
+**Quick Setup**: Copy `.env.sample` to `.env` and update the values:
+```bash
+cp .env.sample .env
+# Edit .env with your configuration
+```
+
+### Example Configuration
+
+For **Ollama** (local):
+```bash
+export LLM_MODEL="llama3.2:3b"
+export LLM_BASE_URL="http://localhost:11434/v1"
+```
+
+For **models.corp**:
+```bash
+export LLM_MODEL="your-model-name"
+export LLM_BASE_URL="https://models.corp/api/v1"
+export LLM_API_KEY="your-api-key"
+```
+
+For **OpenAI**:
+```bash
+export LLM_MODEL="gpt-3.5-turbo"
+export LLM_BASE_URL="https://api.openai.com/v1"
+export LLM_API_KEY="your-openai-api-key"
+```
 
 ## Running
 
