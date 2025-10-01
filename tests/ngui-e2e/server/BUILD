@@ -2,3 +2,7 @@
 python_sources(
     name="assistant_api",
 )
+
+python_requirements(
+    name="reqs",
+)
