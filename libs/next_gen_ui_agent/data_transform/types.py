@@ -130,7 +130,7 @@ VIDEO_DATA_PATH_SUFFIXES = (
     "video_url",
     "videolink",
     "video_link",
-    "trailerurl", 
+    "trailerurl",
     "trailer_url",
 )
 
