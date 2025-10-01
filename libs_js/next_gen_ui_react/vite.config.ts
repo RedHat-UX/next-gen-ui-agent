@@ -12,12 +12,21 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
-      external: ["react", "react-dom"],
+      external: (id) => {
+        // Externalize all React-related imports
+        return id === "react" || 
+               id === "react-dom" || 
+               id.startsWith("react/") || 
+               id.startsWith("react-dom/");
+      },
       output: {
         exports: "named",
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
+          "react/jsx-runtime": "React",
+          "react/jsx-dev-runtime": "React",
+          "react-dom/client": "ReactDOM"
         },
       },
     },

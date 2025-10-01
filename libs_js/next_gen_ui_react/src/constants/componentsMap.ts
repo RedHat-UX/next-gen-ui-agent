@@ -3,5 +3,5 @@ import TableWrapper from "../components/TableWrapper";
 
 export const componentsMap = {
   "one-card": OneCardWrapper,
-  table: TableWrapper,
+  "table": TableWrapper,
 };
