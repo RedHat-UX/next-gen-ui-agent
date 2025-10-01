@@ -1,157 +1,135 @@
-# NGUI: End-to-End Demo Application
+# NGUI E2E Client
 
-## ✨ Summary
+[![Module Category](https://img.shields.io/badge/Module%20Category-Testing/Evaluation-darkmagenta)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-This is a complete end-to-end example of the Next Gen UI (NGUI) system with **split server/client architecture**. The application demonstrates AI-driven UI component generation using FastAPI backend and React frontend, making it easier for contributors to understand the full NGUI workflow.
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
----
+React frontend application for the NGUI end-to-end testing application. Demonstrates dynamic UI component rendering and provides a ChatBot interface for interacting with the AI-powered backend.
 
-## 🏗️ Architecture Overview
+## Provides
 
-```
-ngui-e2e/
-├── server/           # FastAPI backend with NGUI agent
-│   ├── main.py      # API server with LangGraph integration
-│   └── BUILD        # Pants build configuration
-└── client/          # React frontend application
-    ├── src/         # React components and hooks
-    ├── package.json # Frontend dependencies
-    └── vite.config.ts # Build configuration
-```
+* React-based frontend application
+* Dynamic UI component rendering using NGUI components
+* ChatBot interface for AI interaction
+* Vite-based development environment
+* Integration with NGUI `dynamicui` package
+* Error boundary handling for robust UI
 
-## 📋 Recent Changes
+## Installation
 
-- **Split Architecture**: Separated backend (`server/`) and frontend (`client/`) for better deployment flexibility
-- **Enhanced Documentation**: Complete setup instructions for both server and client components
-- **Configurable Backend**: The `server/main.py` supports different AI models (Ollama, OpenAI, models.corp)
-- **React Frontend**: Vite-based React app with `OneCard` component demo and ChatBot interface
-- **Deployment Ready**: Prepared for Lightrail (backend) + Vercel/SSR (frontend) deployment
+### Prerequisites
 
----
+1. **Node.js** (version 18 or higher)
+2. **npm** or **yarn** package manager
+3. **`dynamicui` package** - Available locally for development
 
-## ⚡ Quick Start
-
-For experienced users, here's the essential command sequence:
-
-```bash
-# 1. Check/Start Ollama
-ollama serve &  # Start in background if not running
-ollama pull llama3.2:3b  # Ensure model is available (updated model)
-
-# 2. Start Backend API (from ngui-e2e directory)
-cd server
-uvicorn main:app --reload
-
-# 3. Start Frontend (in another terminal, from ngui-e2e directory)
-cd client
-npm install && npm run dev
-```
-
----
-
-## 🧪 Detailed Setup Instructions
-
-Follow these steps to test the complete chat, AI, and UI generation flow:
-
-1.  **Install Ollama**:
-
-```bash
-# Install Ollama if not already installed
-# Visit: https://ollama.com/download
-
-# Pull the required model for this demo
-ollama pull llama3.2:3b
-```
-
-2.  **Start the Backend**:
-
-First, ensure Ollama is running (required for AI model inference):
-
-```bash
-# Check if Ollama is running
-curl -s http://localhost:11434/api/tags > /dev/null
-if [ $? -ne 0 ]; then
-    echo "Starting Ollama..."
-    ollama serve &
-    sleep 3  # Wait for Ollama to start
-fi
-
-# Pull required model if not already available
-ollama pull llama3.2:3b
-```
-
-Set up Python environment in project root directory:
-
-```bash
-pants export
-# change `3.12.11` in the path to your python version, or to `latest` for venv symlink created from `CONTRIBUTING.md`!
-source dist/export/python/virtualenvs/python-default/3.12.11/bin/activate
-export PYTHONPATH=./libs:./tests:$PYTHONPATH
-```
-
-Start the API server:
-
-```bash
-cd tests/ngui-e2e/server
-uvicorn main:app --reload
-```
-
-You can check it's running under [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
-
-3.  **Start the Frontend**:
-
-Navigate to the `client` folder and run:
+### Install Dependencies
 
 ```bash
 cd tests/ngui-e2e/client
 npm install
 npm link dynamicui
+```
+
+**Note**: The `dynamicui` package will be available via npm in the future. For now, it's available locally for development purposes.
+
+## Configuration
+
+The client is configured to connect to the backend server running on `localhost:8000`. This can be modified in the API configuration if needed.
+
+### Vite Configuration
+
+The application uses Vite for development and building. Configuration is in `vite.config.ts`:
+
+- Development server runs on port `5173`
+- Proxy configuration for API calls to backend
+- TypeScript support enabled
+
+## Running
+
+### Development Mode
+
+```bash
+cd tests/ngui-e2e/client
 npm run dev
 ```
 
-Note: It's expected you already build `dynamicui` package located in [libs_js/next_gen_ui_react](/libs_js/next_gen_ui_react/)
+The application will be available at [http://localhost:5173](http://localhost:5173)
 
----
+### Build for Production
 
-## 🚀 Benefits
+```bash
+npm run build
+```
 
-- **Easy Setup**: New contributors can now get up and running quickly.
-- **Flexible Configuration**: The system is more adaptable, allowing for different AI models to be used.
-- **Complete Working Example**: Provides a clear, functional reference for the entire NGUI system.
-- **Clear Documentation**: The improved documentation simplifies the setup and testing process.
+Built files will be available in the `dist/` directory.
 
----
+## Application Structure
 
-## 🔧 Troubleshooting
+```
+src/
+├── components/
+│   ├── ChatBot.tsx          # Main chat interface component
+│   ├── DynamicComponent.tsx # Dynamic UI component renderer
+│   └── ErrorBoundary.tsx    # Error handling component
+├── hooks/
+│   └── useFetch.tsx         # Custom hook for API calls
+├── App.tsx                  # Main application component
+└── main.tsx                 # Application entry point
+```
+
+## Features
+
+- **Dynamic Component Rendering**: Renders UI components generated by the AI backend
+- **Chat Interface**: Interactive chat interface for testing AI responses
+- **Error Handling**: Robust error boundary for graceful error handling
+- **Responsive Design**: Modern UI with responsive design patterns
+
+## Troubleshooting
 
 ### Common Issues
 
-**1. CORS Error: "Access to fetch blocked by CORS policy"**
-- **Cause**: Ollama is not running or the backend crashed before sending CORS headers
-- **Solution**: Ensure Ollama is running first with `ollama serve`, then restart the backend
+**1. Module Not Found: "dynamicui"**
+- **Cause**: The `dynamicui` package is not built or linked properly
+- **Solution**: Build the package from `libs_js/next_gen_ui_react/` and run `npm link dynamicui`
 
-**2. API Connection Error: "Connection refused"**
-- **Cause**: Ollama service stopped or not accessible on port 11434
-- **Solution**: Start Ollama with `ollama serve` and verify it's running with `curl http://localhost:11434/api/tags`
+**2. API Connection Errors**
+- **Cause**: Backend server is not running or not accessible
+- **Solution**: Ensure the backend server is running on `localhost:8000`
 
-**3. Backend 500 Error: "No data transformer found for component"**
-- **Cause**: LLM generated invalid component names
-- **Solution**: This is typically resolved by ensuring Ollama is properly running and the model is loaded
-
-**4. Port Conflicts**
-- **Backend runs on**: `localhost:8000`
+**3. Port Conflicts**
 - **Frontend runs on**: `localhost:5173` (default Vite dev server)
-- **Ollama runs on**: `localhost:11434`
+- **Backend runs on**: `localhost:8000`
 
 ### Verification Steps
 
 ```bash
-# Check Ollama is running
-curl -s http://localhost:11434/api/tags
+# Check if frontend is running
+curl -I http://localhost:5173
 
-# Check backend is running
+# Check if backend is accessible from frontend
 curl -I http://localhost:8000/docs
-
-# Test API endpoint
-curl -X POST http://localhost:8000/generate -H "Content-Type: application/json" -d '{"prompt": "Tell me about Toy Story"}'
 ```
+
+## Development
+
+### Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+### Dependencies
+
+- **React** - UI framework
+- **Vite** - Build tool and dev server
+- **TypeScript** - Type safety
+- **dynamicui** - NGUI React components package
+
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ngui-e2e/client)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
