@@ -12,10 +12,14 @@ from next_gen_ui_agent.data_transform.hand_build_component import (
     HandBuildComponentDataTransformer,
 )
 from next_gen_ui_agent.data_transform.json_schema_config import CustomGenerateJsonSchema
+from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
+from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.types import (
     ComponentDataHandBuildComponent,
     ComponentDataImage,
     ComponentDataOneCard,
+    ComponentDataSetOfCards,
+    ComponentDataTable,
     ComponentDataVideo,
 )
 
@@ -105,6 +109,16 @@ def regenerate_schemas() -> None:
     save_schema(
         VideoPlayerDataTransformer.COMPONENT_NAME,
         ComponentDataVideo.model_json_schema(schema_generator=CustomGenerateJsonSchema),
+    )
+    save_schema(
+        TableDataTransformer.COMPONENT_NAME,
+        ComponentDataTable.model_json_schema(schema_generator=CustomGenerateJsonSchema),
+    )
+    save_schema(
+        SetOfCardsDataTransformer.COMPONENT_NAME,
+        ComponentDataSetOfCards.model_json_schema(
+            schema_generator=CustomGenerateJsonSchema
+        ),
     )
     save_schema(
         HandBuildComponentDataTransformer.COMPONENT_NAME,

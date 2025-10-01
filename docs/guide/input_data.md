@@ -78,7 +78,7 @@ are wrapped as:
 }
 ```
 
-### One `Object` input data
+## One `Object` input data
 
 Correct `Object` input data:
 ```json
@@ -107,7 +107,7 @@ And because this object is not stored in any field, LLM do not know so well what
 
 As of UI Agent `0.3.0`, [automatic JSON wrapping](#automatic-json-wrapping) is applied if enabled and data `type` is provided to prevent problems with this kind of data.
 
-### `Array of objects` input data
+## `Array of objects` input data
 
 Correct `Array of objects` input data:
 ```json
