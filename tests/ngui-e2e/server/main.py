@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Any, Optional
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
@@ -58,7 +59,10 @@ class GenerateRequest(BaseModel):
 
 
 def create_error_response(
-    error: str, details: str, raw_response: str = None, suggestion: str = None
+    error: str,
+    details: str,
+    raw_response: Optional[Any] = None,
+    suggestion: Optional[str] = None,
 ) -> dict:
     """Helper function to create standardized error responses."""
     response = {

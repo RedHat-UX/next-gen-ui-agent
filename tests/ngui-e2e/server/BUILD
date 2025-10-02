@@ -3,5 +3,7 @@ python_sources(
     name="assistant_api",
     dependencies=[
         "libs/next_gen_ui_langgraph:lib",
+        "libs/3rdparty/python:langchain",
+        "libs/3rdparty/python:reqs",
     ],
 )
