@@ -6,6 +6,9 @@ python_sources(
 # This target sets the metadata for all the Python test files in this directory.
 python_tests(
     name="tests",
+    dependencies=[
+        "libs/3rdparty/python:pytest",
+    ],
 )
 
 # This target allows us to build a `.whl` bdist and a `.tar.gz` sdist by auto-generating

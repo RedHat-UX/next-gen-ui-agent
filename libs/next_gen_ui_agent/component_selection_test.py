@@ -62,12 +62,14 @@ async def test_component_selection_run_OK() -> None:
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
     inference = LangChainModelInference(llm)
 
-    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    component_selection = OnestepLLMCallComponentSelectionStrategy(
+        input_data_json_wrapping=False
+    )
     result = await component_selection.component_selection_run(
         inference, user_input, input_data
     )
     assert result.component == "one-card"
-    # assert json_data are not wrapped even it is enabled and type is provided, as there is only one item in the array
+    # assert json_data are not wrapped as it is disabled
     assert result.json_data == json.loads(movies_data)
 
 
