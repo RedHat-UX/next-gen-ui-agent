@@ -39,6 +39,12 @@ Component identification: [`video-player`](../../spec/component.md#video-player)
 
 Video player is UI block to play a single video from [video URL provided in the input data](../input_data.md#video-url).
 
+Title is also generated, and link pointing to the video cover image for YouTube videos is provided.
+
+!!!warning
+    Ability to play videos from video service url's (YouTube, Vimeo) or support for video file 
+    formats (`avi`, `mpeg`, `mov`, ...) can vary in individual [UI renderers](../renderer/index.md)!
+
 Example rendering by Red Hat Design System for a prompt `Play trailer of Toy Story movie`:
 
 ![Video Player Data UI Block rendering by Red Hat Design System](../../img/data_ui_block_video.jpg "Video Player Data UI Block rendering by Red Hat Design System")

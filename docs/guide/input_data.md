@@ -241,7 +241,12 @@ Field with Image URL is important for [`image`](data_ui_blocks/dynamic_component
 
 ### Video URL
 
-**ToDo** [`video-player`](data_ui_blocks/dynamic_components.md#video-player) component impl
+To interpret data field as an url pointing to the video, it must match any of this:
+
+* data field value must be http/s url containing `.youtube.` or `youtu.be`
+* data field value must be http/s url and data field name must end with [extension defined in `VIDEO_DATA_PATH_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
+
+Field with Video URL is important for [`video-player`](data_ui_blocks/dynamic_components.md#video-player) component.
 
 ### Other URL
 
