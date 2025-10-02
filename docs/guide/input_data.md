@@ -12,9 +12,10 @@ Results for unrelated data are not guaranteed.
 ## `InputData` fields
 
 * `data` - string with structured backend data to be processed to UI component
-* `type` - is a string identifier of the data piece type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
+* `type` - optional string identifier of the data piece type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
    to define and use these types, but it might be a good idea to use tree like hierarchy here, and descriebe business meaning of the data. Other option is 
-   to use name of the LLM tool used to load backend data here, as implemented in some of our AI framework bindings.
+   to use name of the LLM tool used to load backend data here, as implemented in some of our AI framework bindings. 
+   It is used to identify data type for multiple features like configurable component selection, input data transformation, input data JSON wrapping etc.
 
 ## JSON format
 

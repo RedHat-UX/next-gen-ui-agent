@@ -11,10 +11,10 @@ This module contains UI Agent Core functionality and frameworks.
 
 * `NextGenUIAgent` providing agent configuration and methods for individual processing steps
 * Produced *UI Data Blocks*:
-    * [LLM selected and configured dynamic componets](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)
+    * [LLM selected and configured dynamic components](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)
         * Supported: `one-card`, `image`, `video-player`
         * Tech-Preview: `set-of-cards`, `table`
-    * [Hand build components](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/hand_build_components/)
+    * [Hand Build Components](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/hand_build_components/)
 * Extensible framework for "data transformation" step
 * Plugable "UI renderer" framework for UI components rendering
     * Default `json` renderer used to send definitions to client-side renderers
