@@ -160,7 +160,7 @@ class NextGenUIMCPAgent:
             except Exception as e:
                 logger.exception("Error during UI generation")
                 await ctx.error(f"UI generation failed: {e}")
-                return [{"error": str(e), "name": "error"}]
+                raise e
 
         @self.mcp.resource("system://info")
         def get_system_info() -> str:

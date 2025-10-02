@@ -13,7 +13,7 @@ from next_gen_ui_agent.types import AgentConfig, InputData, UIComponentMetadata
 from next_gen_ui_mcp.__main__ import add_health_routes
 from next_gen_ui_mcp.agent import NextGenUIMCPAgent
 from next_gen_ui_testing.data_set_movies import find_movie
-from next_gen_ui_testing.model import MockedInference
+from next_gen_ui_testing.model import MockedExceptionInference, MockedInference
 
 logger = logging.getLogger(__name__)
 
@@ -281,6 +281,36 @@ async def test_mcp_agent_system_info_resource() -> None:
     assert system_info["agent_name"] == "NextGenUIMCPAgent"
     assert system_info["component_system"] == "rhds"
     assert "capabilities" in system_info
+
+
+@pytest.mark.asyncio
+async def test_mcp_inference_error() -> None:
+    from unittest.mock import patch
+
+    inference = MockedExceptionInference(Exception("call model test error"))
+
+    # Create agent with external inference (not using MCP sampling)
+    ngui_agent = NextGenUIMCPAgent(
+        config=AgentConfig(component_system="json", inference=inference),
+        name="TestAgentExternal",
+    )
+
+    # Get the FastMCP server
+    mcp_server = ngui_agent.get_mcp_server()
+    input_data: List[InputData] = [{"id": "test_id", "data": '{"a": "b"}'}]
+    with patch.object(Context, "info", new_callable=AsyncMock) as mock_info:
+        with patch.object(Context, "error", new_callable=AsyncMock) as mock_error:
+            with pytest.raises(Exception) as excinfo:
+                await mcp_server.call_tool(
+                    "generate_ui",
+                    {
+                        "user_prompt": "Show me details about Toy Story movie with external inference",
+                        "input_data": input_data,
+                    },
+                )
+            assert "call model test error" in str(excinfo.value)
+    mock_info.assert_any_call("Using external inference provider...")
+    mock_error.assert_any_call("UI generation failed: call model test error")
 
 
 def test_liveness() -> None:
