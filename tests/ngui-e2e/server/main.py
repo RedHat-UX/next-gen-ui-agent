@@ -57,6 +57,24 @@ class GenerateRequest(BaseModel):
     prompt: str
 
 
+def create_error_response(
+    error: str, details: str, raw_response: str = None, suggestion: str = None
+) -> dict:
+    """Helper function to create standardized error responses."""
+    response = {
+        "error": error,
+        "details": details,
+    }
+
+    if raw_response is not None:
+        response["raw_response"] = str(raw_response)
+
+    if suggestion:
+        response["suggestion"] = suggestion
+
+    return response
+
+
 @app.post("/generate")
 async def generate_response(request: GenerateRequest):
     try:
@@ -64,10 +82,9 @@ async def generate_response(request: GenerateRequest):
 
         # Validate input
         if not prompt or not prompt.strip():
-            return {
-                "error": "Invalid input",
-                "details": "Prompt cannot be empty or whitespace only",
-            }
+            return create_error_response(
+                "Invalid input", "Prompt cannot be empty or whitespace only"
+            )
 
         print(f"=== Processing Prompt: {prompt} ===")
 
@@ -81,19 +98,17 @@ async def generate_response(request: GenerateRequest):
 
             # Validate movie response
             if not movie_response or not movie_response.get("messages"):
-                return {
-                    "error": "Movies agent failed",
-                    "details": "Movies agent returned empty or invalid response",
-                    "raw_response": str(movie_response),
-                }
+                return create_error_response(
+                    "Movies agent failed",
+                    "Movies agent returned empty or invalid response",
+                    movie_response,
+                )
 
         except Exception as e:
             print(f"ERROR: Movies agent failed: {e}")
-            return {
-                "error": "Movies agent error",
-                "details": f"Failed to get movie information: {str(e)}",
-                "type": type(e).__name__,
-            }
+            return create_error_response(
+                "Movies agent error", f"Failed to get movie information: {str(e)}"
+            )
 
         # Step 2: Pass to Next Gen UI agent
         print("Step 2: Invoking NGUI agent...")
@@ -103,43 +118,41 @@ async def generate_response(request: GenerateRequest):
         # Step 3: Comprehensive validation of NGUI response
         if not ngui_response:
             print("ERROR: NGUI response is None")
-            return {
-                "error": "No UI response",
-                "details": "NGUI agent returned None",
-                "raw_response": str(ngui_response),
-            }
+            return create_error_response(
+                "No UI response", "NGUI agent returned None", ngui_response
+            )
 
         if not isinstance(ngui_response, dict):
             print("ERROR: NGUI response is not a dictionary")
-            return {
-                "error": "Invalid UI response format",
-                "details": f"Expected dictionary, got {type(ngui_response).__name__}",
-                "raw_response": str(ngui_response),
-            }
+            return create_error_response(
+                "Invalid UI response format",
+                f"Expected dictionary, got {type(ngui_response).__name__}",
+                ngui_response,
+            )
 
         if "renditions" not in ngui_response:
             print("ERROR: No renditions key in NGUI response")
-            return {
-                "error": "Missing renditions",
-                "details": "NGUI response missing 'renditions' key",
-                "raw_response": str(ngui_response),
-            }
+            return create_error_response(
+                "Missing renditions",
+                "NGUI response missing 'renditions' key",
+                ngui_response,
+            )
 
         renditions = ngui_response["renditions"]
         if not renditions:
             print("ERROR: Empty renditions list")
-            return {
-                "error": "No UI components generated",
-                "details": "NGUI agent returned empty renditions array",
-            }
+            return create_error_response(
+                "No UI components generated",
+                "NGUI agent returned empty renditions array",
+            )
 
         if not isinstance(renditions, list):
             print("ERROR: Renditions is not a list")
-            return {
-                "error": "Invalid renditions format",
-                "details": f"Expected list, got {type(renditions).__name__}",
-                "raw_response": str(ngui_response),
-            }
+            return create_error_response(
+                "Invalid renditions format",
+                f"Expected list, got {type(renditions).__name__}",
+                ngui_response,
+            )
 
         # Step 4: Extract and validate rendition content
         first_rendition = renditions[0]
@@ -170,41 +183,41 @@ async def generate_response(request: GenerateRequest):
                         print(f"Extracted content from regex: {rendition_content}")
                     else:
                         print("ERROR: Could not extract content from rendition string")
-                        return {
-                            "error": "Invalid rendition content",
-                            "details": "Could not extract content from rendition object",
-                            "raw_response": str(first_rendition),
-                        }
+                        return create_error_response(
+                            "Invalid rendition content",
+                            "Could not extract content from rendition object",
+                            first_rendition,
+                        )
             except Exception as e:
                 print(f"ERROR: Failed to extract content from rendition: {e}")
-                return {
-                    "error": "Invalid rendition format",
-                    "details": f"Failed to extract content from rendition object: {str(e)}",
-                    "raw_response": str(first_rendition),
-                }
+                return create_error_response(
+                    "Invalid rendition format",
+                    f"Failed to extract content from rendition object: {str(e)}",
+                    first_rendition,
+                )
         if not rendition_content:
             print("ERROR: No content in rendition")
-            return {
-                "error": "Empty component content",
-                "details": "Rendition missing 'content' field",
-                "raw_response": str(first_rendition),
-            }
+            return create_error_response(
+                "Empty component content",
+                "Rendition missing 'content' field",
+                first_rendition,
+            )
 
         if not isinstance(rendition_content, str):
             print("ERROR: Rendition content is not a string")
-            return {
-                "error": "Invalid content format",
-                "details": f"Expected string, got {type(rendition_content).__name__}",
-                "raw_response": str(rendition_content),
-            }
+            return create_error_response(
+                "Invalid content format",
+                f"Expected string, got {type(rendition_content).__name__}",
+                rendition_content,
+            )
 
         if not rendition_content.strip():
             print("ERROR: Rendition content is empty or whitespace")
-            return {
-                "error": "Empty component configuration",
-                "details": "Rendition content is empty or contains only whitespace",
-                "raw_response": rendition_content,
-            }
+            return create_error_response(
+                "Empty component configuration",
+                "Rendition content is empty or contains only whitespace",
+                rendition_content,
+            )
 
         print(f"Rendition content: {rendition_content}")
 
@@ -215,38 +228,38 @@ async def generate_response(request: GenerateRequest):
 
             # Additional validation of parsed response
             if not isinstance(parsed_response, dict):
-                return {
-                    "error": "Invalid component configuration",
-                    "details": f"Component config must be an object, got {type(parsed_response).__name__}",
-                    "raw_content": rendition_content,
-                }
+                return create_error_response(
+                    "Invalid component configuration",
+                    f"Component config must be an object, got {type(parsed_response).__name__}",
+                    rendition_content,
+                )
 
             if not parsed_response:
-                return {
-                    "error": "Empty component configuration",
-                    "details": "Component configuration object is empty",
-                    "raw_content": rendition_content,
-                }
+                return create_error_response(
+                    "Empty component configuration",
+                    "Component configuration object is empty",
+                    rendition_content,
+                )
 
             return {"response": parsed_response}
 
         except json.JSONDecodeError as e:
             print(f"ERROR: Failed to parse JSON response: {e}")
-            return {
-                "error": "Invalid JSON configuration",
-                "details": f"JSON parse error: {str(e)}",
-                "raw_content": rendition_content,
-                "suggestion": "The component configuration is not valid JSON",
-            }
+            return create_error_response(
+                "Invalid JSON configuration",
+                f"JSON parse error: {str(e)}",
+                rendition_content,
+                "The component configuration is not valid JSON",
+            )
 
     except Exception as e:
         print(f"ERROR: Unexpected error in generate_response: {e}")
         import traceback
 
         print(f"Full traceback: {traceback.format_exc()}")
-        return {
-            "error": "Internal server error",
-            "details": str(e),
-            "type": type(e).__name__,
-            "suggestion": "Please try again or contact support if the issue persists",
-        }
+        return create_error_response(
+            "Internal server error",
+            str(e),
+            None,
+            "Please try again or contact support if the issue persists",
+        )
