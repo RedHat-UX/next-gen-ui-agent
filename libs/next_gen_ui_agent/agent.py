@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Optional
+from typing import Any, Optional
 
 from next_gen_ui_agent.agent_config import parse_config_yaml
 from next_gen_ui_agent.component_selection import (
@@ -14,6 +14,9 @@ from next_gen_ui_agent.data_transformation import enhance_component_by_input_dat
 from next_gen_ui_agent.design_system_handler import (
     design_system_handler as _design_system_handler,
 )
+from next_gen_ui_agent.input_data_transform.input_data_transform import (
+    perform_input_data_transformation,
+)
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
 from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
@@ -22,6 +25,7 @@ from next_gen_ui_agent.types import (
     AgentInput,
     ComponentSelectionStrategy,
     InputData,
+    InputDataInternal,
     Rendition,
     UIComponentMetadata,
     UIComponentMetadataHandBuildComponent,
@@ -101,6 +105,12 @@ class NextGenUIAgent:
         ret: list[UIComponentMetadata] = []
         to_dynamic_selection: list[InputData] = []
         for input_data in input["input_data"]:
+            # TODO transformer selection from config
+            input_data_transformer_name = "json"
+            json_data = perform_input_data_transformation(
+                input_data_transformer_name, input_data.get("data")
+            )
+
             # look for requested HBC component type first
             hbc_type = (
                 input_data.get("hand_build_component_type")
@@ -108,15 +118,23 @@ class NextGenUIAgent:
                 else None
             )
             if hbc_type:
-                hbc = self._construct_hbc_metadata(hbc_type, input_data)
+                hbc = self._construct_hbc_metadata(hbc_type, input_data, json_data)
             else:
                 # try to find HBC from configured mapping
-                hbc = self._select_hand_build_component(input_data)
+                hbc = self._select_hand_build_component(input_data, json_data)
 
             if hbc:
                 ret.append(hbc)
             else:
-                to_dynamic_selection.append(input_data)
+                to_dynamic_selection.append(
+                    InputDataInternal(
+                        {
+                            "id": input_data["id"],
+                            "data": input_data["data"],
+                            "json_data": json_data,
+                        }
+                    )
+                )
 
         if to_dynamic_selection:
             inference = inference if inference else self.config.get("inference")
@@ -175,19 +193,19 @@ class NextGenUIAgent:
         return _design_system_handler(components, factory)
 
     def _select_hand_build_component(
-        self, input_data: InputData
+        self, input_data: InputData, json_data: Any | None = None
     ) -> Optional[UIComponentMetadataHandBuildComponent]:
         """Select hand-build component based on InputData type and configured mapping."""
         if self._hand_build_components_mapping and ("type" in input_data):
             type = input_data["type"]
             if type and type in self._hand_build_components_mapping:
                 return self._construct_hbc_metadata(
-                    self._hand_build_components_mapping[type], input_data
+                    self._hand_build_components_mapping[type], input_data, json_data
                 )
         return None
 
     def _construct_hbc_metadata(
-        self, component_type: str, input_data: InputData
+        self, component_type: str, input_data: InputData, json_data: Any | None = None
     ) -> Optional[UIComponentMetadataHandBuildComponent]:
         """Construct hand-build component metadata for component_type and input data."""
         return UIComponentMetadataHandBuildComponent.model_validate(
@@ -197,5 +215,6 @@ class NextGenUIAgent:
                 "component": "hand-build-component",
                 "component_type": component_type,
                 "fields": [],
+                "json_data": json_data,
             }
         )

@@ -66,6 +66,12 @@ class InputData(TypedDict):
     """
 
 
+class InputDataInternal(InputData):
+    """Input Data used in internal call of component selection. Contain parsed JSON data."""
+
+    json_data: Any
+
+
 class AgentInput(TypedDict):
     """Agent Input."""
 
@@ -140,7 +146,15 @@ class ComponentSelectionStrategy(ABC):
     async def select_components(
         self, inference: InferenceBase, input: AgentInput
     ) -> list[UIComponentMetadata]:
-        """Select UI components based on input data and user prompt."""
+        """
+        Select UI components based on input data and user prompt.
+        Args:
+            inference: Inference to use to call LLM by the agent
+            input: Agent input
+            json_data: optional JSON data parsed into python objects to be processed
+        Returns:
+            List of `UIComponentMetadata`
+        """
         pass
 
     @abstractmethod
