@@ -14,6 +14,7 @@ python_tests(
         ":lib",
         "libs/3rdparty/python:langchain",
         "libs/3rdparty/python:langgraph",
+        "libs/3rdparty/python:pytest",
     ],
 )
 

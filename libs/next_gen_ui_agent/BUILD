@@ -16,7 +16,11 @@ python_tests(
     sources=[
         "**/*_test.py",
     ],
-    dependencies=[":lib", ":test_resources"],
+    dependencies=[
+        ":lib",
+        ":test_resources",
+        "libs/3rdparty/python:pytest",
+    ],
 )
 
 resources(

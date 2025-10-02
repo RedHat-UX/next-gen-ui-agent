@@ -1,8 +1,10 @@
 # AI selected and configured dynamic components
 
-These fully AI selected and generated *Data UI Blocks* are now supported by *UI Agent*. 
+These fully AI selected and configured *Data UI Blocks* are now supported by *UI Agent*. 
 
-## Card
+## Components for [one `Object` input data](../input_data.md#one-object-input-data)
+
+### Card
 
 Component identification: [`one-card`](../../spec/component.md#one-card)
 
@@ -10,20 +12,20 @@ Card is UI block that displays:
 
   * Title
   * Facts list
-  * Image (if present in input data)
+  * Image (if [image url is present in the input data](../input_data.md#image-url) and selected to be shown)
 
 Facts are name-value pairs, where the `name` is AI generated and the `value` is gathered from agent's input data.
-Value can be simple text or number. List (array) of values is supported as well.
+Value can be simple text or number etc. List (array) of values is supported as well.
 
 Example rendering by Red Hat Design System for user prompt `Tell me details about Toy Story`:
 
 ![Card Data UI Block rendering by Red Hat Design System](../../img/data_ui_block_card.png "Card Data UI Block rendering by Red Hat Design System")
 
-## Image
+### Image
 
 Component identification: [`image`](../../spec/component.md#image)
 
-Image is UI block to display a single image with a title.
+Image is UI block to display a single image with a title, based on [image url present in the input data](../input_data.md#image-url).
 
 Example rendering by Red Hat Design System for a prompt `Show me poster of Toy Story movie`:
 
@@ -31,12 +33,49 @@ Example rendering by Red Hat Design System for a prompt `Show me poster of Toy S
 
 Image is found by agent from backend-data either by field value or by field name. See the [spec/component/image.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/image.schema.json) for more details.
 
-## Video Player
+### Video Player
 
 Component identification: [`video-player`](../../spec/component.md#video-player)
 
-Video player is UI block to play a single video from provided URL (only youtube supported ATM).
+Video player is UI block to play a single video from [video URL provided in the input data](../input_data.md#video-url).
+
+Title is also generated, and link pointing to the video cover image for YouTube videos is provided.
+
+!!!warning
+    Ability to play videos from video service url's (YouTube, Vimeo) or support for video file 
+    formats (`avi`, `mpeg`, `mov`, ...) can vary in individual [UI renderers](../renderer/index.md)!
 
 Example rendering by Red Hat Design System for a prompt `Play trailer of Toy Story movie`:
 
 ![Video Player Data UI Block rendering by Red Hat Design System](../../img/data_ui_block_video.jpg "Video Player Data UI Block rendering by Red Hat Design System")
+
+## Components for [`Array of objects` input data](../input_data.md#array-of-objects-input-data)
+
+### Set Of Cards
+
+[![Status](https://img.shields.io/badge/Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
+
+Component identification: [`set-of-cards`](../../spec/component.md#set-of-cards)
+
+Set of Card is UI block that displays:
+
+  * Title
+  * Set of multiple Card components, each showing the same list of facts
+
+Facts are name-value pairs, where the `name` is AI generated and the `value` is gathered from agent's input data.
+Value can be simple text or number etc. List (array) of values is supported as well.
+
+Layout for this set of cards has to be provided by frontend application.
+
+### Table
+
+[![Status](https://img.shields.io/badge/Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
+
+Component identification: [`table`](../../spec/component.md#table)
+
+Table is UI block that displays:
+
+  * Title
+  * Table with AI selected Columns with AI generated names, and rows of values gathered from agent's input data.
+
+Individual cell value can be simple text or number etc. List (array) of values is supported as well.

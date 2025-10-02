@@ -33,7 +33,10 @@ DataFieldSimpleValueDataType = list[DataFieldBasicDataType]
 
 
 class DataFieldSimpleValue(DataFieldBase):
-    """Component Data with fields containing simple value obtained from the input_data."""
+    """
+    Component field description with data containing one value obtained from the input_data to be rendered as a dynamic component of the "one object" type.
+    The data value can be simple value or arrays of simple values to be rendered as a one field of the UI component.
+    """
 
     data: DataFieldSimpleValueDataType = Field(
         default=[], description="Data matching `data_path` from `input_data`"
@@ -54,7 +57,11 @@ DataFieldArrayValueDataType = list[
 
 
 class DataFieldArrayValue(DataFieldBase):
-    """Component Data with fields containing array of simple values obtained from the input_data."""
+    """
+    Component field description with data containing array of values obtained from the input_data to be rendered as a dynamic component of the "array of objects" type.
+    Every item of the data array should be rendered as a table row or a card in the set of cards UI component.
+    Individual data values in the array can be simple values or arrays of simple values to be rendered as a one field of the row/card.
+    """
 
     data: DataFieldArrayValueDataType = Field(
         default=[], description="Data matching `data_path` from `input_data`"

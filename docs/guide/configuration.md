@@ -16,18 +16,18 @@ The `inference` parameter accepts any class that extends `InferenceBase`. The Ne
 
 ### `component_system` [`str`, optional]
 
-Component system for rendering (default: `"json"`)
+[UI Component system](renderer/index.md) for rendering (default: `"json"`)
 
 ### `unsupported_components` [`bool`, optional]
 
-Whether to allow unsupported UI components (default: `False`)
+Whether to allow unsupported/Tech Preview [dynamic UI components](data_ui_blocks/dynamic_components.md) to be selected by LLM (default: `False`)
 
 ### `component_selection_strategy` [`str`, optional]
 
 Strategy for component selection
 
 - `one_llm_call` / `default`: Uses single LLM call for component selection and configuration
-- `two_llm_calls`: Uses two-step LLM process - first selects component type, then configures it
+- `two_llm_calls`: Uses two-step LLM process - first selects component type, second configures it - *highly experimental feature!*
 
 ### `input_data_json_wrapping` [`bool`, optional]
 

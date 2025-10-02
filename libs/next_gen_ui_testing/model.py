@@ -11,3 +11,14 @@ class MockedInference(InferenceBase):
 
     async def call_model(self, system_msg: str, prompt: str) -> str:
         return self.response.model_dump_json()
+
+
+class MockedExceptionInference(InferenceBase):
+    """Mocked Inference to throw an error."""
+
+    def __init__(self, exception: Exception):
+        super().__init__()
+        self.exception = exception
+
+    async def call_model(self, system_msg: str, prompt: str) -> str:
+        raise self.exception

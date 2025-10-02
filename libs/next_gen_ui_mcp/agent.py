@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, List, Literal
+from typing import Annotated, Any, Dict, List, Literal
 
 from mcp import types
 from mcp.server.fastmcp import Context, FastMCP
@@ -8,6 +8,7 @@ from mcp.server.session import ServerSession
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData
+from pydantic import Field
 
 logger = logging.getLogger(__name__)
 
@@ -80,10 +81,25 @@ class NextGenUIMCPAgent:
     def _setup_mcp_tools(self):
         """Set up MCP tools for the agent."""
 
-        @self.mcp.tool()
+        @self.mcp.tool(
+            description=(
+                "Generate UI components from user prompt and input data. "
+                "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+            ),
+        )
         async def generate_ui(
-            user_prompt: str,
-            input_data: List[InputData],
+            user_prompt: Annotated[
+                str,
+                Field(
+                    description="Original user query without any changes. Do not generate this."
+                ),
+            ],
+            input_data: Annotated[
+                List[InputData],
+                Field(
+                    description="Input Data. JSON Array of objects with 'id' and 'data' keys. Do not generate this."
+                ),
+            ],
             ctx: Context[ServerSession, None],
         ) -> List[Dict[str, Any]]:
             """Generate UI components from user prompt and input data.
@@ -160,7 +176,7 @@ class NextGenUIMCPAgent:
             except Exception as e:
                 logger.exception("Error during UI generation")
                 await ctx.error(f"UI generation failed: {e}")
-                return [{"error": str(e), "name": "error"}]
+                raise e
 
         @self.mcp.resource("system://info")
         def get_system_info() -> str:

@@ -94,7 +94,7 @@ Example JSON output:
 [Dynamic Components Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)  
 [Array of objects input data Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/#array-of-objects-input-data)
 
-### Set Of cards
+### Set Of Cards
 
 [![Status](https://img.shields.io/badge/Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
