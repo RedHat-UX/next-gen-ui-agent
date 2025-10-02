@@ -9,7 +9,9 @@ remote_cache_read = false
 remote_cache_write = false
 
 [pytest]
-args = ["-vv", "--no-header"]
+args = ["--no-header", "-vv", "--strict-markers"]
+execution_slot_var = "TEST_EXECUTION_SLOT"
+requirements = ["//libs/3rdparty/python:pytest"]
 
 [tailor]
 ignore_paths = [
