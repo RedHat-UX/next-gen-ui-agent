@@ -14,7 +14,7 @@ Next Gen UI Agent utilises [Stevedore Plugin framework](https://docs.openstack.o
 * [LLM selected and configured dynamic componets](https://redhat-ux.github.io/next-gen-ui-agent/guide/dynamic_components/)
     * Supported: `one-card`, `image`, `video-player`
     * Tech-Preview: `set-of-cards`, `table`
-* `video-player` supports only YouTube video url's
+* `video-player` uses [`Video embed` element](https://ux.redhat.com/elements/video-embed/) which supports YouTube video url's only
 
 ## Installation
 
