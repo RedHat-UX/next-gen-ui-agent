@@ -313,6 +313,26 @@ async def test_mcp_inference_error() -> None:
     mock_error.assert_any_call("UI generation failed: call model test error")
 
 
+@pytest.mark.asyncio
+async def test_tool_description() -> None:
+    ngui_agent = NextGenUIMCPAgent(name="TestAgent")
+    mcp_server = ngui_agent.get_mcp_server()
+    tools = await mcp_server.list_tools()
+    tool_generate_ui = tools[0]
+    assert (
+        tool_generate_ui.inputSchema["properties"]["user_prompt"]["description"]
+        == "Original user query without any changes. Do not generate this."
+    )
+    assert (
+        tool_generate_ui.inputSchema["properties"]["input_data"]["description"]
+        == "Input Data. JSON Array of objects with 'id' and 'data' keys. Do not generate this."
+    )
+    assert (
+        tool_generate_ui.description
+        == "Generate UI components from user prompt and input data. It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+    )
+
+
 def test_liveness() -> None:
     ngui_agent = NextGenUIMCPAgent(name="TestAgent")
 
