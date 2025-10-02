@@ -55,7 +55,7 @@ ignore_paths = [
 ]
 
 [pytest]
-args = ["--no-header", "-vv"]
+args = ["--no-header", "-vv", "--strict-markers"]
 execution_slot_var = "TEST_EXECUTION_SLOT"
 requirements = ["//libs/3rdparty/python:pytest"]
 

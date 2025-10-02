@@ -12,6 +12,7 @@ python_sources(
 python_tests(
     name="tests",
     dependencies=[
+        "libs/3rdparty/python:pytest",
         # Has to be explicitly noted because of missing trans deps in llama-stack-client
         "libs/3rdparty/python:llama-stack-client",
     ],
