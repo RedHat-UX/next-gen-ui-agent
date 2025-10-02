@@ -14,7 +14,7 @@ Results for unrelated data are not guaranteed.
 * `data` - string with structured backend data to be processed to UI component
 * `type` - optional string identifier of the data piece type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
    to define and use these types, but it might be a good idea to use tree like hierarchy here, and descriebe business meaning of the data. Other option is 
-   to use name of the LLM tool used to load backend data here, as implemented in some of our AI framework bindings. 
+   to use name of the LLM tool used to load backend data, as implemented in some of our AI framework bindings.
    It is used to identify data type for multiple features like configurable component selection, input data transformation, input data JSON wrapping etc.
 
 ## JSON format
@@ -204,28 +204,32 @@ You can also nest `Array of simple values` in the `Object` (even if the `Object`
 Data value type is important for formating during visualization. Details depend on used frontend technology etc. 
 Some data value types are also important for specific UI components as they may form heart of their functionality, e.g "Image URL" for `image` component.
 
-Data field value is interpreted as plain `string` until any other type applies.
 Data field value can be `null` also in JSON.
+
+### String
+
+Data field value is interpreted as plain `string` until any other type applies.
 
 ### Number
 
 [Number value](https://datatracker.ietf.org/doc/html/rfc8259#section-6) in the JSON data. Can be either Integer or Floating point number.
 
-**ToDo** conversion from JSON string value?
+**ToDo** detection/conversion from JSON string value?
 
 ### Logic/Boolean value
 
 [`true`/`false` value](https://datatracker.ietf.org/doc/html/rfc8259#section-3) in the JSON data.
 
-**ToDo** conversion from JSON string value?
+**ToDo** detection/conversion from JSON string value?
 
 ### Date and time values
 
-**ToDo** detection/conversion from JSON string value?
+**ToDo** detection/conversion from JSON string value with different formats?
 
 ### Image URL
 
 To interpret data field as an url pointing to the image, it must match any of this:
+
 * data field value must be http/s url pointing to the file with [image extension defined in `IMAGE_URL_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
 * data field value must be http/s url and data field name must end with [extension defined in `IMAGE_DATA_PATH_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
 
