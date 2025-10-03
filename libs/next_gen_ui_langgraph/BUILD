@@ -1,10 +1,6 @@
 # This target sets the metadata for all the Python non-test files in this directory.
 python_sources(
     name="lib",
-    dependencies=[
-        "libs/3rdparty/python:langchain",
-        "libs/3rdparty/python:langgraph",
-    ],
 )
 
 # This target sets the metadata for all the Python test files in this directory.
