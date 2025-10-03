@@ -15,6 +15,22 @@
             },
         },
         {
+            "name": "Python Debugger: MCP Server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/libs/next_gen_ui_mcp",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/libs"
+            },
+            "args": [
+                "--provider", "langchain",
+                "--model", "gpt-4o-mini",
+                "--port", "9200",
+                "--transport", "streamable-http"
+            ],
+        },
+        {
             "name": "Python Debugger: distribution-all",
             "type": "debugpy",
             "request": "launch",

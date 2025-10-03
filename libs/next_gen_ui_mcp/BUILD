@@ -73,7 +73,8 @@ python_distribution(
 docker_image(
     name="docker",
     source="Containerfile",
-    repository="next-gen-ui/mcp",
+    #TODO: Change it back!
+    repository="lkrzyzanek/next_gen_ui_mcp",
     image_tags=[env("VERSION"), "latest", "dev"],
     registries=[
         "quay.io",

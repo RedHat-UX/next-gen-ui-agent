@@ -5,6 +5,7 @@ from typing import Annotated, Any, Dict, List, Literal
 from mcp import types
 from mcp.server.fastmcp import Context, FastMCP
 from mcp.server.session import ServerSession
+import yaml
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData
@@ -137,6 +138,13 @@ class NextGenUIMCPAgent:
                 ngui_agent = NextGenUIAgent(config=config_copy)
 
                 await ctx.info("Starting UI generation...")
+
+                # Transform YAML to JSON if data starts by "-"
+                for id in input_data:
+                    if id["data"].startswith("-"):
+                        yaml_object = yaml.safe_load(id["data"])
+                        data_json = json.dumps(yaml_object, default=str)
+                        id["data"] = data_json
 
                 # Create agent input
                 agent_input = AgentInput(user_prompt=user_prompt, input_data=input_data)
