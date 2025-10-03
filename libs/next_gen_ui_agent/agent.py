@@ -38,7 +38,11 @@ logger = logging.getLogger(__name__)
 class NextGenUIAgent:
     """Next Gen UI Agent."""
 
-    def __init__(self, config: AgentConfig | str = AgentConfig()):
+    def __init__(
+        self,
+        inference: InferenceBase | None = None,
+        config: AgentConfig | str = AgentConfig(),
+    ):
         """
         Initialize NextGenUIAgent.
 
@@ -52,26 +56,43 @@ class NextGenUIAgent:
         else:
             self.config = config
 
-        self._hand_build_components_mapping = self.config.get(
-            "hand_build_components_mapping"
-        )
+        self.inference = inference
+
+        self._hand_build_components_mapping = self._get_hand_build_components_mapping()
         self._component_selection_strategy = self._create_component_selection_strategy()
+
+    def _get_hand_build_components_mapping(self) -> dict[str, str]:
+        """Get hand-build components mapping from config."""
+        ret = {}
+        if self.config.data_types:
+            for data_type, data_type_config in self.config.data_types.items():
+                if data_type_config.components:
+                    for component in data_type_config.components:
+                        # TODO: filter out dynamic components
+                        # TODO: add support for LLM powered selection from multiple HBCs
+                        ret[data_type] = component.component
+
+        return ret
 
     def _create_component_selection_strategy(self) -> ComponentSelectionStrategy:
         """Create component selection strategy based on config."""
-        strategy_name = self.config.get("component_selection_strategy", "default")
+        strategy_name = (
+            self.config.component_selection_strategy
+            if self.config.component_selection_strategy
+            else "default"
+        )
 
         # select which kind of components should be geneated
         unsupported_components = False
-        if "unsupported_components" not in self.config.keys():
+        if self.config.unsupported_components is None:
             unsupported_components = (
                 os.getenv("NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS", "false").lower()
                 == "true"
             )
-        elif self.config.get("unsupported_components") is True:
+        elif self.config.unsupported_components is True:
             unsupported_components = True
 
-        input_data_json_wrapping = self.config.get("input_data_json_wrapping")
+        input_data_json_wrapping = self.config.input_data_json_wrapping
         if input_data_json_wrapping is None:
             input_data_json_wrapping = True
 
@@ -137,7 +158,7 @@ class NextGenUIAgent:
                 )
 
         if to_dynamic_selection:
-            inference = inference if inference else self.config.get("inference")
+            inference = inference if inference else self.inference
             if not inference:
                 raise ValueError(
                     "config field 'inference' is not defined neither in input parameter nor agent's config"
@@ -172,9 +193,7 @@ class NextGenUIAgent:
         either via AgentConfig or parameter provided to this method."""
 
         component_system = (
-            component_system
-            if component_system
-            else self.config.get("component_system")
+            component_system if component_system else self.config.component_system
         )
         if not component_system:
             raise Exception("Component system not defined")
@@ -196,7 +215,7 @@ class NextGenUIAgent:
         self, input_data: InputData, json_data: Any | None = None
     ) -> Optional[UIComponentMetadataHandBuildComponent]:
         """Select hand-build component based on InputData type and configured mapping."""
-        if self._hand_build_components_mapping and ("type" in input_data):
+        if self._hand_build_components_mapping and input_data.get("type"):
             type = input_data["type"]
             if type and type in self._hand_build_components_mapping:
                 return self._construct_hbc_metadata(

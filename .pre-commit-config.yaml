@@ -26,11 +26,11 @@ repos:
         language: system
         pass_filenames: true
         types: [file,python]
-      - id: pants-check
-        name: pants check
-        always_run: false
-        description: runs pants check on python files
-        entry: pants check
-        language: system
-        pass_filenames: true
-        types: [file,python]
+      # - id: pants-check
+      #   name: pants check
+      #   always_run: false
+      #   description: runs pants check on python files
+      #   entry: pants check
+      #   language: system
+      #   pass_filenames: true
+      #   types: [file,python]

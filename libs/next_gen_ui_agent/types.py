@@ -6,23 +6,43 @@ from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import NotRequired, TypedDict
 
 
+class AgentConfigComponent(BaseModel):
+    """Agent Configuration - One component config for data type"""
+
+    component: str
+    """
+    Component name. Can be name of existing dynamic component or name for hand-build component.
+    """
+
+
+class AgentConfigDataType(BaseModel):
+    """Agent Configuration for Data Type."""
+
+    data_transformer: Optional[str] = None
+    """
+    Data transformer to use to transform the input data of this type.
+    """
+
+    components: Optional[list[AgentConfigComponent]] = None
+    """
+    List of components to select from for the input data of this type.
+    """
+
+
 # Intentionaly TypeDict because of passing ABC class InferenceBase
-class AgentConfig(TypedDict):
+class AgentConfig(BaseModel):
     """Agent Configuration."""
 
-    inference: NotRequired[InferenceBase]
-    """Inference to use to call LLM by the agent."""
-
-    component_system: NotRequired[str | None]
+    component_system: Optional[str] = None
     """Component system to use to render the component."""
 
-    unsupported_components: NotRequired[bool | None]
+    unsupported_components: Optional[bool] = None
     """
     If `False` (default), the agent can generate only fully supported UI components.
     If `True`, the agent can also generate unsupported UI components.
     """
 
-    component_selection_strategy: NotRequired[str | None]
+    component_selection_strategy: Optional[str] = None
     """
     Component selection strategy to use.
     Possible values:
@@ -31,14 +51,14 @@ class AgentConfig(TypedDict):
     - two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py
     """
 
-    hand_build_components_mapping: NotRequired[dict[str, str] | None]
+    data_types: Optional[dict[str, AgentConfigDataType]] = None
     """
     Mapping from `InputData.type` to hand-build `component_type` (aka HBC).
     LLM powered component selection and configuration is skipped for HBC, data are propagated "as is", and only
     rendering is performed by hand-build code registered in the renderer for given `component_type`.
     """
 
-    input_data_json_wrapping: NotRequired[bool | None]
+    input_data_json_wrapping: Optional[bool] = None
     """
     If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure.
     If `False`, the agent will never wrap the JSON input data into data type field.

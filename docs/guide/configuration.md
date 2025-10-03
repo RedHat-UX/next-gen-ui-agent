@@ -33,11 +33,32 @@ Strategy for component selection
 
 Whether to perform [automatic `InputData` JSON wrapping](input_data/structure.md#automatic-json-wrapping) if JSON structure is not good for LLM processing (default: `True`)
 
-### `hand_build_components_mapping` [`dict[str, str]`, optional]
+### `data_types` [`dict[str, AgentConfigDataType]`, optional]
 
-Mapping from input data types to hand-built component types
+Configurations for [`InputData.type`s](input_data/index.md#inputdata-object-fields), like:
 
-See [Hand Build Components chapter](./data_ui_blocks/hand_build_components.md)
+* input data transformation
+* list of components to render this data type
+
+Key is `InputData.type` to configure, value is configuration object for that data type:
+
+#### `data_transformer` [`str`, optional] 
+
+Optional name of the [Input Data Transformer](input_data/transformation.md) to be used for this data type. JSON format is expected by default.
+
+#### `components` [`list[AgentConfigComponent]`, optional]
+
+Optional list of components used to render this data type. 
+
+For now only one component can be defined here, and it is always interpreted as [Hand Build Component](./data_ui_blocks/hand_build_components.md).
+
+We plan to implement more variants of this configuration in the future, like one preconfigured dymanic component, or 
+even LLM powered selection from more components (dynamic with or without preconfiguration, or HBC).
+
+##### `component` [`str`, required]
+
+Name of the UI component. For now it is always interpreted as [Hand Build Component](./data_ui_blocks/hand_build_components.md) name 
+so HBC is used to render this data type.
 
 ## Programmatic Configuration
 
@@ -51,15 +72,14 @@ from langchain_ollama import ChatOllama
 llm = ChatOllama(model="llama3.2")
 inference = LangChainModelInference(llm)
 
-# Create configuration with inference
+# Create configuration
 config = {
-    "inference": inference,
     "component_system": "json",
     "component_selection_strategy": "default",
     "unsupported_components": True
 }
 
-agent = NextGenUIAgent(config)
+agent = NextGenUIAgent(config=config)
 ```
 
 ### With Hand-Built Components
@@ -67,13 +87,13 @@ agent = NextGenUIAgent(config)
 ```python
 config = {
     "component_system": "json",
-    "hand_build_components_mapping": {
-        "movies.movie-detail": "movies:movie-detail-view",
-        "movies.movies-list": "movies:movies-list-view",
+    "data_types": {
+        "movies.movie-detail": { components : [{ componnet: "movies:movie-detail-view"}]},
+        "movies.movies-list":  { components : [{ componnet: "movies:movies-list-view"}]},
     }
 }
 
-agent = NextGenUIAgent(config)
+agent = NextGenUIAgent(config=config)
 ```
 
 ## YAML Configuration
@@ -88,9 +108,13 @@ component_system: json
 unsupported_components: false
 component_selection_strategy: default
 
-hand_build_components_mapping:
-  movies.movie-detail: movies:movie-detail-view
-  movies.movies-list: movies:movies-list-view,
+data_types:
+  movies.movie-detail: 
+    components:
+      - component: movies:movie-detail-view
+  movies.movies-list:
+    components:
+      - component: movies:movies-list-view
 ```
 
 ### Loading YAML Configuration
@@ -103,7 +127,7 @@ from next_gen_ui_agent.agent_config import read_config_yaml_file
 
 # Load configuration from file
 config = read_config_yaml_file("path/to/config.yaml")
-agent = NextGenUIAgent(config)
+agent = NextGenUIAgent(config=config)
 ```
 
 #### From YAML String
@@ -115,12 +139,8 @@ yaml_config = """
 component_system: json
 component_selection_strategy: two_llm_calls
 unsupported_components: true
-
-hand_build_components_mapping:
-  namespace.list: namespace-table
-  pod.details: pod-card
 """
 
 # Pass YAML string directly to constructor
-agent = NextGenUIAgent(yaml_config)
+agent = NextGenUIAgent(config=yaml_config)
 ```

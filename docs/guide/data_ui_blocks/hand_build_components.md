@@ -20,25 +20,29 @@ component selection happens.
 
 This approach is usefull if you want to completely decouple UI component selection from *Controlling assistant* into *UI Agent*.
 
-Each [`InputData`](../input_data/index.md#inputdata-object-fields) sent to *UI Agent* can have `type` defined, which is a string identifier of the data piece
-type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
-to define and use these types, but it might be a good idea to use tree like hierarchy here. Other option is to use 
-name of the LLM tool used to load backend data, as implemented in some of our AI framework bindings.
+Each [`InputData`](../input_data/index.md#inputdata-object-fields) sent to *UI Agent* can have `type` defined, which is a 
+string identifier of the data piece type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up 
+to *Controlling assistant* to define and use these types, but it might be a good idea to use tree like hierarchy here. 
+Other option is to use name of the LLM tool used to load backend data, as implemented in some of our AI framework bindings.
 
-During the *UI Agent* construction, you can define mapping from `InputData.type` to `hand_build_component_type` like:
+During the *UI Agent* construction, you can [configure mapping from `InputData.type`](../configuration.md#data_types-dictstr-agentconfigdatatype-optional) to hand build component name like:
 
 ```python
-hbc_mapping={
-    "movies.movie-detail": "movies:movie-detail-view",
-    "movies.movies-list": "movies:movies-list-view",
+data_types={
+    "movies.movie-detail": { components: [{ component: "movies:movie-detail-view" }]},
+    "movies.movies-list": { components: [{ component: "movies:movies-list-view" }]},
 }
 
 agent = NextGenUIAgent(
     config=AgentConfig(
-        hand_build_components_mapping=hbc_mapping
+        data_types=data_types
     )
 )
 ```
+
+Be cautious when selecting component name for your HBC, as they can be "mixed" with *UI Agent* [dynamic 
+components](./dynamic_components.md) in this configuration (every name which is not known dynamic component 
+is interpreted as a HBC). Ideally add some prefix to these names, like `movies:` used in the example.
 
 When data piece is send to *UI Agent* for processing, agent consults this mapping, and if `type` is found here, HBC is selected.
 If `type` is not found in this mapping, AI powered component selection and configuration is performed for that data piece.
@@ -61,7 +65,7 @@ This HBC selection happens even before mapping from `InputData.type`.
 Once HBC is selected, *UI Agent* core generates [`ComponentDataHandBuildComponent`](../../spec/component.md#hand-build-component-aka-hbc) 
 from its "data generation" step, which is propagated into rendering step.
 
-Be cautious when selecting identification (`hand_build_component_type`) for your HBC, as they are "mixed" with *UI Agent* [dynamic 
+Be cautious when selecting component name for your HBC, as they are "mixed" with *UI Agent* [dynamic 
 components](./dynamic_components.md) in the metadata sent to renderer. Ideally add some prefix to these names, like `movies:` used in the example.
 
 It contains these most important fields:
