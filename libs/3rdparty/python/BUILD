@@ -50,6 +50,6 @@ python_requirements(
 )
 
 python_requirements(
-    name="reqs",
+    name="ngui-e2e-server",
     source="ngui-e2e-server-requirements.txt",
 )
