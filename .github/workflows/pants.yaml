@@ -134,7 +134,7 @@ jobs:
         id: push-to-quay
         uses: redhat-actions/push-to-registry@v2
         with:
-            tags: quay.io/next-gen-ui/mcp:dev
+            tags: quay.io/next-gen-ui/mcp:genie # TODO: Change back to "dev" !!!
             username: ${{ secrets.QUAY_USERNAME }}
             password: ${{ secrets.QUAY_TOKEN }}
     #   - name: push README to quay.io
