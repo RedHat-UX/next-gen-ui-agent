@@ -8,6 +8,8 @@ from llama_stack_client.types.inference_step import InferenceStep
 from llama_stack_client.types.tool_execution_step import ToolExecutionStep
 from next_gen_ui_agent.types import (
     AgentConfig,
+    AgentConfigComponent,
+    AgentConfigDataType,
     Rendition,
     UIComponentMetadata,
     UIComponentMetadataHandBuildComponent,
@@ -155,7 +157,13 @@ async def test_agent_turn_from_steps_async_hbc() -> None:
         client,
         "not-used",
         # register HBC for `movies` tool_name
-        config=AgentConfig(hand_build_components_mapping={"movies": "my-ui-component"}),
+        config=AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="my-ui-component")]
+                )
+            }
+        ),
     )
 
     async for ng_event in ngui_agent.create_turn(

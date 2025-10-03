@@ -11,6 +11,8 @@ from next_gen_ui_agent.data_transform.types import (
 )
 from next_gen_ui_agent.types import (
     AgentConfig,
+    AgentConfigComponent,
+    AgentConfigDataType,
     InputData,
     Rendition,
     UIComponentMetadataHandBuildComponent,
@@ -114,7 +116,13 @@ async def test_agent_MESSAGESIN_WITHOUT_COMPONENT_SYSTEM_HBC() -> None:
     # HBC selection is configured here based on tool call name
     agent = NextGenUILangGraphAgent(
         model=llm,
-        config=AgentConfig(hand_build_components_mapping={"movies": "my-ui-component"}),
+        config=AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="my-ui-component")]
+                )
+            }
+        ),
     )
     graph = agent.build_graph()
 

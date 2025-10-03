@@ -15,12 +15,14 @@ This module contains UI Agent Core functionality and frameworks.
         * Supported: `one-card`, `image`, `video-player`
         * Tech-Preview: `set-of-cards`, `table`
     * [Hand Build Components](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/hand_build_components/)
-* Extensible framework for "data transformation" step
-* Plugable "UI renderer" framework for UI components rendering
+    * Extensible framework for "data transformation" step
+* Plugable ["UI renderer"](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/implementing_serverside/) framework for UI components rendering
     * Default `json` renderer used to send definitions to client-side renderers
-* Abstraction of the LLM inference
+* Abstraction of the [LLM inference](https://redhat-ux.github.io/next-gen-ui-agent/guide/llm/)
     * `InferenceBase` interface used by UI Agent
     * `LangChainModelInference` implementation using LangChain `chat_models`.
+* Pluggable ["Input Data Transformation"](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/transformation/) framework
+    * Basic transformers: `yaml`
 
 ## Installation
 

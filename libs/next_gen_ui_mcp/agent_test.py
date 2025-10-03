@@ -176,8 +176,9 @@ async def test_mcp_agent_with_external_inference() -> None:
 
     # Create agent with external inference (not using MCP sampling)
     ngui_agent = NextGenUIMCPAgent(
-        config=AgentConfig(component_system="json", inference=external_inference),
+        config=AgentConfig(component_system="json"),
         name="TestAgentExternal",
+        inference=external_inference,
     )
 
     # Get the FastMCP server
@@ -291,7 +292,8 @@ async def test_mcp_inference_error() -> None:
 
     # Create agent with external inference (not using MCP sampling)
     ngui_agent = NextGenUIMCPAgent(
-        config=AgentConfig(component_system="json", inference=inference),
+        config=AgentConfig(component_system="json"),
+        inference=inference,
         name="TestAgentExternal",
     )
 

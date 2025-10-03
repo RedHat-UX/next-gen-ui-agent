@@ -29,7 +29,7 @@ class NextGenUILlamaStackAgent:
         Initialize Next Gen UI Agent as Llama stack agent.
         Inference is created based on provided client and model if not provided (either directly or in config).
         """
-        if not inference and (not config or not config.get("inference")):
+        if not inference:
             if isinstance(client, LlamaStackClient):
                 inference = LlamaStackAgentInference(client, model)
             else:
@@ -37,9 +37,7 @@ class NextGenUILlamaStackAgent:
 
         self.client = client
         config = config if config else AgentConfig()
-        if inference:
-            config["inference"] = inference
-        self.ngui_agent = NextGenUIAgent(config=config)
+        self.ngui_agent = NextGenUIAgent(config=config, inference=inference)
 
     def _data_selection(self, steps: list[Step]) -> list[InputData]:
         """Get data from all tool messages."""

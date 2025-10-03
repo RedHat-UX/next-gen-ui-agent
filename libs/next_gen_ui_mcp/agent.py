@@ -72,11 +72,13 @@ class NextGenUIMCPAgent:
         config: AgentConfig = AgentConfig(component_system="json"),
         name: str = "NextGenUIMCPAgent",
         sampling_max_tokens: int = 2048,
+        inference: InferenceBase | None = None,
     ):
         self.config = config
         self.sampling_max_tokens = sampling_max_tokens
         self.mcp: FastMCP = FastMCP(name)
         self._setup_mcp_tools()
+        self.inference = inference
 
     def _setup_mcp_tools(self):
         """Set up MCP tools for the agent."""
@@ -118,23 +120,21 @@ class NextGenUIMCPAgent:
             """
 
             try:
-                # Create a copy of the config to avoid modifying the original config but preserve type
-                config_copy = AgentConfig(**self.config)
+                inference = self.inference
 
                 # Choose inference provider based on configuration
-                if config_copy.get("inference") is None:
+                if not inference:
                     # Create sampling-based inference using the MCP context
                     inference = MCPSamplingInference(
                         ctx, max_tokens=self.sampling_max_tokens
                     )
-                    config_copy["inference"] = inference
                     await ctx.info("Using MCP sampling to leverage client's LLM...")
                 else:
                     # Using external inference provider
                     await ctx.info("Using external inference provider...")
 
                 # Instantiate NextGenUIAgent with the chosen inference
-                ngui_agent = NextGenUIAgent(config=config_copy)
+                ngui_agent = NextGenUIAgent(config=self.config, inference=inference)
 
                 await ctx.info("Starting UI generation...")
 
@@ -156,7 +156,7 @@ class NextGenUIMCPAgent:
                 await ctx.info("Rendering final UI components...")
                 renditions = ngui_agent.design_system_handler(
                     components=components_data,
-                    component_system=self.config.get("component_system"),
+                    component_system=self.config.component_system,
                 )
 
                 await ctx.info(
@@ -184,7 +184,7 @@ class NextGenUIMCPAgent:
             return json.dumps(
                 {
                     "agent_name": "NextGenUIMCPAgent",
-                    "component_system": self.config.get("component_system"),
+                    "component_system": self.config.component_system,
                     "description": "Next Gen UI Agent exposed via MCP protocol",
                     "capabilities": [
                         "UI component generation based of user prompt and input data"

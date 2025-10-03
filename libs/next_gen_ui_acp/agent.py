@@ -16,7 +16,7 @@ class NextGenUIACPAgent:
         inference: InferenceBase,
         component_system: str,
     ):
-        self.ngui_agent = NextGenUIAgent(AgentConfig(inference=inference))
+        self.ngui_agent = NextGenUIAgent(config=AgentConfig(), inference=inference)
         self.component_system = component_system
 
     def data_selection(self, messages: list[Message]):

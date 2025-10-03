@@ -11,6 +11,8 @@ from next_gen_ui_agent.component_selection_twostep import (
 )
 from next_gen_ui_agent.types import (
     AgentConfig,
+    AgentConfigComponent,
+    AgentConfigDataType,
     AgentInput,
     DataField,
     InputData,
@@ -24,8 +26,8 @@ from pydantic_core import from_json
 
 def test_config_yaml_str() -> None:
     config_yaml = "component_system: json\ninput_data_json_wrapping: false"
-    agent = NextGenUIAgent(config_yaml)
-    assert agent.config["component_system"] == "json"
+    agent = NextGenUIAgent(config=config_yaml)
+    assert agent.config.component_system == "json"
     assert agent._component_selection_strategy.input_data_json_wrapping is False
 
 
@@ -74,9 +76,13 @@ async def test_component_selection_hbc_mixed() -> None:
     )
     agent = NextGenUIAgent(
         config=AgentConfig(
-            hand_build_components_mapping={
-                "my.type": "one-card-special",
-                "other.type": "table-special",
+            data_types={
+                "my.type": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="one-card-special")]
+                ),
+                "other.type": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="table-special")]
+                ),
             }
         )
     )
@@ -122,9 +128,13 @@ async def test_component_selection_hbc_only() -> None:
     """Test that hand-build components alone are selected correctly."""
     agent = NextGenUIAgent(
         config=AgentConfig(
-            hand_build_components_mapping={
-                "my.type": "one-card-special",
-                "other.type": "table-special",
+            data_types={
+                "my.type": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="one-card-special")]
+                ),
+                "other.type": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="table-special")]
+                ),
             }
         )
     )
@@ -251,7 +261,7 @@ class TestCreateComponentSelectionStrategy:
     def test_two_llm_calls_strategy(self):
         """Test that two_llm_calls strategy returns TwostepLLMCallComponentSelectionStrategy."""
         config = AgentConfig(component_selection_strategy="two_llm_calls")
-        agent = NextGenUIAgent(config)
+        agent = NextGenUIAgent(config=config)
         strategy = agent._create_component_selection_strategy()
 
         assert isinstance(strategy, TwostepLLMCallComponentSelectionStrategy)
@@ -271,7 +281,7 @@ class TestCreateComponentSelectionStrategy:
     def test_unsupported_components_from_config_true(self):
         """Test unsupported_components=True from config."""
         config = AgentConfig(unsupported_components=True)
-        agent = NextGenUIAgent(config)
+        agent = NextGenUIAgent(config=config)
         strategy = agent._create_component_selection_strategy()
 
         assert strategy.unsupported_components is True
@@ -279,7 +289,7 @@ class TestCreateComponentSelectionStrategy:
     def test_unsupported_components_from_config_false(self):
         """Test unsupported_components=False from config."""
         config = AgentConfig(unsupported_components=False)
-        agent = NextGenUIAgent(config)
+        agent = NextGenUIAgent(config=config)
         strategy = agent._create_component_selection_strategy()
 
         assert strategy.unsupported_components is False
@@ -288,7 +298,7 @@ class TestCreateComponentSelectionStrategy:
     def test_unsupported_components_from_env_true(self):
         """Test unsupported_components=True from environment variable."""
         config = AgentConfig()
-        agent = NextGenUIAgent(config)
+        agent = NextGenUIAgent(config=config)
         strategy = agent._create_component_selection_strategy()
 
         assert strategy.unsupported_components is True
@@ -297,7 +307,7 @@ class TestCreateComponentSelectionStrategy:
     def test_unsupported_components_from_env_false(self):
         """Test unsupported_components=False from environment variable."""
         config = AgentConfig()
-        agent = NextGenUIAgent(config)
+        agent = NextGenUIAgent(config=config)
         strategy = agent._create_component_selection_strategy()
 
         assert strategy.unsupported_components is False
@@ -307,14 +317,14 @@ class TestCreateComponentSelectionStrategy:
         # Test uppercase TRUE
         with patch.dict(os.environ, {"NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS": "TRUE"}):
             config = AgentConfig()
-            agent = NextGenUIAgent(config)
+            agent = NextGenUIAgent(config=config)
             strategy = agent._create_component_selection_strategy()
             assert strategy.unsupported_components is True
 
         # Test mixed case True
         with patch.dict(os.environ, {"NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS": "True"}):
             config = AgentConfig()
-            agent = NextGenUIAgent(config)
+            agent = NextGenUIAgent(config=config)
             strategy = agent._create_component_selection_strategy()
             assert strategy.unsupported_components is True
 
@@ -322,7 +332,7 @@ class TestCreateComponentSelectionStrategy:
         """Test that config takes precedence over environment variable."""
         with patch.dict(os.environ, {"NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS": "true"}):
             config = AgentConfig(unsupported_components=False)
-            agent = NextGenUIAgent(config)
+            agent = NextGenUIAgent(config=config)
             strategy = agent._create_component_selection_strategy()
 
             # Config should take precedence over environment variable
@@ -331,7 +341,7 @@ class TestCreateComponentSelectionStrategy:
     def test_empty_config(self):
         """Test behavior with empty config."""
         config = AgentConfig()
-        agent = NextGenUIAgent(config)
+        agent = NextGenUIAgent(config=config)
         strategy = agent._create_component_selection_strategy()
 
         # Should default to "default" strategy and unsupported_components=False
@@ -342,7 +352,7 @@ class TestCreateComponentSelectionStrategy:
         """Test combination of config strategy and environment unsupported_components."""
         with patch.dict(os.environ, {"NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS": "true"}):
             config = AgentConfig(component_selection_strategy="two_llm_calls")
-            agent = NextGenUIAgent(config)
+            agent = NextGenUIAgent(config=config)
             strategy = agent._create_component_selection_strategy()
 
             # Should use config strategy and environment unsupported_components
@@ -353,7 +363,11 @@ class TestCreateComponentSelectionStrategy:
 def test_method__select_hand_build_component_EXISTING() -> None:
     agent = NextGenUIAgent(
         config=AgentConfig(
-            hand_build_components_mapping={"my.type": "one-card-special"}
+            data_types={
+                "my.type": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="one-card-special")]
+                )
+            }
         )
     )
     input_data = InputData(id="1", data="{}", type="my.type")
@@ -368,7 +382,11 @@ def test_method__select_hand_build_component_EXISTING() -> None:
 def test_method__select_hand_build_component_NON_EXISTING() -> None:
     agent = NextGenUIAgent(
         config=AgentConfig(
-            hand_build_components_mapping={"my.type": "one-card-special"}
+            data_types={
+                "my.type": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="one-card-special")]
+                )
+            }
         )
     )
     input_data = InputData(id="1", data="{}", type="my.type2")
@@ -379,7 +397,11 @@ def test_method__select_hand_build_component_NON_EXISTING() -> None:
 def test_method__select_hand_build_component_NO_TYPE_IN_INPUT_DATA() -> None:
     agent = NextGenUIAgent(
         config=AgentConfig(
-            hand_build_components_mapping={"my.type": "one-card-special"}
+            data_types={
+                "my.type": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="one-card-special")]
+                )
+            }
         )
     )
     input_data = InputData(id="1", data="{}")
@@ -392,6 +414,123 @@ def test_method__select_hand_build_component_NOT_CONFIGURED() -> None:
     input_data = InputData(id="1", data="{}", type="my.type2")
     result = agent._select_hand_build_component(input_data)
     assert result is None
+
+
+def test_get_input_data_transformer_name_CONFIGURED() -> None:
+    """Test getting transformer name for configured data type."""
+
+    config = AgentConfig(
+        data_types={
+            "yaml_data": AgentConfigDataType(data_transformer="yaml"),
+            "json_data": AgentConfigDataType(data_transformer="json"),
+            "custom_data": AgentConfigDataType(data_transformer="custom_transformer"),
+        }
+    )
+    agent = NextGenUIAgent(config=config)
+
+    input_data = InputData(id="1", data="test data", type="yaml_data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "yaml"
+
+    input_data = InputData(id="1", data="test data", type="custom_data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "custom_transformer"
+
+    # use default json for unconfigured type
+    input_data = InputData(id="1", data="test data", type="other_data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "json"
+
+    # use default json without type
+    input_data = InputData(id="1", data="test data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "json"
+
+
+def test_get_input_data_transformer_name_UNCONFIGURED() -> None:
+    """Test getting transformer name if no any mapping is configured."""
+
+    config = AgentConfig()
+    agent = NextGenUIAgent(config=config)
+
+    # use default json for unconfigured type
+    input_data = InputData(id="1", data="test data", type="yaml_data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "json"
+
+    # use default json without type
+    input_data = InputData(id="1", data="test data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "json"
+
+
+class TestComponentSelectionDataTransformation:
+    """Test suite for input data transformation in component selection step."""
+
+    @pytest.mark.asyncio
+    async def test_component_selection_DATA_TRANSFORMATION_YAML(self) -> None:
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        data_transformer="yaml",
+                        components=[AgentConfigComponent(component="one-card-special")],
+                    )
+                }
+            )
+        )
+        input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
+
+        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
+        result = await agent.component_selection(input=input)
+        assert result is not None
+        r = result[0]
+        assert r.component == "hand-build-component"
+        assert r.json_data is not None
+        assert r.json_data == [{"name": "MYNAME"}]
+
+    @pytest.mark.asyncio
+    async def test_component_selection_DATA_TRANSFORMATION_NOT_CONFIGURED_DATA_JSON(
+        self,
+    ) -> None:
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        input_data = InputData(id="1", data='{"name": "MYNAME"}', type="my.type")
+
+        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
+        result = await agent.component_selection(input=input)
+        assert result is not None
+        r = result[0]
+        assert r.component == "hand-build-component"
+        assert r.json_data is not None
+        assert r.json_data == {"name": "MYNAME"}
+
+    @pytest.mark.asyncio
+    async def test_component_selection_DATA_TRANSFORMATION_NOT_CONFIGURED_DATA_INVALID(
+        self,
+    ) -> None:
+        # HBC used here so we do not need inference
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
+
+        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
+        with pytest.raises(ValueError, match="Invalid JSON format of the Input Data: "):
+            await agent.component_selection(input=input)
 
 
 if __name__ == "__main__":
