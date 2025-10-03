@@ -12,12 +12,12 @@ import {
 } from "@patternfly/chatbot";
 import { useRef, useState } from "react";
 
-import DynamicComponent from "dynamicui";
+import DynamicComponent from "./DynamicComponent";
 import { useFetch } from "../hooks/useFetch";
 
 export default function ChatBotPage() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
-  const [announcement, setAnnouncement] = useState<string>();
+  const [announcement] = useState<string>();
   const scrollToBottomRef = useRef<HTMLDivElement>(null);
   const isVisible = true;
   const displayMode = ChatbotDisplayMode.fullscreen;
@@ -57,7 +57,7 @@ export default function ChatBotPage() {
     });
     setMessages(newMessages);
 
-    const res = await fetchData("http://localhost:8000/generate", {
+    const res = await fetchData(import.meta.env.VITE_API_ENDPOINT, {
       method: "POST",
       body: { prompt: message },
     });
@@ -71,9 +71,11 @@ export default function ChatBotPage() {
       timestamp: date.toLocaleString(),
       ...(!res
         ? { content: "Something went wrong!" }
+        : res.error
+        ? { content: `Error: ${res.error}${res.details ? ` - ${res.details}` : ''}` }
         : {
             extraContent: {
-              afterMainContent: <DynamicComponent config={res.response} />,
+              afterMainContent: <DynamicComponent config={res.response} showRawConfig={true} />,
             },
           }),
     });
@@ -99,7 +101,7 @@ export default function ChatBotPage() {
           the map of messages, so that users are forced to scroll to the bottom.
           If you are using streaming, you will want to take a different approach; 
           see: https://github.com/patternfly/chatbot/issues/201#issuecomment-2400725173 */}
-            {messages.map((message, index) => {
+            {messages && messages.map((message, index) => {
               if (index === messages.length - 1) {
                 return (
                   <>
@@ -117,7 +119,7 @@ export default function ChatBotPage() {
             isAttachmentDisabled
             isSendButtonDisabled={loading}
             isCompact
-            onSendMessage={handleSend}
+            onSendMessage={(message: string | number) => handleSend(String(message))}
           />
           <ChatbotFootnote label="ChatBot uses AI. Check for mistakes." />
         </ChatbotFooter>
