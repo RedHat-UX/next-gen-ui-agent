@@ -117,6 +117,20 @@ class NextGenUIAgent:
         else:
             super().__setattr__(name, value)
 
+    def _get_input_data_transformer_name(self, input_data: InputData) -> str:
+        """Get input data transformer name based on input data type."""
+        if (
+            self.config.data_types
+            and input_data.get("type")
+            and input_data["type"] in self.config.data_types
+        ):
+            transformer_name = self.config.data_types[
+                input_data["type"]
+            ].data_transformer
+            if transformer_name:
+                return transformer_name
+        return "json"
+
     async def component_selection(
         self, input: AgentInput, inference: Optional[InferenceBase] = None
     ) -> list[UIComponentMetadata]:
@@ -126,8 +140,9 @@ class NextGenUIAgent:
         ret: list[UIComponentMetadata] = []
         to_dynamic_selection: list[InputData] = []
         for input_data in input["input_data"]:
-            # TODO transformer selection from config
-            input_data_transformer_name = "json"
+            input_data_transformer_name = self._get_input_data_transformer_name(
+                input_data
+            )
             json_data = perform_input_data_transformation(
                 input_data_transformer_name, input_data.get("data")
             )

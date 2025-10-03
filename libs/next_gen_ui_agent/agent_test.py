@@ -416,5 +416,122 @@ def test_method__select_hand_build_component_NOT_CONFIGURED() -> None:
     assert result is None
 
 
+def test_get_input_data_transformer_name_CONFIGURED() -> None:
+    """Test getting transformer name for configured data type."""
+
+    config = AgentConfig(
+        data_types={
+            "yaml_data": AgentConfigDataType(data_transformer="yaml"),
+            "json_data": AgentConfigDataType(data_transformer="json"),
+            "custom_data": AgentConfigDataType(data_transformer="custom_transformer"),
+        }
+    )
+    agent = NextGenUIAgent(config=config)
+
+    input_data = InputData(id="1", data="test data", type="yaml_data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "yaml"
+
+    input_data = InputData(id="1", data="test data", type="custom_data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "custom_transformer"
+
+    # use default json for unconfigured type
+    input_data = InputData(id="1", data="test data", type="other_data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "json"
+
+    # use default json without type
+    input_data = InputData(id="1", data="test data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "json"
+
+
+def test_get_input_data_transformer_name_UNCONFIGURED() -> None:
+    """Test getting transformer name if no any mapping is configured."""
+
+    config = AgentConfig()
+    agent = NextGenUIAgent(config=config)
+
+    # use default json for unconfigured type
+    input_data = InputData(id="1", data="test data", type="yaml_data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "json"
+
+    # use default json without type
+    input_data = InputData(id="1", data="test data")
+    transformer_name = agent._get_input_data_transformer_name(input_data)
+    assert transformer_name == "json"
+
+
+class TestComponentSelectionDataTransformation:
+    """Test suite for input data transformation in component selection step."""
+
+    @pytest.mark.asyncio
+    async def test_component_selection_DATA_TRANSFORMATION_YAML(self) -> None:
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        data_transformer="yaml",
+                        components=[AgentConfigComponent(component="one-card-special")],
+                    )
+                }
+            )
+        )
+        input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
+
+        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
+        result = await agent.component_selection(input=input)
+        assert result is not None
+        r = result[0]
+        assert r.component == "hand-build-component"
+        assert r.json_data is not None
+        assert r.json_data == [{"name": "MYNAME"}]
+
+    @pytest.mark.asyncio
+    async def test_component_selection_DATA_TRANSFORMATION_NOT_CONFIGURED_DATA_JSON(
+        self,
+    ) -> None:
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        input_data = InputData(id="1", data='{"name": "MYNAME"}', type="my.type")
+
+        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
+        result = await agent.component_selection(input=input)
+        assert result is not None
+        r = result[0]
+        assert r.component == "hand-build-component"
+        assert r.json_data is not None
+        assert r.json_data == {"name": "MYNAME"}
+
+    @pytest.mark.asyncio
+    async def test_component_selection_DATA_TRANSFORMATION_NOT_CONFIGURED_DATA_INVALID(
+        self,
+    ) -> None:
+        # HBC used here so we do not need inference
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
+
+        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
+        with pytest.raises(ValueError, match="Invalid JSON format of the Input Data: "):
+            await agent.component_selection(input=input)
+
+
 if __name__ == "__main__":
     test_design_system_handler_json()
