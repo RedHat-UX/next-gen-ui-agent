@@ -2,7 +2,7 @@
 
 These fully AI selected and configured *Data UI Blocks* are now supported by *UI Agent*. 
 
-## Components for [one `Object` input data](../input_data.md#one-object-input-data)
+## Components for [one `Object` input data](../input_data/structure.md#one-object-input-data)
 
 ### Card
 
@@ -12,7 +12,7 @@ Card is UI block that displays:
 
   * Title
   * Facts list
-  * Image (if [image url is present in the input data](../input_data.md#image-url) and selected to be shown)
+  * Image (if [image url is present in the input data](../input_data/structure.md#image-url) and selected to be shown)
 
 Facts are name-value pairs, where the `name` is AI generated and the `value` is gathered from agent's input data.
 Value can be simple text or number etc. List (array) of values is supported as well.
@@ -25,7 +25,7 @@ Example rendering by Red Hat Design System for user prompt `Tell me details abou
 
 Component identification: [`image`](../../spec/component.md#image)
 
-Image is UI block to display a single image with a title, based on [image url present in the input data](../input_data.md#image-url).
+Image is UI block to display a single image with a title, based on [image url present in the input data](../input_data/structure.md#image-url).
 
 Example rendering by Red Hat Design System for a prompt `Show me poster of Toy Story movie`:
 
@@ -37,7 +37,7 @@ Image is found by agent from backend-data either by field value or by field name
 
 Component identification: [`video-player`](../../spec/component.md#video-player)
 
-Video player is UI block to play a single video from [video URL provided in the input data](../input_data.md#video-url).
+Video player is UI block to play a single video from [video URL provided in the input data](../input_data/structure.md#video-url).
 
 Title is also generated, and link pointing to the video cover image for YouTube videos is provided.
 
@@ -49,7 +49,7 @@ Example rendering by Red Hat Design System for a prompt `Play trailer of Toy Sto
 
 ![Video Player Data UI Block rendering by Red Hat Design System](../../img/data_ui_block_video.jpg "Video Player Data UI Block rendering by Red Hat Design System")
 
-## Components for [`Array of objects` input data](../input_data.md#array-of-objects-input-data)
+## Components for [`Array of objects` input data](../input_data/structure.md#array-of-objects-input-data)
 
 ### Set Of Cards
 

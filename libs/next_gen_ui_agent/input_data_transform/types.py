@@ -13,6 +13,7 @@ class InputDataTransformerBase(ABC):
         Returns:
             Object tree matching parsed JSON using `json.loads()`, so `jsonpath_ng` can be used
             to access the data, and Pydantic `model_dump_json()` can be used to convert it to JSON string.
+            Root of the structure must be either object (`dict`) or array (`list`).
         Raises:
             ValueError: If the input data can't be parsed due to invalid format.
         """

@@ -1,6 +1,6 @@
 # LLM inference
 
-*UI Agent* currently uses LLM to process `User Prompt` and strucutred [`Input Data`](input_data.md) relevant to this prompt.
+*UI Agent* currently uses LLM to process `User Prompt` and strucutred [`Input Data`](input_data/index.md) relevant to this prompt.
 LLM selects the best UI component to visualize that data, and also configres it by selecting which values from the data has to be shown.
 
 For now, every piece of `Input Data` is processed independently. 

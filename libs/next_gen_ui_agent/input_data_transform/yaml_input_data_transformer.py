@@ -13,7 +13,8 @@ class YamlInputDataTransformer(InputDataTransformerBase):
         Args:
             input_data: Input data string to transform.
         Returns:
-            Object tree matching parsed JSON format.
+            Object tree matching parsed JSON format, so `jsonpath_ng` can be used
+            to access the data, and Pydantic `model_dump_json()` can be used to convert it to JSON string.
         Raises:
             ValueError: If the input data can't be parsed due to invalid format or if root is not object or array.
         """

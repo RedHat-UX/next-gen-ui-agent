@@ -1,27 +1,7 @@
-# Input data
+# Input Data Structures
 
-This chapter contains rules for the format of the `Structured data` provided as an input to the *UI Agent*.
-*Controlling assistant* or *Data providing agent* must provide data conforming to these rules to get good results from the *UI Agent*.
-Non conforming data may work still to get reasonable `Data UI Block`, but results are not guaranteed.
-
-## Data must be relevant for the User prompt
-
-*UI Agent* expects that provided data are relevant to the current `User prompt`, as it generates UI which shows that data regarding to the user prompt. 
-Results for unrelated data are not guaranteed.
-
-## `InputData` fields
-
-* `data` - string with structured backend data to be processed to UI component
-* `type` - optional string identifier of the data piece type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
-   to define and use these types, but it might be a good idea to use tree like hierarchy here, and descriebe business meaning of the data. Other option is 
-   to use name of the LLM tool used to load backend data, as implemented in some of our AI framework bindings.
-   It is used to identify data type for multiple features like configurable component selection, input data transformation, input data JSON wrapping etc.
-
-## JSON format
-
-*UI Agent* expects [JSON formatted](https://datatracker.ietf.org/doc/html/rfc8259) input data. 
-[JSONPath](https://www.rfc-editor.org/rfc/rfc9535.html) is used to get values from the data during the UI component rendering. 
-So input data **MUST BE** in the JSON format.
+LLM used by *UI Agent* looks at the data structure, and uses it as one of the main clues (together with `User prompt`) to select 
+UI component, so it is really important.
 
 ## Field names
 
@@ -55,9 +35,9 @@ This helps LLM to better understand the data, match them with the user prompt, a
 If `InputData.type` field is provided, UI Agent automatically wraps problematic JSON structures the LLM struggles with ([see above](#data-root)). 
 Data are wrapped into new root JSON object with `InputData.type` value used as a field name (after sanitization),
 where the original JSON data are put into. 
-It expects that type contains reasonable value, ideally describing the business meaning of the data, [see above](#inputdata-fields).
+It expects that type contains reasonable value, ideally describing the business meaning of the data, [see](index.md#inputdata-object-fields).
 
-JSON wrapping is enabled by default, but can be disabled in the [UI Agent configuration](configuration.md#input_data_json_wrapping-bool-optional) if it causes some problems.
+JSON wrapping is enabled by default, but can be disabled in the [UI Agent configuration](../configuration.md#input_data_json_wrapping-bool-optional) if it causes some problems.
 
 For example, input data with `type`=`movie.detail` and content:
 
@@ -233,7 +213,7 @@ To interpret data field as an url pointing to the image, it must match any of th
 * data field value must be http/s url pointing to the file with [image extension defined in `IMAGE_URL_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
 * data field value must be http/s url and data field name must end with [extension defined in `IMAGE_DATA_PATH_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
 
-Field with Image URL is important for [`image`](data_ui_blocks/dynamic_components.md#image) component, but is used also in [`one-card`](data_ui_blocks/dynamic_components.md#card) to show optional main image.
+Field with Image URL is important for [`image`](../data_ui_blocks/dynamic_components.md#image) component, but is used also in [`one-card`](../data_ui_blocks/dynamic_components.md#card) to show optional main image.
 
 ### Audio URL
 
@@ -246,7 +226,7 @@ To interpret data field as an url pointing to the video, it must match any of th
 * data field value must be http/s url containing `.youtube.` or `youtu.be`
 * data field value must be http/s url and data field name must end with [extension defined in `VIDEO_DATA_PATH_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
 
-Field with Video URL is important for [`video-player`](data_ui_blocks/dynamic_components.md#video-player) component.
+Field with Video URL is important for [`video-player`](../data_ui_blocks/dynamic_components.md#video-player) component.
 
 ### Other URL
 

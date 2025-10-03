@@ -8,7 +8,7 @@ How relevant object types are generated to TypeScript then can be tested here: [
 ## Dynamic components for one `Object` input data
 
 [Dynamic Components Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)  
-[One Object input data Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/#one-object-input-data)
+[One Object input data Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/structure/#one-object-input-data)
 
 ### One Card
 [One Card JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/one-card.schema.json)
@@ -92,7 +92,7 @@ Example JSON output:
 ## Dynamic components for `Array of objects` input data
 
 [Dynamic Components Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)  
-[Array of objects input data Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/#array-of-objects-input-data)
+[Array of objects input data Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/structure/#array-of-objects-input-data)
 
 ### Set Of Cards
 

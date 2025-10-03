@@ -20,7 +20,7 @@ component selection happens.
 
 This approach is usefull if you want to completely decouple UI component selection from *Controlling assistant* into *UI Agent*.
 
-Each [`InputData`](../input_data.md) sent to *UI Agent* can have `type` defined, which is a string identifier of the data piece
+Each [`InputData`](../input_data/index.md#inputdata-object-fields) sent to *UI Agent* can have `type` defined, which is a string identifier of the data piece
 type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up to *Controlling assistant*
 to define and use these types, but it might be a good idea to use tree like hierarchy here. Other option is to use 
 name of the LLM tool used to load backend data, as implemented in some of our AI framework bindings.
@@ -43,13 +43,15 @@ agent = NextGenUIAgent(
 When data piece is send to *UI Agent* for processing, agent consults this mapping, and if `type` is found here, HBC is selected.
 If `type` is not found in this mapping, AI powered component selection and configuration is performed for that data piece.
 
-*UI Agent*'s' LlamaStack and LanGraph AI framework bindings propagate tool name as an `InputData.type`, so HBC can be mapped based 
+*UI Agent*'s' LlamaStack and LanGraph AI framework bindings propagate tool name as 
+an [`InputData.type`](../input_data/index.md#inputdata-object-fields), so HBC can be mapped based 
 on the tool name of the tool used to load given data.
 
 ### Requested in `InputData.hand_build_component_type`
 
 If your *Controlling assistant* needs/is able to directly define HBC component type to visualize some piece of data, it can 
-explicitly request it using `InputData.hand_build_component_type`. Type provided here is not validated in *UI Agent* until 
+explicitly request it using [`InputData.hand_build_component_type`](../input_data/index.md#inputdata-object-fields). 
+Type provided here is not validated in *UI Agent* until 
 rendering happens, so make sure rendering code is provided for every component type requested this way.
 
 This HBC selection happens even before mapping from `InputData.type`.

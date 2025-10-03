@@ -31,7 +31,7 @@ Strategy for component selection
 
 ### `input_data_json_wrapping` [`bool`, optional]
 
-Whether to perform [automatic `InputData` JSON wrapping](input_data.md#automatic-json-wrapping) if JSON structure is not good for LLM processing (default: `True`)
+Whether to perform [automatic `InputData` JSON wrapping](input_data/structure.md#automatic-json-wrapping) if JSON structure is not good for LLM processing (default: `True`)
 
 ### `hand_build_components_mapping` [`dict[str, str]`, optional]
 

@@ -66,7 +66,10 @@ nav:
   - Guides:
     - Core concepts:
       - guide/architecture.md
-      - guide/input_data.md
+      - Input Data:
+        - guide/input_data/index.md
+        - Structures: guide/input_data/structure.md
+        - Transformation: guide/input_data/transformation.md
       - guide/llm.md
       - Data UI Blocks:
         - guide/data_ui_blocks/index.md
