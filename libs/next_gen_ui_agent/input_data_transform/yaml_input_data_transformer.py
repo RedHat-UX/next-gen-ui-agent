@@ -14,8 +14,18 @@ class YamlInputDataTransformer(InputDataTransformerBase):
             input_data: Input data string to transform.
         Returns:
             Object tree matching parsed JSON format.
+        Raises:
+            ValueError: If the input data can't be parsed due to invalid format or if root is not object or array.
         """
         try:
-            return yaml.safe_load(input_data)
+            parsed_data = yaml.safe_load(input_data)
         except yaml.YAMLError as e:
             raise ValueError(f"Invalid YAML format of the Input Data: {e}") from e
+
+        # Check that the root element is either an object (dict) or array (list)
+        if not isinstance(parsed_data, (dict, list)):
+            raise ValueError(
+                "Invalid YAML format of the Input Data: YAML root must be an object or array"
+            )
+
+        return parsed_data
