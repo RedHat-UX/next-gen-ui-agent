@@ -119,6 +119,9 @@ data_types:
 
 ### Loading YAML Configuration
 
+You can load one or several YAML config files which are merged into one configuration where the last config has the highest precedense.
+Field `data_types` is merged so having different keys in different yamls are merged into one `data_types` configuration.
+
 #### From File Path
 
 ```python
@@ -134,6 +137,7 @@ agent = NextGenUIAgent(config=config)
 
 ```python
 from next_gen_ui_agent import NextGenUIAgent
+from next_gen_ui_agent.agent_config import parse_config_yaml
 
 yaml_config = """
 component_system: json
@@ -141,6 +145,7 @@ component_selection_strategy: two_llm_calls
 unsupported_components: true
 """
 
-# Pass YAML string directly to constructor
-agent = NextGenUIAgent(config=yaml_config)
+# Pass YAML string directly
+config = read_config_yaml_file(yaml_config)
+agent = NextGenUIAgent(config=config)
 ```

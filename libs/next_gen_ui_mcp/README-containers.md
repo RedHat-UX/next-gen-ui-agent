@@ -53,6 +53,7 @@ The MCP server container can be configured via environment variables. All config
 | `NGUI_PROVIDER_API_BASE_URL` | -                 | Base URL for OpenAI-compatible API (if `langchain` is used) |
 | `NGUI_PROVIDER_API_KEY`      | -                 | API key for the LLM provider (if `langchain` is used)       |
 | `NGUI_PROVIDER_LLAMA_URL`    | -                 | LlamaStack server URL (if `llamastack` is used)             |
+| `NGUI_CONFIG_PATH`           | -                 | Path to Next Gen UI YAML configuration file(s)              |
 
 ### Providers
 

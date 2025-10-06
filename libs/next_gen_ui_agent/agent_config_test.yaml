@@ -9,3 +9,21 @@ data_types:
   other:type:
     components:
       - component: table-special
+  other:type_to_override:
+    components:
+      - component: value1
+
+---
+data_types:
+  my:type2:
+    components:
+      - component: one-card-special2
+  other:type2:
+    components:
+      - component: table-special2
+
+---
+data_types:
+  other:type_to_override:
+    components:
+      - component: value2

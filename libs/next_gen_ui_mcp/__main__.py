@@ -40,6 +40,7 @@ from pathlib import Path
 from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
+from next_gen_ui_agent.agent_config import read_config_yaml_file
 from next_gen_ui_agent.types import AgentConfig
 
 # Add libs to path for development
@@ -147,6 +148,9 @@ def create_agent(
     Returns:
         Configured NextGenUIMCPAgent
     """
+    if logger.isEnabledFor(logging.DEBUG):
+        logger.debug("NGUI Configuration: %s", config.model_dump())
+
     return NextGenUIMCPAgent(
         config=config,
         inference=inference,
@@ -181,6 +185,9 @@ Examples:
   # Run with MCP sampling (default - leverages client's LLM)
   python -m next_gen_ui_mcp
 
+  # Run with YAML configurations
+  python -m next_gen_ui_mcp -c ngui_config.yaml
+
   # Run with LlamaStack inference
   python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
 
@@ -205,6 +212,14 @@ Examples:
   # Run with rhds component system via SSE transport
   python -m next_gen_ui_mcp --transport sse --component-system rhds --port 8000
         """,
+    )
+
+    parser.add_argument(
+        "--config-path",
+        action="extend",
+        nargs="+",
+        type=str,
+        help="Path to configuration YAML file. You can specify multiple config files",
     )
 
     # Transport arguments
@@ -274,8 +289,16 @@ Examples:
         level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
+    config = AgentConfig()
+    if args.config_path:
+        logger.info("Loading Next Gen UI Config from paths %s", args.config_path)
+        for cp in args.config_path:
+            config = read_config_yaml_file(cp)
+
+    if args.component_system:
+        config.component_system = args.component_system
+
     logger.info("Starting Next Gen UI MCP Server with %s transport", args.transport)
-    logger.info("Using component system: %s", args.component_system)
 
     # Validate arguments
     if args.provider in ["llamastack", "langchain"] and not args.model:
@@ -309,7 +332,7 @@ Examples:
 
         # Create the agent
         agent = create_agent(
-            config=AgentConfig(component_system=args.component_system),
+            config=config,
             inference=inference,
             sampling_max_tokens=args.sampling_max_tokens,
         )
