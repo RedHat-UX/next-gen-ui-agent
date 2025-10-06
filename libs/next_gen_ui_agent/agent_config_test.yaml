@@ -2,27 +2,10 @@
 component_system: json
 input_data_json_wrapping: false
 
-# TODO: Change to just "hbc" or move to data_types
-hand_build_components_mapping:
-  my.type: one-card-special
-
-# data_types:
-#   - namespaces_list:
-#       - title: Namespaces
-#         component: table
-#         fields:
-#           - name: Name
-#             data_path: .*.metadata.name
-#           - name: Creation Time
-#             data_path: .*.metadata.creationTimestamp
-#           - name: Status
-#             data_path: .*.status.phase
-#       - title: Namespace
-#         component: set-of-cards
-#         fields:
-#           - name: Name
-#             data_path: .*.metadata.name
-#           - name: Creation Time
-#             data_path: .*.metadata.creationTimestamp
-#           - name: Status
-#             data_path: .*.status.phase
+data_types:
+  my:type:
+    components:
+      - component: one-card-special
+  other:type:
+    components:
+      - component: table-special

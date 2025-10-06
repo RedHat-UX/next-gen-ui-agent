@@ -9,7 +9,7 @@ from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Command
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
-from next_gen_ui_agent.model import LangChainModelInference
+from next_gen_ui_agent.model import InferenceBase, LangChainModelInference
 from next_gen_ui_agent.types import AgentConfig, Rendition
 from typing_extensions import TypedDict
 
@@ -47,15 +47,20 @@ class GraphConfig(TypedDict):
 class NextGenUILangGraphAgent:
     """Next Gen UI Agent in LangGraph."""
 
-    def __init__(self, model: BaseChatModel, config: Optional[AgentConfig] = None):
+    def __init__(
+        self,
+        model: BaseChatModel,
+        inference: Optional[InferenceBase] = None,
+        config: Optional[AgentConfig] = None,
+    ):
         """Initialize Next Gen UI Agent in LangGraph. Inference is created from model if not provided in config."""
         super().__init__()
-        config = config if config else AgentConfig()
-        if "inference" not in config:
+        if not inference:
             inference = LangChainModelInference(model)
-            config["inference"] = inference
 
-        self.ngui_agent = NextGenUIAgent(config=config)
+        config = config if config else AgentConfig()
+
+        self.ngui_agent = NextGenUIAgent(config=config, inference=inference)
 
     # Nodes
     async def data_selection(self, state: AgentInputState, config: RunnableConfig):

@@ -89,7 +89,10 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         input_data_id = input_data["id"]
         logger.debug("---CALL component_selection_run--- id: %s", {input_data_id})
 
-        json_data = json.loads(input_data["data"])
+        json_data = input_data.get("json_data")
+        if not json_data:
+            json_data = json.loads(input_data["data"])
+
         if self.input_data_json_wrapping:
             json_data = wrap_json_data(json_data, input_data.get("type"))
 

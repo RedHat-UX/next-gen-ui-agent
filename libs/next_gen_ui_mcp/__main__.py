@@ -135,6 +135,7 @@ def create_langchain_inference(
 
 def create_agent(
     config: AgentConfig = AgentConfig(component_system="json"),
+    inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
 ) -> NextGenUIMCPAgent:
     """Create NextGenUIMCPAgent with optional external inference provider.
@@ -148,6 +149,7 @@ def create_agent(
     """
     return NextGenUIMCPAgent(
         config=config,
+        inference=inference,
         sampling_max_tokens=sampling_max_tokens,
         name="NextGenUI-MCP-Server",
     )
@@ -307,9 +309,8 @@ Examples:
 
         # Create the agent
         agent = create_agent(
-            config=AgentConfig(
-                component_system=args.component_system, inference=inference
-            ),
+            config=AgentConfig(component_system=args.component_system),
+            inference=inference,
             sampling_max_tokens=args.sampling_max_tokens,
         )
 
