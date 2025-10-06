@@ -14,8 +14,9 @@
     "@patternfly/patternfly": "^6.3.1",
     "@patternfly/react-core": "^6.3.1",
     "@patternfly/react-icons": "^6.3.1",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "dynamicui": "file:../../../libs_js/next_gen_ui_react/dynamicui-0.0.1.tgz",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",

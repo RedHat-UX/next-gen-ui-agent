@@ -48,3 +48,8 @@ python_requirements(
     name="custom-renderers",
     source="custom-renderers-requirements.txt",
 )
+
+python_requirements(
+    name="ngui-e2e-server",
+    source="ngui-e2e-server-requirements.txt",
+)
