@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 import pytest
 from next_gen_ui_agent.agent import NextGenUIAgent
-from next_gen_ui_agent.component_selection import (
+from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
 )
-from next_gen_ui_agent.component_selection_twostep import (
+from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
 )
 from next_gen_ui_agent.types import (
@@ -360,62 +360,6 @@ class TestCreateComponentSelectionStrategy:
             assert strategy.unsupported_components is True
 
 
-def test_method__select_hand_build_component_EXISTING() -> None:
-    agent = NextGenUIAgent(
-        config=AgentConfig(
-            data_types={
-                "my.type": AgentConfigDataType(
-                    components=[AgentConfigComponent(component="one-card-special")]
-                )
-            }
-        )
-    )
-    input_data = InputData(id="1", data="{}", type="my.type")
-    result = agent._select_hand_build_component(input_data)
-    assert result is not None
-    assert result.component == "hand-build-component"
-    assert result.id == "1"
-    assert result.title == ""
-    assert result.component_type == "one-card-special"
-
-
-def test_method__select_hand_build_component_NON_EXISTING() -> None:
-    agent = NextGenUIAgent(
-        config=AgentConfig(
-            data_types={
-                "my.type": AgentConfigDataType(
-                    components=[AgentConfigComponent(component="one-card-special")]
-                )
-            }
-        )
-    )
-    input_data = InputData(id="1", data="{}", type="my.type2")
-    result = agent._select_hand_build_component(input_data)
-    assert result is None
-
-
-def test_method__select_hand_build_component_NO_TYPE_IN_INPUT_DATA() -> None:
-    agent = NextGenUIAgent(
-        config=AgentConfig(
-            data_types={
-                "my.type": AgentConfigDataType(
-                    components=[AgentConfigComponent(component="one-card-special")]
-                )
-            }
-        )
-    )
-    input_data = InputData(id="1", data="{}")
-    result = agent._select_hand_build_component(input_data)
-    assert result is None
-
-
-def test_method__select_hand_build_component_NOT_CONFIGURED() -> None:
-    agent = NextGenUIAgent(config=AgentConfig())
-    input_data = InputData(id="1", data="{}", type="my.type2")
-    result = agent._select_hand_build_component(input_data)
-    assert result is None
-
-
 def test_get_input_data_transformer_name_CONFIGURED() -> None:
     """Test getting transformer name for configured data type."""
 
@@ -516,7 +460,7 @@ class TestComponentSelectionDataTransformation:
     async def test_component_selection_DATA_TRANSFORMATION_NOT_CONFIGURED_DATA_INVALID(
         self,
     ) -> None:
-        # HBC used here so we do not need inference
+        # HBC used here so we do not need inference and we also see that selection per type works correctly
         agent = NextGenUIAgent(
             config=AgentConfig(
                 data_types={

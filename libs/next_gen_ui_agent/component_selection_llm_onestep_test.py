@@ -8,7 +8,10 @@ from next_gen_ui_agent.types import AgentInput
 from pytest import fail
 
 from . import InputData
-from .component_selection import OnestepLLMCallComponentSelectionStrategy, trim_to_json
+from .component_selection_llm_onestep import (
+    OnestepLLMCallComponentSelectionStrategy,
+    trim_to_json,
+)
 from .model import LangChainModelInference
 
 movies_data = """[
