@@ -2,28 +2,68 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional
 
 from next_gen_ui_agent.model import InferenceBase
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 from typing_extensions import NotRequired, TypedDict
 
 
-class AgentConfigComponent(BaseModel):
-    """Agent Configuration - One component config for data type"""
+class DataField(BaseModel):
+    """UI Component Field Metadata."""
 
-    component: str
+    name: str = Field(description="Field name to be shown in the UI")
+    """Field name to be shown in the UI."""
+
+    data_path: str = Field(
+        description="JSON Path pointing to the input data structure to be used to pickup values to be shown in UI"
+    )
+    """JSON Path pointing to the input data structure to be used to pickup values to be shown in UI"""
+
+
+class AgentConfigDynamicComponentConfiguration(BaseModel):
+    """Agent Configuration - pre-configuration of the one dynamic component for data type."""
+
+    title: str = Field(
+        description="Title of the dynamic component to be shown in the UI"
+    )
+    """Title of the dynamic component to be shown in the UI."""
+
+    fields: list[DataField] = Field(
+        description="Fields of the dynamic component to be shown in the UI",
+    )
+    """Fields of the dynamic component to be shown in the UI."""
+
+
+class AgentConfigComponent(BaseModel):
+    """Agent Configuration - one component config for data type."""
+
+    component: str = Field(
+        description="Component name. Can be name of existing dynamic component supported by the UI Agent, or name for hand-build component."
+    )
     """
-    Component name. Can be name of existing dynamic component or name for hand-build component.
+    Component name. Can be name of existing dynamic component supported by the UI Agent, or name for hand-build component.
     """
+
+    configuration: Optional[AgentConfigDynamicComponentConfiguration] = Field(
+        default=None,
+        description="Optional pre-configuration of the dynamic component to be used.",
+    )
+    """Optional pre-configuration of the dynamic component to be used."""
 
 
 class AgentConfigDataType(BaseModel):
-    """Agent Configuration for Data Type."""
+    """Agent Configuration for the Data Type."""
 
-    data_transformer: Optional[str] = None
+    data_transformer: Optional[str] = Field(
+        default=None,
+        description="Data transformer to use to transform the input data of this type.",
+    )
     """
     Data transformer to use to transform the input data of this type.
     """
 
-    components: Optional[list[AgentConfigComponent]] = None
+    components: Optional[list[AgentConfigComponent]] = Field(
+        default=None,
+        description="List of components to select from for the input data of this type.",
+    )
     """
     List of components to select from for the input data of this type.
     """
@@ -33,16 +73,24 @@ class AgentConfigDataType(BaseModel):
 class AgentConfig(BaseModel):
     """Agent Configuration."""
 
-    component_system: Optional[str] = None
-    """Component system to use to render the component."""
+    component_system: Optional[str] = Field(
+        default=None, description="Component system to use to render the UI component."
+    )
+    """Component system to use to render the UI component."""
 
-    unsupported_components: Optional[bool] = None
+    unsupported_components: Optional[bool] = Field(
+        default=None,
+        description="If `False` (default), the agent can generate only fully supported UI components. If `True`, the agent can also generate unsupported UI components.",
+    )
     """
     If `False` (default), the agent can generate only fully supported UI components.
     If `True`, the agent can also generate unsupported UI components.
     """
 
-    component_selection_strategy: Optional[str] = None
+    component_selection_strategy: Optional[str] = Field(
+        default=None,
+        description="Component selection strategy to use. Possible values: default - use the default implementation, one_llm_call - use the one LLM call implementation from component_selection.py, two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py",
+    )
     """
     Component selection strategy to use.
     Possible values:
@@ -51,14 +99,18 @@ class AgentConfig(BaseModel):
     - two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py
     """
 
-    data_types: Optional[dict[str, AgentConfigDataType]] = None
+    data_types: Optional[dict[str, AgentConfigDataType]] = Field(
+        default=None,
+        description="Mapping from `InputData.type` to UI component - currently only one dynamic component with pre-configuration, or hand-build component (aka HBC) can be defined here. Will be extended in the future.",
+    )
     """
-    Mapping from `InputData.type` to hand-build `component_type` (aka HBC).
-    LLM powered component selection and configuration is skipped for HBC, data are propagated "as is", and only
-    rendering is performed by hand-build code registered in the renderer for given `component_type`.
+    Mapping from `InputData.type` to UI component - currently only one dynamic component with pre-configuration, or hand-build component (aka HBC) can be defined here. Will be extended in the future.
     """
 
-    input_data_json_wrapping: Optional[bool] = None
+    input_data_json_wrapping: Optional[bool] = Field(
+        default=None,
+        description="If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure. If `False`, the agent will never wrap the JSON input data into data type field.",
+    )
     """
     If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure.
     If `False`, the agent will never wrap the JSON input data into data type field.
@@ -101,18 +153,8 @@ class AgentInput(TypedDict):
     """Input data to be processed - one or more can be provided."""
 
 
-class DataField(BaseModel):
-    """UI Component field metadata."""
-
-    model_config = ConfigDict(title="RenderContextDataField")
-
-    name: str = Field(description="Field name")
-    data_path: str = Field(description="JSON Path to input data")
-    """JSON Path to input data"""
-
-
 class UIComponentMetadata(BaseModel):
-    """UI Component Mentadata."""
+    """UI Component Metadata - output of the component selection and configuration step."""
 
     id: Optional[str] = None
     """ID of the data this instance is for."""
@@ -129,8 +171,8 @@ class UIComponentMetadata(BaseModel):
 
     json_data: Optional[Any] = None
     """
-    Parsed JSON data that was used to generate the component configuration.
-    May be altered against original InputData by json wrapping!
+    Object structure from the `InputData` that was used to generate the component configuration.
+    May be altered against original `InputData` by json wrapping!
     """
 
 
@@ -142,7 +184,7 @@ class UIComponentMetadataHandBuildComponent(UIComponentMetadata):
 
 
 class Rendition(BaseModel):
-    """Rendition of the component."""
+    """Rendition of the component - output of the UI rendering step."""
 
     id: str
     component_system: str
