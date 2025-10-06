@@ -3,9 +3,9 @@ component_system: json
 input_data_json_wrapping: false
 
 data_types:
-  my.type:
+  my:type:
     components:
       - component: one-card-special
-  other.type:
+  other:type:
     components:
       - component: table-special

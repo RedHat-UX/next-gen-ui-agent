@@ -21,7 +21,7 @@ component selection happens.
 This approach is usefull if you want to completely decouple UI component selection from *Controlling assistant* into *UI Agent*.
 
 Each [`InputData`](../input_data/index.md#inputdata-object-fields) sent to *UI Agent* can have `type` defined, which is a 
-string identifier of the data piece type eg. `movies.movie-detail`, `movies.movies-list`, `movies.actor-detail`. It is up 
+string identifier of the data piece type eg. `movies:movie-detail`, `movies:movies-list`, `movies:actor-detail`. It is up 
 to *Controlling assistant* to define and use these types, but it might be a good idea to use tree like hierarchy here. 
 Other option is to use name of the LLM tool used to load backend data, as implemented in some of our AI framework bindings.
 
@@ -29,8 +29,8 @@ During the *UI Agent* construction, you can [configure mapping from `InputData.t
 
 ```python
 data_types={
-    "movies.movie-detail": { components: [{ component: "movies:movie-detail-view" }]},
-    "movies.movies-list": { components: [{ component: "movies:movies-list-view" }]},
+    "movies:movie-detail": { components: [{ component: "movies:movie-detail-view" }]},
+    "movies:movies-list": { components: [{ component: "movies:movies-list-view" }]},
 }
 
 agent = NextGenUIAgent(

@@ -88,8 +88,8 @@ agent = NextGenUIAgent(config=config)
 config = {
     "component_system": "json",
     "data_types": {
-        "movies.movie-detail": { components : [{ componnet: "movies:movie-detail-view"}]},
-        "movies.movies-list":  { components : [{ componnet: "movies:movies-list-view"}]},
+        "movies:movie-detail": { components : [{ componnet: "movies:movie-detail-view"}]},
+        "movies:movies-list":  { components : [{ componnet: "movies:movies-list-view"}]},
     }
 }
 
@@ -109,10 +109,10 @@ unsupported_components: false
 component_selection_strategy: default
 
 data_types:
-  movies.movie-detail: 
+  movies:movie-detail: 
     components:
       - component: movies:movie-detail-view
-  movies.movies-list:
+  movies:movies-list:
     components:
       - component: movies:movies-list-view
 ```

@@ -22,11 +22,11 @@ def test_config_yaml_file(test_dir) -> None:
     assert config.input_data_json_wrapping is False
 
     assert config.data_types is not None
-    dt = config.data_types["my.type"]
+    dt = config.data_types["my:type"]
     assert dt.data_transformer is None
     assert dt.components is not None
     assert dt.components[0].component == "one-card-special"
-    dt = config.data_types["other.type"]
+    dt = config.data_types["other:type"]
     assert dt.data_transformer is None
     assert dt.components is not None
     assert dt.components[0].component == "table-special"
