@@ -1,7 +1,9 @@
 # Next Gen UI Agent
 
-The goal of this AI agent is to generate personalised and rich UI components based on 
-the user prompt, chat history and backend data provided by other agent in your AI assistant.
+The goal of the Next Gen UI Agent is to generate personalised and rich UI components based on 
+the user prompt, chat history and backend data provided by other agent in your AI assistant. 
+It also provides wide configuration options for use cases where tighter control of applied UI 
+components is required.
 
 In the future, this agent will also maintain UI state and view layouts to keep UI and flows 
 consistent, handle personalized values formating, and many other features. Stay tuned ;-)

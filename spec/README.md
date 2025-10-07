@@ -3,3 +3,4 @@
 This folder contains Next Gen UI spec files.
 
 * [Component Spec](./component/README.md)
+* [UI Agent Configuration JSON Schema](./config/agent_config.schema.json)

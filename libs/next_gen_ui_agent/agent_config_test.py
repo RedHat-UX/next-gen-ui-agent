@@ -2,6 +2,7 @@ import os
 
 import pytest
 from next_gen_ui_agent.agent_config import parse_config_yaml, read_config_yaml_file
+from pydantic import ValidationError
 
 
 def test_config_yaml_str() -> None:
@@ -23,6 +24,11 @@ component_system: json2
     assert config.input_data_json_wrapping is None
 
 
+def test_parse_config_yaml_str_INVALID() -> None:
+    with pytest.raises(ValidationError):
+        parse_config_yaml("unsupported_components: ooo")
+
+
 @pytest.fixture()
 def test_dir(request):
     return os.path.dirname(request.module.__file__)
@@ -42,7 +48,15 @@ def test_config_yaml_file(test_dir) -> None:
     dt = config.data_types["other:type"]
     assert dt.data_transformer is None
     assert dt.components is not None
-    assert dt.components[0].component == "table-special"
+    assert dt.components[0].component == "one-card"
+    assert dt.components[0].configuration is not None
+    assert dt.components[0].configuration.title == "Other Type Card"
+    assert dt.components[0].configuration.fields is not None
+    assert len(dt.components[0].configuration.fields) == 2
+    assert dt.components[0].configuration.fields[0].name == "name"
+    assert dt.components[0].configuration.fields[0].data_path == "$.name"
+    assert dt.components[0].configuration.fields[1].name == "age"
+    assert dt.components[0].configuration.fields[1].data_path == "$.age"
     dt = config.data_types["my:type2"]
     assert dt.data_transformer is None
     assert dt.components is not None
@@ -70,10 +84,12 @@ def test_config_yaml_files(test_dir) -> None:
     assert dt.data_transformer is None
     assert dt.components is not None
     assert dt.components[0].component == "one-card-special"
+
     dt = config.data_types["other:type"]
     assert dt.data_transformer is None
     assert dt.components is not None
-    assert dt.components[0].component == "table-special"
+    assert dt.components[0].component == "one-card"
+
     dt = config.data_types["my:type2"]
     assert dt.data_transformer is None
     assert dt.components is not None

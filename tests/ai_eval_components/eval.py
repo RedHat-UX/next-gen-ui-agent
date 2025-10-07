@@ -30,10 +30,10 @@ from ai_eval_components.types import (
     DatasetRowAgentEvalResult,
 )
 from next_gen_ui_agent import InputData
-from next_gen_ui_agent.component_selection import (
+from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
 )
-from next_gen_ui_agent.component_selection_twostep import (
+from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
 )
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer

@@ -2,17 +2,23 @@
 
 This guide shows how to use *NextGen UI Agent* in your application.
 
-In short, *UI Agent* takes `User Prompt` and [`Structured Data`](input_data/index.md) relevant to this prompt as an input, and generates UI component to visualize that piece of data to the user. 
-We call it `Data UI Block`. [AI (LLM) is used](llm.md) in this step, to understand the `User Prompt` and data structure and select the best UI component and displayed data values. 
+In short, *UI Agent* takes `User Prompt` and [`Structured Data`](input_data/index.md) relevant to this prompt as an input, 
+and generates UI component to visualize that piece of data to the user. We call it [`Data UI Block`](data_ui_blocks/index.md).
+[AI (LLM) is used](llm.md) in this step to understand the `User Prompt` and [input data structure](./input_data/structure.md), 
+and select the best dynamic UI component and displayed data values.
 
-In the future, this agent will also maintain `UI state` and view layouts to keep UI and flows consistent, handle personalized values formating, and many other features. Stay tuned ;-)
+Stricter configuration can be used when tighter control of UI components applied to the input data is necessary, for 
+details see [Component Selection and Configuration docs](./data_ui_blocks/index.md#selection-and-configuration-process).
+
+In the future, this agent will also maintain `UI state` and view layouts to keep UI and flows consistent, handle personalized 
+values formating, and many other features. Stay tuned ;-)
 
 Example of the generated `Data UI Block`:
 ![Example of the Data UI Block](../img/data_ui_block_card.png "Example of the Data UI Block")
 
 *UI Agent* also suports [*Hand Build Components*](data_ui_blocks/hand_build_components.md) for pieces of data where UI component exists already, or where 
-it is needed to provide special visualization or use features on top of
-AI generated UI components.
+it is needed to provide special visualization or use features on top of AI generated UI components.
+
 
 Your application, called *Controlling assistant*, has to provide other building blocks and their orchestration to implement complete solution.
 

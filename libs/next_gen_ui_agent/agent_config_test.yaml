@@ -8,7 +8,14 @@ data_types:
       - component: one-card-special
   other:type:
     components:
-      - component: table-special
+      - component: one-card
+        configuration:
+          title: "Other Type Card"
+          fields:
+            - name: "name"
+              data_path: "$.name"
+            - name: "age"
+              data_path: "$.age"
   other:type_to_override:
     components:
       - component: value1

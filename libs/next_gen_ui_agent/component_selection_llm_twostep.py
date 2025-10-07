@@ -4,7 +4,7 @@ import logging
 from typing import Any
 
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
-from next_gen_ui_agent.component_selection import trim_to_json
+from next_gen_ui_agent.component_selection_llm_onestep import trim_to_json
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import (

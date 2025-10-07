@@ -1,0 +1,180 @@
+{
+  "$defs": {
+    "AgentConfigComponent": {
+      "description": "Agent Configuration - one component config for data type.",
+      "properties": {
+        "component": {
+          "description": "Component name. Can be name of existing dynamic component supported by the UI Agent, or name for hand-build component.",
+          "type": "string"
+        },
+        "configuration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AgentConfigComponentConfiguration"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional pre-configuration of the dynamic component to be used."
+        }
+      },
+      "required": [
+        "component"
+      ],
+      "title": "AgentConfigComponent",
+      "type": "object"
+    },
+    "AgentConfigComponentConfiguration": {
+      "description": "Agent Configuration - pre-configuration of the one dynamic component for data type.",
+      "properties": {
+        "title": {
+          "description": "Title of the dynamic component to be shown in the UI",
+          "type": "string"
+        },
+        "fields": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/DataField"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Fields of the dynamic component to be shown in the UI"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "title": "AgentConfigComponentConfiguration",
+      "type": "object"
+    },
+    "AgentConfigDataType": {
+      "description": "Agent Configuration for the Data Type.",
+      "properties": {
+        "data_transformer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Data transformer to use to transform the input data of this type."
+        },
+        "components": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AgentConfigComponent"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "List of components to select from for the input data of this type."
+        }
+      },
+      "title": "AgentConfigDataType",
+      "type": "object"
+    },
+    "DataField": {
+      "description": "UI Component Field Metadata.",
+      "properties": {
+        "name": {
+          "description": "Field name to be shown in the UI",
+          "type": "string"
+        },
+        "data_path": {
+          "description": "JSON Path pointing to the input data structure to be used to pickup values to be shown in UI",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "data_path"
+      ],
+      "title": "DataField",
+      "type": "object"
+    }
+  },
+  "description": "Agent Configuration.",
+  "properties": {
+    "component_system": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Component system to use to render the UI component."
+    },
+    "unsupported_components": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "If `False` (default), the agent can generate only fully supported UI components. If `True`, the agent can also generate unsupported UI components."
+    },
+    "component_selection_strategy": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Component selection strategy to use. Possible values: default - use the default implementation, one_llm_call - use the one LLM call implementation from component_selection.py, two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py"
+    },
+    "data_types": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/AgentConfigDataType"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Mapping from `InputData.type` to UI component - currently only one dynamic component with pre-configuration, or hand-build component (aka HBC) can be defined here. Will be extended in the future."
+    },
+    "input_data_json_wrapping": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure. If `False`, the agent will never wrap the JSON input data into data type field."
+    }
+  },
+  "title": "AgentConfig",
+  "type": "object"
+}

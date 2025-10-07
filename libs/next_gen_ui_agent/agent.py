@@ -1,13 +1,17 @@
 import logging
 import os
-from typing import Any, Optional
+from typing import Optional
 
 from next_gen_ui_agent.agent_config import parse_config_yaml
-from next_gen_ui_agent.component_selection import (
+from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
 )
-from next_gen_ui_agent.component_selection_twostep import (
+from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
+)
+from next_gen_ui_agent.component_selection_pertype import (
+    init_pertype_components_mapping,
+    select_component_per_type,
 )
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transformation import enhance_component_by_input_data
@@ -28,7 +32,6 @@ from next_gen_ui_agent.types import (
     InputDataInternal,
     Rendition,
     UIComponentMetadata,
-    UIComponentMetadataHandBuildComponent,
 )
 from stevedore import ExtensionManager
 
@@ -58,21 +61,8 @@ class NextGenUIAgent:
 
         self.inference = inference
 
-        self._hand_build_components_mapping = self._get_hand_build_components_mapping()
+        init_pertype_components_mapping(self.config)
         self._component_selection_strategy = self._create_component_selection_strategy()
-
-    def _get_hand_build_components_mapping(self) -> dict[str, str]:
-        """Get hand-build components mapping from config."""
-        ret = {}
-        if self.config.data_types:
-            for data_type, data_type_config in self.config.data_types.items():
-                if data_type_config.components:
-                    for component in data_type_config.components:
-                        # TODO: filter out dynamic components
-                        # TODO: add support for LLM powered selection from multiple HBCs
-                        ret[data_type] = component.component
-
-        return ret
 
     def _create_component_selection_strategy(self) -> ComponentSelectionStrategy:
         """Create component selection strategy based on config."""
@@ -147,20 +137,10 @@ class NextGenUIAgent:
                 input_data_transformer_name, input_data.get("data")
             )
 
-            # look for requested HBC component type first
-            hbc_type = (
-                input_data.get("hand_build_component_type")
-                if "hand_build_component_type" in input_data
-                else None
-            )
-            if hbc_type:
-                hbc = self._construct_hbc_metadata(hbc_type, input_data, json_data)
-            else:
-                # try to find HBC from configured mapping
-                hbc = self._select_hand_build_component(input_data, json_data)
-
-            if hbc:
-                ret.append(hbc)
+            # select component InputData.type or InputData.hand_build_component_type
+            component = select_component_per_type(input_data, json_data)
+            if component:
+                ret.append(component)
             else:
                 # Copy input_data and just add a json_data
                 id: InputDataInternal = {
@@ -222,30 +202,3 @@ class NextGenUIAgent:
             factory = self._extension_manager[component_system].obj
 
         return _design_system_handler(components, factory)
-
-    def _select_hand_build_component(
-        self, input_data: InputData, json_data: Any | None = None
-    ) -> Optional[UIComponentMetadataHandBuildComponent]:
-        """Select hand-build component based on InputData type and configured mapping."""
-        if self._hand_build_components_mapping and input_data.get("type"):
-            type = input_data["type"]
-            if type and type in self._hand_build_components_mapping:
-                return self._construct_hbc_metadata(
-                    self._hand_build_components_mapping[type], input_data, json_data
-                )
-        return None
-
-    def _construct_hbc_metadata(
-        self, component_type: str, input_data: InputData, json_data: Any | None = None
-    ) -> Optional[UIComponentMetadataHandBuildComponent]:
-        """Construct hand-build component metadata for component_type and input data."""
-        return UIComponentMetadataHandBuildComponent.model_validate(
-            {
-                "id": input_data["id"],
-                "title": "",
-                "component": "hand-build-component",
-                "component_type": component_type,
-                "fields": [],
-                "json_data": json_data,
-            }
-        )

@@ -98,6 +98,7 @@ nav:
       - Running Llama Stack: development/llama_stack.md
   - Reference:
     - spec/component.md
+    - spec/config.md
     - Changelog:
       - changelog/index.md
       - changelog/release_notes.md
