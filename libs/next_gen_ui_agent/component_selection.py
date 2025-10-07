@@ -15,16 +15,16 @@ from next_gen_ui_agent.types import (
 from pydantic_core import from_json
 
 ui_components_description_supported = """
-* one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
-* video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
-* image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
+- 'one-card': component to show multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
+- 'video-player': component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
+- 'image': component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Do not use if other fields has to be shown, use `one-card` instead! Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
 """
 
 ui_components_description_all = (
     ui_components_description_supported
     + """
-* table - component to visualize array of objects with more than 6 items and small number of shown fields with short values.
-* set-of-cards - component to visualize array of objects with less than 6 items, or high number of shown fields and fields with long values.
+- 'table': component to show array of objects with more than 6 items and small number of shown fields with short values.
+- 'set-of-cards': component to show array of objects with less than 6 items, or high number of shown fields and fields with long values.
 """.strip()
 )
 
@@ -64,7 +64,12 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         logger.debug("---CALL component_selection---")
         components = await asyncio.gather(
             *[
-                self.component_selection_run(inference, input["user_prompt"], data)
+                self.component_selection_run(
+                    inference,
+                    input["user_prompt"],
+                    data,
+                    input.get("previous_user_prompts"),
+                )
                 for data in input["input_data"]
             ]
         )
@@ -79,6 +84,7 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
+        previous_user_prompts: list[str] | None = None,
     ) -> list[str]:
         """Run Component Selection inference."""
 
@@ -89,7 +95,7 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             # logger.debug(user_prompt)
             # logger.debug(input_data)
 
-        sys_msg_content = f"""You are helpful and advanced user interface design assistant. Based on the "User query" and JSON formatted "Data", select the best UI component to visualize the "Data" to the user.
+        sys_msg_content = """You are helpful and advanced user interface design assistant. Based on the "User query" and JSON formatted "Data", select the best UI component to visualize the "Data" to the user.
 Generate response in the JSON format only. Select one component only into "component".
 Provide the title for the component in "title".
 Provide reason for the component selection in the "reasonForTheComponentSelection".
@@ -97,9 +103,15 @@ Provide your confidence for the component selection as a percentage in the "conf
 Provide list of "fields" to be visualized in the UI component. Select only relevant data fields to be presented in the component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for in User query.
 If the selected UI component requires specific fields mentioned in its description, provide them. Provide "name" for every field.
 For every field provide "data_path" containing JSONPath to get the value from the Data. Do not use any formatting or calculation in the "data_path".
+"""
 
-Select one from there UI components: {get_ui_components_description(self.unsupported_components)}
-    """
+        sys_msg_content += f"""
+Select one from these UI components: {get_ui_components_description(self.unsupported_components)}
+"""
+        if previous_user_prompts and len(previous_user_prompts) > 0:
+            sys_msg_content += """
+Generate response for the current "User query" and "Data". Keep current UI component and its configuration consistent with the expected UI component generated previously for the "Previous user queries" if applicable for the current "User query" and "Data".
+"""
 
         sys_msg_content += """
 Response example for multi-item data:
@@ -129,12 +141,24 @@ Response example for one-item data:
         # we have to parse JSON data to reduce arrays
         data = reduce_arrays(json_data, 6)
 
-        prompt = f"""=== User query ===
-    {user_prompt}
+        prompt = f"""User query:
+{user_prompt}
+"""
 
-    === Data ===
-    {str(data)}
-        """
+        if previous_user_prompts and len(previous_user_prompts) > 0:
+            prompt += f"""
+Previous user queries:
+- {"\n- ".join(previous_user_prompts)}
+"""
+
+        prompt += f"""
+Data:
+{str(data)}
+"""
+
+        # TODO remove this after testing
+        # if previous_user_prompts and len(previous_user_prompts) > 0:
+        #    print("prompt:", prompt)
 
         logger.debug("LLM system message:\n%s", sys_msg_content)
         logger.debug("LLM prompt:\n%s", prompt)
@@ -162,6 +186,7 @@ Response example for one-item data:
         inference: InferenceBase,
         user_prompt: str,
         input_data: InputData,
+        previous_user_prompts: list[str] | None = None,
     ) -> UIComponentMetadata:
         """Run Component Selection task."""
 
@@ -176,7 +201,7 @@ Response example for one-item data:
             json_data = wrap_json_data(json_data, input_data.get("type"))
 
         inference_output = await self.perform_inference(
-            inference, user_prompt, json_data, input_data_id
+            inference, user_prompt, json_data, input_data_id, previous_user_prompts
         )
 
         try:
