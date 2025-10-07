@@ -40,6 +40,11 @@ python_requirements(
 )
 
 python_requirements(
+    name="a2a",
+    source="a2a-requirements.txt",
+)
+
+python_requirements(
     name="mcp",
     source="mcp-requirements.txt",
 )
