@@ -89,7 +89,7 @@ class InputData(TypedDict):
 class InputDataInternal(InputData):
     """Input Data used in internal call of component selection. Contain parsed JSON data."""
 
-    json_data: Any
+    json_data: NotRequired[Any | None]
 
 
 class AgentInput(TypedDict):
