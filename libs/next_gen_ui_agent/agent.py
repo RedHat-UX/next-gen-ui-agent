@@ -162,15 +162,12 @@ class NextGenUIAgent:
             if hbc:
                 ret.append(hbc)
             else:
-                to_dynamic_selection.append(
-                    InputDataInternal(
-                        {
-                            "id": input_data["id"],
-                            "data": input_data["data"],
-                            "json_data": json_data,
-                        }
-                    )
-                )
+                # Copy input_data and just add a json_data
+                id: InputDataInternal = {
+                    **input_data,
+                    "json_data": json_data,
+                }
+                to_dynamic_selection.append(id)
 
         if to_dynamic_selection:
             inference = inference if inference else self.inference

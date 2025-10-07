@@ -533,5 +533,32 @@ class TestComponentSelectionDataTransformation:
             await agent.component_selection(input=input)
 
 
+class TestComponentSelectionWrapping:
+    """Test suite for input data transformation in component selection step - wrapping."""
+
+    @pytest.mark.asyncio
+    async def test_component_selection_WRAPPING(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig(input_data_json_wrapping=True))
+
+        input_data = InputData(id="1", data='[{"title": "Toy Story"}]', type="my_type")
+
+        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
+        mocked_llm_component = UIComponentMetadata(
+            component="one-card",
+            id="1",
+            title="Toy Story",
+            fields=[DataField(name="Title", data_path="movie.title")],
+        )
+
+        result = await agent.component_selection(
+            input=input, inference=MockedInference(mocked_llm_component)
+        )
+        assert result is not None
+        r = result[0]
+        assert r.component == "one-card"
+        assert r.json_data is not None
+        assert r.json_data == {"my_type": [{"title": "Toy Story"}]}
+
+
 if __name__ == "__main__":
     test_design_system_handler_json()
