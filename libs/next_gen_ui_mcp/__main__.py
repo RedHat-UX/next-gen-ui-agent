@@ -219,7 +219,11 @@ Examples:
         action="extend",
         nargs="+",
         type=str,
-        help="Path to configuration YAML file. You can specify multiple config files",
+        help=(
+            "Path to configuration YAML file. "
+            "You can specify multiple config files by repeating same parameter "
+            "or passing comma separated value."
+        ),
     )
 
     # Transport arguments
@@ -290,7 +294,7 @@ Examples:
     )
 
     config = AgentConfig()
-    if args.config_path:
+    if args.config_path and args.config_path != ["-"]:
         logger.info("Loading Next Gen UI Config from paths %s", args.config_path)
         for cp in args.config_path:
             config = read_config_yaml_file(cp)

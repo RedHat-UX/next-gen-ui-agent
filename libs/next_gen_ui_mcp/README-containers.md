@@ -42,18 +42,18 @@ The MCP server container can be configured via environment variables. All config
 
 ### Environment Variables Reference
 
-| Environment Variable         | Default Value     | Description                                                 |
-| ---------------------------- | ----------------- | ----------------------------------------------------------- |
-| `MCP_TRANSPORT`              | `streamable-http` | Transport protocol (`stdio`, `sse`, `streamable-http`)      |
-| `MCP_HOST`                   | `0.0.0.0`         | Host to bind to (for HTTP transports)                       |
-| `MCP_PORT`                   | `5000`            | Port to bind to (for HTTP transports)                       |
-| `NGUI_COMPONENT_SYSTEM`      | `json`            | UI Component system (`json`, `rhds`)                        |
-| `NGUI_PROVIDER`              | `langchain`       | Inference provider (`mcp`, `llamastack`, `langchain`)       |
-| `NGUI_MODEL`                 | `gpt-4o`          | Model name (required for other than `mcp` providers)        |
-| `NGUI_PROVIDER_API_BASE_URL` | -                 | Base URL for OpenAI-compatible API (if `langchain` is used) |
-| `NGUI_PROVIDER_API_KEY`      | -                 | API key for the LLM provider (if `langchain` is used)       |
-| `NGUI_PROVIDER_LLAMA_URL`    | -                 | LlamaStack server URL (if `llamastack` is used)             |
-| `NGUI_CONFIG_PATH`           | -                 | Path to Next Gen UI YAML configuration file(s)              |
+| Environment Variable         | Default Value     | Description                                                     |
+| ---------------------------- | ----------------- | --------------------------------------------------------------- |
+| `MCP_TRANSPORT`              | `streamable-http` | Transport protocol (`stdio`, `sse`, `streamable-http`)          |
+| `MCP_HOST`                   | `0.0.0.0`         | Host to bind to (for HTTP transports)                           |
+| `MCP_PORT`                   | `5000`            | Port to bind to (for HTTP transports)                           |
+| `NGUI_COMPONENT_SYSTEM`      | `json`            | UI Component system (`json`, `rhds`)                            |
+| `NGUI_PROVIDER`              | `langchain`       | Inference provider (`mcp`, `llamastack`, `langchain`)           |
+| `NGUI_MODEL`                 | `gpt-4o`          | Model name (required for other than `mcp` providers)            |
+| `NGUI_PROVIDER_API_BASE_URL` | -                 | Base URL for OpenAI-compatible API (if `langchain` is used)     |
+| `NGUI_PROVIDER_API_KEY`      | -                 | API key for the LLM provider (if `langchain` is used)           |
+| `NGUI_PROVIDER_LLAMA_URL`    | -                 | LlamaStack server URL (if `llamastack` is used)                 |
+| `NGUI_CONFIG_PATH`           | -                 | Path to Next Gen UI YAML configuration files (comma separated). |
 
 ### Providers
 

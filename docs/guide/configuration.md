@@ -128,8 +128,8 @@ Field `data_types` is merged so having different keys in different yamls are mer
 from next_gen_ui_agent import NextGenUIAgent
 from next_gen_ui_agent.agent_config import read_config_yaml_file
 
-# Load configuration from file
-config = read_config_yaml_file("path/to/config.yaml")
+# Load configuration from files
+config = read_config_yaml_file(["path/to/config.yaml", "/path/to/config2.yaml"])
 agent = NextGenUIAgent(config=config)
 ```
 
@@ -137,7 +137,6 @@ agent = NextGenUIAgent(config=config)
 
 ```python
 from next_gen_ui_agent import NextGenUIAgent
-from next_gen_ui_agent.agent_config import parse_config_yaml
 
 yaml_config = """
 component_system: json
@@ -145,7 +144,6 @@ component_selection_strategy: two_llm_calls
 unsupported_components: true
 """
 
-# Pass YAML string directly
-config = read_config_yaml_file(yaml_config)
-agent = NextGenUIAgent(config=config)
+# Pass YAML string directly to constructor
+agent = NextGenUIAgent(config=yaml_config)
 ```
