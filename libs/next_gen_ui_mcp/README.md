@@ -26,7 +26,7 @@ Depending on your use case you may need additional packages for inference provid
 
 ## Usage
 
-### Running the standalone server:
+### Running the standalone server examples
 
 ```bash
   # Run with MCP sampling (default - leverages client's LLM)
@@ -61,6 +61,41 @@ As the above examples show you can choose to configure `llamastack` or `langchai
 
 Similarly pluggable component systems such as `rhds` also require certain imports, `next_gen_ui_rhds_renderer` in this particular case.
 
+### Server arguments
+
+To get help how to run the server and pass the arguments run it with `-h` parameter:
+
+```sh
+python -m next_gen_ui_mcp -h
+
+Next Gen UI MCP Server with Sampling or External LLM Providers
+
+options:
+  -h, --help            show this help message and exit
+  --config-path CONFIG_PATH [CONFIG_PATH ...]
+                        Path to configuration YAML file. You can specify multiple config files by repeating same parameter or passing comma separated value.
+  --transport {stdio,sse,streamable-http}
+                        Transport protocol to use
+  --host HOST           Host to bind to
+  --port PORT           Port to bind to
+  --component-system {json,patternfly,rhds}
+                        Component system to use for rendering (default: json)
+  --debug               Enable debug logging
+  --provider {mcp,llamastack,langchain}
+                        Inference provider to use (default: mcp - uses MCP sampling)
+  --model MODEL         Model name to use (required for llamastack and langchain)
+  --llama-url LLAMA_URL
+                        LlamaStack server URL (default: http://localhost:5001)
+  --base-url BASE_URL   Base URL for OpenAI-compatible API (e.g., http://localhost:11434/v1 for Ollama)
+  --api-key API_KEY     API key for the LLM provider (uses OPENAI_API_KEY env var if not provided)
+  --temperature TEMPERATURE
+                        Temperature for LangChain model (default: 0.0 for deterministic responses)
+  --sampling-max-tokens SAMPLING_MAX_TOKENS
+                        Maximum tokens for MCP sampling inference (default: 2048)
+```
+
+### Running Server locally from Git Repo
+
 If you are running this from inside of our [NextGenUI Agent GitHub repo](https://github.com/RedHat-UX/next-gen-ui-agent) then our `pants` repository manager can help you satisfy all dependencies. In such case you can run the commands in the following way:
 
 ```bash
@@ -69,6 +104,9 @@ If you are running this from inside of our [NextGenUI Agent GitHub repo](https:/
 
   # Run with streamable-http transport and Red Hat Design System component system for rendering
   pants run libs/next_gen_ui_mcp/server_example.py:extended --run-args="--transport streamable-http --component-system rhds"
+
+  # Run directly
+  PYTHONPATH=./libs python libs/next_gen_ui_mcp -h
 ```
 
 ### Testing with MCP Client:
