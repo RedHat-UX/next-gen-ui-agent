@@ -10,7 +10,7 @@ Add next section to your `settings.json` to :
 
 ```json
 "yaml.schemas": {
-    "https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/config/agent_config.schema.json": ["ngui_*.yaml", "ngui_*.yml"]
+    "https://raw.githubusercontent.com/RedHat-UX/next-gen-ui-agent/refs/heads/main/spec/config/agent_config.schema.json": ["ngui_*.yaml", "ngui_*.yml"]
 },
 ```
 
