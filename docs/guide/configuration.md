@@ -2,6 +2,8 @@
 
 The Next Gen UI Agent can be configured in two ways: `programmatically` using Python dictionaries or `declaratively` using YAML configuration files.
 
+[Agent configuration JSON Schema and how to use it to validate YAML files in IDE is described here](../spec/config.md).
+
 ## Configuration Options
 
 ### `inference` [`InferenceBase`, required]
@@ -46,25 +48,24 @@ Key is `InputData.type` to configure, value is configuration object for that dat
 
 Optional name of the [Input Data Transformer](input_data/transformation.md) to be used for this data type. JSON format is expected by default.
 
+
 #### `components` [`list[AgentConfigComponent]`, optional]
 
-Optional list of components used to render this data type. 
+Optional list of components used to render this data type. See [description of the component selection process](data_ui_blocks/index.md#selection-and-configuration-process).
 
-For now only one component can be defined here, and it has to be:
+For now only **one component** can be defined in this list, and it has to be:
 
-* [Dynamic component](./data_ui_blocks/dynamic_components.md) with pre-defined configuration so no LLM is used
+* [Dynamic component](./data_ui_blocks/dynamic_components.md) with pre-defined configuration
 * [Hand Build Component](./data_ui_blocks/hand_build_components.md)
 
-In the future, we plan plan to implement these additional features:
+In the future, we plan plan to [implement additional component selection features](data_ui_blocks/index.md#selection-and-configuration-process) so this configuration will be extended.
 
-* LLM powered selection from more components (dynamic with or without preconfiguration, or HBC)
-* LLM powered configuration of the dynamic component named here without pre-defined configuration
-* LLM powered update of the dynamic component pre-defined configuration defined here to better fir user prompt (if allowed)
 
 ##### `component` [`str`, required]
 
 Name of the UI component. Identification of the supported [Dynamic Component](./data_ui_blocks/dynamic_components.md) can be used here.
 Other value is interpreted as [Hand Build Component](./data_ui_blocks/hand_build_components.md) name and HBC is rendered.
+
 
 ##### `configuration` [`AgentConfigDynamicComponentConfiguration`, optional]
 
@@ -73,6 +74,7 @@ If `Dynamic Component` is named, then its pre-defined configuration has to be pr
 ###### `title` [`str`, required]
 
 Title of the component to be rendered in UI.
+
 
 ###### `fields` [`list[DataField]`, required]
 
@@ -125,8 +127,6 @@ agent = NextGenUIAgent(config=config)
 ```
 
 ## YAML Configuration
-
-[Configuration JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/config/agent_config.schema.json)
 
 ### Basic YAML Configuration
 

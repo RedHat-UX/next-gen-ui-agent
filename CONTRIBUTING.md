@@ -150,6 +150,11 @@ Evaluation of the UI component selection and configuration AI powered functional
 For more details see its [README.md](tests/ai_eval_components/README.md).
 
 
+### Regenerating spec files
+
+UI Agent spec files (JSON schema of component outputs, JSON schema of the agent configuration) are stored in `spec` subdirectories. 
+To regenerate them, you have to run main method from the relevant `*_schema_test.py` file/s in the `spec` directory, then commit and push changes into git.
+
 ## Versioning
 
 Version is managed by commitizen and stored in [cz.toml](./cz.toml) and tagged in git.
