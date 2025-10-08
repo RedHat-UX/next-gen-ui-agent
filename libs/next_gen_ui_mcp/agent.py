@@ -96,7 +96,7 @@ class NextGenUIMCPServer:
                 ),
             ],
             input_data: Annotated[
-                List[InputData],
+                List[InputData] | None,
                 Field(
                     description="Input Data. JSON Array of objects with 'id' and 'data' keys. Do not generate this."
                 ),
@@ -116,6 +116,10 @@ class NextGenUIMCPServer:
             Returns:
                 List of rendered UI components ready for display
             """
+
+            if not input_data or len(input_data) == 0:
+                # TODO: Do analysis of input_data and check if data field contains data or not
+                raise ValueError("No data provided. No UI component generated.")
 
             try:
                 inference = self.inference

@@ -138,7 +138,7 @@ def create_server(
     config: AgentConfig = AgentConfig(component_system="json"),
     inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
-    debug: bool | None = False,
+    debug: bool = False,
 ) -> NextGenUIMCPServer:
     """Create NextGenUIMCPServer with optional external inference provider.
 
