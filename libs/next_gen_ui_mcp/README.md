@@ -125,7 +125,9 @@ The `--concurrent` parameter is there only to allow calling it while you use `pa
 [Llama-stack documentation for tools](https://llama-stack.readthedocs.io/en/latest/building_applications/tools.html) nicely shows how to register a MCP server but also shows the below code on how to invoke a tool directly
 
 ```python
-result = client.tool_runtime.invoke_tool(tool_name="generate_ui", kwargs=input_data)
+result = client.tool_runtime.invoke_tool(
+    tool_name="generate_ui",
+    kwargs=input_data,
 )
 ```
 
@@ -153,6 +155,7 @@ This single tool handles:
 
 ### `system://info`
 Returns system information about the Next Gen UI Agent including:
+
 - Agent name
 - Component system being used
 - Available capabilities
