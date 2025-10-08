@@ -39,7 +39,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 from next_gen_ui_agent.agent_config import read_config_yaml_file
 from next_gen_ui_agent.types import AgentConfig
 
@@ -49,7 +49,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from next_gen_ui_agent.model import InferenceBase, LangChainModelInference  # noqa: E402
 from next_gen_ui_mcp.agent import NextGenUIMCPAgent  # noqa: E402
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("NextGenUI-MCP-Server")
 
 
 def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
