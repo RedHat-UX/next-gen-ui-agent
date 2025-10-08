@@ -47,7 +47,7 @@ from next_gen_ui_agent.types import AgentConfig
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from next_gen_ui_agent.model import InferenceBase, LangChainModelInference  # noqa: E402
-from next_gen_ui_mcp.agent import NextGenUIMCPAgent  # noqa: E402
+from next_gen_ui_mcp import NextGenUIMCPServer  # noqa: E402
 
 logger = logging.getLogger("NextGenUI-MCP-Server")
 
@@ -134,28 +134,30 @@ def create_langchain_inference(
         raise RuntimeError(f"Failed to initialize LangChain model {model}: {e}") from e
 
 
-def create_agent(
+def create_server(
     config: AgentConfig = AgentConfig(component_system="json"),
     inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
-) -> NextGenUIMCPAgent:
-    """Create NextGenUIMCPAgent with optional external inference provider.
+    debug: bool | None = False,
+) -> NextGenUIMCPServer:
+    """Create NextGenUIMCPServer with optional external inference provider.
 
     Args:
         config: AgentConfig to use for the agent
         sampling_max_tokens: Maximum tokens for MCP sampling inference
 
     Returns:
-        Configured NextGenUIMCPAgent
+        Configured NextGenUIMCPServer
     """
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("NGUI Configuration: %s", config.model_dump())
 
-    return NextGenUIMCPAgent(
+    return NextGenUIMCPServer(
         config=config,
         inference=inference,
         sampling_max_tokens=sampling_max_tokens,
         name="NextGenUI-MCP-Server",
+        debug=debug,
     )
 
 
@@ -302,7 +304,11 @@ Examples:
     if args.component_system:
         config.component_system = args.component_system
 
-    logger.info("Starting Next Gen UI MCP Server with %s transport", args.transport)
+    logger.info(
+        "Starting Next Gen UI MCP Server with %s transport and debug=%s",
+        args.transport,
+        args.debug,
+    )
 
     # Validate arguments
     if args.provider in ["llamastack", "langchain"] and not args.model:
@@ -335,10 +341,11 @@ Examples:
             raise ValueError(f"Unknown provider: {args.provider}")
 
         # Create the agent
-        agent = create_agent(
+        agent = create_server(
             config=config,
             inference=inference,
             sampling_max_tokens=args.sampling_max_tokens,
+            debug=args.debug,
         )
 
     except (ImportError, RuntimeError) as e:
