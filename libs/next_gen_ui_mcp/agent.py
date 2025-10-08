@@ -1,10 +1,8 @@
-import json
 import logging
 from typing import Annotated, Any, Dict, List, Literal
 
+from fastmcp import Context, FastMCP
 from mcp import types
-from mcp.server.fastmcp import Context, FastMCP
-from mcp.server.session import ServerSession
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData
@@ -16,7 +14,7 @@ logger = logging.getLogger(__name__)
 class MCPSamplingInference(InferenceBase):
     """Inference implementation that uses MCP sampling for LLM calls."""
 
-    def __init__(self, ctx: Context[ServerSession, None], max_tokens: int = 2048):
+    def __init__(self, ctx: Context, max_tokens: int = 2048):
         self.ctx = ctx
         self.max_tokens = max_tokens
 
@@ -47,17 +45,10 @@ class MCPSamplingInference(InferenceBase):
             # Extract the text content from the response
             if isinstance(result.content, types.TextContent):
                 return result.content.text
-            elif isinstance(result.content, str):
-                return result.content
             else:
-                # Handle list of content items
-                content_text = ""
-                for item in result.content:
-                    if isinstance(item, types.TextContent):
-                        content_text += item.text
-                    elif hasattr(item, "text"):
-                        content_text += item.text
-                return content_text
+                raise Exception(
+                    "Sample Response returned unknown type: " + result.content.type
+                )
 
         except Exception as e:
             logger.exception("MCP sampling failed")
@@ -102,7 +93,7 @@ class NextGenUIMCPAgent:
                     description="Input Data. JSON Array of objects with 'id' and 'data' keys. Do not generate this."
                 ),
             ],
-            ctx: Context[ServerSession, None],
+            ctx: Context,
         ) -> List[Dict[str, Any]]:
             """Generate UI components from user prompt and input data.
 
@@ -178,26 +169,26 @@ class NextGenUIMCPAgent:
                 await ctx.error(f"UI generation failed: {e}")
                 raise e
 
-        @self.mcp.resource("system://info")
-        def get_system_info() -> str:
+        @self.mcp.resource(
+            "system://info",
+            mime_type="application/json",
+        )
+        def get_system_info() -> dict:
             """Get system information about the Next Gen UI Agent."""
-            return json.dumps(
-                {
-                    "agent_name": "NextGenUIMCPAgent",
-                    "component_system": self.config.component_system,
-                    "description": "Next Gen UI Agent exposed via MCP protocol",
-                    "capabilities": [
-                        "UI component generation based of user prompt and input data"
-                    ],
-                }
-            )
+            return {
+                "agent_name": "NextGenUIMCPAgent",
+                "component_system": self.config.component_system,
+                "description": "Next Gen UI Agent exposed via MCP protocol",
+                "capabilities": [
+                    "UI component generation based of user prompt and input data"
+                ],
+            }
 
     def run(
         self,
         transport: Literal["stdio", "sse", "streamable-http"] = "stdio",
         host: str = "127.0.0.1",
         port: int = 8000,
-        mount_path: str | None = None,
     ):
         """Run the MCP server.
 
@@ -205,16 +196,14 @@ class NextGenUIMCPAgent:
             transport: Transport type ('stdio', 'sse', 'streamable-http')
             host: Host to bind to (for sse and streamable-http transports)
             port: Port to bind to (for sse and streamable-http transports)
-            mount_path: Mount path for SSE transport
         """
         # Configure host and port in FastMCP settings for non-stdio transports
         if transport in ["sse", "streamable-http"]:
-            self.mcp.settings.host = host
-            self.mcp.settings.port = port
-
-        # Run with appropriate parameters based on transport
-        if transport == "sse":
-            self.mcp.run(transport=transport, mount_path=mount_path)
+            self.mcp.run(
+                transport=transport,
+                host=host,
+                port=port,
+            )
         else:
             self.mcp.run(transport=transport)
 
