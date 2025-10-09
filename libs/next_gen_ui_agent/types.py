@@ -1,6 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Any, Literal, Optional
 
+from next_gen_ui_agent.input_data_transform.csv_input_data_transformer import (
+    CsvCommaInputDataTransformer,
+    CsvSemicolonInputDataTransformer,
+    CsvTabInputDataTransformer,
+)
 from next_gen_ui_agent.input_data_transform.yaml_input_data_transformer import (
     YamlInputDataTransformer,
 )
@@ -56,10 +61,14 @@ class AgentConfigDataType(BaseModel):
     """Agent Configuration for the Data Type."""
 
     data_transformer: Optional[
-        str | YamlInputDataTransformer.TRANSFORMER_NAME_LITERAL
+        str
+        | YamlInputDataTransformer.TRANSFORMER_NAME_LITERAL
+        | CsvCommaInputDataTransformer.TRANSFORMER_NAME_LITERAL
+        | CsvSemicolonInputDataTransformer.TRANSFORMER_NAME_LITERAL
+        | CsvTabInputDataTransformer.TRANSFORMER_NAME_LITERAL
     ] = Field(
         default=None,
-        description="Transformer to use to transform the input data of this type. Default format is JSON, available transformers: `yaml`. Other transformers can be installed, see docs.",
+        description="Transformer to use to transform the input data of this type. Default format is JSON, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs.",
     )
     """
     Data transformer to use to transform the input data of this type.
