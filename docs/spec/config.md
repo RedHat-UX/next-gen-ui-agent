@@ -17,7 +17,7 @@ regarding their default configuration.
 
 You need extension with YAML language support, eg. [Red Hat provided `YAML` extension](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-yaml).
 
-For this extension, [`JSON Schema Store`](#multiple-ides---from-json-schema-store) is used by default, so the schema is immediatelly available. 
+For this extension, `JSON Schema Store` is used by default, so the schema is immediatelly available. 
 It is bound to that file patterns, or can be autodetected/selected for other files.
 
 You can also configure binding to other filenames by adding next section to your `settings.json` (it 

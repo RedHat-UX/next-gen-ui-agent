@@ -30,3 +30,41 @@ In the future, we plan to implement additional options for "per `InputData.type`
 * LLM powered configuration of the Dynamic Component configured without pre-defined configuration
 * LLM powered update of the Dynamic Component pre-defined configuration to better fit `User prompt`, with fallback when LLM is not available
 
+Note that `InputData.type` often contains name of the LLM tool used to load the data (eg. in our [AI framework bindings](../ai_apps_binding/index.md)), 
+so tool names are directly used for binding to UI components in this case.
+
+### Example configuration
+
+In the case of this example [yaml configuration](../configuration.md#yaml-configuration), selection and configuration works this way:
+
+* For input data with `type`=`movies:movie-detail`, Hand Build Component with name `movies:movie-detail-view` is used. Its specific 
+  rendering code has to be provided in used UI renderer.
+* For input data with `type`=`movie:movies-list`, `table` Dynamic Component is used, configured to show three columns and "Movies" title.
+* For input data with `type`=`movie:actors-list`, error is produced, as not pre-configured Dynamic components are not supported ATM.
+* For other inut data, AI/LLM powered selection and configuration is performed.
+
+```yaml
+...
+
+data_types:
+  movies:movie-detail:
+    components:
+      - component: movies:movie-detail-view
+  movie:movies-list:
+    components:
+      - component: table
+        configuration:
+          title: "Movies"
+          fields:
+            - name: "Name"
+              data_path: "$..movies[].name"
+            - name: "Year"
+              data_path: "$..movies[].year"
+            - name: "IMDB Rating"
+              data_path: "$..movies[].imdb.rating"
+  movie:actors-list:
+    components:
+      - component: table
+
+```
+
