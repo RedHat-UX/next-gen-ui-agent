@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 import yaml  # type: ignore[import-untyped]
 from next_gen_ui_agent.input_data_transform.types import InputDataTransformerBase
@@ -6,6 +6,10 @@ from next_gen_ui_agent.input_data_transform.types import InputDataTransformerBas
 
 class YamlInputDataTransformer(InputDataTransformerBase):
     """Input Data transformer from Yaml format."""
+
+    TRANSFORMER_NAME = "yaml"
+
+    TRANSFORMER_NAME_LITERAL = Literal["yaml"]
 
     def transform(self, input_data: str) -> Any:
         """

@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
+from next_gen_ui_agent.input_data_transform.yaml_input_data_transformer import (
+    YamlInputDataTransformer,
+)
 from next_gen_ui_agent.model import InferenceBase
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired, TypedDict
@@ -52,9 +55,11 @@ class AgentConfigComponent(BaseModel):
 class AgentConfigDataType(BaseModel):
     """Agent Configuration for the Data Type."""
 
-    data_transformer: Optional[str] = Field(
+    data_transformer: Optional[
+        str | YamlInputDataTransformer.TRANSFORMER_NAME_LITERAL
+    ] = Field(
         default=None,
-        description="Data transformer to use to transform the input data of this type.",
+        description="Transformer to use to transform the input data of this type. Default format is JSON, available transformers: `yaml`. Other transformers can be installed, see docs.",
     )
     """
     Data transformer to use to transform the input data of this type.
@@ -74,7 +79,8 @@ class AgentConfig(BaseModel):
     """Agent Configuration."""
 
     component_system: Optional[str] = Field(
-        default=None, description="Component system to use to render the UI component."
+        default=None,
+        description="Component system to use to render the UI component. Default is `json`. UI renderers have to be installed to use other systems.",
     )
     """Component system to use to render the UI component."""
 
@@ -87,16 +93,17 @@ class AgentConfig(BaseModel):
     If `True`, the agent can also generate unsupported UI components.
     """
 
-    component_selection_strategy: Optional[str] = Field(
+    component_selection_strategy: Optional[
+        Literal["one_llm_call", "two_llm_calls"]
+    ] = Field(
         default=None,
-        description="Component selection strategy to use. Possible values: default - use the default implementation, one_llm_call - use the one LLM call implementation from component_selection.py, two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py",
+        description="Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!",
     )
     """
     Component selection strategy to use.
     Possible values:
-    - default - use the default implementation
-    - one_llm_call - use the one LLM call implementation from component_selection.py
-    - two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py
+    - `one_llm_call` (default) - use the one LLM call implementation from component_selection.py
+    - `two_llm_calls` - use the two LLM calls implementation from component_selection_twostep.py - experimental!
     """
 
     data_types: Optional[dict[str, AgentConfigDataType]] = Field(

@@ -97,7 +97,9 @@ class NextGenUIAgent:
                 input_data_json_wrapping=input_data_json_wrapping,
             )
         else:
-            raise ValueError(f"Unknown component_selection_strategy: {strategy_name}")
+            raise ValueError(
+                f"Unknown component_selection_strategy in config: {strategy_name}"
+            )
 
     def __setattr__(self, name, value):
         if name == "_extension_manager":

@@ -6,30 +6,20 @@ The Next Gen UI Agent can be configured in two ways: `programmatically` using Py
 
 ## Configuration Options
 
-### `inference` [`InferenceBase`, required]
-The LLM inference engine to use for component selection and configuration.
-
-The `inference` parameter accepts any class that extends `InferenceBase`. The Next Gen UI Agent provides the following built-in inference implementations:
-
-- `next_gen_ui_agent.model.LangChainModelInference`: Wrapper for LangChain-compatible language models. Supports any LangChain LLM implementation including ChatOllama, ChatOpenAI, ChatAnthropic, and other LangChain model providers.
-- `next_gen_ui_llama_stack.LlamaStackAgentInference`: Integration with Standalone Llama Stack
-- `next_gen_ui_llama_stack_embedded.LlamaStackEmbeddedAsyncAgentInference`: Integration with Embedded Llama Stack
-
-
 ### `component_system` [`str`, optional]
 
 [UI Component system](renderer/index.md) for rendering (default: `"json"`)
 
 ### `unsupported_components` [`bool`, optional]
 
-Whether to allow unsupported/Tech Preview [dynamic UI components](data_ui_blocks/dynamic_components.md) to be selected by LLM (default: `False`)
+Whether to allow unsupported/Tech Preview [Dynamic UI components](data_ui_blocks/dynamic_components.md) to be selected by LLM (default: `False`)
 
 ### `component_selection_strategy` [`str`, optional]
 
-Strategy for component selection
+Strategy for LLM powered component selection and configuration step:
 
-- `one_llm_call` / `default`: Uses single LLM call for component selection and configuration
-- `two_llm_calls`: Uses two-step LLM process - first selects component type, second configures it - *highly experimental feature!*
+- `one_llm_call`: Uses single LLM call for component selection and configuration - default
+- `two_llm_calls`: Uses two LLM calls - first selects component type, second configures it - *experimental feature!*
 
 ### `input_data_json_wrapping` [`bool`, optional]
 
@@ -47,6 +37,8 @@ Key is `InputData.type` to configure, value is configuration object for that dat
 #### `data_transformer` [`str`, optional] 
 
 Optional name of the [Input Data Transformer](input_data/transformation.md) to be used for this data type. JSON format is expected by default.
+
+Available values: `yaml`
 
 
 #### `components` [`list[AgentConfigComponent]`, optional]

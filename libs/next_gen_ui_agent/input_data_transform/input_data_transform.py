@@ -27,9 +27,11 @@ logger.info(
     input_data_transformer_extension_manager.names(),
 )
 
-# default transformers implemented in this module ar selected more efficiently
-tr_yaml = YamlInputDataTransformer()
-tr_json = JsonInputDataTransformer()
+# default transformers implemented in this module to be selected more efficiently
+BUILTIN_INPUT_DATA_TRANSFORMERS: dict[str, InputDataTransformerBase] = {
+    YamlInputDataTransformer.TRANSFORMER_NAME: YamlInputDataTransformer(),
+    JsonInputDataTransformer.TRANSFORMER_NAME: JsonInputDataTransformer(),
+}
 
 
 def get_input_data_transformer(
@@ -37,10 +39,8 @@ def get_input_data_transformer(
 ) -> InputDataTransformerBase:
     """Get the input data transformer by name."""
 
-    if input_data_transformer_name == "yaml":
-        return tr_yaml
-    elif input_data_transformer_name == "json":
-        return tr_json
+    if input_data_transformer_name in BUILTIN_INPUT_DATA_TRANSFORMERS:
+        return BUILTIN_INPUT_DATA_TRANSFORMERS[input_data_transformer_name]
     elif input_data_transformer_name in input_data_transformer_extension_manager:
         return input_data_transformer_extension_manager[  # type:ignore
             input_data_transformer_name
