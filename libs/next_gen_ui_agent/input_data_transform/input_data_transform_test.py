@@ -2,12 +2,17 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from next_gen_ui_agent.input_data_transform.input_data_transform import (
+    BUILTIN_INPUT_DATA_TRANSFORMERS,
     PLUGGABLE_INPUT_DATA_TRANSFORMERS_NAMESPACE,
     get_input_data_transformer,
     input_data_transformer_extension_manager,
     perform_input_data_transformation,
-    tr_json,
-    tr_yaml,
+)
+from next_gen_ui_agent.input_data_transform.json_input_data_transformer import (
+    JsonInputDataTransformer,
+)
+from next_gen_ui_agent.input_data_transform.yaml_input_data_transformer import (
+    YamlInputDataTransformer,
 )
 
 
@@ -23,7 +28,12 @@ class TestInputDataTransform:
         transformer = get_input_data_transformer("yaml")
 
         # Should return the same instance as tr_yaml
-        assert transformer is tr_yaml
+        assert (
+            transformer
+            is BUILTIN_INPUT_DATA_TRANSFORMERS[
+                YamlInputDataTransformer.TRANSFORMER_NAME
+            ]
+        )
         assert transformer.__class__.__name__ == "YamlInputDataTransformer"
 
     def test_get_input_data_transformer_json(self) -> None:
@@ -31,7 +41,12 @@ class TestInputDataTransform:
         transformer = get_input_data_transformer("json")
 
         # Should return the same instance as tr_json
-        assert transformer is tr_json
+        assert (
+            transformer
+            is BUILTIN_INPUT_DATA_TRANSFORMERS[
+                JsonInputDataTransformer.TRANSFORMER_NAME
+            ]
+        )
         assert transformer.__class__.__name__ == "JsonInputDataTransformer"
 
     def test_get_input_data_transformer_invalid_name(self) -> None:
@@ -130,7 +145,23 @@ age: 30
         assert input_data_transformer_extension_manager is not None
 
         # Test that default transformers are created
-        assert tr_yaml is not None
-        assert tr_json is not None
-        assert tr_yaml.__class__.__name__ == "YamlInputDataTransformer"
-        assert tr_json.__class__.__name__ == "JsonInputDataTransformer"
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[YamlInputDataTransformer.TRANSFORMER_NAME]
+            is not None
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[JsonInputDataTransformer.TRANSFORMER_NAME]
+            is not None
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[
+                YamlInputDataTransformer.TRANSFORMER_NAME
+            ].__class__.__name__
+            == "YamlInputDataTransformer"
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[
+                JsonInputDataTransformer.TRANSFORMER_NAME
+            ].__class__.__name__
+            == "JsonInputDataTransformer"
+        )

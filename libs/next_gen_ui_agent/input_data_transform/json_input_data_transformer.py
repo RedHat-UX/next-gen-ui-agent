@@ -7,6 +7,8 @@ from next_gen_ui_agent.input_data_transform.types import InputDataTransformerBas
 class JsonInputDataTransformer(InputDataTransformerBase):
     """Input Data transformer from JSON format."""
 
+    TRANSFORMER_NAME = "json"
+
     def transform(self, input_data: str) -> Any:
         """
         Transform the input data into the object tree matching parsed JSON format.

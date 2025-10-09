@@ -21,7 +21,7 @@ from next_gen_ui_agent.types import (
 )
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
 from next_gen_ui_testing.model import MockedInference
-from pydantic_core import from_json
+from pydantic_core import ValidationError, from_json
 
 
 def test_config_yaml_str() -> None:
@@ -269,14 +269,11 @@ class TestCreateComponentSelectionStrategy:
 
     def test_unknown_strategy_raises_value_error(self):
         """Test that unknown strategy raises ValueError."""
-        config = AgentConfig(component_selection_strategy="unknown_strategy")
-        agent = NextGenUIAgent()  # Use default config to avoid error in __init__
-        agent.config = config  # Set the invalid config after initialization
-
         with pytest.raises(
-            ValueError, match="Unknown component_selection_strategy: unknown_strategy"
+            ValidationError,
+            match="1 validation error for AgentConfig\ncomponent_selection_strategy\n  Input should be 'one_llm_call' or 'two_llm_calls'",
         ):
-            agent._create_component_selection_strategy()
+            AgentConfig(component_selection_strategy="unknown_strategy")
 
     def test_unsupported_components_from_config_true(self):
         """Test unsupported_components=True from config."""
