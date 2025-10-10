@@ -10,6 +10,12 @@ The Next Gen UI Agent can be configured in two ways: `programmatically` using Py
 
 [UI Component system](renderer/index.md) for rendering (default: `"json"`)
 
+### `data_transformer` [`str`, optional] 
+
+Optional name of the [Input Data Transformer](input_data/transformation.md) used by the UI Agent. 
+Can be overriden [per data type](#data_transformer-str-optional-1). Defaults to [JSON](./input_data/transformation.md#json-transformer).
+
+
 ### `unsupported_components` [`bool`, optional]
 
 Whether to allow unsupported/Tech Preview [Dynamic UI components](data_ui_blocks/dynamic_components.md) to be selected by LLM (default: `False`)
@@ -36,7 +42,7 @@ Key is `InputData.type` to configure, value is configuration object for that dat
 
 #### `data_transformer` [`str`, optional] 
 
-Optional name of the [Input Data Transformer](input_data/transformation.md) to be used for this data type. JSON format is expected by default.
+Optional name of the [Input Data Transformer](input_data/transformation.md) to be used for this data type instead of [Agent's default one](#data_transformer-str-optional).
 
 
 #### `components` [`list[AgentConfigComponent]`, optional]

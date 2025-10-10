@@ -1,7 +1,7 @@
 from typing import Any, Literal
 
 import yaml  # type: ignore[import-untyped]
-from next_gen_ui_agent.input_data_transform.types import InputDataTransformerBase
+from next_gen_ui_agent.types import InputDataTransformerBase
 
 
 class YamlInputDataTransformer(InputDataTransformerBase):

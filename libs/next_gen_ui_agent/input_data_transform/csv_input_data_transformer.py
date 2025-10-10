@@ -3,7 +3,7 @@ from io import StringIO
 from typing import Any, Literal
 
 from next_gen_ui_agent.data_structure_tools import sanitize_field_name, transform_value
-from next_gen_ui_agent.input_data_transform.types import InputDataTransformerBase
+from next_gen_ui_agent.types import InputDataTransformerBase
 
 
 class CsvInputDataTransformer(InputDataTransformerBase):

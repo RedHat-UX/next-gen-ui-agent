@@ -21,7 +21,10 @@ DYNAMIC_COMPONENT_NAMES = [
 ]
 """ List of dynamic component names. """
 
+
 components_mapping: dict[str, UIComponentMetadata] = {}
+""" Global variable with components mapping configuration.
+Filled from init_pertype_components_mapping function """
 
 
 def init_pertype_components_mapping(config: AgentConfig | None) -> None:
