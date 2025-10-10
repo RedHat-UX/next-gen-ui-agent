@@ -55,16 +55,18 @@ class MCPSamplingInference(InferenceBase):
             raise RuntimeError(f"Failed to call model via MCP sampling: {e}") from e
 
 
-class NextGenUIMCPAgent:
+class NextGenUIMCPServer:
     """Next Gen UI Agent as MCP server that can use sampling or external inference."""
 
     def __init__(
         self,
         config: AgentConfig = AgentConfig(component_system="json"),
-        name: str = "NextGenUIMCPAgent",
+        name: str = "NextGenUIMCPServer",
         sampling_max_tokens: int = 2048,
         inference: InferenceBase | None = None,
+        debug: bool = False,
     ):
+        self.debug = debug
         self.config = config
         self.sampling_max_tokens = sampling_max_tokens
         self.mcp: FastMCP = FastMCP(name)
@@ -74,13 +76,19 @@ class NextGenUIMCPAgent:
     def _setup_mcp_tools(self):
         """Set up MCP tools for the agent."""
 
+        generate_ui_exclude_args = []
+        if not self.debug:
+            generate_ui_exclude_args.append("input_data")
+
         @self.mcp.tool(
             description=(
                 "Generate UI components from user prompt and input data. "
                 "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
             ),
+            exclude_args=generate_ui_exclude_args,
         )
         async def generate_ui(
+            ctx: Context,
             user_prompt: Annotated[
                 str,
                 Field(
@@ -88,12 +96,11 @@ class NextGenUIMCPAgent:
                 ),
             ],
             input_data: Annotated[
-                List[InputData],
+                List[InputData] | None,
                 Field(
                     description="Input Data. JSON Array of objects with 'id' and 'data' keys. Do not generate this."
                 ),
-            ],
-            ctx: Context,
+            ] = None,
         ) -> List[Dict[str, Any]]:
             """Generate UI components from user prompt and input data.
 
@@ -109,6 +116,10 @@ class NextGenUIMCPAgent:
             Returns:
                 List of rendered UI components ready for display
             """
+
+            if not input_data or len(input_data) == 0:
+                # TODO: Do analysis of input_data and check if data field contains data or not
+                raise ValueError("No data provided. No UI component generated.")
 
             try:
                 inference = self.inference
@@ -176,7 +187,7 @@ class NextGenUIMCPAgent:
         def get_system_info() -> dict:
             """Get system information about the Next Gen UI Agent."""
             return {
-                "agent_name": "NextGenUIMCPAgent",
+                "agent_name": "NextGenUIMCPServer",
                 "component_system": self.config.component_system,
                 "description": "Next Gen UI Agent exposed via MCP protocol",
                 "capabilities": [

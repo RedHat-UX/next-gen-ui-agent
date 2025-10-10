@@ -1,5 +1,5 @@
-from next_gen_ui_mcp.agent import NextGenUIMCPAgent
+from next_gen_ui_mcp.agent import NextGenUIMCPServer
 
 __all__ = [
-    "NextGenUIMCPAgent",
+    "NextGenUIMCPServer",
 ]

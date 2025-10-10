@@ -6,8 +6,8 @@ import pytest
 from fastmcp import Client, Context
 from mcp import CreateMessageResult, types
 from next_gen_ui_agent.types import AgentConfig, InputData, UIComponentMetadata
+from next_gen_ui_mcp import NextGenUIMCPServer
 from next_gen_ui_mcp.__main__ import add_health_routes
-from next_gen_ui_mcp.agent import NextGenUIMCPAgent
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedExceptionInference, MockedInference
 
@@ -37,7 +37,7 @@ async def test_mcp_agent_with_sampling_inference() -> None:
     async def sampling_handler(_messages, _params, _context) -> str:
         return mocked_llm_response.model_dump_json()
 
-    ngui_agent = NextGenUIMCPAgent(config=AgentConfig(component_system="json"))
+    ngui_agent = NextGenUIMCPServer(config=AgentConfig(component_system="json"))
 
     # Get the FastMCP server
     mcp_server = ngui_agent.get_mcp_server()
@@ -94,7 +94,7 @@ async def test_mcp_agent_with_sampling_inference_bad_return_type() -> None:
         response = CreateMessageResult(content=image, role="assistant", model="t")
         return response
 
-    ngui_agent = NextGenUIMCPAgent(config=AgentConfig(component_system="json"))
+    ngui_agent = NextGenUIMCPServer(config=AgentConfig(component_system="json"))
 
     # Get the FastMCP server
     mcp_server = ngui_agent.get_mcp_server()
@@ -147,7 +147,7 @@ async def test_mcp_agent_with_external_inference() -> None:
     external_inference = MockedInference(mocked_component)
 
     # Create agent with external inference (not using MCP sampling)
-    ngui_agent = NextGenUIMCPAgent(
+    ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),
         name="TestAgentExternal",
         inference=external_inference,
@@ -208,7 +208,7 @@ async def test_mcp_agent_with_external_inference() -> None:
 async def test_mcp_agent_system_info_resource() -> None:
     """Test the MCP agent's system info resource."""
     # Create agent (no inference parameter needed with new MCP sampling approach)
-    ngui_agent = NextGenUIMCPAgent(
+    ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="rhds"), name="TestAgent"
     )
 
@@ -226,7 +226,7 @@ async def test_mcp_agent_system_info_resource() -> None:
         text_content = result_list[0].text
         assert text_content is not None
         system_info = json.loads(text_content)
-        assert system_info["agent_name"] == "NextGenUIMCPAgent"
+        assert system_info["agent_name"] == "NextGenUIMCPServer"
         assert system_info["component_system"] == "rhds"
         assert "capabilities" in system_info
 
@@ -238,7 +238,7 @@ async def test_mcp_inference_error() -> None:
     inference = MockedExceptionInference(Exception("call model test error"))
 
     # Create agent with external inference (not using MCP sampling)
-    ngui_agent = NextGenUIMCPAgent(
+    ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),
         inference=inference,
         name="TestAgentExternal",
@@ -263,8 +263,8 @@ async def test_mcp_inference_error() -> None:
 
 
 @pytest.mark.asyncio
-async def test_tool_description() -> None:
-    ngui_agent = NextGenUIMCPAgent(name="TestAgent")
+async def test_tool_generate_ui_description_all() -> None:
+    ngui_agent = NextGenUIMCPServer(name="TestAgent", debug=True)
     mcp_server = ngui_agent.get_mcp_server()
 
     async with Client(mcp_server) as client:
@@ -286,8 +286,21 @@ async def test_tool_description() -> None:
         )
 
 
+@pytest.mark.asyncio
+async def test_tool_generate_ui_description_excluded() -> None:
+    ngui_agent = NextGenUIMCPServer(name="TestAgent")
+    mcp_server = ngui_agent.get_mcp_server()
+
+    async with Client(mcp_server) as client:
+        tools = await client.list_tools()
+        assert len(tools) == 1
+        tool_generate_ui = tools[0]
+
+        assert "input_data" not in tool_generate_ui.inputSchema["properties"]
+
+
 def test_liveness() -> None:
-    ngui_agent = NextGenUIMCPAgent(name="TestAgent")
+    ngui_agent = NextGenUIMCPServer(name="TestAgent")
 
     mcp_server = ngui_agent.get_mcp_server()
 

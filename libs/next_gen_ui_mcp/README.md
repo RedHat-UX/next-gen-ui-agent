@@ -14,7 +14,7 @@ It's more natural and reliable to invoke this MCP tool directly with the paramet
 ## Provides
 
 * `__main__.py` to run the MCP server as the standalone server
-* `NextGenUIMCPAgent` to embed the UI Agent MCP server into your python code
+* `NextGenUIMCPServer` to embed the UI Agent MCP server into your python code
 
 ## Installation
 
@@ -144,8 +144,9 @@ This single tool handles:
 
 **Parameters:**
 
-- `user_prompt` (str): User's prompt which we want to enrich with UI components
-- `input_data` (List[Dict]): List of input data to render within the UI components
+- `user_prompt` (str, required): User's prompt which we want to enrich with UI components
+- `input_data` (List[Dict], optional): List of input data to render within the UI components. Excluded in MCP schema by default.
+  Only if `--debug` is enabled, parameter is part of schema and available e.g. in inspector 
 
 **Returns:**
 
