@@ -13,7 +13,7 @@ The Next Gen UI Agent can be configured in two ways: `programmatically` using Py
 ### `data_transformer` [`str`, optional] 
 
 Optional name of the [Input Data Transformer](input_data/transformation.md) used by the UI Agent. 
-Can be overriden [per data type](#data_transformer-str-optional-1). Defaults to [JSON](./input_data/transformation.md#json-transformer).
+Can be overriden [per data type](#data_transformer-str-optional_1). Defaults to [JSON](./input_data/transformation.md#json-transformer).
 
 
 ### `unsupported_components` [`bool`, optional]
