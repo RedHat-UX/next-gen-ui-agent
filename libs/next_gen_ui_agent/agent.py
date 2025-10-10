@@ -19,6 +19,7 @@ from next_gen_ui_agent.design_system_handler import (
     design_system_handler as _design_system_handler,
 )
 from next_gen_ui_agent.input_data_transform.input_data_transform import (
+    init_input_data_transformers,
     perform_input_data_transformation,
 )
 from next_gen_ui_agent.model import InferenceBase
@@ -62,6 +63,7 @@ class NextGenUIAgent:
         self.inference = inference
 
         init_pertype_components_mapping(self.config)
+        init_input_data_transformers(self.config)
         self._component_selection_strategy = self._create_component_selection_strategy()
 
     def _create_component_selection_strategy(self) -> ComponentSelectionStrategy:
@@ -109,35 +111,16 @@ class NextGenUIAgent:
         else:
             super().__setattr__(name, value)
 
-    def _get_input_data_transformer_name(self, input_data: InputData) -> str:
-        """Get input data transformer name based on input data type."""
-        if (
-            self.config.data_types
-            and input_data.get("type")
-            and input_data["type"] in self.config.data_types
-        ):
-            transformer_name = self.config.data_types[
-                input_data["type"]
-            ].data_transformer
-            if transformer_name:
-                return transformer_name
-        return "json"
-
     async def component_selection(
         self, input: AgentInput, inference: Optional[InferenceBase] = None
     ) -> list[UIComponentMetadata]:
         """STEP 1: Select component and generate its configuration metadata."""
 
-        # select hand build components for items where defined, for rest run LLM powered component selection, then join results together
+        # select per type configured components, for rest run LLM powered component selection, then join results together
         ret: list[UIComponentMetadata] = []
         to_dynamic_selection: list[InputData] = []
         for input_data in input["input_data"]:
-            input_data_transformer_name = self._get_input_data_transformer_name(
-                input_data
-            )
-            json_data = perform_input_data_transformation(
-                input_data_transformer_name, input_data.get("data")
-            )
+            json_data = perform_input_data_transformation(input_data)
 
             # select component InputData.type or InputData.hand_build_component_type
             component = select_component_per_type(input_data, json_data)

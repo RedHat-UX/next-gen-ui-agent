@@ -1,17 +1,19 @@
 from abc import ABC, abstractmethod
 from typing import Any, Literal, Optional
 
-from next_gen_ui_agent.input_data_transform.csv_input_data_transformer import (
-    CsvCommaInputDataTransformer,
-    CsvSemicolonInputDataTransformer,
-    CsvTabInputDataTransformer,
-)
-from next_gen_ui_agent.input_data_transform.yaml_input_data_transformer import (
-    YamlInputDataTransformer,
-)
 from next_gen_ui_agent.model import InferenceBase
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired, TypedDict
+
+CONFIG_OPTIONS_DATA_TRANSFORMER = Optional[
+    str
+    | Literal["json"]
+    | Literal["yaml"]
+    | Literal["csv-comma"]
+    | Literal["csv-semicolon"]
+    | Literal["csv-tab"]
+]
+""" data_transformer config option possibilities used on multiple levels """
 
 
 class DataField(BaseModel):
@@ -60,15 +62,9 @@ class AgentConfigComponent(BaseModel):
 class AgentConfigDataType(BaseModel):
     """Agent Configuration for the Data Type."""
 
-    data_transformer: Optional[
-        str
-        | YamlInputDataTransformer.TRANSFORMER_NAME_LITERAL
-        | CsvCommaInputDataTransformer.TRANSFORMER_NAME_LITERAL
-        | CsvSemicolonInputDataTransformer.TRANSFORMER_NAME_LITERAL
-        | CsvTabInputDataTransformer.TRANSFORMER_NAME_LITERAL
-    ] = Field(
+    data_transformer: CONFIG_OPTIONS_DATA_TRANSFORMER = Field(
         default=None,
-        description="Transformer to use to transform the input data of this type. Default format is JSON, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs.",
+        description="Transformer to use to transform the input data of this type. Available transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs.",
     )
     """
     Data transformer to use to transform the input data of this type.
@@ -85,13 +81,21 @@ class AgentConfigDataType(BaseModel):
 
 # Intentionaly TypeDict because of passing ABC class InferenceBase
 class AgentConfig(BaseModel):
-    """Agent Configuration."""
+    """Next Gen UI Agent Configuration."""
 
     component_system: Optional[str] = Field(
         default=None,
         description="Component system to use to render the UI component. Default is `json`. UI renderers have to be installed to use other systems.",
     )
     """Component system to use to render the UI component."""
+
+    data_transformer: CONFIG_OPTIONS_DATA_TRANSFORMER = Field(
+        default="json",
+        description="Transformer used to parse the input data (can be overriden on 'data type' level). Default `json`, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs.",
+    )
+    """
+    Data transformer to use to transform the input data of this type.
+    """
 
     unsupported_components: Optional[bool] = Field(
         default=None,
@@ -274,3 +278,38 @@ class ComponentSelectionStrategy(ABC):
             `UIComponentMetadata`
         """
         pass
+
+
+class InputDataTransformerBase(ABC):
+    """Base of the Input Data transformer"""
+
+    def transform_input_data(self, input_data: InputData) -> Any:
+        """
+        Transform the input data into the object tree matching parsed JSON format.
+
+        Default implementation calls #transform(string) method with content.
+
+        Args:
+            input_data: InputData to transform
+        Returns:
+            Object tree matching parsed JSON using `json.loads()`, so `jsonpath_ng` can be used
+            to access the data, and Pydantic `model_dump_json()` can be used to convert it to JSON string.
+            Root of the structure must be either object (`dict`) or array (`list`).
+        Raises:
+            ValueError: If the input data can't be parsed due to invalid format.
+        """
+        return self.transform(input_data["data"])
+
+    def transform(self, input_data: str) -> Any:
+        """
+        Transform the input data into the object tree matching parsed JSON format.
+        Args:
+            input_data: Input data string to transform
+        Returns:
+            Object tree matching parsed JSON using `json.loads()`, so `jsonpath_ng` can be used
+            to access the data, and Pydantic `model_dump_json()` can be used to convert it to JSON string.
+            Root of the structure must be either object (`dict`) or array (`list`).
+        Raises:
+            ValueError: If the input data can't be parsed due to invalid format.
+        """
+        raise NotImplementedError("Subclasses must implement this method")

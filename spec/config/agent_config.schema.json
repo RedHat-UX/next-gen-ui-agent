@@ -35,7 +35,23 @@
               "type": "string"
             },
             {
+              "const": "json",
+              "type": "string"
+            },
+            {
               "const": "yaml",
+              "type": "string"
+            },
+            {
+              "const": "csv-comma",
+              "type": "string"
+            },
+            {
+              "const": "csv-semicolon",
+              "type": "string"
+            },
+            {
+              "const": "csv-tab",
               "type": "string"
             },
             {
@@ -43,7 +59,7 @@
             }
           ],
           "default": null,
-          "description": "Transformer to use to transform the input data of this type. Default format is JSON, available transformers: `yaml`. Other transformers can be installed, see docs."
+          "description": "Transformer to use to transform the input data of this type. Available transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
         },
         "components": {
           "anyOf": [
@@ -106,7 +122,7 @@
       "type": "object"
     }
   },
-  "description": "Agent Configuration.",
+  "description": "Next Gen UI Agent Configuration.",
   "properties": {
     "component_system": {
       "anyOf": [
@@ -119,6 +135,38 @@
       ],
       "default": null,
       "description": "Component system to use to render the UI component. Default is `json`. UI renderers have to be installed to use other systems."
+    },
+    "data_transformer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "const": "json",
+          "type": "string"
+        },
+        {
+          "const": "yaml",
+          "type": "string"
+        },
+        {
+          "const": "csv-comma",
+          "type": "string"
+        },
+        {
+          "const": "csv-semicolon",
+          "type": "string"
+        },
+        {
+          "const": "csv-tab",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "json",
+      "description": "Transformer used to parse the input data (can be overriden on 'data type' level). Default `json`, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
     },
     "unsupported_components": {
       "anyOf": [

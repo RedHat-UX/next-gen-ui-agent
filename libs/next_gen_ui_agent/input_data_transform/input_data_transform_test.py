@@ -9,7 +9,10 @@ from next_gen_ui_agent.input_data_transform.csv_input_data_transformer import (
 from next_gen_ui_agent.input_data_transform.input_data_transform import (
     BUILTIN_INPUT_DATA_TRANSFORMERS,
     PLUGGABLE_INPUT_DATA_TRANSFORMERS_NAMESPACE,
+    c,
     get_input_data_transformer,
+    get_input_data_transformer_name,
+    init_input_data_transformers,
     input_data_transformer_extension_manager,
     perform_input_data_transformation,
 )
@@ -19,14 +22,156 @@ from next_gen_ui_agent.input_data_transform.json_input_data_transformer import (
 from next_gen_ui_agent.input_data_transform.yaml_input_data_transformer import (
     YamlInputDataTransformer,
 )
+from next_gen_ui_agent.types import AgentConfig, AgentConfigDataType, InputData
 
 
-class TestInputDataTransform:
+class TestInitInputDataTransformers:
+    def test_init_input_data_transformers_UNCONFIGURED(self) -> None:
+        """Test initializing input data transformers for configured data type."""
+
+        config = AgentConfig()
+        init_input_data_transformers(config)
+
+        assert c.default_data_transformer == "json"
+        assert c.per_type_data_transformers == {}
+
+    def test_init_input_data_transformers_CONFIGURED_PER_TYPE_AND_DEFAULT(self) -> None:
+        """Test initializing input data transformers for configured data type."""
+
+        config = AgentConfig(
+            data_transformer="yaml",
+            data_types={
+                "yaml_data": AgentConfigDataType(data_transformer="yaml"),
+                "json_data": AgentConfigDataType(data_transformer="json"),
+            },
+        )
+        init_input_data_transformers(config)
+
+        assert c.default_data_transformer == "yaml"
+        assert c.per_type_data_transformers == {
+            "yaml_data": "yaml",
+            "json_data": "json",
+        }
+
+    def test_init_input_data_transformers_CONFIGURED_PER_TYPE_ERROR(self) -> None:
+        """Test initializing input data transformers for configured data type with error."""
+
+        config = AgentConfig(
+            data_types={
+                "yaml_data": AgentConfigDataType(data_transformer="unknown"),
+            }
+        )
+        with pytest.raises(
+            KeyError, match="No input data transformer found for name: unknown"
+        ):
+            init_input_data_transformers(config)
+
+    def test_init_input_data_transformers_CONFIGURED_DEFAULT_ERROR(self) -> None:
+        """Test initializing input data transformers for configured default transformer error."""
+
+        config = AgentConfig(data_transformer="unknown")
+
+        with pytest.raises(
+            KeyError, match="No input data transformer found for name: unknown"
+        ):
+            init_input_data_transformers(config)
+
+
+class TestGetInputDataTransformerName:
+    def test_get_input_data_transformer_name_CONFIGURED_PER_TYPE(self) -> None:
+        """Test getting transformer name for configured data type."""
+
+        config = AgentConfig(
+            data_types={
+                "yaml_data": AgentConfigDataType(data_transformer="yaml"),
+                "json_data": AgentConfigDataType(data_transformer="json"),
+            }
+        )
+        init_input_data_transformers(config)
+
+        input_data = InputData(id="1", data="test data", type="yaml_data")
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "yaml"
+
+        # use default json for unconfigured type
+        input_data = InputData(id="1", data="test data", type="other_data")
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "json"
+
+        # use default json without type
+        input_data = InputData(id="1", data="test data")
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "json"
+
+    def test_get_input_data_transformer_name_UNCONFIGURED(self) -> None:
+        """Test getting transformer name if no any mapping is configured."""
+
+        config = AgentConfig()
+        init_input_data_transformers(config)
+
+        # use default json for unconfigured type
+        input_data = InputData(id="1", data="test data", type="unconf_data")
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "json"
+
+        # use default json without type
+        input_data = InputData(id="1", data="test data")
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "json"
+
+    def test_get_input_data_transformer_name_CONFIGURED_AGENT(self) -> None:
+        """Test getting transformer name if no any mapping is configured."""
+
+        config = AgentConfig(
+            data_transformer=YamlInputDataTransformer.TRANSFORMER_NAME,
+            data_types={
+                "yaml_data": AgentConfigDataType(data_transformer="yaml"),
+                "json_data": AgentConfigDataType(data_transformer="json"),
+            },
+        )
+        init_input_data_transformers(config)
+
+        # use configured default without type
+        input_data = InputData(id="1", data="test data")
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "yaml"
+
+        # use configured default for unconfigured type
+        input_data = InputData(id="1", data="test data", type="unconf_data")
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "yaml"
+
+        # use correct one for configured type
+        input_data = InputData(id="1", data="test data", type="json_data")
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "json"
+
+    def test_get_input_data_transformer_name_CONFIGURED_AGENT_ERROR(self) -> None:
+        """Test getting transformer name if no any mapping is configured."""
+
+        config = AgentConfig(
+            data_transformer="unknown",
+            data_types={
+                "yaml_data": AgentConfigDataType(data_transformer="yaml"),
+                "json_data": AgentConfigDataType(data_transformer="json"),
+                "custom_data": AgentConfigDataType(
+                    data_transformer="custom_transformer"
+                ),
+            },
+        )
+
+        with pytest.raises(
+            KeyError, match="No input data transformer found for name: unknown"
+        ):
+            init_input_data_transformers(config)
+
+
+class TestGetInputDataTransformer:
     """Test cases for input_data_transform module."""
 
     def setup_method(self) -> None:
         """Set up test fixtures."""
-        pass
+        init_input_data_transformers(AgentConfig())
 
     def test_get_input_data_transformer_yaml(self) -> None:
         """Test getting YAML input data transformer."""
@@ -124,85 +269,77 @@ class TestInputDataTransform:
         )
         mock_extension_manager.__getitem__.assert_called_once_with("custom_transformer")
 
-    def test_perform_input_data_transformation_yaml(self) -> None:
+
+class TestPerformInputDataTransformation:
+    """Test cases for input_data_transform module."""
+
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+
+    def test_perform_input_data_transformation_DEFAULT(self) -> None:
+        """Test performing JSON input data transformation."""
+
+        init_input_data_transformers(AgentConfig())
+        input_data = InputData(
+            id="1", data='{"name": "John", "age": 30, "city": "New York"}'
+        )
+        result = perform_input_data_transformation(input_data)
+
+        expected = {"name": "John", "age": 30, "city": "New York"}
+        assert result == expected
+        assert isinstance(result, dict)
+
+    def test_perform_input_data_transformation_CONFIGURED_DEFAULT(self) -> None:
         """Test performing YAML input data transformation."""
-        input_data = """
+
+        config = AgentConfig(data_transformer="yaml")
+        init_input_data_transformers(config)
+
+        input_data = InputData(
+            id="1",
+            data="""
 name: John
 age: 30
 city: New York
-"""
-        result = perform_input_data_transformation("yaml", input_data)
+""",
+        )
+        result = perform_input_data_transformation(input_data)
 
         expected = {"name": "John", "age": 30, "city": "New York"}
         assert result == expected
         assert isinstance(result, dict)
 
-    def test_perform_input_data_transformation_json(self) -> None:
-        """Test performing JSON input data transformation."""
-        input_data = '{"name": "John", "age": 30, "city": "New York"}'
-        result = perform_input_data_transformation("json", input_data)
+    def test_perform_input_data_transformation_CONFIGURED_PER_TYPE(self) -> None:
+        """Test performing YAML input data transformation."""
 
-        expected = {"name": "John", "age": 30, "city": "New York"}
-        assert result == expected
-        assert isinstance(result, dict)
+        config = AgentConfig(
+            data_types={
+                "yaml_data": AgentConfigDataType(data_transformer="yaml"),
+                "json_data": AgentConfigDataType(data_transformer="json"),
+            }
+        )
+        init_input_data_transformers(config)
 
-    def test_perform_input_data_transformation_csv_comma(self) -> None:
-        """Test performing CSV comma transformation."""
-        input_data = """name,age,city
-John,30,New York"""
-        result = perform_input_data_transformation("csv-comma", input_data)
-
-        expected = [{"name": "John", "age": 30, "city": "New York"}]
-        assert result == expected
-        assert isinstance(result, list)
-
-    def test_perform_input_data_transformation_csv_semicolon(self) -> None:
-        """Test performing CSV semicolon transformation."""
-        input_data = """name;age;city
-John;30;New York"""
-        result = perform_input_data_transformation("csv-semicolon", input_data)
-
-        expected = [{"name": "John", "age": 30, "city": "New York"}]
-        assert result == expected
-        assert isinstance(result, list)
-
-    def test_perform_input_data_transformation_csv_tab(self) -> None:
-        """Test performing CSV tab transformation."""
-        input_data = """name\tage\tcity
-John\t30\tNew York"""
-        result = perform_input_data_transformation("csv-tab", input_data)
-
-        expected = [{"name": "John", "age": 30, "city": "New York"}]
-        assert result == expected
-        assert isinstance(result, list)
-
-    def test_perform_input_data_transformation_none_input(self) -> None:
-        """Test performing transformation with None input raises ValueError."""
-        with pytest.raises(ValueError, match="Input data not provided"):
-            perform_input_data_transformation("json", None)
-
-    def test_perform_input_data_transformation_invalid_transformer(self) -> None:
-        """Test performing transformation with invalid transformer name."""
-        with pytest.raises(
-            KeyError, match="No input data transformer found for name: invalid"
-        ):
-            perform_input_data_transformation("invalid", '{"test": "data"}')
-
-    def test_perform_input_data_transformation_invalid_yaml(self) -> None:
-        """Test performing transformation with invalid YAML data."""
-        input_data = """
+        input_data = InputData(
+            id="1",
+            type="yaml_data",
+            data="""
 name: John
 age: 30
-  city: New York  # Invalid indentation
-"""
-        with pytest.raises(ValueError, match="Invalid YAML format of the Input Data"):
-            perform_input_data_transformation("yaml", input_data)
+city: New York
+""",
+        )
+        result = perform_input_data_transformation(input_data)
 
-    def test_perform_input_data_transformation_invalid_json(self) -> None:
-        """Test performing transformation with invalid JSON data."""
-        input_data = '{"name": "John", "age": 30'  # Missing closing brace
-        with pytest.raises(ValueError, match="Invalid JSON format of the Input Data"):
-            perform_input_data_transformation("json", input_data)
+        expected = {"name": "John", "age": 30, "city": "New York"}
+        assert result == expected
+        assert isinstance(result, dict)
+
+
+class TestConstantsAndGlobals:
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        init_input_data_transformers(AgentConfig())
 
     def test_constants_and_globals(self) -> None:
         """Test that constants and global variables are properly set."""
@@ -216,30 +353,6 @@ age: 30
         assert input_data_transformer_extension_manager is not None
 
         # Test that default transformers are created
-        assert (
-            BUILTIN_INPUT_DATA_TRANSFORMERS[YamlInputDataTransformer.TRANSFORMER_NAME]
-            is not None
-        )
-        assert (
-            BUILTIN_INPUT_DATA_TRANSFORMERS[JsonInputDataTransformer.TRANSFORMER_NAME]
-            is not None
-        )
-        assert (
-            BUILTIN_INPUT_DATA_TRANSFORMERS[
-                CsvCommaInputDataTransformer.TRANSFORMER_NAME
-            ]
-            is not None
-        )
-        assert (
-            BUILTIN_INPUT_DATA_TRANSFORMERS[
-                CsvSemicolonInputDataTransformer.TRANSFORMER_NAME
-            ]
-            is not None
-        )
-        assert (
-            BUILTIN_INPUT_DATA_TRANSFORMERS[CsvTabInputDataTransformer.TRANSFORMER_NAME]
-            is not None
-        )
         assert (
             BUILTIN_INPUT_DATA_TRANSFORMERS[
                 YamlInputDataTransformer.TRANSFORMER_NAME

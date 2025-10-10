@@ -1,12 +1,19 @@
 # Input Data Transformation
 
-If structured `Input Data` are not in JSON format necessary for *UI Agent* processing, data transformation can be used to bring them to this format and data structures.
+If structured `Input Data` are not in JSON format necessary for *UI Agent* processing, data transformation can be used to bring 
+them to this format and related [data structures](structure.md).
+
+## Configuring default data transformation for UI Agent
+
+Default data transformer can be [configured for the UI Agent](../configuration.md#data_transformer-str-optional). 
+
+[JSON data](#json-transformer) are expected by default if not configured.
 
 ## Configuring data transformation for data type
 
 Data transformer can be configured per [`InputData.type`](index.md#inputdata-object-fields), so it has to be defined to use transformation.
 
-Example of the [yaml config](../configuration.md):
+Example of the [yaml config](../configuration.md#data_transformer-str-optional_1):
 
 ```yaml
 data_types:
@@ -15,7 +22,15 @@ data_types:
     ...
 ```
 
-Few OOTB transformers is provided in the [UI Agent Core package](../ai_apps_binding/pythonlib.md):
+## OOTB transformers
+
+Few OOTB transformers are provided in the [UI Agent Core package](../ai_apps_binding/pythonlib.md)
+
+### JSON transformer
+
+Transformer name: `json`
+
+Default transformer used for JSON data.
 
 ### YAML transformer
 
@@ -44,13 +59,13 @@ To implement transformer, you have to:
 
 1. Add `next-gen-ui-agent` dependency to your python module
 
-2. Implement class extending [`next_gen_ui_agent.input_data_transform.types.InputDataTransformerBase`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/input_data_transform/types.py). Be sure object structure returned from the
+2. Implement class extending [`next_gen_ui_agent.types.InputDataTransformerBase`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/input_data_transform/types.py). Be sure object structure returned from the
    transformation matches defined rules for values access by [`jsonpath_ng`](https://pypi.org/project/jsonpath-ng/)
    and JSON serialization by [Pydantic `model_dump_json()`](https://docs.pydantic.dev/latest/concepts/serialization/#modelmodel_dump_json).
    Implement correct error handling, write unit tests. 
    You can find [examples of transformers and their unit tests in UI Agent core source code](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/input_data_transform).
 
-3. [Register your transformer under `next_gen_ui.agent.input_data_transformer_factory` namespace](https://docs.openstack.org/stevedore/latest/user/tutorial/creating_plugins.html#registering-the-plugins) in your python module. Use unique transformer name.
+3. [Register your transformer using Stevedore under `next_gen_ui.agent.input_data_transformer_factory` namespace](https://docs.openstack.org/stevedore/latest/user/tutorial/creating_plugins.html#registering-the-plugins) in your python module. Use unique transformer name.
 
 ```
    entry_points={
