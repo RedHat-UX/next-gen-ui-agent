@@ -38,8 +38,6 @@ Key is `InputData.type` to configure, value is configuration object for that dat
 
 Optional name of the [Input Data Transformer](input_data/transformation.md) to be used for this data type. JSON format is expected by default.
 
-Available values: `yaml`
-
 
 #### `components` [`list[AgentConfigComponent]`, optional]
 

@@ -23,6 +23,17 @@ Transformer name: `yaml`
 
 As [`YAML`](https://yaml.org) is another form how to express the same data structures as JSON, conversion is very straighforward.
 
+### CSV transformers
+
+Transformer name: `csv-comma`, `csv-semicolon`, `csv-tab`
+
+This transformer takes CSV formatted text with delimiter indicated in the transformer name.
+`"` character is used as quotation mark in the case delimiter or new line is present in the CSV value.
+First row is used as field names, other rows are converted into [array of objects](../input_data/structure.md#array-of-objects-input-data), where 
+field names from the first row are used.
+Field names are sanitized so JSONPath can work with them easily.
+
+Field values are trimmed from leading/trailing white spaces, and converted from `String` to `Boolean` or `Number` if possible.
 
 ## Writing own transformer
 

@@ -1,31 +1,6 @@
-import re
 from typing import Any, Iterable
 
-
-def _sanitize_field_name(field_name: str | None) -> str | None:
-    """
-    Sanitize a field name to be a valid JSON object key by replacing invalid characters with underscores.
-    If `field_name` is `None` or empty string, `None` is returned.
-    If `field_name` starts with a number or hyphen, `field_` is prepended to the field name.
-
-    Args:
-        field_name: The field name to sanitize
-
-    Returns:
-        A sanitized field name that is valid for use as a JSON object key
-    """
-    if not field_name or field_name.strip() == "":
-        return None
-
-    # Replace invalid characters with underscores
-    # Keep only alphanumeric characters, underscores, and hyphens
-    sanitized = re.sub(r"[^a-zA-Z0-9_-]", "_", field_name)
-
-    # Ensure it doesn't start with a number or hyphen
-    if sanitized and (sanitized[0].isdigit() or sanitized[0] == "-"):
-        sanitized = "field_" + sanitized
-
-    return sanitized
+from next_gen_ui_agent.data_structure_tools import sanitize_field_name
 
 
 def wrap_json_data(data: Any, data_type: str | None) -> Any:
@@ -44,7 +19,7 @@ def wrap_json_data(data: Any, data_type: str | None) -> Any:
     """
 
     # Sanitize the data_type to ensure it's a valid field name
-    field_name = _sanitize_field_name(data_type)
+    field_name = sanitize_field_name(data_type)
 
     # If data_type is `None` or empty string, return data unchanged
     if not field_name:

@@ -1,6 +1,11 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from next_gen_ui_agent.input_data_transform.csv_input_data_transformer import (
+    CsvCommaInputDataTransformer,
+    CsvSemicolonInputDataTransformer,
+    CsvTabInputDataTransformer,
+)
 from next_gen_ui_agent.input_data_transform.input_data_transform import (
     BUILTIN_INPUT_DATA_TRANSFORMERS,
     PLUGGABLE_INPUT_DATA_TRANSFORMERS_NAMESPACE,
@@ -48,6 +53,42 @@ class TestInputDataTransform:
             ]
         )
         assert transformer.__class__.__name__ == "JsonInputDataTransformer"
+
+    def test_get_input_data_transformer_csv_comma(self) -> None:
+        """Test getting CSV comma input data transformer."""
+        transformer = get_input_data_transformer("csv-comma")
+
+        assert (
+            transformer
+            is BUILTIN_INPUT_DATA_TRANSFORMERS[
+                CsvCommaInputDataTransformer.TRANSFORMER_NAME
+            ]
+        )
+        assert transformer.__class__.__name__ == "CsvCommaInputDataTransformer"
+
+    def test_get_input_data_transformer_csv_semicolon(self) -> None:
+        """Test getting CSV semicolon input data transformer."""
+        transformer = get_input_data_transformer("csv-semicolon")
+
+        assert (
+            transformer
+            is BUILTIN_INPUT_DATA_TRANSFORMERS[
+                CsvSemicolonInputDataTransformer.TRANSFORMER_NAME
+            ]
+        )
+        assert transformer.__class__.__name__ == "CsvSemicolonInputDataTransformer"
+
+    def test_get_input_data_transformer_csv_tab(self) -> None:
+        """Test getting CSV tab input data transformer."""
+        transformer = get_input_data_transformer("csv-tab")
+
+        assert (
+            transformer
+            is BUILTIN_INPUT_DATA_TRANSFORMERS[
+                CsvTabInputDataTransformer.TRANSFORMER_NAME
+            ]
+        )
+        assert transformer.__class__.__name__ == "CsvTabInputDataTransformer"
 
     def test_get_input_data_transformer_invalid_name(self) -> None:
         """Test getting transformer with invalid name raises KeyError."""
@@ -105,6 +146,36 @@ city: New York
         assert result == expected
         assert isinstance(result, dict)
 
+    def test_perform_input_data_transformation_csv_comma(self) -> None:
+        """Test performing CSV comma transformation."""
+        input_data = """name,age,city
+John,30,New York"""
+        result = perform_input_data_transformation("csv-comma", input_data)
+
+        expected = [{"name": "John", "age": 30, "city": "New York"}]
+        assert result == expected
+        assert isinstance(result, list)
+
+    def test_perform_input_data_transformation_csv_semicolon(self) -> None:
+        """Test performing CSV semicolon transformation."""
+        input_data = """name;age;city
+John;30;New York"""
+        result = perform_input_data_transformation("csv-semicolon", input_data)
+
+        expected = [{"name": "John", "age": 30, "city": "New York"}]
+        assert result == expected
+        assert isinstance(result, list)
+
+    def test_perform_input_data_transformation_csv_tab(self) -> None:
+        """Test performing CSV tab transformation."""
+        input_data = """name\tage\tcity
+John\t30\tNew York"""
+        result = perform_input_data_transformation("csv-tab", input_data)
+
+        expected = [{"name": "John", "age": 30, "city": "New York"}]
+        assert result == expected
+        assert isinstance(result, list)
+
     def test_perform_input_data_transformation_none_input(self) -> None:
         """Test performing transformation with None input raises ValueError."""
         with pytest.raises(ValueError, match="Input data not provided"):
@@ -155,6 +226,22 @@ age: 30
         )
         assert (
             BUILTIN_INPUT_DATA_TRANSFORMERS[
+                CsvCommaInputDataTransformer.TRANSFORMER_NAME
+            ]
+            is not None
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[
+                CsvSemicolonInputDataTransformer.TRANSFORMER_NAME
+            ]
+            is not None
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[CsvTabInputDataTransformer.TRANSFORMER_NAME]
+            is not None
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[
                 YamlInputDataTransformer.TRANSFORMER_NAME
             ].__class__.__name__
             == "YamlInputDataTransformer"
@@ -164,4 +251,22 @@ age: 30
                 JsonInputDataTransformer.TRANSFORMER_NAME
             ].__class__.__name__
             == "JsonInputDataTransformer"
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[
+                CsvCommaInputDataTransformer.TRANSFORMER_NAME
+            ].__class__.__name__
+            == "CsvCommaInputDataTransformer"
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[
+                CsvSemicolonInputDataTransformer.TRANSFORMER_NAME
+            ].__class__.__name__
+            == "CsvSemicolonInputDataTransformer"
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[
+                CsvTabInputDataTransformer.TRANSFORMER_NAME
+            ].__class__.__name__
+            == "CsvTabInputDataTransformer"
         )
