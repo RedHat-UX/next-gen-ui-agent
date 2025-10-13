@@ -6,6 +6,9 @@ from next_gen_ui_agent.agent_config import parse_config_yaml
 from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
 )
+from next_gen_ui_agent.component_selection_llm_strategy import (
+    ComponentSelectionStrategy,
+)
 from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
 )
@@ -28,7 +31,6 @@ from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.types import (
     AgentConfig,
     AgentInput,
-    ComponentSelectionStrategy,
     InputData,
     InputDataInternal,
     Rendition,

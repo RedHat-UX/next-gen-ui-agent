@@ -1,17 +1,12 @@
-import asyncio
-import json
 import logging
 from typing import Any
 
-from next_gen_ui_agent.array_field_reducer import reduce_arrays
-from next_gen_ui_agent.json_data_wrapper import wrap_json_data
-from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import (
-    AgentInput,
+from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
-    InputData,
-    UIComponentMetadata,
+    trim_to_json,
 )
+from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.types import UIComponentMetadata
 from pydantic_core import from_json
 
 ui_components_description_supported = """
@@ -55,23 +50,8 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             unsupported_components: if True, generate all UI components, otherwise generate only supported UI components
             input_data_json_wrapping: if True, wrap the JSON input data into data type field if necessary due to its structure
         """
+        super().__init__(logger, input_data_json_wrapping)
         self.unsupported_components = unsupported_components
-        self.input_data_json_wrapping = input_data_json_wrapping
-
-    async def select_components(
-        self, inference: InferenceBase, input: AgentInput
-    ) -> list[UIComponentMetadata]:
-        logger.debug("---CALL component_selection---")
-        components = await asyncio.gather(
-            *[
-                self.component_selection_run(inference, input["user_prompt"], data)
-                for data in input["input_data"]
-            ]
-        )
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(components)
-
-        return components
 
     async def perform_inference(
         self,
@@ -126,14 +106,11 @@ Response example for one-item data:
     ]
 }"""
 
-        # we have to parse JSON data to reduce arrays
-        data = reduce_arrays(json_data, 6)
-
         prompt = f"""=== User query ===
     {user_prompt}
 
     === Data ===
-    {str(data)}
+    {str(json_data)}
         """
 
         logger.debug("LLM system message:\n%s", sys_msg_content)
@@ -156,74 +133,3 @@ Response example for one-item data:
         )
         result.id = input_data_id
         return result
-
-    async def component_selection_run(
-        self,
-        inference: InferenceBase,
-        user_prompt: str,
-        input_data: InputData,
-    ) -> UIComponentMetadata:
-        """Run Component Selection task."""
-
-        input_data_id = input_data["id"]
-        logger.debug("---CALL component_selection_run--- id: %s", {input_data_id})
-
-        json_data = input_data.get("json_data")
-        if not json_data:
-            json_data = json.loads(input_data["data"])
-
-        if self.input_data_json_wrapping:
-            json_data = wrap_json_data(json_data, input_data.get("type"))
-
-        inference_output = await self.perform_inference(
-            inference, user_prompt, json_data, input_data_id
-        )
-
-        try:
-            result = self.parse_infernce_output(inference_output, input_data_id)
-            result.json_data = json_data
-            return result
-        except Exception as e:
-            logger.exception("Cannot decode the json from LLM response")
-            raise e
-
-
-def trim_to_json(text: str) -> str:
-    """
-    Remove all characters from the string before `</think>` tag if present.
-    Then remove all characters until the first occurrence of '{' or '[' character. String is not modified if these character are not found.
-    Everything after the last '}' or ']' character is stripped also.
-
-    Args:
-        text: The input string to process
-
-    Returns:
-        The string starting from the first '{' or '[' character and ending at the last '}' or ']' character,
-        or the original string if neither character is found
-    """
-
-    # check if text contains </think> tag
-    if "</think>" in text:
-        text = text.split("</think>")[1]
-
-    # Find the start of JSON (first { or [)
-    start_index = -1
-    for i, char in enumerate(text):
-        if char in "{[":
-            start_index = i
-            break
-
-    if start_index == -1:
-        return text
-
-    # Find the end of JSON (last } or ])
-    end_index = -1
-    for i in range(len(text) - 1, start_index - 1, -1):
-        if text[i] in "]}":
-            end_index = i + 1
-            break
-
-    if end_index == -1:
-        return text[start_index:]
-
-    return text[start_index:end_index]

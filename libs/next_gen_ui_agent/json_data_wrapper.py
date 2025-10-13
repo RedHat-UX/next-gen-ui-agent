@@ -1,4 +1,4 @@
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional
 
 from next_gen_ui_agent.data_structure_tools import sanitize_field_name
 
@@ -36,3 +36,19 @@ def wrap_json_data(data: Any, data_type: str | None) -> Any:
 
     # Return data unchanged for all other cases
     return data
+
+
+def wrap_string_as_json(
+    data: str, data_type: Optional[str], max_length: Optional[int] = None
+) -> Any:
+    """
+    Wrap string data into a dictionary with a single field.
+    If `data_type` is `None` or empty string, `data` is used as a field name.
+    If `max_length` is provided and `data` is longer than `max_length`, the data is truncated and "..." is added to the end.
+    """
+    field_name = sanitize_field_name(data_type)
+    if not field_name:
+        field_name = "data"
+    if max_length and len(data) > max_length:
+        data = data[:max_length] + "..."
+    return {field_name: data}

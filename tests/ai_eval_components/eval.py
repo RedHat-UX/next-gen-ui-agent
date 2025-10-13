@@ -30,8 +30,13 @@ from ai_eval_components.types import (
     DatasetRowAgentEvalResult,
 )
 from next_gen_ui_agent import InputData
+from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
+)
+from next_gen_ui_agent.component_selection_llm_strategy import (
+    MAX_ARRAY_SIZE_FOR_LLM,
+    ComponentSelectionStrategy,
 )
 from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
@@ -49,7 +54,7 @@ from next_gen_ui_agent.data_transform.validation.types import (
 from next_gen_ui_agent.data_transformation import get_data_transformer
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import ComponentSelectionStrategy, UIComponentMetadata
+from next_gen_ui_agent.types import UIComponentMetadata
 from next_gen_ui_llama_stack_embedded import init_inference_from_env
 
 # allows to print system error traces to the stderr
@@ -139,7 +144,10 @@ def evaluate_agent_for_dataset_row(
     json_data = json.loads(input_data["data"])
 
     input_data_type = dsr.get("input_data_type")
+    # wrap parsed JSON data structure into data type field if allowed and necessary as in ComponentSelectionStrategy
     json_data = wrap_json_data(json_data, input_data_type)
+    # we have to reduce arrays size to avoid LLM context window limit as in ComponentSelectionStrategy
+    json_data = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
 
     component_selection: ComponentSelectionStrategy
     if not TWO_STEP_COMPONENT_SELECTION:

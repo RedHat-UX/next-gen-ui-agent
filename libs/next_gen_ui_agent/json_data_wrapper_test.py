@@ -1,6 +1,40 @@
 import json
 
-from next_gen_ui_agent.json_data_wrapper import wrap_json_data
+from next_gen_ui_agent.json_data_wrapper import wrap_json_data, wrap_string_as_json
+
+
+class TestWrapStringAsJson:
+    """Test cases for wrap_string_as_json method."""
+
+    def test_empty_data_type_returns_data_unchanged(self):
+        """Test that empty or None data_type returns data unchanged."""
+        assert wrap_string_as_json("val", "") == {"data": "val"}
+
+    def test_none_data_type_returns_data_unchanged(self):
+        """Test that None data_type returns data unchanged."""
+        assert wrap_string_as_json("test", None) == {"data": "test"}
+
+    def test_valid_data_type_returns_data_wrapped(self):
+        """Test that valid data_type returns data wrapped."""
+        assert wrap_string_as_json("test \nvalue", "test.type") == {
+            "test_type": "test \nvalue"
+        }
+
+    def test_empty_data_are_wrapped(self):
+        """Test that empty data are wrapped."""
+        assert wrap_string_as_json("", "test.type") == {"test_type": ""}
+
+    def test_max_length_truncates_data(self):
+        """Test that max_length truncates data."""
+        assert wrap_string_as_json("test \nvalue", "test.type", max_length=5) == {
+            "test_type": "test ..."
+        }
+
+    def test_max_length_truncates_data_short(self):
+        """Test that max_length truncates data."""
+        assert wrap_string_as_json("test \nvalue", "test.type", max_length=500) == {
+            "test_type": "test \nvalue"
+        }
 
 
 class TestWrapJsonData:

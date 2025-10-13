@@ -19,6 +19,9 @@ from next_gen_ui_agent.input_data_transform.input_data_transform import (
 from next_gen_ui_agent.input_data_transform.json_input_data_transformer import (
     JsonInputDataTransformer,
 )
+from next_gen_ui_agent.input_data_transform.noop_input_data_transformer import (
+    NoopInputDataTransformer,
+)
 from next_gen_ui_agent.input_data_transform.yaml_input_data_transformer import (
     YamlInputDataTransformer,
 )
@@ -382,4 +385,10 @@ class TestConstantsAndGlobals:
                 CsvTabInputDataTransformer.TRANSFORMER_NAME
             ].__class__.__name__
             == "CsvTabInputDataTransformer"
+        )
+        assert (
+            BUILTIN_INPUT_DATA_TRANSFORMERS[
+                NoopInputDataTransformer.TRANSFORMER_NAME
+            ].__class__.__name__
+            == "NoopInputDataTransformer"
         )

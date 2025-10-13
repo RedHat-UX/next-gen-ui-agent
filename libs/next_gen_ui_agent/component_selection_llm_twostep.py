@@ -1,18 +1,12 @@
-import asyncio
-import json
 import logging
 from typing import Any
 
-from next_gen_ui_agent.array_field_reducer import reduce_arrays
-from next_gen_ui_agent.component_selection_llm_onestep import trim_to_json
-from next_gen_ui_agent.json_data_wrapper import wrap_json_data
-from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import (
-    AgentInput,
+from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
-    InputData,
-    UIComponentMetadata,
+    trim_to_json,
 )
+from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.types import UIComponentMetadata
 from pydantic_core import from_json
 
 logger = logging.getLogger(__name__)
@@ -59,54 +53,9 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             select_component_only: if True, only generate the component, it is not necesary to generate it's configuration
             input_data_json_wrapping: if True, wrap the JSON input data into data type field if necessary due to its structure
         """
+        super().__init__(logger, input_data_json_wrapping)
         self.unsupported_components = unsupported_components
         self.select_component_only = select_component_only
-        self.input_data_json_wrapping = input_data_json_wrapping
-
-    async def select_components(
-        self, inference: InferenceBase, input: AgentInput
-    ) -> list[UIComponentMetadata]:
-        logger.debug("---CALL component_selection---")
-        components = await asyncio.gather(
-            *[
-                self.component_selection_run(inference, input["user_prompt"], data)
-                for data in input["input_data"]
-            ]
-        )
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(components)
-
-        return components
-
-    async def component_selection_run(
-        self,
-        inference: InferenceBase,
-        user_prompt: str,
-        input_data: InputData,
-    ) -> UIComponentMetadata:
-        """Run Component Selection task."""
-
-        input_data_id = input_data["id"]
-        logger.debug("---CALL component_selection_run--- id: %s", {input_data_id})
-
-        json_data = input_data.get("json_data")
-        if not json_data:
-            json_data = json.loads(input_data["data"])
-
-        if self.input_data_json_wrapping:
-            json_data = wrap_json_data(json_data, input_data.get("type"))
-
-        inference_otput = await self.perform_inference(
-            inference, user_prompt, json_data, input_data_id
-        )
-
-        try:
-            result = self.parse_infernce_output(inference_otput, input_data_id)
-            result.json_data = json_data
-            return result
-        except Exception as e:
-            logger.exception("Cannot decode the json from LLM response")
-            raise e
 
     def parse_infernce_output(
         self, inference_output: list[str], input_data_id: str
@@ -143,24 +92,24 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
                 "---CALL component_selection_inference--- id: %s", {input_data_id}
             )
 
-        # we have to parse JSON data to reduce arrays
-        data = reduce_arrays(json_data, 6)
-        json_data = str(data)
+        data_for_llm = str(json_data)
 
         response_1 = trim_to_json(
-            await self.inference_step_1(inference, user_prompt, json_data)
+            await self.inference_step_1(inference, user_prompt, data_for_llm)
         )
 
         if self.select_component_only:
             return [response_1]
 
         response_2 = trim_to_json(
-            await self.inference_step_2(inference, response_1, user_prompt, json_data)
+            await self.inference_step_2(
+                inference, response_1, user_prompt, data_for_llm
+            )
         )
 
         return [response_1, response_2]
 
-    async def inference_step_1(self, inference, user_prompt, json_data):
+    async def inference_step_1(self, inference, user_prompt, json_data_for_llm: str):
         """Run Component Selection inference."""
 
         sys_msg_content = f"""You are helpful and advanced user interface design assistant.
@@ -203,7 +152,7 @@ Response example for one-item data and image:
         prompt = f"""=== User query ===
 {user_prompt}
 === Data ===
-{json_data}
+{json_data_for_llm}
 """
 
         logger.debug("LLM component selection system message:\n%s", sys_msg_content)
@@ -214,7 +163,11 @@ Response example for one-item data and image:
         return response
 
     async def inference_step_2(
-        self, inference, component_selection_response, user_prompt, json_data
+        self,
+        inference,
+        component_selection_response,
+        user_prompt,
+        json_data_for_llm: str,
     ):
         component = from_json(component_selection_response, allow_partial=True)[
             "component"
@@ -240,7 +193,7 @@ For every field provide "data_path" containing path to get the value from the "D
 {user_prompt}
 
 === Data ===
-{json_data}
+{json_data_for_llm}
 """
 
         logger.debug("LLM component configuration system message:\n%s", sys_msg_content)
