@@ -9,6 +9,10 @@ metadata:
   annotations:
     backstage.io/techdocs-ref: dir:./docs/index.md
   tags:
+    - "next-gen-ui"
+    - "next-gen-ui-agent"
+    - "ui"
+    - "ux"
     - "ai"
     - "llm"
     - "llama-stack"
