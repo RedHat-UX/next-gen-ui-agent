@@ -4,14 +4,15 @@ import logging
 
 import pytest
 from langchain_core.language_models import FakeMessagesListChatModel
-from next_gen_ui_agent.types import AgentInput
+from next_gen_ui_agent.component_selection_llm_strategy import (
+    MAX_STRING_DATA_LENGTH_FOR_LLM,
+)
+from next_gen_ui_agent.json_data_wrapper import wrap_string_as_json
+from next_gen_ui_agent.types import AgentInput, InputDataInternal
 from pytest import fail
 
 from . import InputData
-from .component_selection_llm_onestep import (
-    OnestepLLMCallComponentSelectionStrategy,
-    trim_to_json,
-)
+from .component_selection_llm_onestep import OnestepLLMCallComponentSelectionStrategy
 from .model import LangChainModelInference
 
 movies_data = """[
@@ -117,6 +118,50 @@ async def test_component_selection_run_json_wrapping_no_OK() -> None:
 
 
 @pytest.mark.asyncio
+async def test_component_selection_run_stringinput_notype_OK() -> None:
+    user_input = "Tell me brief details of Toy Story"
+    input_data = InputDataInternal(
+        {"id": "1", "data": "", "json_data": "large string data"}
+    )
+
+    msg = {"type": "assistant", "content": response}
+    llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
+    inference = LangChainModelInference(llm)
+
+    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    result = await component_selection.component_selection_run(
+        inference, user_input, input_data
+    )
+    assert result.component == "one-card"
+    # assert json_data are wrapped string from input data
+    assert result.json_data == wrap_string_as_json(
+        "large string data", None, MAX_STRING_DATA_LENGTH_FOR_LLM
+    )
+
+
+@pytest.mark.asyncio
+async def test_component_selection_run_stringinput_withype_OK() -> None:
+    user_input = "Tell me brief details of Toy Story"
+    input_data = InputDataInternal(
+        {"id": "1", "data": "", "json_data": "large string data", "type": "test.type"}
+    )
+
+    msg = {"type": "assistant", "content": response}
+    llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
+    inference = LangChainModelInference(llm)
+
+    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    result = await component_selection.component_selection_run(
+        inference, user_input, input_data
+    )
+    assert result.component == "one-card"
+    # assert json_data are wrapped string from input data
+    assert result.json_data == wrap_string_as_json(
+        "large string data", "test_type", MAX_STRING_DATA_LENGTH_FOR_LLM
+    )
+
+
+@pytest.mark.asyncio
 async def test_component_selection_run_INVALID_LLM_RESPONSE() -> None:
     user_input = "Tell me brief details of Toy Story"
     input_data = InputData({"id": "1", "data": movies_data})
@@ -161,45 +206,6 @@ async def test_component_selection() -> None:
         ids.append(r.id)
     assert "1" in ids
     assert "2" in ids
-
-
-def test_trim_to_json_basic_object():
-    text = '{"name": "John", "age": 30}'
-    result = trim_to_json(text)
-    assert result == '{"name": "John", "age": 30}'
-
-
-def test_trim_to_json_basic_array():
-    text = '["item1", "item2", "item3"]'
-    result = trim_to_json(text)
-    assert result == '["item1", "item2", "item3"]'
-
-
-def test_trim_to_json_around_object():
-    text = 'Prefix {"user": {"name": "John", "details": {"age": 30, "city": "NYC"}}} suffix'
-    result = trim_to_json(text)
-    assert result == '{"user": {"name": "John", "details": {"age": 30, "city": "NYC"}}}'
-
-
-def test_trim_to_json_around_array():
-    text = 'Prefix [ {"user": {"name": "John", "details": {"age": 30, "city": "NYC"}}} ] suffix'
-    result = trim_to_json(text)
-    assert (
-        result
-        == '[ {"user": {"name": "John", "details": {"age": 30, "city": "NYC"}}} ]'
-    )
-
-
-def test_trim_to_json_textonly():
-    text = "Prefix suffix"
-    result = trim_to_json(text)
-    assert result == "Prefix suffix"
-
-
-def test_trim_to_json_text_with_think():
-    text = 'Prefix </think> other text { "name": "John" } suffix'
-    result = trim_to_json(text)
-    assert result == '{ "name": "John" }'
 
 
 if __name__ == "__main__":

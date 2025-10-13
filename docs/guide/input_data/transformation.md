@@ -50,6 +50,16 @@ Field names are sanitized so JSONPath can work with them easily.
 
 Field values are trimmed from leading/trailing white spaces, and converted from `String` to `Boolean` or `Number` if possible.
 
+### Noop transformer
+
+Transformer name: `noop`
+
+This transformer keeps input data as a `string`, not as a parsed JSON tree. Usefull if large chunk of unformatted text must be passed to the UI component.
+
+For [Hand-Build Components](../data_ui_blocks/hand_build_components.md), text is outputted directly in [the `data` field of their JSON data](../../spec/component.md#hand-build-component-aka-hbc).
+
+If LLM processing has to be applied, text is shortened to 1000 characters to save LLM's context and wrapped into JSON object with one field.
+
 ## Writing own transformer
 
 UI Agent core package allows to add new data transformers. [Stevedore framework](https://pypi.org/project/stevedore/) is used, so you only 

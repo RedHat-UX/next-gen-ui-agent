@@ -22,7 +22,7 @@ This module contains UI Agent Core functionality and frameworks.
     * `InferenceBase` interface used by UI Agent
     * `LangChainModelInference` implementation using LangChain `chat_models`.
 * Pluggable and configurable ["Input Data Transformation"](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/transformation/) framework
-    * Basic transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`
+    * Basic transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`, `noop`
 
 ## Installation
 

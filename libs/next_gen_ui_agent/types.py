@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any, Literal, Optional
 
-from next_gen_ui_agent.model import InferenceBase
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired, TypedDict
 
@@ -210,74 +209,6 @@ class Rendition(BaseModel):
     component_system: str
     mime_type: str
     content: str
-
-
-class ComponentSelectionStrategy(ABC):
-    """Abstract base class for LLM-based component selection and configuration strategies."""
-
-    input_data_json_wrapping: bool
-    """
-    If `True`, the agent will wrap the JSON input data into data type field if necessary due to its structure.
-    If `False`, the agent will never wrap the JSON input data into data type field.
-    """
-
-    def __init__(self, input_data_json_wrapping: bool):
-        self.input_data_json_wrapping = input_data_json_wrapping
-
-    @abstractmethod
-    async def select_components(
-        self, inference: InferenceBase, input: AgentInput
-    ) -> list[UIComponentMetadata]:
-        """
-        Select UI components based on input data and user prompt.
-        Args:
-            inference: Inference to use to call LLM by the agent
-            input: Agent input
-            json_data: optional JSON data parsed into python objects to be processed
-        Returns:
-            List of `UIComponentMetadata`
-        """
-        pass
-
-    @abstractmethod
-    async def perform_inference(
-        self,
-        inference: InferenceBase,
-        user_prompt: str,
-        json_data: Any,
-        input_data_id: str,
-    ) -> list[str]:
-        """
-        Perform inference to select UI components and configure them.
-        Multiple LLM calls can be performed and inference results can be returned as a list of strings.
-
-        Args:
-            inference: Inference to use to call LLM by the agent
-            user_prompt: User prompt to be processed
-            json_data: JSON data parsed into python objects to be processed
-            input_data_id: ID of the input data
-
-        Returns:
-            List of strings with LLM inference outputs
-        """
-        pass
-
-    @abstractmethod
-    def parse_infernce_output(
-        self, inference_output: list[str], input_data_id: str
-    ) -> UIComponentMetadata:
-        """
-        Parse LLM inference outputs from `perform_inference` and return `UIComponentMetadata`
-        or throw exception if it can't be constructed because of invalid LLM outputs.
-
-        Args:
-            inference_output: List of strings with LLM inference outputs
-            input_data_id: ID of the input data
-
-        Returns:
-            `UIComponentMetadata`
-        """
-        pass
 
 
 class InputDataTransformerBase(ABC):
