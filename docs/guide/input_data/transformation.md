@@ -50,6 +50,24 @@ Field names are sanitized so JSONPath can work with them easily.
 
 Field values are trimmed from leading/trailing white spaces, and converted from `String` to `Boolean` or `Number` if possible.
 
+### Fixed Width Columns Table transformer
+
+Transformer name: `fwctable`
+
+Similar to the CSV transformer, produces [array of objects](../input_data/structure.md#array-of-objects-input-data), 
+but expects that columns of the table have fixed width in number of characters. First row is used as field names.
+It expects at least two consecutive white characters as a column separator on the first row, so one white character can be used in the column label/field name.
+
+Field names sanitization and values handling are the same as in case of the CSV transformer.
+
+Example of data in "Fixed Width Column Table" format:
+
+```
+Name     Age  Birth city
+John Doe 30   New York
+Jane Ei  25   Boston
+```
+
 ### Noop transformer
 
 Transformer name: `noop`
