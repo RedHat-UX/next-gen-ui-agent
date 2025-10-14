@@ -6,6 +6,9 @@ from next_gen_ui_agent.input_data_transform.csv_input_data_transformer import (
     CsvSemicolonInputDataTransformer,
     CsvTabInputDataTransformer,
 )
+from next_gen_ui_agent.input_data_transform.fwctable_input_data_transformer import (
+    FwctableInputDataTransformer,
+)
 from next_gen_ui_agent.input_data_transform.json_input_data_transformer import (
     JsonInputDataTransformer,
 )
@@ -43,6 +46,7 @@ BUILTIN_INPUT_DATA_TRANSFORMERS: dict[str, InputDataTransformerBase] = {
     CsvSemicolonInputDataTransformer.TRANSFORMER_NAME: CsvSemicolonInputDataTransformer(),
     CsvTabInputDataTransformer.TRANSFORMER_NAME: CsvTabInputDataTransformer(),
     NoopInputDataTransformer.TRANSFORMER_NAME: NoopInputDataTransformer(),
+    FwctableInputDataTransformer.TRANSFORMER_NAME: FwctableInputDataTransformer(),
 }
 
 

@@ -11,6 +11,7 @@ CONFIG_OPTIONS_DATA_TRANSFORMER = Optional[
     | Literal["csv-comma"]
     | Literal["csv-semicolon"]
     | Literal["csv-tab"]
+    | Literal["fwctable"]
 ]
 """ data_transformer config option possibilities used on multiple levels """
 

@@ -55,6 +55,10 @@
               "type": "string"
             },
             {
+              "const": "fwctable",
+              "type": "string"
+            },
+            {
               "type": "null"
             }
           ],
@@ -159,6 +163,10 @@
         },
         {
           "const": "csv-tab",
+          "type": "string"
+        },
+        {
+          "const": "fwctable",
           "type": "string"
         },
         {
