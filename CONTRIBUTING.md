@@ -149,6 +149,16 @@ pants test ::
 Evaluation of the UI component selection and configuration AI powered functionality is available in the `tests/ai_eval_components` module.
 For more details see its [README.md](tests/ai_eval_components/README.md).
 
+#### Testing apps
+
+New E2E testing app for the Next Gen UI Agent, demonstrating AI-driven UI component generation with a split server/client architecture, is available 
+in [`/tests/ngui-e2e/` directory](/tests/ngui-e2e/). Its GUI is based on Patternfly and uses [Next Gen UI Patternfly React Renderer](https://github.com/RedHat-UX/next-gen-ui-react).
+Server part exposes REST API for the GUI client, but also usefull for automatd testing.
+See [`README.md`](/tests/ngui-e2e/README.md). 
+
+Older GUI showcase/testing/developer console, based on [Streamlit](https://streamlit.io/) GUI framework, is available in [`/tests/gui_streamlit/` directory](/tests/gui_streamlit/). 
+See [`README.md`](/tests/gui_streamlit/README.md). 
+
 
 ### Regenerating spec files
 
