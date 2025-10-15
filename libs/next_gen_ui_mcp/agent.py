@@ -1,11 +1,20 @@
 import logging
-from typing import Annotated, Any, Dict, List, Literal
+from typing import Annotated, List, Literal
 
 from fastmcp import Context, FastMCP
+from fastmcp.tools.tool import ToolResult
 from mcp import types
+from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
+from next_gen_ui_agent.data_transform.types import ComponentDataBaseWithTitle
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    AgentInput,
+    InputData,
+    MCPGenerateUIOutput,
+    UIBlock,
+)
 from pydantic import Field
 
 logger = logging.getLogger(__name__)
@@ -65,10 +74,12 @@ class NextGenUIMCPServer:
         sampling_max_tokens: int = 2048,
         inference: InferenceBase | None = None,
         debug: bool = False,
+        structured_output_enabled=True,
     ):
         self.debug = debug
         self.config = config
         self.sampling_max_tokens = sampling_max_tokens
+        self.structured_output_enabled = structured_output_enabled
         self.mcp: FastMCP = FastMCP(name)
         self._setup_mcp_tools()
         self.inference = inference
@@ -101,7 +112,7 @@ class NextGenUIMCPServer:
                     description="Input Data. JSON Array of objects with 'id' and 'data' keys. Do not generate this."
                 ),
             ] = None,
-        ) -> List[Dict[str, Any]]:
+        ) -> ToolResult:
             """Generate UI components from user prompt and input data.
 
             This tool can use either external inference providers or MCP sampling capabilities.
@@ -156,24 +167,47 @@ class NextGenUIMCPServer:
 
                 # 3. Design system rendering
                 await ctx.info("Rendering final UI components...")
-                renditions = ngui_agent.design_system_handler(
+                renderings = ngui_agent.design_system_handler(
                     components=components_data,
                     component_system=self.config.component_system,
                 )
 
                 await ctx.info(
-                    f"Successfully generated {len(renditions)} UI components"
+                    f"Successfully generated {len(renderings)} UI components"
                 )
 
                 # Format output as artifacts
-                return [
-                    {
-                        "id": rendition.id,
-                        "content": rendition.content,
-                        "name": "rendering",
-                    }
-                    for rendition in renditions
+                human_output = [
+                    "Components are rendered in UI.",
+                    f"Count: {len(components_data)}",
                 ]
+                for index, c in enumerate(components_data):
+                    c_info = f"{index + 1}."
+                    if isinstance(c, ComponentDataBaseWithTitle):
+                        c_info += f" Title: '{c.title}'"
+                    human_output.append(f"{c_info} type: {c.component}")
+
+                human_output_str = "\n".join(human_output)
+
+                blocks: list[UIBlock] = []
+                for r in renderings:
+                    blocks.append(UIBlock(id=r.id, rendering=r))
+
+                output = MCPGenerateUIOutput(blocks=blocks, summary=human_output_str)
+
+                if self.structured_output_enabled:
+                    return ToolResult(
+                        content=[TextContent(text=human_output_str, type="text")],
+                        structured_content=output.model_dump(
+                            exclude_unset=True, exclude_defaults=True
+                        ),
+                    )
+                else:
+                    return ToolResult(
+                        content=[
+                            TextContent(text=output.model_dump_json(), type="text")
+                        ]
+                    )
 
             except Exception as e:
                 logger.exception("Error during UI generation")

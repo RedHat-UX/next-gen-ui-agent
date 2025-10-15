@@ -212,6 +212,20 @@ class Rendition(BaseModel):
     content: str
 
 
+class UIBlock(BaseModel):
+    """UI Block model with all details"""
+
+    id: str
+    rendering: Optional[Rendition] = None
+
+
+class MCPGenerateUIOutput(BaseModel):
+    """MCP Output for Generate UI"""
+
+    blocks: list[UIBlock]
+    summary: str
+
+
 class InputDataTransformerBase(ABC):
     """Base of the Input Data transformer"""
 
