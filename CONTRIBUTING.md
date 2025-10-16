@@ -3,6 +3,7 @@
 Thank you for being interested in contributing to Next Gen UI Agent!
 
 ## General guidelines
+
 Here are some things to keep in mind for all types of contributions:
 
 * Follow the ["fork and pull request"](https://docs.github.com/en/get-started/exploring-projects-on-github/contributing-to-a-project) workflow.
@@ -13,36 +14,56 @@ Here are some things to keep in mind for all types of contributions:
 
 ## Setup
 
-Python 3.12+ has to be installed on the computer.
+1. Python 3.12+ has to be installed on the computer.
 
-Install [Pants Build](https://www.pantsbuild.org/stable/docs/getting-started/installing-pants).
+2. Install [Pants Build](https://www.pantsbuild.org/stable/docs/getting-started/installing-pants). On Linux, you can run `./get-pants.sh` available in the repo root, as described/recommended in the Pants Installation docs.
 
-On Linux, you can run `./get-pants.sh` available in the repo root, as described/recommended in the Pants Installation docs.
+3. Install [Podman](https://podman.io/) to be able build images like `Next Gen UI MCP Server`.
 
-Install [Podman](https://podman.io/) to be able build images like `Next Gen UI MCP Server`.
+4. Clone [UI Agent github repository](https://github.com/RedHat-UX/next-gen-ui-agent).
 
-### VSCode
-
-Run Pants export to create a virtual env
+5. Create python virtual environment with all required dependencies - run Pants export in the cloned repo root directory. Created virtual environment is used by all Pants commands.
 
 ```sh
 $ pants export
-...
-$ Wrote symlink to immutable virtualenv for python-default (using Python 3.12.11) to dist/export/python/virtualenvs/python-default/3.12.11
 ```
 
-Create a symlink to the immutable virtualenv you've just created, so that our shared `.vscode` settings work. Make sure to use the right version coming from the previous command
+6. Create a symlink for the virtual environment you've just created, so that you can activate it by stable command, and our shared VS Code settings work.
+Make sure to use the right python version in the path (the path was created by the previous command).
 
 ```sh
 ln -s $PWD/dist/export/python/virtualenvs/python-default/3.12.11 $PWD/dist/export/python/virtualenvs/python-default/latest
 ```
 
-VS Code should automatically set the interepreter path to `./dist/export/python/virtualenvs/python-default/latest` (path taken from previous task).
-If not point our IDE interpreter to this folder - CMD+Shift+P and type 'Python: Select Interpreter' to find the setting.
+If you want to run project's python code out of the Pants commands or VS Code, you must activate the vitual environmet:
+
+```sh
+source dist/export/python/virtualenvs/python-default/latest/bin/activate
+```
+
+7. You can also clone other github repositories if you need. For setup follow their README.md:
+
+   * https://github.com/RedHat-UX/next-gen-ui-react
+   * https://github.com/RedHat-UX/next-gen-ui-examples 
+
+
+### VS Code / Cursor setup
+
+Install Python (`ms-python`) extension if not installed yet.
+
+Open project root directory in VS Code / Cursor.
+
+VS Code should automatically set the python interepreter path to `./dist/export/python/virtualenvs/python-default/latest` (virtual environment simlink created during *Setup* steps)
+thanks to the config shared in the `.vscode/settings.js`.
+If not, point your IDE interpreter to this folder - CMD+Shift+P and type 'Python: Select Interpreter' to find the setting.
+
+There are also launch configurations defined to be used in `Run and Debug` view. 
+You can run any current file requiring modules from `/libs` directory using `Python Debugger: Current File` configuration.
+There is bunch of others for special purposes.
 
 ## LlamaStack server
 
-Some parts of the project require local LamaStack server to be running for the development, for details see [LLAMASTACK_DEV.md](LLAMASTACK_DEV.md).
+Some parts of the project require LamaStack server to be running on your laptop for the development, for details see [LLAMASTACK_DEV.md](LLAMASTACK_DEV.md).
 
 ## Developer guide
 
@@ -68,27 +89,36 @@ Follows the [Angular guidline types](https://github.com/angular/angular/blob/22b
 Also use NGUI JIRA next to the change type.
 
 These types goes to changelog and control the version bump:
-* feat -> MINOR
-* fix -> MICRO
-* refactor -> MICRO
+
+* `feat` -> MINOR
+* `fix` -> MICRO
+* `refactor` -> MICRO
+
+You can also use other types which are not reflected in changelog. The most usefull are:
+
+* `docs` - change in documentation
+* `chore` - any change not necessary in the changelog, like build/CI/CD changes etc.
 
 Example: `refactor(NGUI-123): refactoring agent tests`
 
 ### Useful Pants commands
 
 ```sh
-# show dependencies
+# Show dependencies
 pants dependencies ::
-# Regenerate lock file (after changing deps, do not forget to run `pants export` for local development)
+# Regenerate dependencies lock file - run after changing deps, do not forget to run `pants export` to refresh venv for local development then. It upgrades all dependencies to latest values matching version restrictions!
 pants generate-lockfiles
+
+# Create python virtual environment for local development, with all necessary dependencies from the lock file
+pants export
 
 # Run all tests
 pants test ::
 
-# Run python file
+# Run given python file
 pants run libs/next_gen_ui_llama_stack/agent_test.py
 
-# Run formatter, linter, check
+# Run code formatter, linter, checks
 pants fmt lint check ::
 
 # Build all packages including python and docker
@@ -108,7 +138,7 @@ To check your dependencies you can run `pants dependencies --transitive tests/ai
 The final list of required dependencies is in generated `setup.py` in the package in `dist` folder. Simply unzip the package.
 
 All transitive dependencies should work. However some libraries does not manage their transitive dependencies very well resp. ask
-the client to add needed dependencies manually. In this case we have to explicitly name them in BUILD file. For example `llama-stack-client`
+the client to add needed dependencies manually. In this case we have to explicitly name them in `BUILD` file. For example `llama-stack-client`
 has missing `fire` dependencies so we name them explicitly in [libs/next_gen_ui_llama_stack/BUILD](./libs/next_gen_ui_llama_stack/BUILD) file.
 
 #### Adding a new dependencies
@@ -117,7 +147,11 @@ When adding a new module with net new libraries define them in separate requirem
 and include it in the [libs/3rdparty/python/BUILD](./libs/3rdparty/python/BUILD) file.
 It's recommendet to define a range which is supported.
 
-Then regenerate lock file `pants generate-lockfiles` and refresh your virtual environtment by `pants export`.
+Then regenerate lock file `pants generate-lockfiles` and refresh your virtual environtment by `pants export`. Then commit lock file into git.
+
+Try to reasonably restrict version of the newly added dependency, as `pants generate-lockfiles` upgrades everything to newest possible version matching restricitons.
+If version is not restricted, this command can perform major version upgrade and break code / tests. It is not easy to look for versions of distinct
+dependencies you haven't touch and restrict / downgrade them!
 
 #### Dependency constrains
 
@@ -135,19 +169,42 @@ the [libs/next_gen_ui_llama_stack](./libs/next_gen_ui_llama_stack/) module will 
 
 #### Unit tests
 
+##### Writing tests
+
 [PyTest](https://docs.pytest.org/en/stable/) library is used to write unit tests in modules.
 
-You can use [Pants test](https://www.pantsbuild.org/dev/docs/python/goals/test) to run them:
+Every piece of functionality should be covered by unit tests if possible.
+Unit tests are placed in separate file next to the tested code, in file with `_test.py` suffix.
+You can use classes to group together unit tests for one tested method.
+
+Use `@pytest.mark.asyncio` decorator to mark method testing aync methods.
+
+Use `with pytest.raises(ValueError, match="Invalid JSON format of the Input Data: "):` construct to tests exception is thrown.
+
+No real LLM is used in these tests, responses are mocked where necessary.
+
+##### Running tests
+
+You can use [Pants test](https://www.pantsbuild.org/dev/docs/python/goals/test) to run them.
 
 Running all tests:
+
 ```sh
 pants test ::
 ```
 
+Running one test file:
+
+```sh
+pants run libs/next_gen_ui_llama_stack/agent_test.py
+```
+
+You can also use `Testing` view in VS Code / Cursor, or run them directly from the test file source code using green arrows on the left of each test method.
+
 #### Evaluation of the AI functionality
 
 Evaluation of the UI component selection and configuration AI powered functionality is available in the `tests/ai_eval_components` module.
-For more details see its [README.md](tests/ai_eval_components/README.md).
+For more details see its [README.md](tests/ai_eval_components/README.md). It requires some LLM to be available.
 
 #### Testing apps
 
