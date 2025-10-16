@@ -144,7 +144,9 @@ class NextGenUIAgent:
                 )
 
             input_to_dynamic_selection = AgentInput(
-                user_prompt=input["user_prompt"], input_data=to_dynamic_selection
+                user_prompt=input["user_prompt"],
+                input_data=to_dynamic_selection,
+                previous_user_prompts=input.get("previous_user_prompts"),
             )
             from_dynamic_selection = (
                 await self._component_selection_strategy.select_components(
