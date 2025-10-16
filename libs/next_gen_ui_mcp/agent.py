@@ -100,6 +100,7 @@ class NextGenUIMCPServer:
         )
         async def generate_ui(
             ctx: Context,
+            # Be sync with types.MCPGenerateUIInput !!!
             user_prompt: Annotated[
                 str,
                 Field(

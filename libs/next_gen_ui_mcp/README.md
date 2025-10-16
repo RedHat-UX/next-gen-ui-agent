@@ -150,7 +150,31 @@ This single tool handles:
 
 **Returns:**
 
-- List of rendered UI components ready for display
+Object containing:
+
+- UI blocks
+- summary
+
+Example:
+
+```json
+{
+  "blocks": [
+    {
+      "id": "tool_call_id",
+      "rendering": {
+        "id": "tool_call_id",
+        "component_system": "json",
+        "mime_type": "application/json",
+        "content": "{\"id\":\"id\",\"data\":\"some-data\",\"component\":\"log\"}"
+      }
+    }
+  ],
+  "summary": "Components are rendered in UI.\nCount: 1\n1. type: log"
+}
+```
+
+You can find shcema for the reponse in [spec/mcp/generate_ui_output.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_output.schema.json).
 
 ## Available MCP Resources
 
