@@ -139,6 +139,7 @@ def create_server(
     inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
     debug: bool = False,
+    structured_output_enabled=True,
 ) -> NextGenUIMCPServer:
     """Create NextGenUIMCPServer with optional external inference provider.
 
@@ -158,6 +159,7 @@ def create_server(
         sampling_max_tokens=sampling_max_tokens,
         name="NextGenUI-MCP-Server",
         debug=debug,
+        structured_output_enabled=structured_output_enabled,
     )
 
 
@@ -238,6 +240,12 @@ Examples:
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
     parser.add_argument(
+        "--structured_output_enabled",
+        choices=["true", "false"],
+        default="true",
+        help="Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.",
+    )
+    parser.add_argument(
         "--component-system",
         choices=["json", "patternfly", "rhds"],
         default="json",
@@ -305,9 +313,10 @@ Examples:
         config.component_system = args.component_system
 
     logger.info(
-        "Starting Next Gen UI MCP Server with %s transport and debug=%s",
+        "Starting Next Gen UI MCP Server with %s transport, debug=%s, structured_output_enabled=%s",
         args.transport,
         args.debug,
+        args.structured_output_enabled,
     )
 
     # Validate arguments
@@ -346,6 +355,7 @@ Examples:
             inference=inference,
             sampling_max_tokens=args.sampling_max_tokens,
             debug=args.debug,
+            structured_output_enabled=args.structured_output_enabled == "true",
         )
 
     except (ImportError, RuntimeError) as e:

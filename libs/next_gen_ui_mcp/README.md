@@ -78,6 +78,8 @@ options:
                         Transport protocol to use
   --host HOST           Host to bind to
   --port PORT           Port to bind to
+  --structured_output_enabled {true,false}
+                        Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.
   --component-system {json,patternfly,rhds}
                         Component system to use for rendering (default: json)
   --debug               Enable debug logging
