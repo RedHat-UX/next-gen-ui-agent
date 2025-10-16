@@ -163,7 +163,11 @@ See [`README.md`](/tests/gui_streamlit/README.md).
 ### Regenerating spec files
 
 UI Agent spec files (JSON schema of component outputs, JSON schema of the agent configuration) are stored in `spec` subdirectories. 
-To regenerate them, you have to run main method from the relevant `*_schema_test.py` file/s in the `spec` directory, then commit and push changes into git.
+To regenerate them, you need to run main method from `spec/schema_test.py` file, then review, commit and push changes into git.
+
+```sh
+PYTHONPATH=./libs python spec/schema_test.py
+```
 
 ## Versioning
 
