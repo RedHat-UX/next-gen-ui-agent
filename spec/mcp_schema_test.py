@@ -5,7 +5,7 @@ from typing import Any
 
 import pytest
 from next_gen_ui_agent.data_transform.json_schema_config import CustomGenerateJsonSchema
-from next_gen_ui_agent.types import MCPGenerateUIInput, MCPGenerateUIOutput
+from next_gen_ui_mcp.types import MCPGenerateUIInput, MCPGenerateUIOutput
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)

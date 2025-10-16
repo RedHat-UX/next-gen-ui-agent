@@ -39,6 +39,7 @@ oc apply -f deployment.yaml
 ## Configuration
 
 The MCP server container can be configured via environment variables. All configuration options available to the standalone server are supported.
+All env variables are mapped to Next Gen UI MCP server documented in the [MCP Server Guide](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/#server-arguments).
 
 ### Environment Variables Reference
 

@@ -5,13 +5,8 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from fastmcp import Client, Context
 from mcp import CreateMessageResult, types
-from next_gen_ui_agent.types import (
-    AgentConfig,
-    InputData,
-    MCPGenerateUIOutput,
-    UIComponentMetadata,
-)
-from next_gen_ui_mcp import NextGenUIMCPServer
+from next_gen_ui_agent.types import AgentConfig, InputData, UIComponentMetadata
+from next_gen_ui_mcp import MCPGenerateUIOutput, NextGenUIMCPServer
 from next_gen_ui_mcp.__main__ import add_health_routes
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedExceptionInference, MockedInference

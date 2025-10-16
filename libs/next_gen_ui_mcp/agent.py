@@ -8,13 +8,8 @@ from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.data_transform.types import ComponentDataBaseWithTitle
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import (
-    AgentConfig,
-    AgentInput,
-    InputData,
-    MCPGenerateUIOutput,
-    UIBlock,
-)
+from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData, UIBlock
+from next_gen_ui_mcp.types import MCPGenerateUIOutput
 from pydantic import Field
 
 logger = logging.getLogger(__name__)
