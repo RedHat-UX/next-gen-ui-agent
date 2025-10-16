@@ -99,6 +99,7 @@ nav:
   - Reference:
     - spec/component.md
     - spec/config.md
+    - spec/mcp.md
     - Changelog:
       - changelog/index.md
       - changelog/release_notes.md

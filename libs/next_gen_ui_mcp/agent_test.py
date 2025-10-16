@@ -6,7 +6,7 @@ import pytest
 from fastmcp import Client, Context
 from mcp import CreateMessageResult, types
 from next_gen_ui_agent.types import AgentConfig, InputData, UIComponentMetadata
-from next_gen_ui_mcp import NextGenUIMCPServer
+from next_gen_ui_mcp import MCPGenerateUIOutput, NextGenUIMCPServer
 from next_gen_ui_mcp.__main__ import add_health_routes
 from next_gen_ui_testing.data_set_movies import find_movie
 from next_gen_ui_testing.model import MockedExceptionInference, MockedInference
@@ -63,15 +63,17 @@ async def test_mcp_agent_with_sampling_inference() -> None:
     # Verify the result
     assert result is not None
 
-    rendering = result.structured_content["result"][0]
-    assert isinstance(rendering, dict)
+    # Parse the JSON response
+    output = MCPGenerateUIOutput.model_validate(result.structured_content)
+
+    rendering = output.blocks[0].rendering
 
     # Verify the component structure
-    assert rendering.get("name", None) == "rendering"
-    assert rendering.get("id", None) == "test_id"
+    assert rendering is not None
+    assert rendering.id == "test_id"
 
-    assert "content" in rendering
-    component = json.loads(rendering["content"])
+    assert rendering.content is not None
+    component = json.loads(rendering.content)
     assert component["component"] == "one-card"
     assert component["title"] == "Toy Story"
 
@@ -122,10 +124,8 @@ async def test_mcp_agent_with_sampling_inference_bad_return_type() -> None:
         )
 
 
-@pytest.mark.asyncio
-async def test_mcp_agent_with_external_inference() -> None:
-    """Test the MCP agent's generate_ui tool functionality with external inference provider."""
-
+@pytest.fixture()
+def external_inference():
     # Setup mocked LLM response
     mocked_component: UIComponentMetadata = UIComponentMetadata.model_validate(
         {
@@ -144,7 +144,12 @@ async def test_mcp_agent_with_external_inference() -> None:
     )
 
     # Create external inference provider using MockedInference
-    external_inference = MockedInference(mocked_component)
+    return MockedInference(mocked_component)
+
+
+@pytest.mark.asyncio
+async def test_mcp_agent_with_external_inference(external_inference) -> None:
+    """Test the MCP agent's generate_ui tool functionality with external inference provider."""
 
     # Create agent with external inference (not using MCP sampling)
     ngui_agent = NextGenUIMCPServer(
@@ -178,17 +183,24 @@ async def test_mcp_agent_with_external_inference() -> None:
     # Verify the result
     assert result is not None
 
-    # Parse the JSON response which should be a single UI component
-    rendering = result.structured_content["result"][0]
-    assert isinstance(rendering, dict)
+    # Verify summary
+    content = result.content[0].text
+    expected_summary = "Components are rendered in UI.\nCount: 1\n1. Title: 'Toy Story External' type: one-card"
 
+    assert content == expected_summary
+
+    # Parse the JSON response
+    output = MCPGenerateUIOutput.model_validate(result.data)
+    assert output.summary == expected_summary
+
+    rendering = output.blocks[0].rendering
     # Verify the component structure
-    assert rendering.get("name", None) == "rendering"
-    assert rendering.get("id", None) == "external_test_id"
+    assert rendering is not None
+    assert rendering.id == "external_test_id"
 
     # Parse the inner content to verify the UI component structure
-    assert "content" in rendering
-    component = json.loads(rendering["content"])
+    assert rendering.content is not None
+    component = json.loads(rendering.content)
     assert component["component"] == "one-card"
     assert component["title"] == "Toy Story External"
 
@@ -202,6 +214,54 @@ async def test_mcp_agent_with_external_inference() -> None:
 
     # Verify that the mock_info was called with the external inference message
     mock_info.assert_any_call("Using external inference provider...")
+
+
+@pytest.mark.asyncio
+async def test_mcp_agent_with_external_inference_no_structured_output(
+    external_inference,
+) -> None:
+    """Test the MCP agent's generate_ui tool functionality with external inference provider."""
+
+    # Create agent with external inference (not using MCP sampling)
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        name="TestAgentExternal",
+        inference=external_inference,
+        structured_output_enabled=False,
+    )
+
+    # Get the FastMCP server
+    mcp_server = ngui_agent.get_mcp_server()
+
+    # Create test input data
+    movies_data = find_movie("Toy Story")
+    input_data: List[InputData] = [
+        {"id": "external_test_id", "data": json.dumps(movies_data, default=str)}
+    ]
+
+    # Get the FastMCP server
+    mcp_server = ngui_agent.get_mcp_server()
+    async with Client(mcp_server) as client:
+        # Test the generate_ui tool through the MCP server
+        result = await client.call_tool(
+            "generate_ui",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "input_data": input_data,
+            },
+        )
+
+    # Verify the result
+    assert result is not None
+
+    # Verify summary
+    assert result.data is None
+    assert result.structured_content is None
+
+    # Parse the JSON response
+    output = MCPGenerateUIOutput.model_validate_json(result.content[0].text)
+    assert output.summary is not None
+    assert len(output.blocks) == 1
 
 
 @pytest.mark.asyncio
