@@ -351,7 +351,7 @@ def find_cluster(cluster_name: str = "") -> Dict[str, Any]:
     """Find OpenShift cluster information"""
     if cluster_name:
         for cluster_data in openshift_clusters:
-            if cluster_name.lower() in cluster_data["cluster"]["name"].lower():
+            if cluster_name.lower() in cluster_data["cluster"]["name"].lower():  # type: ignore
                 return cluster_data
     return openshift_clusters[0]  # Default to first cluster
 
