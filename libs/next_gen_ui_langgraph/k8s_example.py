@@ -1,21 +1,15 @@
 import asyncio
 import json
 import os
+import sys
 
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from next_gen_ui_langgraph import NextGenUILangGraphAgent
 
 # Import comprehensive K8s data from data_set_k8s
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-from next_gen_ui_testing.data_set_k8s import (
-    find_cluster,
-    openshift_clusters,
-    find_cluster_nodes,
-    find_pod_issues,
-    find_cost_analysis,
-)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from next_gen_ui_testing.data_set_k8s import find_cluster  # noqa: E402
 
 if not os.environ.get("OPENAI_API_KEY"):
     # getpass.getpass("Enter your OpenAI API key: ")
@@ -34,7 +28,7 @@ def get_cluster(cluster_name: str):
     print(f"Searching for cluster: '{cluster_name}'")
     result = find_cluster(cluster_name)
     if result:
-        print(f"Returning JSON payload for cluster")
+        print("Returning JSON payload for cluster")
         return json.dumps(result, default=str)
     print(f"Cluster '{cluster_name}' not found")
     return None
@@ -60,9 +54,7 @@ def run() -> None:
     # prompt = "What is the health status of prod-openshift-us-east?"
     # prompt = "How many nodes does the production cluster have?"
     # prompt = "Show me CPU and memory usage of production cluster"
-    k8s_response = k8s_agent.invoke(
-        {"messages": [{"role": "user", "content": prompt}]}
-    )
+    k8s_response = k8s_agent.invoke({"messages": [{"role": "user", "content": prompt}]})
     print("\n\n===K8s Text Answer===\n", k8s_response["messages"][-1].content)
 
     # Run NGUI Agent to get UI component as JSON for client-side rendering
@@ -79,4 +71,3 @@ def run() -> None:
 
 if __name__ == "__main__":
     run()
-
