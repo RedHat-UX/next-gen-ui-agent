@@ -30,6 +30,8 @@ RUN chgrp -R root /opt/app-root/src && chmod -R g+rwx /opt/app-root/src
 ENV MCP_TRANSPORT="streamable-http"
 ENV MCP_HOST="0.0.0.0"
 ENV MCP_PORT="5000"
+ENV MCP_TOOLS="all"
+ENV MCP_STRUCTURED_OUTPUT_ENABLED="true"
 ENV NGUI_COMPONENT_SYSTEM="json"
 ENV NGUI_PROVIDER="langchain"
 ENV NGUI_PROVIDER_API_KEY=""
@@ -46,6 +48,7 @@ USER 1001
 # Run the MCP
 # TODO: Support natively env variables in the next_gen_ui_mcp module
 CMD python -m next_gen_ui_mcp --config-path $NGUI_CONFIG_PATH \
+    --structured_output_enabled "$MCP_STRUCTURED_OUTPUT_ENABLED" --tools "$MCP_TOOLS"\
     --host "$MCP_HOST" --port "$MCP_PORT" --transport "$MCP_TRANSPORT" --component-system "$NGUI_COMPONENT_SYSTEM" \
     --provider "$NGUI_PROVIDER" --model "$NGUI_MODEL" --api-key "$NGUI_PROVIDER_API_KEY" --base-url "$NGUI_PROVIDER_API_BASE_URL" \
     --llama-url "$NGUI_PROVIDER_LLAMA_URL"

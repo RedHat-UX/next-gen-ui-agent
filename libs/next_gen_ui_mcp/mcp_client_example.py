@@ -26,7 +26,7 @@ Usage:
 The client will:
 1. Connect to the NextGenUI MCP server via SSE
 2. Set up Ollama-based sampling for LLM inference
-3. Test the generate_ui tool with sample movie data
+3. Test the generate_ui_multiple_components tool with sample movie data
 4. Display the generated UI components
 """
 
@@ -299,7 +299,8 @@ class NextGenUIMCPClient:
 
             # Call the tool
             response = await self.session.call_tool(
-                "generate_ui", {"user_prompt": user_prompt, "input_data": input_data}
+                "generate_ui_multiple_components",
+                {"user_prompt": user_prompt, "input_data": input_data},
             )
 
             logger.info("Successfully generated UI components")
@@ -542,12 +543,15 @@ async def demo_ui_generation(server_url: str, ollama_model: str):
             user_prompt = "Create a movie information card showing the key details"
             input_data = [SAMPLE_MOVIE_DATA]
 
-            logger.debug("🔄 Calling generate_ui tool with prompt: '%s'", user_prompt)
+            logger.debug(
+                "🔄 Calling generate_ui_multiple_components tool with prompt: '%s'",
+                user_prompt,
+            )
             logger.debug("🔄 Input data: %s", input_data)
 
             try:
                 result = await session.call_tool(
-                    name="generate_ui",
+                    name="generate_ui_multiple_components",
                     arguments={"user_prompt": user_prompt, "input_data": input_data},
                 )
                 logger.debug("✅ Got tool result: %s", type(result))

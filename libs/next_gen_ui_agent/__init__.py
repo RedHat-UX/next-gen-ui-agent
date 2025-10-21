@@ -1,5 +1,6 @@
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.types import (
+    AgentConfig,
     AgentInput,
     DataField,
     InputData,
@@ -12,4 +13,5 @@ __all__ = [
     "DataField",
     "InputData",
     "UIComponentMetadata",
+    "AgentConfig",
 ]

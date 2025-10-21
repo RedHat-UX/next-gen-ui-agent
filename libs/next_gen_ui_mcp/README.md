@@ -77,7 +77,11 @@ options:
   --transport {stdio,sse,streamable-http}
                         Transport protocol to use
   --host HOST           Host to bind to
+  --tools TOOLS [TOOLS ...]
+                        Control which tools should be enabled. You can specify multiple values by repeating same parameter or passing comma separated value.
   --port PORT           Port to bind to
+  --structured_output_enabled {true,false}
+                        Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.
   --component-system {json,patternfly,rhds}
                         Component system to use for rendering (default: json)
   --debug               Enable debug logging
@@ -126,14 +130,14 @@ The `--concurrent` parameter is there only to allow calling it while you use `pa
 
 ```python
 result = client.tool_runtime.invoke_tool(
-    tool_name="generate_ui",
+    tool_name="generate_ui_component",
     kwargs=input_data,
 )
 ```
 
 ## Available MCP Tools
 
-### `generate_ui`
+### `generate_ui_multiple_components`
 The main tool that wraps the entire Next Gen UI Agent functionality.
 
 This single tool handles:
@@ -145,12 +149,62 @@ This single tool handles:
 **Parameters:**
 
 - `user_prompt` (str, required): User's prompt which we want to enrich with UI components
-- `input_data` (List[Dict], optional): List of input data to render within the UI components. Excluded in MCP schema by default.
-  Only if `--debug` is enabled, parameter is part of schema and available e.g. in inspector 
+- `input_data` (List[Dict], optional): List of input data to render within the UI components.
+
+You can find the input schema in [spec/mcp/generate_ui_input.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_input.schema.json).
 
 **Returns:**
 
-- List of rendered UI components ready for display
+Object containing:
+
+- UI blocks
+- summary
+
+By default the result is provided as [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) where structured content contains JSON object and the text content just "human readable summary".
+It's beneficial to send to Agent only text summary for LLM processing and use structured content for UI rendering on client side.
+
+If it's disabled via --structured_output_enabled=false then there is no structured content in the result and the text content contains
+the same content but as serialized JSON string.
+
+For compatibility the JSON object contains the summary as well.
+
+Example:
+
+```json
+{
+  "blocks": [
+    {
+      "id": "tool_call_id",
+      "rendering": {
+        "id": "tool_call_id",
+        "component_system": "json",
+        "mime_type": "application/json",
+        "content": "{\"id\":\"id\",\"data\":\"some-data\",\"component\":\"log\"}"
+      }
+    }
+  ],
+  "summary": "Components are rendered in UI.\nCount: 1\n1. type: log"
+}
+```
+
+You can find schema for the reponse in [spec/mcp/generate_ui_output.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_output.schema.json).
+
+### `generate_ui_component`
+The tool that wraps the entire Next Gen UI Agent functionality and with decomposed one input object into individual arguments.
+
+Useful for agents which are able to pass one tool cool result to another.
+
+**Parameters:**
+
+- `user_prompt` (str, required): User's prompt which we want to enrich with UI components
+- `data` (str, required): Raw input data to render within the UI components
+- `data_type` (str, required): Data type
+- `data_id` (str, required): ID of Data
+- `structured_data` (List[Dict], optional): List of input data to render within the UI components. Overrides all other data parameters. Not visible in schema.
+
+**Returns:**
+
+Same result as `generate_ui_multiple_components` tool.
 
 ## Available MCP Resources
 

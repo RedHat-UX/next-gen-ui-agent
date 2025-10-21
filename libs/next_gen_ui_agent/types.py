@@ -212,6 +212,14 @@ class Rendition(BaseModel):
     content: str
 
 
+class UIBlock(BaseModel):
+    """UI Block model with all details"""
+
+    id: str
+    rendering: Optional[Rendition] = None
+    "Rendering of UI block"
+
+
 class InputDataTransformerBase(ABC):
     """Base of the Input Data transformer"""
 
