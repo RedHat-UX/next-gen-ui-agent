@@ -61,8 +61,8 @@ class MCPSamplingInference(InferenceBase):
 
 
 MCP_ALL_TOOLS = [
-    "generate_ui",
-    "generate_ui_structured_data",
+    "generate_ui_component",
+    "generate_ui_multiple_components",
 ]
 
 
@@ -103,15 +103,14 @@ class NextGenUIMCPServer:
 
     def _setup_mcp_tools(self) -> None:
         """Set up MCP tools for the agent."""
-        logger.info("Registering generate_ui tool with data* arguments")
+        logger.info("Registering tools")
 
         @self.mcp.tool(
-            name="generate_ui",
+            name="generate_ui_component",
             description=self.generate_ui_description,
-            exclude_args=["structured_data"],
-            enabled="generate_ui" in self.enabled_tools,
+            enabled="generate_ui_component" in self.enabled_tools,
         )
-        async def generate_ui(
+        async def generate_ui_component(
             ctx: Context,
             # Be sync with types.MCPGenerateUIInput !!!
             user_prompt: Annotated[
@@ -138,23 +137,12 @@ class NextGenUIMCPServer:
                     description="ID of tool call used for 'data' argument. Exact COPY of tool name. Do not change anything! NEVER generate this."
                 ),
             ] = None,
-            # In case that agent pass data overrides data programatically
-            structured_data: Annotated[
-                List[InputData] | None,
-                Field(
-                    description="Structured Input Data. Array of objects with 'id' and 'data' keys. NEVER generate this."
-                ),
-            ] = None,
         ) -> ToolResult:
-            if structured_data and len(structured_data) > 0:
-                return await self.generate_ui_structured_data(
-                    ctx=ctx, user_prompt=user_prompt, structured_data=structured_data
-                )
-            elif data and data_type:
+            if data and data_type:
                 if not data_id:
                     data_id = str(uuid.uuid4())
                 structured_data = [InputData(data=data, type=data_type, id=data_id)]
-                return await self.generate_ui_structured_data(
+                return await self.generate_ui(
                     ctx=ctx, user_prompt=user_prompt, structured_data=structured_data
                 )
             else:
@@ -163,11 +151,11 @@ class NextGenUIMCPServer:
                 )
 
         @self.mcp.tool(
-            name="generate_ui_structured_data",
+            name="generate_ui_multiple_components",
             description=self.generate_ui_description,
-            enabled="generate_ui_structured_data" in self.enabled_tools,
+            enabled="generate_ui_multiple_components" in self.enabled_tools,
         )
-        async def generate_ui_structured_data(
+        async def generate_ui_multiple_components(
             ctx: Context,
             # Be sync with types.MCPGenerateUIInput !!!
             user_prompt: Annotated[
@@ -186,7 +174,7 @@ class NextGenUIMCPServer:
             if not structured_data or len(structured_data) == 0:
                 # TODO: Do analysis of input_data and check if data field contains data or not
                 raise ValueError("No data provided. No UI component generated.")
-            return await self.generate_ui_structured_data(
+            return await self.generate_ui(
                 ctx=ctx, user_prompt=user_prompt, structured_data=structured_data
             )
 
@@ -205,7 +193,7 @@ class NextGenUIMCPServer:
                 ],
             }
 
-    async def generate_ui_structured_data(
+    async def generate_ui(
         self,
         ctx: Context,
         user_prompt: str,

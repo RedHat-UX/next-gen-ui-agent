@@ -130,14 +130,14 @@ The `--concurrent` parameter is there only to allow calling it while you use `pa
 
 ```python
 result = client.tool_runtime.invoke_tool(
-    tool_name="generate_ui",
+    tool_name="generate_ui_component",
     kwargs=input_data,
 )
 ```
 
 ## Available MCP Tools
 
-### `generate_ui_structured_content`
+### `generate_ui_multiple_components`
 The main tool that wraps the entire Next Gen UI Agent functionality.
 
 This single tool handles:
@@ -189,7 +189,7 @@ Example:
 
 You can find schema for the reponse in [spec/mcp/generate_ui_output.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_output.schema.json).
 
-### `generate_ui`
+### `generate_ui_component`
 The tool that wraps the entire Next Gen UI Agent functionality and with decomposed one input object into individual arguments.
 
 Useful for agents which are able to pass one tool cool result to another.
@@ -204,7 +204,7 @@ Useful for agents which are able to pass one tool cool result to another.
 
 **Returns:**
 
-Same result as `generate_ui_structured_content` tool.
+Same result as `generate_ui_multiple_components` tool.
 
 ## Available MCP Resources
 
