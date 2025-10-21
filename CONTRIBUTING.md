@@ -23,6 +23,8 @@ Install [Podman](https://podman.io/) to be able build images like `Next Gen UI M
 
 ### VSCode
 
+The VSCode extension `Python` should be installed.
+
 Run Pants export to create a virtual env
 
 ```sh
@@ -48,13 +50,18 @@ Some parts of the project require local LamaStack server to be running for the d
 
 ### Prerequisities
 
-Install dev deps
+# install dev requirements
+```sh
+pip install -r requirements_dev.txt
+```
+
+# Install dev deps
 
 ```sh
 pip3 install -r requirements_dev.txt
 ```
 
-Install pre commit hook to perform python code lint and checks.
+# Install pre commit hook to perform python code lint and checks.
 
 ```sh
 pre-commit install
