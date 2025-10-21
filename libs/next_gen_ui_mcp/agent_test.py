@@ -37,7 +37,10 @@ async def test_mcp_agent_with_sampling_inference() -> None:
     async def sampling_handler(_messages, _params, _context) -> str:
         return mocked_llm_response.model_dump_json()
 
-    ngui_agent = NextGenUIMCPServer(config=AgentConfig(component_system="json"))
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        structured_input_enabled=True,
+    )
 
     # Get the FastMCP server
     mcp_server = ngui_agent.get_mcp_server()
@@ -53,10 +56,10 @@ async def test_mcp_agent_with_sampling_inference() -> None:
         async with Client(mcp_server, sampling_handler=sampling_handler) as client:
             # Test the generate_ui tool through the MCP server
             result = await client.call_tool(
-                "generate_ui",
+                "generate_ui_structured_data",
                 {
                     "user_prompt": "Tell me brief details of Toy Story",
-                    "input_data": input_data,
+                    "structured_data": input_data,
                 },
             )
 
@@ -96,7 +99,10 @@ async def test_mcp_agent_with_sampling_inference_bad_return_type() -> None:
         response = CreateMessageResult(content=image, role="assistant", model="t")
         return response
 
-    ngui_agent = NextGenUIMCPServer(config=AgentConfig(component_system="json"))
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        structured_input_enabled=True,
+    )
 
     # Get the FastMCP server
     mcp_server = ngui_agent.get_mcp_server()
@@ -112,15 +118,15 @@ async def test_mcp_agent_with_sampling_inference_bad_return_type() -> None:
         # Test the generate_ui tool through the MCP server
         with pytest.raises(Exception) as excinfo:
             await client.call_tool(
-                "generate_ui",
+                "generate_ui_structured_data",
                 {
                     "user_prompt": "Tell me brief details of Toy Story",
-                    "input_data": input_data,
+                    "structured_data": input_data,
                 },
             )
         assert (
             str(excinfo.value)
-            == "Error calling tool 'generate_ui': Failed to call model via MCP sampling: Sample Response returned unknown type: image"
+            == "Error calling tool 'generate_ui_structured_data': Failed to call model via MCP sampling: Sample Response returned unknown type: image"
         )
 
 
@@ -156,6 +162,7 @@ async def test_mcp_agent_with_external_inference(external_inference) -> None:
         config=AgentConfig(component_system="json"),
         name="TestAgentExternal",
         inference=external_inference,
+        structured_input_enabled=True,
     )
 
     # Get the FastMCP server
@@ -173,10 +180,10 @@ async def test_mcp_agent_with_external_inference(external_inference) -> None:
         async with Client(mcp_server) as client:
             # Test the generate_ui tool through the MCP server
             result = await client.call_tool(
-                "generate_ui",
+                "generate_ui_structured_data",
                 {
                     "user_prompt": "Tell me brief details of Toy Story",
-                    "input_data": input_data,
+                    "structured_data": input_data,
                 },
             )
 
@@ -227,6 +234,7 @@ async def test_mcp_agent_with_external_inference_no_structured_output(
         config=AgentConfig(component_system="json"),
         name="TestAgentExternal",
         inference=external_inference,
+        structured_input_enabled=True,
         structured_output_enabled=False,
     )
 
@@ -244,10 +252,10 @@ async def test_mcp_agent_with_external_inference_no_structured_output(
     async with Client(mcp_server) as client:
         # Test the generate_ui tool through the MCP server
         result = await client.call_tool(
-            "generate_ui",
+            "generate_ui_structured_data",
             {
                 "user_prompt": "Tell me brief details of Toy Story",
-                "input_data": input_data,
+                "structured_data": input_data,
             },
         )
 
@@ -301,6 +309,7 @@ async def test_mcp_inference_error() -> None:
     ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),
         inference=inference,
+        structured_input_enabled=True,
         name="TestAgentExternal",
     )
 
@@ -312,10 +321,10 @@ async def test_mcp_inference_error() -> None:
             async with Client(mcp_server) as client:
                 with pytest.raises(Exception, match="call model test error"):
                     await client.call_tool(
-                        "generate_ui",
+                        "generate_ui_structured_data",
                         {
                             "user_prompt": "Show me details about Toy Story movie with external inference",
-                            "input_data": input_data,
+                            "structured_data": input_data,
                         },
                     )
     mock_info.assert_any_call("Using external inference provider...")
@@ -324,21 +333,25 @@ async def test_mcp_inference_error() -> None:
 
 @pytest.mark.asyncio
 async def test_tool_generate_ui_description_all() -> None:
-    ngui_agent = NextGenUIMCPServer(name="TestAgent", debug=True)
+    ngui_agent = NextGenUIMCPServer(
+        name="TestAgent",
+        debug=True,
+        structured_input_enabled=True,
+    )
     mcp_server = ngui_agent.get_mcp_server()
 
     async with Client(mcp_server) as client:
         tools = await client.list_tools()
         assert len(tools) == 1
         tool_generate_ui = tools[0]
-        assert tool_generate_ui.name == "generate_ui"
+        assert tool_generate_ui.name == "generate_ui_structured_data"
         assert (
             tool_generate_ui.inputSchema["properties"]["user_prompt"]["description"]
             == "Original user query without any changes. Do not generate this."
         )
         assert (
-            tool_generate_ui.inputSchema["properties"]["input_data"]["description"]
-            == "Input Data. JSON Array of objects with 'id' and 'data' keys. Do not generate this."
+            tool_generate_ui.inputSchema["properties"]["structured_data"]["description"]
+            == "Structured Input Data. Array of objects with 'id' and 'data' keys. NEVER generate this."
         )
         assert (
             tool_generate_ui.description
