@@ -29,6 +29,8 @@
                 "--model", "gpt-4o-mini",
                 "--port", "9200",
                 "--transport", "streamable-http",
+                // "--tools", "generate_ui_component",
+                // "--structured_output_enabled", "false",
                 // "--config-path", "${workspaceFolder}/../ngui_openshift_mcp_config.yaml"
             ],
         },

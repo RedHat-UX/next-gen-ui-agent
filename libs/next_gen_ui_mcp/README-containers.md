@@ -48,6 +48,7 @@ All env variables are mapped to Next Gen UI MCP server documented in the [MCP Se
 | `MCP_TRANSPORT`                 | `streamable-http` | Transport protocol (`stdio`, `sse`, `streamable-http`)          |
 | `MCP_HOST`                      | `0.0.0.0`         | Host to bind to (for HTTP transports)                           |
 | `MCP_PORT`                      | `5000`            | Port to bind to (for HTTP transports)                           |
+| `MCP_TOOLS`                     | `all`             | List of enabled tools (comma separated)                         |
 | `MCP_STRUCTURED_OUTPUT_ENABLED` | `true`            | Enable or disable structured output                             |
 | `NGUI_COMPONENT_SYSTEM`         | `json`            | UI Component system (`json`, `rhds`)                            |
 | `NGUI_PROVIDER`                 | `langchain`       | Inference provider (`mcp`, `llamastack`, `langchain`)           |
