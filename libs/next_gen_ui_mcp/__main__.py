@@ -42,6 +42,7 @@ from typing import Optional
 from fastmcp import FastMCP
 from next_gen_ui_agent.agent_config import read_config_yaml_file
 from next_gen_ui_agent.types import AgentConfig
+from next_gen_ui_mcp.agent import MCP_ALL_TOOLS
 
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -139,7 +140,7 @@ def create_server(
     inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
     debug: bool = False,
-    structured_input_enabled=False,
+    enabled_tools=None,
     structured_output_enabled=True,
 ) -> NextGenUIMCPServer:
     """Create NextGenUIMCPServer with optional external inference provider.
@@ -160,7 +161,7 @@ def create_server(
         sampling_max_tokens=sampling_max_tokens,
         name="NextGenUI-MCP-Server",
         debug=debug,
-        structured_input_enabled=structured_input_enabled,
+        enabled_tools=enabled_tools,
         structured_output_enabled=structured_output_enabled,
     )
 
@@ -242,10 +243,15 @@ Examples:
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
     parser.add_argument(
-        "--structured_input_enabled",
-        choices=["true", "false"],
-        default="false",
-        help="Control how data are passed to MCP server. If structured input is enabled it expects `structured_input` argument. Otherwise input is taken from data, data_type and data_id arguments.",
+        "--tools",
+        action="extend",
+        nargs="+",
+        type=str,
+        help=(
+            "Control which tools should be enabled. "
+            "You can specify multiple values by repeating same parameter "
+            "or passing comma separated value."
+        ),
     )
     parser.add_argument(
         "--structured_output_enabled",
@@ -320,11 +326,15 @@ Examples:
     if args.component_system:
         config.component_system = args.component_system
 
+    enabled_tools = MCP_ALL_TOOLS
+    if args.tools and args.tools != ["all"]:
+        enabled_tools = args.tools
+
     logger.info(
-        "Starting Next Gen UI MCP Server with %s transport, debug=%s, structured_input_enabled=%s, structured_output_enabled=%s",
+        "Starting Next Gen UI MCP Server with %s transport, debug=%s, tools=%s, structured_output_enabled=%s",
         args.transport,
         args.debug,
-        args.structured_input_enabled,
+        enabled_tools,
         args.structured_output_enabled,
     )
 
@@ -364,7 +374,7 @@ Examples:
             inference=inference,
             sampling_max_tokens=args.sampling_max_tokens,
             debug=args.debug,
-            structured_input_enabled=args.structured_input_enabled == "true",
+            enabled_tools=enabled_tools,
             structured_output_enabled=args.structured_output_enabled == "true",
         )
 

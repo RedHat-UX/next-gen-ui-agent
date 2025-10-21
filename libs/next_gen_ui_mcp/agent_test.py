@@ -37,10 +37,7 @@ async def test_mcp_agent_with_sampling_inference() -> None:
     async def sampling_handler(_messages, _params, _context) -> str:
         return mocked_llm_response.model_dump_json()
 
-    ngui_agent = NextGenUIMCPServer(
-        config=AgentConfig(component_system="json"),
-        structured_input_enabled=True,
-    )
+    ngui_agent = NextGenUIMCPServer(config=AgentConfig(component_system="json"))
 
     # Get the FastMCP server
     mcp_server = ngui_agent.get_mcp_server()
@@ -99,10 +96,7 @@ async def test_mcp_agent_with_sampling_inference_bad_return_type() -> None:
         response = CreateMessageResult(content=image, role="assistant", model="t")
         return response
 
-    ngui_agent = NextGenUIMCPServer(
-        config=AgentConfig(component_system="json"),
-        structured_input_enabled=True,
-    )
+    ngui_agent = NextGenUIMCPServer(config=AgentConfig(component_system="json"))
 
     # Get the FastMCP server
     mcp_server = ngui_agent.get_mcp_server()
@@ -162,7 +156,6 @@ async def test_mcp_agent_with_external_inference(external_inference) -> None:
         config=AgentConfig(component_system="json"),
         name="TestAgentExternal",
         inference=external_inference,
-        structured_input_enabled=True,
     )
 
     # Get the FastMCP server
@@ -234,7 +227,6 @@ async def test_mcp_agent_with_external_inference_no_structured_output(
         config=AgentConfig(component_system="json"),
         name="TestAgentExternal",
         inference=external_inference,
-        structured_input_enabled=True,
         structured_output_enabled=False,
     )
 
@@ -270,6 +262,126 @@ async def test_mcp_agent_with_external_inference_no_structured_output(
     output = MCPGenerateUIOutput.model_validate_json(result.content[0].text)
     assert output.summary is not None
     assert len(output.blocks) == 1
+
+
+@pytest.mark.asyncio
+async def test_generate_ui(
+    external_inference,
+) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        name="TestAgentExternal",
+        inference=external_inference,
+    )
+
+    movies_data = find_movie("Toy Story")
+    # input_data: List[InputData] = [
+    #     {"id": "external_test_id", "data": json.dumps(movies_data, default=str)}
+    # ]
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        result = await client.call_tool(
+            "generate_ui",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "data": json.dumps(movies_data, default=str),
+                "data_type": "data_type_ignored",
+                "data_id": "external_test_id",
+            },
+        )
+
+    # Verify the result
+    assert result is not None
+
+    # Parse the JSON response
+    output = MCPGenerateUIOutput.model_validate(result.data)
+    rendering = output.blocks[0].rendering
+    # Verify the component structure
+    assert rendering is not None
+    assert rendering.id == "external_test_id"
+
+    # Parse the inner content to verify the UI component structure
+    assert rendering.content is not None
+    component = json.loads(rendering.content)
+    assert component["component"] == "one-card"
+    assert component["title"] == "Toy Story External"
+
+
+@pytest.mark.asyncio
+async def test_generate_ui_data_id_gen(
+    external_inference,
+) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        name="TestAgentExternal",
+        inference=external_inference,
+    )
+
+    movies_data = find_movie("Toy Story")
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        result = await client.call_tool(
+            "generate_ui",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "data": json.dumps(movies_data, default=str),
+                "data_type": "data_type_ignored",
+            },
+        )
+
+    # Verify the result
+    assert result is not None
+
+    # Parse the JSON response
+    output = MCPGenerateUIOutput.model_validate(result.data)
+    rendering = output.blocks[0].rendering
+    # Verify the component structure
+    assert rendering is not None
+    assert rendering.id is not None
+    assert rendering.id != "external_test_id"
+
+
+@pytest.mark.asyncio
+async def test_generate_ui_override(
+    external_inference,
+) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        name="TestAgentExternal",
+        inference=external_inference,
+    )
+
+    movies_data = find_movie("Toy Story")
+    input_data: List[InputData] = [
+        {"id": "external_test_id", "data": json.dumps(movies_data, default=str)}
+    ]
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        result = await client.call_tool(
+            "generate_ui",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "data": "data_ignored",
+                "data_type": "data_type_ignored",
+                "structured_data": input_data,
+            },
+        )
+
+    # Verify the result
+    assert result is not None
+
+    # Parse the JSON response
+    output = MCPGenerateUIOutput.model_validate(result.data)
+    rendering = output.blocks[0].rendering
+    # Verify the component structure
+    assert rendering is not None
+    assert rendering.id == "external_test_id"
+
+    # Parse the inner content to verify the UI component structure
+    assert rendering.content is not None
+    component = json.loads(rendering.content)
+    assert component["component"] == "one-card"
+    assert component["title"] == "Toy Story External"
 
 
 @pytest.mark.asyncio
@@ -309,7 +421,6 @@ async def test_mcp_inference_error() -> None:
     ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),
         inference=inference,
-        structured_input_enabled=True,
         name="TestAgentExternal",
     )
 
@@ -335,15 +446,16 @@ async def test_mcp_inference_error() -> None:
 async def test_tool_generate_ui_description_all() -> None:
     ngui_agent = NextGenUIMCPServer(
         name="TestAgent",
-        debug=True,
-        structured_input_enabled=True,
+        debug=False,
     )
     mcp_server = ngui_agent.get_mcp_server()
 
     async with Client(mcp_server) as client:
         tools = await client.list_tools()
-        assert len(tools) == 1
-        tool_generate_ui = tools[0]
+        assert len(tools) == 2
+        assert tools[0].name == "generate_ui"
+
+        tool_generate_ui = tools[1]
         assert tool_generate_ui.name == "generate_ui_structured_data"
         assert (
             tool_generate_ui.inputSchema["properties"]["user_prompt"]["description"]
@@ -360,16 +472,21 @@ async def test_tool_generate_ui_description_all() -> None:
 
 
 @pytest.mark.asyncio
-async def test_tool_generate_ui_description_excluded() -> None:
-    ngui_agent = NextGenUIMCPServer(name="TestAgent")
-    mcp_server = ngui_agent.get_mcp_server()
-
-    async with Client(mcp_server) as client:
+async def test_config_tools() -> None:
+    ngui_agent = NextGenUIMCPServer(enabled_tools=["generate_ui_structured_data"])
+    async with Client(ngui_agent.get_mcp_server()) as client:
         tools = await client.list_tools()
         assert len(tools) == 1
-        tool_generate_ui = tools[0]
+        assert tools[0].name == "generate_ui_structured_data"
 
-        assert "input_data" not in tool_generate_ui.inputSchema["properties"]
+
+def test_config_tools_bad() -> None:
+    with pytest.raises(Exception) as excinfo:
+        NextGenUIMCPServer(enabled_tools=["bad_tool"])
+    assert (
+        str(excinfo.value)
+        == "tool 'bad_tool' is no valid. Available tools are: ['generate_ui', 'generate_ui_structured_data']"
+    )
 
 
 def test_liveness() -> None:

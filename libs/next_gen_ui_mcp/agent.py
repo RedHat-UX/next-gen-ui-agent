@@ -60,6 +60,12 @@ class MCPSamplingInference(InferenceBase):
             raise RuntimeError(f"Failed to call model via MCP sampling: {e}") from e
 
 
+MCP_ALL_TOOLS = [
+    "generate_ui",
+    "generate_ui_structured_data",
+]
+
+
 class NextGenUIMCPServer:
     """Next Gen UI Agent as MCP server that can use sampling or external inference."""
 
@@ -70,7 +76,7 @@ class NextGenUIMCPServer:
         sampling_max_tokens: int = 2048,
         inference: InferenceBase | None = None,
         debug: bool = False,
-        structured_input_enabled=False,
+        enabled_tools=None,
         structured_output_enabled=True,
     ):
         self.debug = debug
@@ -78,11 +84,16 @@ class NextGenUIMCPServer:
         self.sampling_max_tokens = sampling_max_tokens
         self.structured_output_enabled = structured_output_enabled
         self.mcp: FastMCP = FastMCP(name)
-        self._setup_mcp_tools()
-        if structured_input_enabled:
-            self._setup_generate_ui_structured_tool()
+        if enabled_tools:
+            for t in enabled_tools:
+                if t not in MCP_ALL_TOOLS:
+                    raise ValueError(
+                        f"tool '{t}' is no valid. Available tools are: {MCP_ALL_TOOLS}"
+                    )
+            self.enabled_tools = enabled_tools
         else:
-            self._setup_generate_ui_tool()
+            self.enabled_tools = MCP_ALL_TOOLS
+        self._setup_mcp_tools()
         self.inference = inference
 
     generate_ui_description = (
@@ -90,13 +101,15 @@ class NextGenUIMCPServer:
         "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
     )
 
-    def _setup_generate_ui_tool(self) -> None:
+    def _setup_mcp_tools(self) -> None:
         """Set up MCP tools for the agent."""
         logger.info("Registering generate_ui tool with data* arguments")
 
         @self.mcp.tool(
+            name="generate_ui",
             description=self.generate_ui_description,
             exclude_args=["structured_data"],
+            enabled="generate_ui" in self.enabled_tools,
         )
         async def generate_ui(
             ctx: Context,
@@ -149,11 +162,11 @@ class NextGenUIMCPServer:
                     "No data or data_type arguments provided. No UI component generated."
                 )
 
-    def _setup_generate_ui_structured_tool(self) -> None:
-        """Set up MCP tools for the agent."""
-        logger.info("Registering generate_ui tool with structured_data arguments")
-
-        @self.mcp.tool(description=self.generate_ui_description)
+        @self.mcp.tool(
+            name="generate_ui_structured_data",
+            description=self.generate_ui_description,
+            enabled="generate_ui_structured_data" in self.enabled_tools,
+        )
         async def generate_ui_structured_data(
             ctx: Context,
             # Be sync with types.MCPGenerateUIInput !!!
@@ -176,9 +189,6 @@ class NextGenUIMCPServer:
             return await self.generate_ui_structured_data(
                 ctx=ctx, user_prompt=user_prompt, structured_data=structured_data
             )
-
-    def _setup_mcp_tools(self):
-        """Set up MCP tools for the agent."""
 
         @self.mcp.resource(
             "system://info",

@@ -77,6 +77,8 @@ options:
   --transport {stdio,sse,streamable-http}
                         Transport protocol to use
   --host HOST           Host to bind to
+  --tools TOOLS [TOOLS ...]
+                        Control which tools should be enabled. You can specify multiple values by repeating same parameter or passing comma separated value.
   --port PORT           Port to bind to
   --structured_output_enabled {true,false}
                         Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.
@@ -135,7 +137,7 @@ result = client.tool_runtime.invoke_tool(
 
 ## Available MCP Tools
 
-### `generate_ui`
+### `generate_ui_structured_content`
 The main tool that wraps the entire Next Gen UI Agent functionality.
 
 This single tool handles:
@@ -147,8 +149,7 @@ This single tool handles:
 **Parameters:**
 
 - `user_prompt` (str, required): User's prompt which we want to enrich with UI components
-- `input_data` (List[Dict], optional): List of input data to render within the UI components. Excluded in MCP schema by default.
-  Only if `--debug` is enabled, parameter is part of schema and available e.g. in inspector 
+- `input_data` (List[Dict], optional): List of input data to render within the UI components.
 
 You can find the input schema in [spec/mcp/generate_ui_input.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_input.schema.json).
 
@@ -187,6 +188,23 @@ Example:
 ```
 
 You can find schema for the reponse in [spec/mcp/generate_ui_output.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_output.schema.json).
+
+### `generate_ui`
+The tool that wraps the entire Next Gen UI Agent functionality and with decomposed one input object into individual arguments.
+
+Useful for agents which are able to pass one tool cool result to another.
+
+**Parameters:**
+
+- `user_prompt` (str, required): User's prompt which we want to enrich with UI components
+- `data` (str, required): Raw input data to render within the UI components
+- `data_type` (str, required): Data type
+- `data_id` (str, required): ID of Data
+- `structured_data` (List[Dict], optional): List of input data to render within the UI components. Overrides all other data parameters. Not visible in schema.
+
+**Returns:**
+
+Same result as `generate_ui_structured_content` tool.
 
 ## Available MCP Resources
 
