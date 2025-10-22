@@ -13,7 +13,7 @@ React frontend application for the NGUI end-to-end testing application. Demonstr
 * Dynamic UI component rendering using NGUI components
 * ChatBot interface for AI interaction
 * Vite-based development environment
-* Integration with NGUI `@rhngui/patternfly-react-renderer` package
+* Integration with NGUI `dynamicui` package
 * Error boundary handling for robust UI
 
 ## Installation
@@ -22,22 +22,17 @@ React frontend application for the NGUI end-to-end testing application. Demonstr
 
 1. **Node.js** (version 18 or higher)
 2. **npm** or **yarn** package manager
-3. **`@rhngui/patternfly-react-renderer` package** - Available locally for development and npm linked
-
-**Note**: The `@rhngui/patternfly-react-renderer` comes from a locally setup https://github.com/RedHat-UX/next-gen-ui-react, where the following steps were run:
-```bash
-npm install
-npm run build
-npm link
-```
+3. **`dynamicui` package** - Available locally for development
 
 ### Install Dependencies
 
 ```bash
 cd tests/ngui-e2e/client
 npm install
-npm link @rhngui/patternfly-react-renderer
+npm link dynamicui
 ```
+
+**Note**: The `dynamicui` package will be available via npm in the future. For now, it's available locally for development purposes.
 
 ## Configuration
 

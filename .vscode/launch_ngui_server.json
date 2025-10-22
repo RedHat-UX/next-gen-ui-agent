@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug NGUI E2E-Edit Server",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "main:app",
+        "--reload",
+        "--host", "127.0.0.1",
+        "--port", "8000"
+      ],
+      "cwd": "${workspaceFolder}/tests/ngui-e2e-edit/server",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/libs:${workspaceFolder}/tests",
+        "LLM_MODEL": "llama3.2:3b",
+        "LLM_BASE_URL": "http://localhost:11434/v1"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}
+

@@ -27,10 +27,17 @@ class JsonInputDataTransformer(InputDataTransformerBase):
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON format of the Input Data: {e}") from e
 
+        # Handle null/None values by converting to empty object
+        if parsed_data is None:
+            print(
+                "[JsonInputDataTransformer] WARNING: Input data is null, converting to empty object"
+            )
+            return {}
+
         # Check that the root element is either an object (dict) or array (list)
         if not isinstance(parsed_data, (dict, list)):
             raise ValueError(
-                "Invalid JSON format of the Input Data: JSON root must be an object or array"
+                f"Invalid JSON format of the Input Data: JSON root must be an object or array, got {type(parsed_data).__name__}"
             )
 
         return parsed_data

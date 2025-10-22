@@ -188,6 +188,8 @@ class UIComponentMetadata(BaseModel):
     """Component type."""
     fields: list[DataField]
     """Fields of the component."""
+    chartType: Optional[str] = None
+    """Chart type for chart component (bar, line, pie, donut)."""
 
     json_data: Optional[Any] = None
     """

@@ -179,6 +179,61 @@ class ComponentDataVideo(ComponentDataBaseWithTitle):
     )
 
 
+class ChartDataPoint(BaseModel):
+    """A single data point in a chart series"""
+
+    name: Optional[str] = Field(
+        default=None, description="Optional name for the data point"
+    )
+    x: Union[str, int, float] = Field(
+        description="X-axis value (label for the data point)"
+    )
+    y: Union[int, float] = Field(description="Y-axis value (numeric value)")
+
+
+class ChartSeries(BaseModel):
+    """A series of data points for the chart"""
+
+    name: str = Field(description="Name of the series (shown in legend)")
+    data: list[ChartDataPoint] = Field(
+        description="Array of data points in this series"
+    )
+
+
+class ComponentDataChart(ComponentDataBaseWithTitle):
+    """Component Data for Chart visualization."""
+
+    component: Literal["chart"] = "chart"
+    title: Optional[str] = Field(default=None, description="title of the chart")
+    chartType: Optional[Literal["bar", "line", "pie", "donut"]] = Field(
+        default="bar", description="Type of chart to render"
+    )
+    data: Optional[list[ChartSeries]] = Field(
+        default=None, description="Array of data series for the chart"
+    )
+    width: Optional[int] = Field(
+        default=600, description="Width of the chart in pixels"
+    )
+    height: Optional[int] = Field(
+        default=400, description="Height of the chart in pixels"
+    )
+    themeColor: Optional[str] = Field(
+        default="multi", description="PatternFly chart theme color"
+    )
+    legendPosition: Optional[Literal["bottom", "right"]] = Field(
+        default="bottom", description="Position of the legend"
+    )
+    ariaTitle: Optional[str] = Field(
+        default=None, description="Accessibility title for screen readers"
+    )
+    ariaDesc: Optional[str] = Field(
+        default=None, description="Accessibility description for screen readers"
+    )
+    donutSubTitle: Optional[str] = Field(
+        default="Total", description="Subtitle for donut charts"
+    )
+
+
 class ComponentDataHandBuildComponent(ComponentDataBase):
     """Component Data for HandBuildComponent rendered by hand-build code registered in the renderer for given `component_type`."""
 
