@@ -14,6 +14,7 @@ from next_gen_ui_agent.data_transform.types import (
     ComponentDataBaseWithArrayValueFileds,
     ComponentDataBaseWithSimpleValueFileds,
     ComponentDataBaseWithTitle,
+    ComponentDataChart,
     ComponentDataHandBuildComponent,
     ComponentDataImage,
     ComponentDataOneCard,
@@ -31,6 +32,7 @@ T = TypeVar(
     ComponentDataBase,
     ComponentDataBaseWithTitle,
     ComponentDataAudio,
+    ComponentDataChart,
     ComponentDataImage,
     ComponentDataOneCard,
     ComponentDataSetOfCards,
@@ -74,6 +76,9 @@ class DataTransformerBase(ABC, Generic[T]):
         """Transform the component metadata and data into final structure passed to the rendering, via running pre-
         main-post processing flow. You can use `data_transformer_utils` for the implementation.
         """
+        print(
+            f"[DataTransformer] process() called for component: {component.component}, id: {component.id}"
+        )
 
         data_content = data["data"]
         if not data_content:

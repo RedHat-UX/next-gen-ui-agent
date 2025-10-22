@@ -8,7 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
-from next_gen_ui_langgraph.readme_example import search_movie
+from next_gen_ui_langgraph.readme_example import (
+    compare_movies,
+    get_box_office_leaders,
+    get_pixar_movies,
+    get_top_rated_movies,
+    search_movie,
+)
 from pydantic import BaseModel, SecretStr
 
 # Load environment variables
@@ -35,8 +41,14 @@ else:
 # Important: use the tool function directly (not call it)
 movies_agent = create_react_agent(
     model=llm,
-    tools=[search_movie],
-    prompt="You are useful movies assistant to answer user questions",
+    tools=[
+        search_movie,
+        get_pixar_movies,
+        get_top_rated_movies,
+        compare_movies,
+        get_box_office_leaders,
+    ],
+    prompt="You are a helpful movies assistant. Use the available tools to answer user questions about movies, ratings, and box office performance.",
 )
 
 ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()

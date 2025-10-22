@@ -89,6 +89,42 @@ Example JSON output:
   "video_img": "https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg"
 }
 ```
+
+### Chart
+[JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/chart.schema.json)
+
+Example JSON output:
+```json
+{
+  "component": "chart",
+  "id": "test-id",
+  "title": "Sales Data",
+  "chartType": "bar",
+  "data": [
+    {
+      "name": "Q1",
+      "data": [
+        {"x": "Jan", "y": 100},
+        {"x": "Feb", "y": 150},
+        {"x": "Mar", "y": 200}
+      ]
+    },
+    {
+      "name": "Q2",
+      "data": [
+        {"x": "Apr", "y": 180},
+        {"x": "May", "y": 220},
+        {"x": "Jun", "y": 250}
+      ]
+    }
+  ],
+  "width": 600,
+  "height": 400,
+  "themeColor": "multi",
+  "legendPosition": "bottom"
+}
+```
+
 ## Dynamic components for `Array of objects` input data
 
 [Dynamic Components Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)  

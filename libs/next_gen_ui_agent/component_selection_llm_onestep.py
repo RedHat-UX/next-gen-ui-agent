@@ -13,6 +13,7 @@ ui_components_description_supported = """
 * one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
 * video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
 * image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
+* chart - component to visualize numeric data as charts. Use when user asks for charts, graphs, or visualizations of numeric data. ALWAYS set the chartType field based on the user's request: use "line" for line charts/trends over time, "bar" for bar charts/comparisons, "pie" for pie charts/proportions, "donut" for donut charts. If user says "line chart", set chartType="line". If user says "bar chart", set chartType="bar". Fields should reference numeric data paths like ratings, revenues, counts, or years.
 """
 
 ui_components_description_all = (

@@ -8,7 +8,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
-from next_gen_ui_langgraph.readme_example import search_movie
+from next_gen_ui_langgraph.readme_example import (
+    compare_movies,
+    get_box_office_leaders,
+    get_pixar_movies,
+    get_top_rated_movies,
+    search_movie,
+)
 from pydantic import BaseModel, SecretStr
 
 # Load environment variables
@@ -35,12 +41,23 @@ else:
 # Important: use the tool function directly (not call it)
 movies_agent = create_react_agent(
     model=llm,
-    tools=[search_movie],
-    prompt="You are useful movies assistant to answer user questions",
+    tools=[
+        search_movie,
+        get_pixar_movies,
+        get_top_rated_movies,
+        compare_movies,
+        get_box_office_leaders,
+    ],
+    prompt="You are a helpful movies assistant. Use the available tools to answer user questions about movies, ratings, and box office performance.",
 )
 
 ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()
-ngui_cfg = {"configurable": {"component_system": "json"}}
+ngui_cfg = {
+    "configurable": {
+        "component_system": "json",
+        "unsupported_components": True,  # Enable experimental components like chart, table, set-of-cards
+    }
+}
 
 # === FastAPI setup ===
 app = FastAPI()
@@ -79,6 +96,28 @@ def create_error_response(
     return response
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint to verify server and Ollama connectivity."""
+    try:
+        # Test Ollama connection
+        _ = llm.invoke("test")
+        return {
+            "status": "healthy",
+            "ollama_connected": True,
+            "model": model,
+            "base_url": base_url,
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "ollama_connected": False,
+            "error": str(e),
+            "model": model,
+            "base_url": base_url,
+        }
+
+
 @app.post("/generate")
 async def generate_response(request: GenerateRequest):
     try:
@@ -96,9 +135,15 @@ async def generate_response(request: GenerateRequest):
         print("Step 1: Invoking movies agent...")
         try:
             movie_response = movies_agent.invoke(
-                {"messages": [{"role": "user", "content": prompt.strip()}]}
+                {"messages": [{"role": "user", "content": prompt.strip()}]},
+                {"recursion_limit": 10},  # Allow the agent to run tool execution steps
             )
             print(f"Movies agent response: {movie_response}")
+            print(f"Number of messages: {len(movie_response.get('messages', []))}")
+            for i, msg in enumerate(movie_response.get("messages", [])):
+                print(
+                    f"Message {i}: Type={type(msg).__name__}, Content preview={str(msg)[:200]}"
+                )
 
             # Validate movie response
             if not movie_response or not movie_response.get("messages"):
