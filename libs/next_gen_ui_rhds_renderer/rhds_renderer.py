@@ -68,7 +68,12 @@ class RhdsStrategyFactory(StrategyFactory):
             case RhdsAudioPlayerRenderStrategy.COMPONENT_NAME:
                 return RhdsAudioPlayerRenderStrategy()
             case _:
-                # TODO: use pluggable component renderer here for eg. HBC, only throw error if no rendering code is plugged into it
-                raise ValueError(
-                    f"This component: {component.component} is not supported by Red Hat Design System rendering plugin."
-                )
+                return self.default_render_strategy_handler(component)
+
+    def default_render_strategy_handler(self, component: ComponentDataBase):
+        """Handle default case by checking against defined hand build components or throw error if not supported."""
+
+        # If no hand build component matches, throw ValueError
+        raise ValueError(
+            f"This component: {component.component} is not supported by Red Hat Design System rendering plugin."
+        )
