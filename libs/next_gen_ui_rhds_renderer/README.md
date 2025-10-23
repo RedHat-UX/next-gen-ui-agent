@@ -28,6 +28,46 @@ By installing `next_gen_ui_rhds_renderer` the agent automatically discovers the 
 
 To enable renderer simply configure your Next Gen UI Agent to use `rhds` as component system.
 
+## Extending the RHDS renderer to support hand build components
+
+In this section we'll explain how to add support for rendering [hand build components](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/hand_build_components/) aka HBC to the RHDS server-side renderer.
+
+The process is as simple as creating a new renderer package by following steps which are documented [here](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/implementing_serverside/#a-step-by-step-guide-to-create-a-renderer-plugin) with one simplification of the process. In step 5, rather than implementing your own StrategyFactory from scratch, we suggest just extending the RhdsStrategyFactory and overriding two functions that will add the HBC support. Below you can see an example code how your code could look like. The benefit of going this route is that all the standard strategies for dynamically chosen components and Jinja templates remain as they are.
+
+```py
+from next_gen_ui_agent.data_transform.types import ComponentDataBase
+from .rhds_renderer import RhdsStrategyBase, RhdsStrategyFactory
+
+class CustomRhdsStrategyFactory(RhdsStrategyFactory):
+    """Example extension of RhdsStrategyFactory demonstrating how to add custom hand build components handling."""
+
+    # Example hardcoded array of custom HBC (Human Build Components) supported components
+    CUSTOM_HBC_COMPONENTS = [
+        "magic-widget",
+        "super-chart",
+        "awesome-form",
+        "fantastic-dashboard",
+        "incredible-card",
+    ]
+
+    def get_component_system_name(self) -> str:
+        """Override to return custom renderer name."""
+        return "custom-rhds"
+
+    def default_render_strategy_handler(self, component: ComponentDataBase):
+        """Override to provide example of checking against custom HBC components."""
+        # Check if the component type matches any custom HBC components
+        if component.component in self.CUSTOM_HBC_COMPONENTS:
+            # Return a basic strategy for custom HBC components
+            # In a real implementation, you might implement specific Jinja templates and preprocessing logic
+            return RhdsStrategyBase()
+
+        # If no custom HBC component matches, throw ValueError as in default implementation
+        raise ValueError(
+            f"This component: {component.component} is not supported by Red Hat Design System rendering plugin."
+        )
+```
+
 ## Links
 
 * [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/rhds/)
