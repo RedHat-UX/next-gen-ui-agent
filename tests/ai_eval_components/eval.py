@@ -147,7 +147,7 @@ def evaluate_agent_for_dataset_row(
     # wrap parsed JSON data structure into data type field if allowed and necessary as in ComponentSelectionStrategy
     json_data = wrap_json_data(json_data, input_data_type)
     # we have to reduce arrays size to avoid LLM context window limit as in ComponentSelectionStrategy
-    json_data = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
+    json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
 
     component_selection: ComponentSelectionStrategy
     if not TWO_STEP_COMPONENT_SELECTION:
@@ -164,7 +164,7 @@ def evaluate_agent_for_dataset_row(
 
     llm_response = asyncio.run(
         component_selection.perform_inference(
-            inference, dsr["user_prompt"], json_data, input_data_id
+            inference, dsr["user_prompt"], json_data_for_llm, input_data_id
         )
     )
     report_perf_stats(time_start, round(time.time() * 1000), dsr["expected_component"])
@@ -182,6 +182,8 @@ def evaluate_agent_for_dataset_row(
                 "LLM produced invalid JSON: " + str(e).replace("\n", ": "),
             )
         )
+
+    # print("\nComponent data:\n" + component.model_dump_json(indent=2))
 
     data: ComponentDataBase | None = None
     if component:
