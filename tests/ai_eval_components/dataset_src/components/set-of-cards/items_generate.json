@@ -26,5 +26,11 @@
             "simple_movie_actorsObjects_camelCase.json",
             "simple_movie_actorsObjects_snakeCase.json"
         ]
+    },
+    {
+        "prompts_file": "prompts_k8s_users.json",
+        "backend_data_files": [
+            "array_k8s_users.json"
+        ]
     }
 ]

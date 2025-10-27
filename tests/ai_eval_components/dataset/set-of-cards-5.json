@@ -1,0 +1,24 @@
+[
+  {
+    "id": "set-of-cards-000037",
+    "user_prompt": "List users from my cluster",
+    "backend_data": "{\n    \"rbac_bindings\": [\n        {\n            \"user\": \"admin@redhat.com\",\n            \"role\": \"cluster-admin\",\n            \"type\": \"ClusterRoleBinding\",\n            \"namespace\": \"*\",\n            \"permissions\": [\n                \"*\"\n            ],\n            \"last_login\": \"2024-10-03T08:30:00Z\",\n            \"mfa_enabled\": true\n        },\n        {\n            \"user\": \"developer@redhat.com\",\n            \"role\": \"edit\",\n            \"type\": \"RoleBinding\",\n            \"namespace\": \"development\",\n            \"permissions\": [\n                \"get\",\n                \"list\",\n                \"create\",\n                \"update\",\n                \"delete\"\n            ],\n            \"last_login\": \"2024-10-03T07:15:00Z\",\n            \"mfa_enabled\": true\n        },\n        {\n            \"user\": \"viewer@redhat.com\",\n            \"role\": \"view\",\n            \"type\": \"RoleBinding\",\n            \"namespace\": \"production-app\",\n            \"permissions\": [\n                \"get\",\n                \"list\"\n            ],\n            \"last_login\": \"2024-10-02T16:45:00Z\",\n            \"mfa_enabled\": false\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/array_k8s_users.json",
+      "prompt_file": "prompts_k8s_users.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000038",
+    "user_prompt": "Show me RBAC permissions",
+    "backend_data": "{\n    \"rbac_bindings\": [\n        {\n            \"user\": \"admin@redhat.com\",\n            \"role\": \"cluster-admin\",\n            \"type\": \"ClusterRoleBinding\",\n            \"namespace\": \"*\",\n            \"permissions\": [\n                \"*\"\n            ],\n            \"last_login\": \"2024-10-03T08:30:00Z\",\n            \"mfa_enabled\": true\n        },\n        {\n            \"user\": \"developer@redhat.com\",\n            \"role\": \"edit\",\n            \"type\": \"RoleBinding\",\n            \"namespace\": \"development\",\n            \"permissions\": [\n                \"get\",\n                \"list\",\n                \"create\",\n                \"update\",\n                \"delete\"\n            ],\n            \"last_login\": \"2024-10-03T07:15:00Z\",\n            \"mfa_enabled\": true\n        },\n        {\n            \"user\": \"viewer@redhat.com\",\n            \"role\": \"view\",\n            \"type\": \"RoleBinding\",\n            \"namespace\": \"production-app\",\n            \"permissions\": [\n                \"get\",\n                \"list\"\n            ],\n            \"last_login\": \"2024-10-02T16:45:00Z\",\n            \"mfa_enabled\": false\n        }\n    ]\n}",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/array_k8s_users.json",
+      "prompt_file": "prompts_k8s_users.json"
+    }
+  }
+]
