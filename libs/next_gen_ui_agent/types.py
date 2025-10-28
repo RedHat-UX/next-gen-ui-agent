@@ -218,6 +218,8 @@ class UIBlock(BaseModel):
     id: str
     rendering: Optional[Rendition] = None
     "Rendering of UI block"
+    configuration: Optional[UIComponentMetadata] = None
+    "Configuration of the block"
 
 
 class InputDataTransformerBase(ABC):

@@ -262,6 +262,7 @@ async def test_mcp_agent_with_external_inference_no_structured_output(
     output = MCPGenerateUIOutput.model_validate_json(result.content[0].text)
     assert output.summary is not None
     assert len(output.blocks) == 1
+    assert output.blocks[0].configuration is not None
 
 
 @pytest.mark.asyncio
@@ -339,6 +340,41 @@ async def test_generate_ui_data_id_gen(
     assert rendering is not None
     assert rendering.id is not None
     assert rendering.id != "external_test_id"
+
+
+@pytest.mark.asyncio
+async def test_generate_ui_data_configuration(external_inference) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        name="TestAgentExternal",
+        inference=external_inference,
+    )
+
+    movies_data = find_movie("Toy Story")
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        result = await client.call_tool(
+            "generate_ui_component",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "data": json.dumps(movies_data, default=str),
+                "data_type": "data_type_ignored",
+            },
+        )
+
+    # Verify the result
+    assert result is not None
+
+    # Parse the JSON response
+    output = MCPGenerateUIOutput.model_validate(result.data)
+    configuration = output.blocks[0].configuration
+    # Verify the component structure
+    assert configuration is not None
+    assert configuration.component == "one-card"
+    assert configuration.title == "Toy Story External"
+    assert configuration.fields is not None
+    assert configuration.json_data is None
+    assert configuration.reasonForTheComponentSelection is None
 
 
 @pytest.mark.asyncio

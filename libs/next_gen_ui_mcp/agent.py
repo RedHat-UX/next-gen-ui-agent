@@ -277,7 +277,10 @@ class NextGenUIMCPServer:
 
             blocks: list[UIBlock] = []
             for r in renderings:
-                blocks.append(UIBlock(id=r.id, rendering=r))
+                block_config = next(c for c in components if c.id == r.id)
+                block_config.json_data = None
+                block_config.reasonForTheComponentSelection = None
+                blocks.append(UIBlock(id=r.id, rendering=r, configuration=block_config))
 
             output = MCPGenerateUIOutput(blocks=blocks, summary=human_output_str)
 
@@ -285,12 +288,21 @@ class NextGenUIMCPServer:
                 return ToolResult(
                     content=[TextContent(text=human_output_str, type="text")],
                     structured_content=output.model_dump(
-                        exclude_unset=True, exclude_defaults=True
+                        exclude_unset=True, exclude_defaults=True, exclude_none=True
                     ),
                 )
             else:
                 return ToolResult(
-                    content=[TextContent(text=output.model_dump_json(), type="text")]
+                    content=[
+                        TextContent(
+                            text=output.model_dump_json(
+                                exclude_unset=True,
+                                exclude_defaults=True,
+                                exclude_none=True,
+                            ),
+                            type="text",
+                        )
+                    ]
                 )
 
         except Exception as e:
