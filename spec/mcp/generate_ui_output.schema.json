@@ -64,7 +64,7 @@
         "configuration": {
           "anyOf": [
             {
-              "$ref": "#/$defs/UIComponentMetadata"
+              "$ref": "#/$defs/UIBlockConfiguration"
             },
             {
               "type": "null"
@@ -77,6 +77,41 @@
         "id"
       ],
       "title": "UIBlock",
+      "type": "object"
+    },
+    "UIBlockConfiguration": {
+      "description": "UI Block configuration",
+      "properties": {
+        "user_prompt": {
+          "type": "string"
+        },
+        "data_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "component_metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIComponentMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "user_prompt"
+      ],
+      "title": "UIBlockConfiguration",
       "type": "object"
     },
     "UIComponentMetadata": {

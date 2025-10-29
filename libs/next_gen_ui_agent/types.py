@@ -212,13 +212,24 @@ class Rendition(BaseModel):
     content: str
 
 
+class UIBlockConfiguration(BaseModel):
+    """UI Block configuration"""
+
+    user_prompt: str
+    "Input user prompt"
+    data_type: Optional[str] = None
+    "Input data type"
+    component_metadata: Optional[UIComponentMetadata] = None
+    "Metadata of component"
+
+
 class UIBlock(BaseModel):
     """UI Block model with all details"""
 
     id: str
     rendering: Optional[Rendition] = None
     "Rendering of UI block"
-    configuration: Optional[UIComponentMetadata] = None
+    configuration: Optional[UIBlockConfiguration] = None
     "Configuration of the block"
 
 

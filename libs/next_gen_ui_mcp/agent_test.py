@@ -368,13 +368,17 @@ async def test_generate_ui_data_configuration(external_inference) -> None:
     # Parse the JSON response
     output = MCPGenerateUIOutput.model_validate(result.data)
     configuration = output.blocks[0].configuration
-    # Verify the component structure
     assert configuration is not None
-    assert configuration.component == "one-card"
-    assert configuration.title == "Toy Story External"
-    assert configuration.fields is not None
-    assert configuration.json_data is None
-    assert configuration.reasonForTheComponentSelection is None
+    assert configuration.data_type == "data_type_ignored"
+    assert configuration.user_prompt == "Tell me brief details of Toy Story"
+
+    component_metadata = configuration.component_metadata
+    assert component_metadata is not None
+    assert component_metadata.component == "one-card"
+    assert component_metadata.title == "Toy Story External"
+    assert component_metadata.fields is not None
+    assert component_metadata.json_data is None
+    assert component_metadata.reasonForTheComponentSelection is None
 
 
 @pytest.mark.asyncio
