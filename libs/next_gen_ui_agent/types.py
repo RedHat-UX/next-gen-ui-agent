@@ -215,8 +215,6 @@ class Rendition(BaseModel):
 class UIBlockConfiguration(BaseModel):
     """UI Block configuration"""
 
-    user_prompt: str
-    "Input user prompt"
     data_type: Optional[str] = None
     "Input data type"
     component_metadata: Optional[UIComponentMetadata] = None

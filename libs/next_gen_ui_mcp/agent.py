@@ -288,7 +288,6 @@ class NextGenUIMCPServer:
                 input_data = next(sd for sd in structured_data if sd["id"] == r.id)
 
                 block_config = UIBlockConfiguration(
-                    user_prompt=user_prompt,
                     component_metadata=component_metadata,
                     data_type=input_data.get("type"),
                 )

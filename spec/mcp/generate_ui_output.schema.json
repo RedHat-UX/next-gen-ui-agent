@@ -82,9 +82,6 @@
     "UIBlockConfiguration": {
       "description": "UI Block configuration",
       "properties": {
-        "user_prompt": {
-          "type": "string"
-        },
         "data_type": {
           "anyOf": [
             {
@@ -108,9 +105,6 @@
           "default": null
         }
       },
-      "required": [
-        "user_prompt"
-      ],
       "title": "UIBlockConfiguration",
       "type": "object"
     },

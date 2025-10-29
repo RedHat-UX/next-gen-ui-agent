@@ -393,7 +393,6 @@ async def test_generate_ui_data_configuration(external_inference) -> None:
     configuration = output.blocks[0].configuration
     assert configuration is not None
     assert configuration.data_type == "data_type_ignored"
-    assert configuration.user_prompt == "Tell me brief details of Toy Story"
 
     component_metadata = configuration.component_metadata
     assert component_metadata is not None
