@@ -4,7 +4,7 @@ import os
 import time
 from traceback import print_exception
 
-from ai_eval_components.eval_perfstats import print_perf_stats, report_perf_stats
+from ai_eval_components.eval_perfstats import print_perf_stats, report_perf_stats, save_perf_stats_to_file
 from ai_eval_components.eval_reporting import (
     ERR_FILE_SUFFIX,
     console_print_progress_dot,
@@ -356,3 +356,7 @@ if __name__ == "__main__":
     print_stats()
     print("")
     print_perf_stats()
+    
+    # Save performance stats to file for report generation
+    perf_stats_file = errors_dir_path / "perf_stats.json"
+    save_perf_stats_to_file(str(perf_stats_file))
