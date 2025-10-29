@@ -183,15 +183,8 @@ async def test_mcp_agent_with_external_inference(external_inference) -> None:
     # Verify the result
     assert result is not None
 
-    # Verify summary
-    content = result.content[0].text
-    expected_summary = "Components are rendered in UI.\nCount: 1\n1. Title: 'Toy Story External' type: one-card"
-
-    assert content == expected_summary
-
     # Parse the JSON response
     output = MCPGenerateUIOutput.model_validate(result.data)
-    assert output.summary == expected_summary
 
     rendering = output.blocks[0].rendering
     # Verify the component structure
@@ -211,6 +204,13 @@ async def test_mcp_agent_with_external_inference(external_inference) -> None:
 
     assert component["fields"][1]["name"] == "Year"
     assert component["fields"][1]["data"] == [1995]
+
+    # Verify summary
+    expected_summary = "Components are rendered in UI.\nCount: 1\n1. Title: 'Toy Story External', type: one-card"
+    assert output.summary == expected_summary
+
+    content = result.content[0].text
+    assert content == expected_summary
 
     # Verify that the mock_info was called with the external inference message
     mock_info.assert_any_call("Using external inference provider...")
@@ -343,6 +343,29 @@ async def test_generate_ui_data_id_gen(
 
 
 @pytest.mark.asyncio
+async def test_generate_ui_multiple_components_no_data(external_inference) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        name="TestAgentExternal",
+        inference=external_inference,
+    )
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        with pytest.raises(Exception) as excinfo:
+            await client.call_tool(
+                "generate_ui_multiple_components",
+                {
+                    "user_prompt": "Tell me brief details of Toy Story",
+                    "structured_data": [],
+                },
+            )
+    assert (
+        str(excinfo.value)
+        == "Error calling tool 'generate_ui_multiple_components': No data provided! Get data from another tool again and then call this tool again."
+    )
+
+
+@pytest.mark.asyncio
 async def test_generate_ui_data_configuration(external_inference) -> None:
     ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),
@@ -449,23 +472,25 @@ async def test_tool_generate_ui_description_all() -> None:
 
     async with Client(mcp_server) as client:
         tools = await client.list_tools()
-        assert len(tools) == 2
-        assert tools[0].name == "generate_ui_component"
 
-        tool_generate_ui = tools[1]
-        assert tool_generate_ui.name == "generate_ui_multiple_components"
-        assert (
-            tool_generate_ui.inputSchema["properties"]["user_prompt"]["description"]
-            == "Original user query without any changes. Do not generate this."
-        )
-        assert (
-            tool_generate_ui.inputSchema["properties"]["structured_data"]["description"]
-            == "Structured Input Data. Array of objects with 'id' and 'data' keys. NEVER generate this."
-        )
-        assert (
-            tool_generate_ui.description
-            == "Generate UI components from user prompt and input data. It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
-        )
+    assert len(tools) == 2
+    assert tools[0].name == "generate_ui_component"
+
+    tool_generate_ui = tools[1]
+    assert tool_generate_ui.name == "generate_ui_multiple_components"
+    assert (
+        tool_generate_ui.inputSchema["properties"]["user_prompt"]["description"]
+        == "Original user query without any changes. Do not generate this."
+    )
+    assert (
+        tool_generate_ui.inputSchema["properties"]["structured_data"]["description"]
+        == "Structured Input Data. Array of objects with 'id' and 'data' keys. NEVER generate this."
+    )
+    assert tool_generate_ui.description == (
+        "Generate UI components for given user_prompt. "
+        "Always get fresh data from another tool first. "
+        "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+    )
 
 
 @pytest.mark.asyncio
