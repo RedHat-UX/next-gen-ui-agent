@@ -9,16 +9,53 @@ from next_gen_ui_agent.renderer.table import TableRenderStrategy
 from next_gen_ui_agent.renderer.video import VideoRenderStrategy
 from typing_extensions import override
 
-templates_env = Environment(
-    loader=PackageLoader("next_gen_ui_rhds_renderer", "templates"),
-    trim_blocks=True,
-)
-
 
 class RhdsStrategyBase(RenderStrategyBase):
+    def __init__(self, template_subdir="templates"):
+        """Constructor which initialises the templates_env from the correct module.
+
+        Uses type(self) to ensure subclasses load templates from their own module,
+        not from the parent's module.
+        """
+        self.templates_env = type(self).create_templates_env(template_subdir)
+
+    @classmethod
+    def create_templates_env(cls, template_subdir="templates"):
+        """
+        Create a Jinja2 Environment using PackageLoader for the subclass's module.
+
+        This allows subclasses to easily load templates from their own module
+        without having to manually set up their own templates_env.
+
+        Usage:
+            class MyStrategy(RhdsStrategyBase):
+                def __init__(self):
+                    self.templates_env = RhdsStrategyBase.create_templates_env("my_templates")
+
+        Note:
+            If you extend RhdsStrategyBase from a different package without overriding
+            the constructor, templates will be loaded from your new package's directory,
+            not from next_gen_ui_rhds_renderer. This is because cls.__module__ resolves
+            to the subclass's module name. Make sure your package contains the required
+            templates directory.
+
+        Args:
+            template_subdir: The subdirectory name in the module where templates are stored.
+                           Defaults to "templates".
+
+        Returns:
+            A Jinja2 Environment configured for the calling class's module.
+        """
+        # Get the module name from the class
+        module = cls.__module__
+        return Environment(
+            loader=PackageLoader(module, template_subdir),
+            trim_blocks=True,
+        )
+
     @override
     def generate_output(self, component, additional_context):
-        template = templates_env.get_template(f"/{component.component}.jinja")
+        template = self.templates_env.get_template(f"/{component.component}.jinja")
         return template.render(component.model_dump() | additional_context)
 
 
