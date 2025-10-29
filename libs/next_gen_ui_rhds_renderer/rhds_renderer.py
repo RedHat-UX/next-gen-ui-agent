@@ -11,13 +11,11 @@ from typing_extensions import override
 
 
 class RhdsStrategyBase(RenderStrategyBase):
-    def __init__(self, template_subdir="templates"):
-        """Constructor which initialises the templates_env from the correct module.
+    templates_env: Environment
 
-        Uses type(self) to ensure subclasses load templates from their own module,
-        not from the parent's module.
-        """
-        self.templates_env = type(self).create_templates_env(template_subdir)
+    def __init_subclass__(cls, template_subdir="templates", **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls.templates_env = cls.create_templates_env(template_subdir)
 
     @classmethod
     def create_templates_env(cls, template_subdir="templates"):
