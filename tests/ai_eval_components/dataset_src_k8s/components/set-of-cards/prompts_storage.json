@@ -1,0 +1,6 @@
+[
+  "Show me persistent volume status",
+  "Are any PVCs pending?",
+  "Which volumes are almost full?",
+  "Show me storage usage"
+]

@@ -1,0 +1,6 @@
+[
+  "Which namespaces consume the most resources?",
+  "Show me namespace resource usage",
+  "How much is production-app namespace using?",
+  "Show me kube-system namespace details"
+]

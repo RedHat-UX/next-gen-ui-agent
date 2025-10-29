@@ -1,0 +1,57 @@
+[
+  {
+    "id": "set-of-cards-000003",
+    "user_prompt": "Show me all worker nodes",
+    "backend_data": "{\n  \"nodes\": [\n    {\n      \"name\": \"worker-01.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 65,\n      \"memory_usage\": 78,\n      \"disk_usage\": 42,\n      \"pod_count\": 24,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-02.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 71,\n      \"memory_usage\": 68,\n      \"disk_usage\": 38,\n      \"pod_count\": 22,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-03.prod.example.com\",\n      \"status\": \"NotReady\",\n      \"cpu_usage\": 0,\n      \"memory_usage\": 0,\n      \"disk_usage\": 95,\n      \"pod_count\": 0,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 0,\n      \"issue\": \"DiskPressure\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/nodes.json",
+      "prompt_file": "prompts_nodes.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000004",
+    "user_prompt": "Are any nodes NotReady?",
+    "backend_data": "{\n  \"nodes\": [\n    {\n      \"name\": \"worker-01.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 65,\n      \"memory_usage\": 78,\n      \"disk_usage\": 42,\n      \"pod_count\": 24,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-02.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 71,\n      \"memory_usage\": 68,\n      \"disk_usage\": 38,\n      \"pod_count\": 22,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-03.prod.example.com\",\n      \"status\": \"NotReady\",\n      \"cpu_usage\": 0,\n      \"memory_usage\": 0,\n      \"disk_usage\": 95,\n      \"pod_count\": 0,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 0,\n      \"issue\": \"DiskPressure\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/nodes.json",
+      "prompt_file": "prompts_nodes.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000005",
+    "user_prompt": "Which node has high CPU usage?",
+    "backend_data": "{\n  \"nodes\": [\n    {\n      \"name\": \"worker-01.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 65,\n      \"memory_usage\": 78,\n      \"disk_usage\": 42,\n      \"pod_count\": 24,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-02.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 71,\n      \"memory_usage\": 68,\n      \"disk_usage\": 38,\n      \"pod_count\": 22,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-03.prod.example.com\",\n      \"status\": \"NotReady\",\n      \"cpu_usage\": 0,\n      \"memory_usage\": 0,\n      \"disk_usage\": 95,\n      \"pod_count\": 0,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 0,\n      \"issue\": \"DiskPressure\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/nodes.json",
+      "prompt_file": "prompts_nodes.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000006",
+    "user_prompt": "Show me node resource usage",
+    "backend_data": "{\n  \"nodes\": [\n    {\n      \"name\": \"worker-01.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 65,\n      \"memory_usage\": 78,\n      \"disk_usage\": 42,\n      \"pod_count\": 24,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-02.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 71,\n      \"memory_usage\": 68,\n      \"disk_usage\": 38,\n      \"pod_count\": 22,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-03.prod.example.com\",\n      \"status\": \"NotReady\",\n      \"cpu_usage\": 0,\n      \"memory_usage\": 0,\n      \"disk_usage\": 95,\n      \"pod_count\": 0,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 0,\n      \"issue\": \"DiskPressure\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/nodes.json",
+      "prompt_file": "prompts_nodes.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000007",
+    "user_prompt": "Is worker-03 healthy?",
+    "backend_data": "{\n  \"nodes\": [\n    {\n      \"name\": \"worker-01.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 65,\n      \"memory_usage\": 78,\n      \"disk_usage\": 42,\n      \"pod_count\": 24,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-02.prod.example.com\",\n      \"status\": \"Ready\",\n      \"cpu_usage\": 71,\n      \"memory_usage\": 68,\n      \"disk_usage\": 38,\n      \"pod_count\": 22,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 45\n    },\n    {\n      \"name\": \"worker-03.prod.example.com\",\n      \"status\": \"NotReady\",\n      \"cpu_usage\": 0,\n      \"memory_usage\": 0,\n      \"disk_usage\": 95,\n      \"pod_count\": 0,\n      \"version\": \"v1.27.6+f67aeb3\",\n      \"uptime_days\": 0,\n      \"issue\": \"DiskPressure\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/nodes.json",
+      "prompt_file": "prompts_nodes.json"
+    }
+  }
+]

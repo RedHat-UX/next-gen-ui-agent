@@ -1,0 +1,16 @@
+[
+  {
+    "comment": "K8s: Single cluster details",
+    "prompts_file": "prompts_cluster.json",
+    "backend_data_files": [
+      "cluster_info.json"
+    ]
+  },
+  {
+    "comment": "K8s: Backup and disaster recovery status",
+    "prompts_file": "prompts_backup.json",
+    "backend_data_files": [
+      "backup_status.json"
+    ]
+  }
+]

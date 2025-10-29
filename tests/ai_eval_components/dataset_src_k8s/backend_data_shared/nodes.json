@@ -1,0 +1,35 @@
+{
+  "nodes": [
+    {
+      "name": "worker-01.prod.example.com",
+      "status": "Ready",
+      "cpu_usage": 65,
+      "memory_usage": 78,
+      "disk_usage": 42,
+      "pod_count": 24,
+      "version": "v1.27.6+f67aeb3",
+      "uptime_days": 45
+    },
+    {
+      "name": "worker-02.prod.example.com",
+      "status": "Ready",
+      "cpu_usage": 71,
+      "memory_usage": 68,
+      "disk_usage": 38,
+      "pod_count": 22,
+      "version": "v1.27.6+f67aeb3",
+      "uptime_days": 45
+    },
+    {
+      "name": "worker-03.prod.example.com",
+      "status": "NotReady",
+      "cpu_usage": 0,
+      "memory_usage": 0,
+      "disk_usage": 95,
+      "pod_count": 0,
+      "version": "v1.27.6+f67aeb3",
+      "uptime_days": 0,
+      "issue": "DiskPressure"
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "id": "set-of-cards-000012",
+    "user_prompt": "Show me failing pods",
+    "backend_data": "{\n  \"failing_pods\": [\n    {\n      \"name\": \"payment-service-7d4b6c8f9-xk2j9\",\n      \"namespace\": \"production-app\",\n      \"status\": \"CrashLoopBackOff\",\n      \"restart_count\": 15,\n      \"last_restart\": \"2024-10-03T09:15:23Z\",\n      \"error_message\": \"Error: ECONNREFUSED connect to database\",\n      \"node\": \"worker-01.prod.example.com\",\n      \"image\": \"registry.redhat.io/payment-service:v2.1.3\",\n      \"cpu_limit\": \"500m\",\n      \"memory_limit\": \"1Gi\"\n    },\n    {\n      \"name\": \"user-auth-6b8d4f7c2-m9n4p\",\n      \"namespace\": \"production-app\",\n      \"status\": \"ImagePullBackOff\",\n      \"restart_count\": 0,\n      \"last_restart\": \"2024-10-03T08:45:12Z\",\n      \"error_message\": \"Failed to pull image: registry.redhat.io/user-auth:v1.5.2 not found\",\n      \"node\": \"worker-02.prod.example.com\",\n      \"image\": \"registry.redhat.io/user-auth:v1.5.2\",\n      \"cpu_limit\": \"200m\",\n      \"memory_limit\": \"512Mi\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/failing_pods.json",
+      "prompt_file": "prompts_failing_pods.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000013",
+    "user_prompt": "Show me pods in CrashLoopBackOff",
+    "backend_data": "{\n  \"failing_pods\": [\n    {\n      \"name\": \"payment-service-7d4b6c8f9-xk2j9\",\n      \"namespace\": \"production-app\",\n      \"status\": \"CrashLoopBackOff\",\n      \"restart_count\": 15,\n      \"last_restart\": \"2024-10-03T09:15:23Z\",\n      \"error_message\": \"Error: ECONNREFUSED connect to database\",\n      \"node\": \"worker-01.prod.example.com\",\n      \"image\": \"registry.redhat.io/payment-service:v2.1.3\",\n      \"cpu_limit\": \"500m\",\n      \"memory_limit\": \"1Gi\"\n    },\n    {\n      \"name\": \"user-auth-6b8d4f7c2-m9n4p\",\n      \"namespace\": \"production-app\",\n      \"status\": \"ImagePullBackOff\",\n      \"restart_count\": 0,\n      \"last_restart\": \"2024-10-03T08:45:12Z\",\n      \"error_message\": \"Failed to pull image: registry.redhat.io/user-auth:v1.5.2 not found\",\n      \"node\": \"worker-02.prod.example.com\",\n      \"image\": \"registry.redhat.io/user-auth:v1.5.2\",\n      \"cpu_limit\": \"200m\",\n      \"memory_limit\": \"512Mi\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/failing_pods.json",
+      "prompt_file": "prompts_failing_pods.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000014",
+    "user_prompt": "Which pods have high restart counts?",
+    "backend_data": "{\n  \"failing_pods\": [\n    {\n      \"name\": \"payment-service-7d4b6c8f9-xk2j9\",\n      \"namespace\": \"production-app\",\n      \"status\": \"CrashLoopBackOff\",\n      \"restart_count\": 15,\n      \"last_restart\": \"2024-10-03T09:15:23Z\",\n      \"error_message\": \"Error: ECONNREFUSED connect to database\",\n      \"node\": \"worker-01.prod.example.com\",\n      \"image\": \"registry.redhat.io/payment-service:v2.1.3\",\n      \"cpu_limit\": \"500m\",\n      \"memory_limit\": \"1Gi\"\n    },\n    {\n      \"name\": \"user-auth-6b8d4f7c2-m9n4p\",\n      \"namespace\": \"production-app\",\n      \"status\": \"ImagePullBackOff\",\n      \"restart_count\": 0,\n      \"last_restart\": \"2024-10-03T08:45:12Z\",\n      \"error_message\": \"Failed to pull image: registry.redhat.io/user-auth:v1.5.2 not found\",\n      \"node\": \"worker-02.prod.example.com\",\n      \"image\": \"registry.redhat.io/user-auth:v1.5.2\",\n      \"cpu_limit\": \"200m\",\n      \"memory_limit\": \"512Mi\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/failing_pods.json",
+      "prompt_file": "prompts_failing_pods.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000015",
+    "user_prompt": "Why is payment-service crashing?",
+    "backend_data": "{\n  \"failing_pods\": [\n    {\n      \"name\": \"payment-service-7d4b6c8f9-xk2j9\",\n      \"namespace\": \"production-app\",\n      \"status\": \"CrashLoopBackOff\",\n      \"restart_count\": 15,\n      \"last_restart\": \"2024-10-03T09:15:23Z\",\n      \"error_message\": \"Error: ECONNREFUSED connect to database\",\n      \"node\": \"worker-01.prod.example.com\",\n      \"image\": \"registry.redhat.io/payment-service:v2.1.3\",\n      \"cpu_limit\": \"500m\",\n      \"memory_limit\": \"1Gi\"\n    },\n    {\n      \"name\": \"user-auth-6b8d4f7c2-m9n4p\",\n      \"namespace\": \"production-app\",\n      \"status\": \"ImagePullBackOff\",\n      \"restart_count\": 0,\n      \"last_restart\": \"2024-10-03T08:45:12Z\",\n      \"error_message\": \"Failed to pull image: registry.redhat.io/user-auth:v1.5.2 not found\",\n      \"node\": \"worker-02.prod.example.com\",\n      \"image\": \"registry.redhat.io/user-auth:v1.5.2\",\n      \"cpu_limit\": \"200m\",\n      \"memory_limit\": \"512Mi\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/failing_pods.json",
+      "prompt_file": "prompts_failing_pods.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000016",
+    "user_prompt": "Show me ImagePullBackOff errors",
+    "backend_data": "{\n  \"failing_pods\": [\n    {\n      \"name\": \"payment-service-7d4b6c8f9-xk2j9\",\n      \"namespace\": \"production-app\",\n      \"status\": \"CrashLoopBackOff\",\n      \"restart_count\": 15,\n      \"last_restart\": \"2024-10-03T09:15:23Z\",\n      \"error_message\": \"Error: ECONNREFUSED connect to database\",\n      \"node\": \"worker-01.prod.example.com\",\n      \"image\": \"registry.redhat.io/payment-service:v2.1.3\",\n      \"cpu_limit\": \"500m\",\n      \"memory_limit\": \"1Gi\"\n    },\n    {\n      \"name\": \"user-auth-6b8d4f7c2-m9n4p\",\n      \"namespace\": \"production-app\",\n      \"status\": \"ImagePullBackOff\",\n      \"restart_count\": 0,\n      \"last_restart\": \"2024-10-03T08:45:12Z\",\n      \"error_message\": \"Failed to pull image: registry.redhat.io/user-auth:v1.5.2 not found\",\n      \"node\": \"worker-02.prod.example.com\",\n      \"image\": \"registry.redhat.io/user-auth:v1.5.2\",\n      \"cpu_limit\": \"200m\",\n      \"memory_limit\": \"512Mi\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/failing_pods.json",
+      "prompt_file": "prompts_failing_pods.json"
+    }
+  }
+]

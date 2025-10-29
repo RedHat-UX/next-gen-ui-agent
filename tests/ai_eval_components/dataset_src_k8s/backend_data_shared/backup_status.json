@@ -1,0 +1,24 @@
+{
+  "backup_status": {
+    "etcd_snapshots": {
+      "last_successful": "2024-10-03T02:30:00Z",
+      "frequency": "daily",
+      "retention_days": 30,
+      "storage_location": "s3://openshift-backups-prod",
+      "size_gb": 2.3,
+      "status": "healthy"
+    },
+    "velero_backups": {
+      "last_successful": "2024-10-03T01:00:00Z",
+      "frequency": "daily",
+      "retention_days": 90,
+      "storage_location": "s3://velero-backups-prod",
+      "applications_backed_up": 12,
+      "status": "healthy"
+    },
+    "recovery_time_objective": "4 hours",
+    "recovery_point_objective": "1 hour",
+    "last_recovery_test": "2024-09-15T10:00:00Z",
+    "test_result": "successful"
+  }
+}

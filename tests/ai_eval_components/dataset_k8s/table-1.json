@@ -1,0 +1,13 @@
+[
+  {
+    "id": "table-000001",
+    "user_prompt": "Are all my clusters healthy?",
+    "backend_data": "[\n  {\n    \"cluster\": {\n      \"name\": \"prod-openshift-cluster\",\n      \"version\": \"4.14\",\n      \"provider\": \"AWS\",\n      \"region\": \"us-east-1\",\n      \"nodes\": 5,\n      \"status\": \"healthy\",\n      \"pods\": 234,\n      \"namespaces\": 45,\n      \"cpu_usage\": \"65%\",\n      \"memory_usage\": \"72%\",\n      \"created\": \"2024-01-15\",\n      \"url\": \"https://console-openshift-console.apps.prod.example.com\",\n      \"description\": \"Production OpenShift cluster running critical workloads\"\n    }\n  },\n  {\n    \"cluster\": {\n      \"name\": \"prod-openshift-us-east\",\n      \"status\": \"healthy\",\n      \"version\": \"4.14.8\",\n      \"nodes\": 12,\n      \"api_server_status\": \"running\",\n      \"etcd_health\": \"healthy\",\n      \"uptime_days\": 45,\n      \"last_backup\": \"2024-10-03T02:30:00Z\",\n      \"region\": \"us-east-1\",\n      \"cpu_usage_percent\": 68,\n      \"memory_usage_percent\": 72,\n      \"storage_usage_percent\": 45,\n      \"cluster_logo_url\": \"https://connect.redhat.com/sites/default/files/2021-06/OpenShift-LogoType.svg__0.png\",\n      \"monitoring_dashboard_url\": \"https://console-openshift-console.apps.prod.example.com/monitoring\",\n      \"cluster_overview_video_url\": \"https://youtu.be/XdlVs37KD1I?si=bKtqtOsPN95IgTGX\"\n    }\n  },\n  {\n    \"cluster\": {\n      \"name\": \"dev-openshift-us-west\",\n      \"status\": \"degraded\",\n      \"version\": \"4.13.12\",\n      \"nodes\": 6,\n      \"api_server_status\": \"running\",\n      \"etcd_health\": \"warning\",\n      \"uptime_days\": 12,\n      \"last_backup\": \"2024-10-02T02:30:00Z\",\n      \"region\": \"us-west-2\",\n      \"cpu_usage_percent\": 45,\n      \"memory_usage_percent\": 89,\n      \"storage_usage_percent\": 78,\n      \"cluster_logo_url\": \"https://connect.redhat.com/sites/default/files/2021-06/OpenShift-LogoType.svg__0.png\",\n      \"monitoring_dashboard_url\": \"https://console-openshift-console.apps.prod.example.com/monitoring\",\n      \"cluster_overview_video_url\": \"https://youtu.be/XdlVs37KD1I?si=bKtqtOsPN95IgTGX\"\n    }\n  }\n]\n",
+    "expected_component": "table",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/cluster_info.json",
+      "prompt_file": "prompts_cluster.json"
+    }
+  }
+]
