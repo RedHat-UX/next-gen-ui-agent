@@ -1,5 +1,6 @@
 import asyncio
 import json
+import os
 import time
 from traceback import print_exception
 
@@ -29,6 +30,7 @@ from ai_eval_components.types import (
     DatasetRow,
     DatasetRowAgentEvalResult,
 )
+from langchain_openai import ChatOpenAI
 from next_gen_ui_agent import InputData
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.component_selection_llm_onestep import (
@@ -53,7 +55,7 @@ from next_gen_ui_agent.data_transform.validation.types import (
 )
 from next_gen_ui_agent.data_transformation import get_data_transformer
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data
-from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.model import InferenceBase, LangChainModelInference
 from next_gen_ui_agent.types import UIComponentMetadata
 from next_gen_ui_llama_stack_embedded import init_inference_from_env
 
@@ -144,7 +146,7 @@ def evaluate_agent_for_dataset_row(
     json_data = json.loads(input_data["data"])
 
     input_data_type = dsr.get("input_data_type")
-    # wrap parsed JSON data structure into data type field if allowed and necessary as in ComponentSelectionStrategy
+    # wrap parsed JSON data structure into data type field if provided and wrapping is necessary as in ComponentSelectionStrategy
     json_data = wrap_json_data(json_data, input_data_type)
     # we have to reduce arrays size to avoid LLM context window limit as in ComponentSelectionStrategy
     json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
@@ -210,6 +212,46 @@ def evaluate_agent_for_dataset_row(
     return DatasetRowAgentEvalResult(llm_response, errors, data)
 
 
+def init_openai_api_inference_from_env(
+    default_model: str | None = None,
+) -> InferenceBase | None:
+    """
+    Initialize OpenAI compatible API inference from environment variables if at least one `MODEL_API_xy` env variable is set.
+
+    Parameters:
+    * `default_model` - default model to use if `INFERENCE_MODEL` env variable is not set
+
+    Environment variables:
+    * `INFERENCE_MODEL` - LLM model to use - inference is not created if undefined, default value can be provided as method argument
+    * `MODEL_API_URL` - OpenAI compatible API base URL - optional, if not defined then OpenAI API base URL is used
+    * `MODEL_API_KEY` - api key - optional
+    * `MODEL_API_TEMPERATURE` - temperature for the LLM - optional
+    """
+
+    base_url = os.getenv("MODEL_API_URL")
+    temperature = os.getenv("MODEL_API_TEMPERATURE")
+
+    if base_url or os.getenv("MODEL_API_KEY") or temperature:
+        model = os.getenv("INFERENCE_MODEL", default_model)
+        if not model:
+            return None
+
+        print(
+            f"Creating UI Agent with OpenAI API inference model={model} base_url={base_url} temperature={temperature}"
+        )
+
+        return LangChainModelInference(
+            model=ChatOpenAI(
+                model=model,
+                base_url=base_url,
+                api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
+                temperature=float(temperature) if temperature else None,
+            )
+        )
+
+    return None
+
+
 if __name__ == "__main__":
     (
         arg_ui_component,
@@ -222,10 +264,17 @@ if __name__ == "__main__":
     errors_dir_path = get_errors_dir()
     llm_output_dir_path = get_llm_output_dir(arg_write_llm_output)
     dataset_files = get_dataset_files(arg_dataset_file)
-    inference = init_inference_from_env(
-        default_model=INFERENCE_MODEL_DEFAULT,
-        default_config_file=LLAMASTACK_CONFIG_PATH_DEFAULT,
+
+    inference = init_openai_api_inference_from_env(
+        default_model=INFERENCE_MODEL_DEFAULT
     )
+
+    if not inference:
+        inference = init_inference_from_env(
+            default_model=INFERENCE_MODEL_DEFAULT,
+            default_config_file=LLAMASTACK_CONFIG_PATH_DEFAULT,
+        )
+
     if not inference:
         print("Inference not initialized because not configured in env variables")
         exit(1)

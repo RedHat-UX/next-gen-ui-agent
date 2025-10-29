@@ -1,0 +1,101 @@
+Date: 2025-10-27
+Components: all with vague component type check
+LLM: GPT 4o mini
+Env: OpenAI API
+
+Note:
+* generally tends to put lots of fields into UI components
+* for `image`, LLM selected one-card with image and other info multiple times, which might be reasonable in some cases
+* for `one-card`, it selected `set-of-cards` in case of prompt against array of simple values, which can be also OK
+* for `set-of-cards`, it generated field paths pointing to only one element in many cases, or even to first and second element, which is incorrect
+* for `set-of-cards`, it was confuged by array placed next to object, and generated paths for that array inside of that object
+* for `video-player`, it forgot to generate field pointing to the video url in 2 cases from 35 (fields was empty)
+
+
+Evaluations finished:
+Dataset items evalueated: 202
+Agent errors: 24
+Agent warnings: 14
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 4,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 68,
+    "num_err_agent": 2,
+    "num_err_system": 0,
+    "num_warn_agent": 5
+  },
+  "set-of-cards": {
+    "num_evals": 38,
+    "num_err_agent": 16,
+    "num_err_system": 0,
+    "num_warn_agent": 5
+  },
+  "table": {
+    "num_evals": 21,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 4
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 2,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1041,
+  "mean": 3158,
+  "avg": 3158,
+  "perc95": 5513,
+  "max": 9156
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1868,
+    "mean": 2446,
+    "avg": 2446,
+    "perc95": 3518,
+    "max": 3965
+  },
+  "one-card": {
+    "min": 2009,
+    "mean": 3858,
+    "avg": 3858,
+    "perc95": 5693,
+    "max": 7537
+  },
+  "set-of-cards": {
+    "min": 2153,
+    "mean": 4158,
+    "avg": 4158,
+    "perc95": 6641,
+    "max": 9156
+  },
+  "table": {
+    "min": 1552,
+    "mean": 3140,
+    "avg": 3140,
+    "perc95": 5395,
+    "max": 5553
+  },
+  "video-player": {
+    "min": 1041,
+    "mean": 1534,
+    "avg": 1534,
+    "perc95": 2496,
+    "max": 2730
+  }
+}

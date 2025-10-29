@@ -147,6 +147,18 @@ def test_sanitize_data_path() -> None:
     assert sanitize_data_path("['order[size up to 6]'].name") == "$..order[*].name"
     assert sanitize_data_path("['order[size up to 6]']['name']") == "$..order[*].name"
 
+    # cases added from GPT 5 testing
+    assert (
+        sanitize_data_path("$['subscriptions[size up to 6]'][*]['id']")
+        == "$..subscriptions[*].id"
+    )
+    assert sanitize_data_path("movie.languages[size up to 6]") == "$..movie.languages"
+    assert (
+        sanitize_data_path("movie['languages[size up to 6]']") == "$..movie.languages"
+    )
+    assert sanitize_data_path("actors[size up to 6]") == "$..actors"
+    assert sanitize_data_path("['actors[size up to 6]']") == "$..actors"
+
 
 def test_get_data_value_for_path_INVALID() -> None:
     data = json.loads(

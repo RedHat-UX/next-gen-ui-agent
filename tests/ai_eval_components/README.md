@@ -7,19 +7,24 @@ This module contains Dataset and code to generate the dataset and to run the UI 
 
 ## Setup Evaluation Environment
 
-Evaluation code requires LlamaStack server. 
+Evaluation code requires LlamaStack server or OpenAI API compatible LLM serving. 
 
 Embedded LlamaStack is used by default, with configuration from `tests/ai_eval_components/llamastack-ollama.yaml`. It expects localhost [`ollama` (at port `11434`)](https://ollama.com/) running, hosting LLM model. 
 Other config file may be used thanks to `LLAMA_STACK_CONFIG_FILE`.
 
 Remote/external LlamaStack can be also used if configured using either `http://{LLAMA_STACK_HOST}:{LLAMA_STACK_PORT}` pair, or `LLAMA_STACK_URL`. How to run external LlamaStack on localhost see [LLAMASTACK_DEV.md](../../LLAMASTACK_DEV.md).
 
+If any of `MODEL_API_xy` env variable is set, then OpenAI API compatible LLM serving is used.
+
 Evaluation code accepts these environment variables:
+* `INFERENCE_MODEL` - LLM used by the UI Agent, defaults to `granite3.3:2b` - this model must be available in used LlamaStack instance!
 * `LLAMA_STACK_HOST` - remote/external LlamaStack server `http` host. 
 * `LLAMA_STACK_PORT` - remote/external LlamaStack server port, defaults to `5001`
 * `LLAMA_STACK_URL` - remote/external LlamaStack server url. Allows to define whole url instead of use `LLAMA_STACK_HOST` and `LLAMA_STACK_PORT`.
 * `LLAMA_STACK_CONFIG_FILE` - path of the embedded LlamaStack config file. Defaults to `tests/ai_eval_components/llamastack-ollama.yaml`.
-* `INFERENCE_MODEL` - LLM used by the UI Agent, defaults to `granite3.3:2b` - this model must be available in used LlamaStack instance!
+* `MODEL_API_URL` - OpenAI compatible API base URL - optional, if not defined then OpenAI API base URL is used
+* `MODEL_API_KEY` - OpenAI compatible API api_key - optional
+* `MODEL_API_TEMPERATURE` - OpenAI compatible API LLM temperature - optional, use `0` if model is capable to run with it
 * `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 * `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
 
@@ -101,7 +106,7 @@ Dataset files itself must be `.json` containing JSON array of objects representi
 * `id` unique identifier of the dataset item, used in error reporting
 * `user_prompt` input for UI Agent
 * `backend_data` input for UI Agent, must be JSON stored as a string
-* `input_data_type` optional `type` of InputData - used for JSON wrapping feature
+* `input_data_type` optional `type` of InputData - if defined and JSON wrapping is necessary due to data structure shape, then it is applied before the LLM call
 * `expected_component` checked in UI Agent output during evaluation
 * `warn_only` optional boolean with `true` if this item results only in evaluation warning, not error - used for evaluation of optional features which we would like to see how they perform in evals still
 * `src` optional info about prompt and data source files in `dataset_src` directory for easier location
