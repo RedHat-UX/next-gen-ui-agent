@@ -1,4 +1,4 @@
-name: K8s Evaluation Tests
+name: Complete Evaluation Tests (Movies + K8s)
 
 on:
   # Run on push to feature branch
@@ -19,8 +19,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  k8s-eval:
-    name: Run K8s Evaluation Tests
+  complete-eval:
+    name: Run Complete Evaluation Tests (Movies + K8s)
     runs-on: ubuntu-latest
 
     steps:
@@ -60,31 +60,45 @@ jobs:
           # Pull the model
           ollama pull llama3.2:3b
 
-      - name: Run K8s evaluation tests
+      - name: Run evaluation tests (Movies/Subscriptions + K8s)
         run: |
           # Create LlamaStack directory (required by eval)
           mkdir -p ~/.llama/providers.d
-          # Run as module to avoid types.py shadowing standard library
+
+          # Run Velias's tests (Movies/Subscriptions dataset)
+          echo "=== Running Movies/Subscriptions Tests ==="
+          PYTHONPATH=tests:libs INFERENCE_MODEL=llama3.2:3b \
+            python -m ai_eval_components.eval
+
+          # Run K8s tests
+          echo "=== Running K8s Tests ==="
           PYTHONPATH=tests:libs INFERENCE_MODEL=llama3.2:3b \
             python -m ai_eval_components.eval_k8s
 
-      - name: Generate HTML report
+      - name: Generate combined HTML report
         if: always()
         run: |
-          PYTHONPATH=tests:libs python -m ai_eval_components.generate_k8s_report
+          PYTHONPATH=tests:libs python -m ai_eval_components.generate_report \
+            --datasets dataset,dataset_k8s \
+            --labels "Movies/Subscriptions,Kubernetes" \
+            --error-dirs errors,errors_k8s \
+            --title "Complete Evaluation Report" \
+            --output tests/ai_eval_components/complete_eval_report.html
 
       - name: Upload evaluation report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k8s-eval-report
-          path: tests/ai_eval_components/k8s_eval_report.html
+          name: complete-eval-report
+          path: tests/ai_eval_components/complete_eval_report.html
           retention-days: 30
 
       - name: Upload error logs
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k8s-eval-errors
-          path: tests/ai_eval_components/errors/
+          name: evaluation-errors
+          path: |
+            tests/ai_eval_components/errors/
+            tests/ai_eval_components/errors_k8s/
           retention-days: 7

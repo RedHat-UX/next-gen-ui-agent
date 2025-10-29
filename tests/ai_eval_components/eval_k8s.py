@@ -9,6 +9,8 @@ import runpy
 
 # Set the K8s dataset directory before running eval
 os.environ["DATASET_DIR"] = "tests/ai_eval_components/dataset_k8s"
+# Set separate errors directory for K8s to avoid conflicts with Velias's tests
+os.environ["ERRORS_DIR"] = "tests/ai_eval_components/errors_k8s"
 
 if __name__ == "__main__":
     # Run eval.py in this context (with DATASET_DIR set)
