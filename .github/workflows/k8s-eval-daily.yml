@@ -62,14 +62,14 @@ jobs:
 
       - name: Run K8s evaluation tests
         run: |
-          # Run from repo root with proper PYTHONPATH (same as local testing)
+          # Run as module to avoid types.py shadowing standard library
           PYTHONPATH=tests:libs INFERENCE_MODEL=llama3.2:3b \
-            python tests/ai_eval_components/eval_k8s.py
+            python -m ai_eval_components.eval_k8s
 
       - name: Generate HTML report
         if: always()
         run: |
-          python tests/ai_eval_components/generate_k8s_report.py
+          PYTHONPATH=tests:libs python -m ai_eval_components.generate_k8s_report
 
       - name: Upload evaluation report
         if: always()
