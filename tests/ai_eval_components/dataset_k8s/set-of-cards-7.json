@@ -1,0 +1,46 @@
+[
+  {
+    "id": "set-of-cards-000025",
+    "user_prompt": "Show me service status",
+    "backend_data": "{\n  \"services\": [\n    {\n      \"name\": \"payment-service\",\n      \"namespace\": \"production-app\",\n      \"type\": \"ClusterIP\",\n      \"cluster_ip\": \"10.128.45.23\",\n      \"ports\": [{ \"port\": 8080, \"target_port\": 8080 }],\n      \"endpoints\": 3,\n      \"healthy_endpoints\": 2,\n      \"dns_resolution\": \"healthy\",\n      \"ingress_url\": \"https://payments.apps.prod.example.com\"\n    },\n    {\n      \"name\": \"user-database\",\n      \"namespace\": \"production-app\",\n      \"type\": \"ClusterIP\",\n      \"cluster_ip\": \"10.128.67.89\",\n      \"ports\": [{ \"port\": 5432, \"target_port\": 5432 }],\n      \"endpoints\": 1,\n      \"healthy_endpoints\": 1,\n      \"dns_resolution\": \"healthy\",\n      \"ingress_url\": null\n    },\n    {\n      \"name\": \"api-gateway\",\n      \"namespace\": \"production-app\",\n      \"type\": \"LoadBalancer\",\n      \"cluster_ip\": \"10.128.12.45\",\n      \"external_ip\": \"34.123.45.67\",\n      \"ports\": [{ \"port\": 443, \"target_port\": 8443 }],\n      \"endpoints\": 2,\n      \"healthy_endpoints\": 0,\n      \"dns_resolution\": \"failed\",\n      \"ingress_url\": \"https://api.prod.example.com\",\n      \"error\": \"No healthy endpoints available\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/services.json",
+      "prompt_file": "prompts_services.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000026",
+    "user_prompt": "Which services have unhealthy endpoints?",
+    "backend_data": "{\n  \"services\": [\n    {\n      \"name\": \"payment-service\",\n      \"namespace\": \"production-app\",\n      \"type\": \"ClusterIP\",\n      \"cluster_ip\": \"10.128.45.23\",\n      \"ports\": [{ \"port\": 8080, \"target_port\": 8080 }],\n      \"endpoints\": 3,\n      \"healthy_endpoints\": 2,\n      \"dns_resolution\": \"healthy\",\n      \"ingress_url\": \"https://payments.apps.prod.example.com\"\n    },\n    {\n      \"name\": \"user-database\",\n      \"namespace\": \"production-app\",\n      \"type\": \"ClusterIP\",\n      \"cluster_ip\": \"10.128.67.89\",\n      \"ports\": [{ \"port\": 5432, \"target_port\": 5432 }],\n      \"endpoints\": 1,\n      \"healthy_endpoints\": 1,\n      \"dns_resolution\": \"healthy\",\n      \"ingress_url\": null\n    },\n    {\n      \"name\": \"api-gateway\",\n      \"namespace\": \"production-app\",\n      \"type\": \"LoadBalancer\",\n      \"cluster_ip\": \"10.128.12.45\",\n      \"external_ip\": \"34.123.45.67\",\n      \"ports\": [{ \"port\": 443, \"target_port\": 8443 }],\n      \"endpoints\": 2,\n      \"healthy_endpoints\": 0,\n      \"dns_resolution\": \"failed\",\n      \"ingress_url\": \"https://api.prod.example.com\",\n      \"error\": \"No healthy endpoints available\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/services.json",
+      "prompt_file": "prompts_services.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000027",
+    "user_prompt": "Is payment-service reachable?",
+    "backend_data": "{\n  \"services\": [\n    {\n      \"name\": \"payment-service\",\n      \"namespace\": \"production-app\",\n      \"type\": \"ClusterIP\",\n      \"cluster_ip\": \"10.128.45.23\",\n      \"ports\": [{ \"port\": 8080, \"target_port\": 8080 }],\n      \"endpoints\": 3,\n      \"healthy_endpoints\": 2,\n      \"dns_resolution\": \"healthy\",\n      \"ingress_url\": \"https://payments.apps.prod.example.com\"\n    },\n    {\n      \"name\": \"user-database\",\n      \"namespace\": \"production-app\",\n      \"type\": \"ClusterIP\",\n      \"cluster_ip\": \"10.128.67.89\",\n      \"ports\": [{ \"port\": 5432, \"target_port\": 5432 }],\n      \"endpoints\": 1,\n      \"healthy_endpoints\": 1,\n      \"dns_resolution\": \"healthy\",\n      \"ingress_url\": null\n    },\n    {\n      \"name\": \"api-gateway\",\n      \"namespace\": \"production-app\",\n      \"type\": \"LoadBalancer\",\n      \"cluster_ip\": \"10.128.12.45\",\n      \"external_ip\": \"34.123.45.67\",\n      \"ports\": [{ \"port\": 443, \"target_port\": 8443 }],\n      \"endpoints\": 2,\n      \"healthy_endpoints\": 0,\n      \"dns_resolution\": \"failed\",\n      \"ingress_url\": \"https://api.prod.example.com\",\n      \"error\": \"No healthy endpoints available\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/services.json",
+      "prompt_file": "prompts_services.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000028",
+    "user_prompt": "Show me LoadBalancer services",
+    "backend_data": "{\n  \"services\": [\n    {\n      \"name\": \"payment-service\",\n      \"namespace\": \"production-app\",\n      \"type\": \"ClusterIP\",\n      \"cluster_ip\": \"10.128.45.23\",\n      \"ports\": [{ \"port\": 8080, \"target_port\": 8080 }],\n      \"endpoints\": 3,\n      \"healthy_endpoints\": 2,\n      \"dns_resolution\": \"healthy\",\n      \"ingress_url\": \"https://payments.apps.prod.example.com\"\n    },\n    {\n      \"name\": \"user-database\",\n      \"namespace\": \"production-app\",\n      \"type\": \"ClusterIP\",\n      \"cluster_ip\": \"10.128.67.89\",\n      \"ports\": [{ \"port\": 5432, \"target_port\": 5432 }],\n      \"endpoints\": 1,\n      \"healthy_endpoints\": 1,\n      \"dns_resolution\": \"healthy\",\n      \"ingress_url\": null\n    },\n    {\n      \"name\": \"api-gateway\",\n      \"namespace\": \"production-app\",\n      \"type\": \"LoadBalancer\",\n      \"cluster_ip\": \"10.128.12.45\",\n      \"external_ip\": \"34.123.45.67\",\n      \"ports\": [{ \"port\": 443, \"target_port\": 8443 }],\n      \"endpoints\": 2,\n      \"healthy_endpoints\": 0,\n      \"dns_resolution\": \"failed\",\n      \"ingress_url\": \"https://api.prod.example.com\",\n      \"error\": \"No healthy endpoints available\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/services.json",
+      "prompt_file": "prompts_services.json"
+    }
+  }
+]

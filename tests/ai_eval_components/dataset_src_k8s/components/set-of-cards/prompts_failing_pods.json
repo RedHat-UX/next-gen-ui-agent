@@ -1,0 +1,7 @@
+[
+  "Show me failing pods",
+  "Show me pods in CrashLoopBackOff",
+  "Which pods have high restart counts?",
+  "Why is payment-service crashing?",
+  "Show me ImagePullBackOff errors"
+]

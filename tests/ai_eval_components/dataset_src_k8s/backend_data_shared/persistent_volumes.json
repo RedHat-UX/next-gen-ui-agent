@@ -1,0 +1,37 @@
+{
+  "persistent_volumes": [
+    {
+      "name": "pvc-database-prod",
+      "namespace": "production-app",
+      "status": "Bound",
+      "size": "100Gi",
+      "used": "78Gi",
+      "storage_class": "gp3-csi",
+      "access_mode": "ReadWriteOnce",
+      "mount_path": "/var/lib/postgresql/data",
+      "last_backup": "2024-10-03T01:00:00Z"
+    },
+    {
+      "name": "pvc-logs-storage",
+      "namespace": "openshift-logging",
+      "status": "Bound",
+      "size": "500Gi",
+      "used": "423Gi",
+      "storage_class": "gp3-csi",
+      "access_mode": "ReadWriteMany",
+      "mount_path": "/var/log/containers",
+      "last_backup": "2024-10-03T02:30:00Z"
+    },
+    {
+      "name": "pvc-temp-storage",
+      "namespace": "development",
+      "status": "Pending",
+      "size": "50Gi",
+      "used": "0Gi",
+      "storage_class": "gp3-csi",
+      "access_mode": "ReadWriteOnce",
+      "mount_path": "/tmp/data",
+      "error": "Insufficient storage capacity"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "cost_efficiency": [
+    {
+      "namespace": "production-app",
+      "monthly_cost": 1245.67,
+      "cpu_waste_percentage": 23,
+      "memory_waste_percentage": 31,
+      "suggested_savings": 387.45,
+      "right_sizing_recommendations": [
+        "Reduce payment-service memory from 2Gi to 1.2Gi",
+        "Reduce user-auth CPU from 1000m to 400m"
+      ]
+    },
+    {
+      "namespace": "development",
+      "monthly_cost": 456.23,
+      "cpu_waste_percentage": 67,
+      "memory_waste_percentage": 72,
+      "suggested_savings": 312.18,
+      "right_sizing_recommendations": [
+        "Use spot instances for dev workloads",
+        "Scale down replicas during off-hours"
+      ]
+    }
+  ]
+}

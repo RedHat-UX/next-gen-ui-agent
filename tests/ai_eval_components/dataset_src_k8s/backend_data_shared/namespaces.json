@@ -1,0 +1,49 @@
+{
+  "namespaces": [
+    {
+      "name": "kube-system",
+      "cpu_requests": "2.1",
+      "cpu_limits": "4.0",
+      "cpu_usage": "1.8",
+      "memory_requests": "4.2Gi",
+      "memory_limits": "8.0Gi",
+      "memory_usage": "3.9Gi",
+      "pod_count": 18,
+      "cost_per_month": 245.5
+    },
+    {
+      "name": "openshift-monitoring",
+      "cpu_requests": "3.5",
+      "cpu_limits": "6.0",
+      "cpu_usage": "2.9",
+      "memory_requests": "8.1Gi",
+      "memory_limits": "12.0Gi",
+      "memory_usage": "7.8Gi",
+      "pod_count": 12,
+      "cost_per_month": 412.3
+    },
+    {
+      "name": "production-app",
+      "cpu_requests": "5.2",
+      "cpu_limits": "10.0",
+      "cpu_usage": "4.1",
+      "memory_requests": "12.5Gi",
+      "memory_limits": "20.0Gi",
+      "memory_usage": "11.2Gi",
+      "pod_count": 35,
+      "cost_per_month": 678.9
+    },
+    {
+      "name": "development",
+      "cpu_requests": "1.8",
+      "cpu_limits": "3.0",
+      "cpu_usage": "0.4",
+      "memory_requests": "3.2Gi",
+      "memory_limits": "6.0Gi",
+      "memory_usage": "1.1Gi",
+      "pod_count": 8,
+      "cost_per_month": 89.2,
+      "waste_percentage": 78
+    }
+  ]
+}

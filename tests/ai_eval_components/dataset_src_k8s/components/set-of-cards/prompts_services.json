@@ -1,0 +1,6 @@
+[
+  "Show me service status",
+  "Which services have unhealthy endpoints?",
+  "Is payment-service reachable?",
+  "Show me LoadBalancer services"
+]
