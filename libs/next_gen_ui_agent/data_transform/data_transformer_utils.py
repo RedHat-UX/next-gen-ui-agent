@@ -51,7 +51,10 @@ def sanitize_data_path(data_path: str | None) -> str | None:
         data_path = data_path.replace("{", "").replace("}", "")
 
         # handle path elements like ['name'] by removing `['` and `']` but keeping the field name, add dot for cases like `['movie']['year']`
-        data_path = data_path.replace("']['", ".").replace("['", "").replace("']", "")
+        data_path = data_path.replace("['", ".").replace("']", "")
+        # handle unwanted leading dots or double dots
+        data_path = data_path.lstrip(".")
+        data_path = data_path.replace("..", ".")
 
         # Handle paths like `subscriptions[size up to 6].name` by removing content between []
         # Keep it if there are only numbers inside (like `[0]`, `[1]`, etc.)

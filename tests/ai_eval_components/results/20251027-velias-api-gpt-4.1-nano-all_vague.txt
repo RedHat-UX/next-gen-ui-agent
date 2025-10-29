@@ -1,0 +1,97 @@
+Date: 2025-10-27
+Components: all with vague component type check
+LLM: GPT 4.1 nano
+Env: OpenAI API
+
+Note: 
+* generally tends to put lots of fields into UI components
+* for one-card, confused by data with both object with movie details and array of actors sometimes
+* always selects `set-of-cards` over `table`, prompt should be improved to understand how the array size is encoded in shortened data
+
+Evaluations finished:
+Dataset items evalueated: 202
+Agent errors: 9
+Agent warnings: 1
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 68,
+    "num_err_agent": 9,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 38,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 1
+  },
+  "table": {
+    "num_evals": 21,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 828,
+  "mean": 2168,
+  "avg": 2168,
+  "perc95": 3684,
+  "max": 25893
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 905,
+    "mean": 1314,
+    "avg": 1314,
+    "perc95": 1595,
+    "max": 2004
+  },
+  "one-card": {
+    "min": 1027,
+    "mean": 2721,
+    "avg": 2721,
+    "perc95": 4255,
+    "max": 25893
+  },
+  "set-of-cards": {
+    "min": 1209,
+    "mean": 2463,
+    "avg": 2463,
+    "perc95": 3829,
+    "max": 11504
+  },
+  "table": {
+    "min": 1743,
+    "mean": 2959,
+    "avg": 2959,
+    "perc95": 5025,
+    "max": 12859
+  },
+  "video-player": {
+    "min": 828,
+    "mean": 1293,
+    "avg": 1293,
+    "perc95": 2007,
+    "max": 2756
+  }
+}
