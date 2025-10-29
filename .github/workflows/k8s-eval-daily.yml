@@ -62,6 +62,8 @@ jobs:
 
       - name: Run K8s evaluation tests
         run: |
+          # Create LlamaStack directory (required by eval)
+          mkdir -p ~/.llama/providers.d
           # Run as module to avoid types.py shadowing standard library
           PYTHONPATH=tests:libs INFERENCE_MODEL=llama3.2:3b \
             python -m ai_eval_components.eval_k8s
