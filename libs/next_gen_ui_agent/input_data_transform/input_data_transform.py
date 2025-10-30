@@ -111,19 +111,41 @@ def get_input_data_transformer(
         )
 
 
-def perform_input_data_transformation(input_data: InputData) -> Any:
-    """Perform the input data transformation.
+def perform_input_data_transformation(input_data: InputData) -> tuple[Any, str]:
+    """Perform the input data transformation with configured transformer - InputData.type or default transformer.
     Args:
-        input_data: Input data string to transform.
+        input_data: Input data to transform. Must contain InputData.data and optionally InputData.type`.
     Returns:
-        Object tree matching parsed JSON format.
+        * Object tree matching parsed JSON format produced by the transformer.
+        * Transformer name used for the transformation.
     Raises:
         ValueError if InputData.data is None
+        KeyError if configuredtransformer name is not found
     """
 
     if input_data.get("data") is None:
         raise ValueError("Input data not provided")
 
-    return get_input_data_transformer(
-        get_input_data_transformer_name(input_data)
-    ).transform_input_data(input_data)
+    transformer_name = get_input_data_transformer_name(input_data)
+    transformer = get_input_data_transformer(transformer_name)
+    return transformer.transform_input_data(input_data), transformer_name
+
+
+def perform_input_data_transformation_with_transformer_name(
+    input_data: InputData, transformer_name: str
+) -> Any:
+    """Perform the input data transformation with provided transformer name.
+    Args:
+        input_data: Input data to transform. Must contain InputData.data and optionally InputData.type if given transformer requires it (typically not).
+        transformer_name: Transformer name to use for the transformation.
+    Returns: Object tree matching parsed JSON format produced by the transformer.
+    Raises:
+        ValueError if InputData.data is None
+        KeyError if provided transformer name is not found
+    """
+
+    if input_data.get("data") is None:
+        raise ValueError("Input data not provided")
+
+    transformer = get_input_data_transformer(transformer_name)
+    return transformer.transform_input_data(input_data)

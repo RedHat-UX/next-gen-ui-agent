@@ -8,33 +8,36 @@ class TestWrapStringAsJson:
 
     def test_empty_data_type_returns_data_unchanged(self):
         """Test that empty or None data_type returns data unchanged."""
-        assert wrap_string_as_json("val", "") == {"data": "val"}
+        assert wrap_string_as_json("val", "") == ({"data": "val"}, "data")
 
     def test_none_data_type_returns_data_unchanged(self):
         """Test that None data_type returns data unchanged."""
-        assert wrap_string_as_json("test", None) == {"data": "test"}
+        assert wrap_string_as_json("test", None) == ({"data": "test"}, "data")
 
     def test_valid_data_type_returns_data_wrapped(self):
         """Test that valid data_type returns data wrapped."""
-        assert wrap_string_as_json("test \nvalue", "test.type") == {
-            "test_type": "test \nvalue"
-        }
+        assert wrap_string_as_json("test \nvalue", "test.type") == (
+            {"test_type": "test \nvalue"},
+            "test_type",
+        )
 
     def test_empty_data_are_wrapped(self):
         """Test that empty data are wrapped."""
-        assert wrap_string_as_json("", "test.type") == {"test_type": ""}
+        assert wrap_string_as_json("", "test.type") == ({"test_type": ""}, "test_type")
 
     def test_max_length_truncates_data(self):
         """Test that max_length truncates data."""
-        assert wrap_string_as_json("test \nvalue", "test.type", max_length=5) == {
-            "test_type": "test ..."
-        }
+        assert wrap_string_as_json("test \nvalue", "test.type", max_length=5) == (
+            {"test_type": "test ..."},
+            "test_type",
+        )
 
     def test_max_length_truncates_data_short(self):
         """Test that max_length truncates data."""
-        assert wrap_string_as_json("test \nvalue", "test.type", max_length=500) == {
-            "test_type": "test \nvalue"
-        }
+        assert wrap_string_as_json("test \nvalue", "test.type", max_length=500) == (
+            {"test_type": "test \nvalue"},
+            "test_type",
+        )
 
 
 class TestWrapJsonData:
@@ -45,53 +48,53 @@ class TestWrapJsonData:
         test_data = {"key": "value"}
 
         # Empty string
-        assert wrap_json_data(test_data, "") == test_data
+        assert wrap_json_data(test_data, "") == (test_data, None)
 
         # None (if passed as string "None")
-        assert wrap_json_data(test_data, "None") == test_data
+        assert wrap_json_data(test_data, "None") == (test_data, None)
 
         # Whitespace only
-        assert wrap_json_data(test_data, "   ") == test_data
+        assert wrap_json_data(test_data, "   ") == (test_data, None)
 
     def test_dict_with_multiple_fields_gets_wrapped(self):
         """Test that dict with multiple fields gets wrapped."""
         data = {"name": "John", "age": 30, "city": "New York"}
         result = wrap_json_data(data, "person")
         expected = {"person": {"name": "John", "age": 30, "city": "New York"}}
-        assert result == expected
+        assert result == (expected, "person")
 
     def test_dict_with_single_field_unchanged(self):
         """Test that dict with single field remains unchanged."""
         data = {"name": "John"}
         result = wrap_json_data(data, "person")
-        assert result == data
+        assert result == (data, None)
 
     def test_empty_dict_unchanged(self):
         """Test that empty dict remains unchanged."""
         data = {}
         result = wrap_json_data(data, "person")
-        assert result == data
+        assert result == (data, None)
 
     def test_list_gets_wrapped(self):
         """Test that list gets wrapped."""
         data = [1, 2, 3, 4, 5]
         result = wrap_json_data(data, "numbers")
         expected = {"numbers": [1, 2, 3, 4, 5]}
-        assert result == expected
+        assert result == (expected, "numbers")
 
     def test_empty_list_is_wrapped(self):
         """Test that empty list gets wrapped."""
         data = []
         result = wrap_json_data(data, "items")
         expected = {"items": []}
-        assert result == expected
+        assert result == (expected, "items")
 
     def test_one_item_list_is_wrapped(self):
         """Test that empty list gets wrapped."""
         data = [{}]
         result = wrap_json_data(data, "items")
         expected = {"items": [{}]}
-        assert result == expected
+        assert result == (expected, "items")
 
     def test_custom_iterable_gets_wrapped(self):
         """Test that custom iterable gets wrapped."""
@@ -112,7 +115,7 @@ class TestWrapJsonData:
         data = CustomIterable([1, 2, 3])
         result = wrap_json_data(data, "custom")
         expected = {"custom": data}
-        assert result == expected
+        assert result == (expected, "custom")
 
     def test_data_type_sanitization(self):
         """Test that data_type is properly sanitized."""
@@ -122,17 +125,17 @@ class TestWrapJsonData:
         # Invalid characters in data_type
         result = wrap_json_data(data, "my@data#type")
         expected = {"my_data_type": {"key1": "value1", "key2": "value2"}}
-        assert result == expected
+        assert result == (expected, "my_data_type")
 
         # Data_type starting with number
         result = wrap_json_data(data, "123type")
         expected = {"field_123type": {"key1": "value1", "key2": "value2"}}
-        assert result == expected
+        assert result == (expected, "field_123type")
 
         # Data_type starting with hyphen
         result = wrap_json_data(data, "-type")
         expected = {"field_-type": {"key1": "value1", "key2": "value2"}}
-        assert result == expected
+        assert result == (expected, "field_-type")
 
     def test_nested_structures(self):
         """Test with nested data structures."""
@@ -143,13 +146,13 @@ class TestWrapJsonData:
         }
         result = wrap_json_data(data, "config")
         expected = {"config": data}
-        assert result == expected
+        assert result == (expected, "config")
 
         # List of dicts
         data = [{"id": 1, "name": "Item 1"}, {"id": 2, "name": "Item 2"}]
         result = wrap_json_data(data, "items")
         expected = {"items": data}
-        assert result == expected
+        assert result == (expected, "items")
 
     def test_large_data_structures(self):
         """Test with large data structures."""
@@ -157,20 +160,20 @@ class TestWrapJsonData:
         data = list(range(1000))
         result = wrap_json_data(data, "large_list")
         expected = {"large_list": data}
-        assert result == expected
+        assert result == (expected, "large_list")
 
         # Large dict
         data = {f"key_{i}": f"value_{i}" for i in range(100)}
         result = wrap_json_data(data, "large_dict")
         expected = {"large_dict": data}
-        assert result == expected
+        assert result == (expected, "large_dict")
 
     def test_single_item_dict_not_wrapped(self):
         """Test single item dict is not wrapped."""
 
         data = {"single_key": "single_value"}
         result = wrap_json_data(data, "wrapper")
-        assert result == data
+        assert result == (data, None)
 
     def test_json_loaded_data(self):
         # dict with multiple fields
@@ -178,11 +181,11 @@ class TestWrapJsonData:
         data = json.loads(json_str)
         result = wrap_json_data(data, "large_dict")
         expected = {"large_dict": data}
-        assert result == expected
+        assert result == (expected, "large_dict")
 
         # array
         json_str = "[1, 2, 3, 4, 5]"
         data = json.loads(json_str)
         result = wrap_json_data(data, "large_dict")
         expected = {"large_dict": data}
-        assert result == expected
+        assert result == (expected, "large_dict")

@@ -393,14 +393,14 @@ async def test_generate_ui_data_configuration(external_inference) -> None:
     configuration = output.blocks[0].configuration
     assert configuration is not None
     assert configuration.data_type == "data_type_ignored"
+    assert configuration.input_data_transformer_name == "json"
+    assert configuration.json_wrapping_field_name == "data_type_ignored"
 
     component_metadata = configuration.component_metadata
     assert component_metadata is not None
     assert component_metadata.component == "one-card"
     assert component_metadata.title == "Toy Story External"
     assert component_metadata.fields is not None
-    assert component_metadata.json_data is None
-    assert component_metadata.reasonForTheComponentSelection is None
 
 
 @pytest.mark.asyncio

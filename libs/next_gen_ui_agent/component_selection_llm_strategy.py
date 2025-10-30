@@ -66,21 +66,29 @@ class ComponentSelectionStrategy(ABC):
         self.logger.debug("---CALL component_selection_run--- id: %s", {input_data_id})
 
         json_data = input_data.get("json_data")
+        input_data_transformer_name: str | None = input_data.get(
+            "input_data_transformer_name"
+        )  # type: ignore
 
         if not json_data:
             json_data = json.loads(input_data["data"])
 
+        json_wrapping_field_name: str | None = None
         if isinstance(json_data, str):
             # wrap string as JSON - necessary for the output of the `noop` input data transformer to be processed by the LLM
-            json_data_for_llm = wrap_string_as_json(
+            json_data_for_llm, notused = wrap_string_as_json(
                 json_data, input_data.get("type"), MAX_STRING_DATA_LENGTH_FOR_LLM
             )
-            json_data = wrap_string_as_json(json_data, input_data.get("type"))
+            json_data, json_wrapping_field_name = wrap_string_as_json(
+                json_data, input_data.get("type")
+            )
 
         else:
             # wrap parsed JSON data structure into data type field if allowed and necessary
             if self.input_data_json_wrapping:
-                json_data = wrap_json_data(json_data, input_data.get("type"))
+                json_data, json_wrapping_field_name = wrap_json_data(
+                    json_data, input_data.get("type")
+                )
             # we have to reduce arrays size to avoid LLM context window limit
             json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
 
@@ -91,6 +99,8 @@ class ComponentSelectionStrategy(ABC):
         try:
             result = self.parse_infernce_output(inference_output, input_data_id)
             result.json_data = json_data
+            result.input_data_transformer_name = input_data_transformer_name
+            result.json_wrapping_field_name = json_wrapping_field_name
             return result
         except Exception as e:
             self.logger.exception("Cannot decode the json from LLM response")

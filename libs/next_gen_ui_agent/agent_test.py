@@ -9,6 +9,7 @@ from next_gen_ui_agent.component_selection_llm_onestep import (
 from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
 )
+from next_gen_ui_agent.data_transform.data_transformer_utils import sanitize_data_path
 from next_gen_ui_agent.types import (
     AgentConfig,
     AgentConfigComponent,
@@ -477,3 +478,61 @@ class TestComponentSelectionWrapping:
         assert r.component == "one-card"
         assert r.json_data is not None
         assert r.json_data == {"my_type": [{"title": "Toy Story"}]}
+
+
+class TestConstructUIBlockConfiguration:
+    """Test suite for construct_UIBlockConfiguration method."""
+
+    def test_construct_UIBlockConfiguration_all_info(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="1", data='[{"title": "Toy Story"}]', type="my_type")
+        component_metadata = UIComponentMetadata(
+            component="one-card",
+            id="1",
+            title="Toy Story",
+            fields=[
+                DataField(name="Title", data_path="$..movie.title"),
+                DataField(name="Year", data_path="['movie']['year']"),
+            ],
+            input_data_transformer_name="json",
+            json_wrapping_field_name="my_type",
+            json_data=[{"title": "Toy Story"}],
+            reasonForTheComponentSelection="One item available in the data",
+            confidenceScore="100%",
+        )
+        configuration = agent.construct_UIBlockConfiguration(
+            input_data, component_metadata
+        )
+        assert configuration.data_type == "my_type"
+        assert configuration.input_data_transformer_name == "json"
+        assert configuration.json_wrapping_field_name == "my_type"
+        assert configuration.component_metadata == component_metadata
+        assert configuration.component_metadata.fields[
+            0
+        ].data_path == sanitize_data_path("movie.title")
+        assert configuration.component_metadata.fields[1].data_path == "$..movie.year"
+
+    def test_construct_UIBlockConfiguration_min_info(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="1", data='[{"title": "Toy Story"}]')
+        component_metadata = UIComponentMetadata(
+            component="one-card",
+            id="1",
+            title="Toy Story",
+            fields=[DataField(name="Title", data_path="movie.title")],
+            input_data_transformer_name="yaml",
+            json_wrapping_field_name=None,
+            json_data=[{"title": "Toy Story"}],
+            reasonForTheComponentSelection="One item available in the data",
+            confidenceScore="100%",
+        )
+        configuration = agent.construct_UIBlockConfiguration(
+            input_data, component_metadata
+        )
+        assert configuration.data_type is None
+        assert configuration.input_data_transformer_name == "yaml"
+        assert configuration.json_wrapping_field_name is None
+        assert configuration.component_metadata == component_metadata
+        assert configuration.component_metadata.fields[
+            0
+        ].data_path == sanitize_data_path("movie.title")

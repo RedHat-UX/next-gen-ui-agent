@@ -16,6 +16,7 @@ from next_gen_ui_agent.component_selection_pertype import (
     init_pertype_components_mapping,
     select_component_per_type,
 )
+from next_gen_ui_agent.data_transform.data_transformer_utils import sanitize_data_path
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transformation import enhance_component_by_input_data
 from next_gen_ui_agent.design_system_handler import (
@@ -34,6 +35,7 @@ from next_gen_ui_agent.types import (
     InputData,
     InputDataInternal,
     Rendition,
+    UIBlockConfiguration,
     UIComponentMetadata,
 )
 from stevedore import ExtensionManager
@@ -122,17 +124,21 @@ class NextGenUIAgent:
         ret: list[UIComponentMetadata] = []
         to_dynamic_selection: list[InputData] = []
         for input_data in input["input_data"]:
-            json_data = perform_input_data_transformation(input_data)
+            json_data, input_data_transformer_name = perform_input_data_transformation(
+                input_data
+            )
 
             # select component InputData.type or InputData.hand_build_component_type
             component = select_component_per_type(input_data, json_data)
             if component:
+                component.input_data_transformer_name = input_data_transformer_name
                 ret.append(component)
             else:
                 # Copy input_data and just add a json_data
                 id: InputDataInternal = {
                     **input_data,
                     "json_data": json_data,
+                    "input_data_transformer_name": input_data_transformer_name,
                 }
                 to_dynamic_selection.append(id)
 
@@ -189,3 +195,20 @@ class NextGenUIAgent:
             factory = self._extension_manager[component_system].obj
 
         return _design_system_handler(components, factory)
+
+    def construct_UIBlockConfiguration(
+        self, input_data: InputData, component_metadata: UIComponentMetadata
+    ) -> UIBlockConfiguration:
+        """Construct UIBlockConfiguration from component metadata and input data."""
+
+        # put sanitized data paths to the UIBlockConfiguration
+        if component_metadata.fields:
+            for field in component_metadata.fields:
+                field.data_path = sanitize_data_path(field.data_path)  # type: ignore
+
+        return UIBlockConfiguration(
+            component_metadata=component_metadata,
+            data_type=input_data.get("type"),
+            input_data_transformer_name=component_metadata.input_data_transformer_name,
+            json_wrapping_field_name=component_metadata.json_wrapping_field_name,
+        )
