@@ -20,6 +20,7 @@ __pycache__/
 
 # temporary test files
 tests/ai_eval_components/errors/
+tests/ai_eval_components/errors_k8s/
 tests/ai_eval_components/llm_out/
 tests/ai_eval_components/llamastack-m*
 
@@ -28,3 +29,6 @@ site/
 
 # Custom .gitmessage template
 .gitmessage
+
+# K8s evaluation reports (generated locally, not committed)
+tests/ai_eval_components/*_eval_report.html
