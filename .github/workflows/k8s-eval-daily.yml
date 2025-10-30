@@ -1,21 +1,11 @@
 name: Complete Evaluation Tests (Movies + K8s)
 
 on:
-  # Run on push to feature branch
-  push:
-    branches:
-      - "test_ai_eval"
+  # Run every Tuesday at 2 AM UTC (ONLY runs on default branch 'main' after merge)
+  schedule:
+    - cron: "0 2 * * 2"
 
-  # Run on pull request
-  pull_request:
-    branches:
-      - "main"
-
-  # Run daily at 2 AM UTC (NOTE: Only runs on default branch 'main' after merge)
-  # schedule:
-  #   - cron: "0 2 * * *"
-
-  # Allow manual trigger (works on any branch!)
+  # Allow manual trigger (run on-demand when needed - works on any branch!)
   workflow_dispatch:
 
 jobs:
