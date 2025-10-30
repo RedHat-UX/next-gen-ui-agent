@@ -1,5 +1,24 @@
 {
   "$defs": {
+    "DataField": {
+      "description": "UI Component Field Metadata.",
+      "properties": {
+        "name": {
+          "description": "Field name to be shown in the UI",
+          "type": "string"
+        },
+        "data_path": {
+          "description": "JSON Path pointing to the input data structure to be used to pickup values to be shown in UI",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "data_path"
+      ],
+      "title": "DataField",
+      "type": "object"
+    },
     "Rendition": {
       "description": "Rendition of the component - output of the UI rendering step.",
       "properties": {
@@ -41,12 +60,118 @@
             }
           ],
           "default": null
+        },
+        "configuration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIBlockConfiguration"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [
         "id"
       ],
       "title": "UIBlock",
+      "type": "object"
+    },
+    "UIBlockConfiguration": {
+      "description": "UI Block configuration",
+      "properties": {
+        "data_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "component_metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIComponentMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "UIBlockConfiguration",
+      "type": "object"
+    },
+    "UIComponentMetadata": {
+      "description": "UI Component Metadata - output of the component selection and configuration step.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "title": {
+          "type": "string"
+        },
+        "reasonForTheComponentSelection": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "confidenceScore": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "component": {
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/DataField"
+          },
+          "type": "array"
+        },
+        "json_data": {
+          "anyOf": [
+            {},
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "title",
+        "component",
+        "fields"
+      ],
+      "title": "UIComponentMetadata",
       "type": "object"
     }
   },

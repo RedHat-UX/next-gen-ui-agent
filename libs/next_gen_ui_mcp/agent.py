@@ -7,9 +7,14 @@ from fastmcp.tools.tool import ToolResult
 from mcp import types
 from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
-from next_gen_ui_agent.data_transform.types import ComponentDataBaseWithTitle
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData, UIBlock
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    AgentInput,
+    InputData,
+    UIBlock,
+    UIBlockConfiguration,
+)
 from next_gen_ui_mcp.types import MCPGenerateUIOutput
 from pydantic import Field
 
@@ -96,18 +101,17 @@ class NextGenUIMCPServer:
         self._setup_mcp_tools()
         self.inference = inference
 
-    generate_ui_description = (
-        "Generate UI components from user prompt and input data. "
-        "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
-    )
-
     def _setup_mcp_tools(self) -> None:
         """Set up MCP tools for the agent."""
         logger.info("Registering tools")
 
         @self.mcp.tool(
             name="generate_ui_component",
-            description=self.generate_ui_description,
+            description=(
+                "Generate UI components for given user_prompt and data. "
+                "Always get fresh data from another tool first. "
+                "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+            ),
             enabled="generate_ui_component" in self.enabled_tools,
         )
         async def generate_ui_component(
@@ -152,8 +156,13 @@ class NextGenUIMCPServer:
 
         @self.mcp.tool(
             name="generate_ui_multiple_components",
-            description=self.generate_ui_description,
+            description=(
+                "Generate UI components for given user_prompt. "
+                "Always get fresh data from another tool first. "
+                "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+            ),
             enabled="generate_ui_multiple_components" in self.enabled_tools,
+            # exclude_args=["structured_data"],
         )
         async def generate_ui_multiple_components(
             ctx: Context,
@@ -169,11 +178,13 @@ class NextGenUIMCPServer:
                 Field(
                     description="Structured Input Data. Array of objects with 'id' and 'data' keys. NEVER generate this."
                 ),
-            ],
+            ] = None,
         ) -> ToolResult:
             if not structured_data or len(structured_data) == 0:
                 # TODO: Do analysis of input_data and check if data field contains data or not
-                raise ValueError("No data provided. No UI component generated.")
+                raise ValueError(
+                    "No data provided! Get data from another tool again and then call this tool again."
+                )
             return await self.generate_ui(
                 ctx=ctx, user_prompt=user_prompt, structured_data=structured_data
             )
@@ -267,30 +278,47 @@ class NextGenUIMCPServer:
                 "Components are rendered in UI.",
                 f"Count: {len(components_data)}",
             ]
-            for index, c in enumerate(components_data):
-                c_info = f"{index + 1}."
-                if isinstance(c, ComponentDataBaseWithTitle):
-                    c_info += f" Title: '{c.title}'"
-                human_output.append(f"{c_info} type: {c.component}")
-
-            human_output_str = "\n".join(human_output)
 
             blocks: list[UIBlock] = []
-            for r in renderings:
-                blocks.append(UIBlock(id=r.id, rendering=r))
+            for index, r in enumerate(renderings):
+                component_metadata = next(c for c in components if c.id == r.id)
+                component_metadata.json_data = None
+                component_metadata.reasonForTheComponentSelection = None
 
+                input_data = next(sd for sd in structured_data if sd["id"] == r.id)
+
+                block_config = UIBlockConfiguration(
+                    component_metadata=component_metadata,
+                    data_type=input_data.get("type"),
+                )
+
+                blocks.append(UIBlock(id=r.id, rendering=r, configuration=block_config))
+
+                c_info = f"{index + 1}. Title: '{component_metadata.title}', type: {component_metadata.component}"
+                human_output.append(c_info)
+
+            human_output_str = "\n".join(human_output)
             output = MCPGenerateUIOutput(blocks=blocks, summary=human_output_str)
 
             if self.structured_output_enabled:
                 return ToolResult(
                     content=[TextContent(text=human_output_str, type="text")],
                     structured_content=output.model_dump(
-                        exclude_unset=True, exclude_defaults=True
+                        exclude_unset=True, exclude_defaults=True, exclude_none=True
                     ),
                 )
             else:
                 return ToolResult(
-                    content=[TextContent(text=output.model_dump_json(), type="text")]
+                    content=[
+                        TextContent(
+                            text=output.model_dump_json(
+                                exclude_unset=True,
+                                exclude_defaults=True,
+                                exclude_none=True,
+                            ),
+                            type="text",
+                        )
+                    ]
                 )
 
         except Exception as e:
