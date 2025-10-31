@@ -30,6 +30,7 @@ from ai_eval_components.types import (
     DatasetRow,
     DatasetRowAgentEvalResult,
 )
+import httpx
 from langchain_openai import ChatOpenAI
 from next_gen_ui_agent import InputData
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
@@ -240,12 +241,19 @@ def init_openai_api_inference_from_env(
             f"Creating UI Agent with OpenAI API inference model={model} base_url={base_url} temperature={temperature}"
         )
 
+        # Create HTTP client with SSL verification controlled by environment variable
+        # Default: verify=True (secure), only False if SSL_VERIFY=false is set
+        http_client = httpx.AsyncClient(
+            verify=os.getenv("SSL_VERIFY", "true").lower() != "false"
+        )
+
         return LangChainModelInference(
             model=ChatOpenAI(
                 model=model,
                 base_url=base_url,
                 api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
                 temperature=float(temperature) if temperature else None,
+                http_async_client=http_client,
             )
         )
 

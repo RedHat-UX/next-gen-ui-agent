@@ -23,6 +23,7 @@ variables:
   INFERENCE_MODEL: "llama3.2:3b"
   PYTHONPATH: "tests:libs"
   DEBIAN_FRONTEND: "noninteractive"
+  SSL_VERIFY: "false"
 
 stages:
   - test
