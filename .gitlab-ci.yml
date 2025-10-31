@@ -51,18 +51,17 @@ complete_eval:
     - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/llama-stack-requirements.txt
     - python3.13 -m pip install --break-system-packages -c libs/3rdparty/python/llama-stack-client-constraints.txt -r libs/3rdparty/python/llama-stack-client-requirements.txt
     - mkdir -p ~/.llama/providers.d tests/ai_eval_components/errors tests/ai_eval_components/errors_k8s
+    - echo "=== DEBUG - Checking CI/CD Variables ==="
+    - echo "MODEL_API_URL is set to '${MODEL_API_URL}'"
+    - echo "INFERENCE_MODEL is set to '${INFERENCE_MODEL}'"
+    - echo "MODEL_API_KEY is set to '${MODEL_API_KEY:0:10}...'"
     - |
-      if [ -z "$MODEL_API_URL" ]; then
-        echo "=== Installing Ollama (no MODEL_API_URL detected) ==="
-        curl -fsSL https://ollama.com/install.sh | sh
-        echo "=== Starting Ollama ==="
-        ollama serve &
-        sleep 5
-        for i in {1..30}; do if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then echo "Ollama ready!" && break; fi; sleep 2; done
-        ollama pull ${INFERENCE_MODEL:-llama3.2:3b}
-      else
-        echo "=== Using external API at $MODEL_API_URL (skipping Ollama installation) ==="
+      if [ -z "$MODEL_API_URL" ] || [ -z "$INFERENCE_MODEL" ] || [ -z "$MODEL_API_KEY" ]; then
+        echo "ERROR: Required CI/CD variables not set!"
+        echo "Please set: MODEL_API_URL, INFERENCE_MODEL, MODEL_API_KEY"
+        exit 1
       fi
+    - echo "=== Using models.corp API at $MODEL_API_URL ==="
   script:
     - echo "=== Running Movies/Subscriptions Tests ==="
     - python3.13 -m ai_eval_components.eval
