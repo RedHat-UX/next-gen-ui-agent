@@ -19,31 +19,6 @@
       "title": "DataField",
       "type": "object"
     },
-    "Rendition": {
-      "description": "Rendition of the component - output of the UI rendering step.",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "component_system": {
-          "type": "string"
-        },
-        "mime_type": {
-          "type": "string"
-        },
-        "content": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "component_system",
-        "mime_type",
-        "content"
-      ],
-      "title": "Rendition",
-      "type": "object"
-    },
     "UIBlock": {
       "description": "UI Block model with all details",
       "properties": {
@@ -53,7 +28,7 @@
         "rendering": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Rendition"
+              "$ref": "#/$defs/UIBlockRendering"
             },
             {
               "type": "null"
@@ -79,37 +54,8 @@
       "title": "UIBlock",
       "type": "object"
     },
-    "UIBlockConfiguration": {
-      "description": "UI Block configuration",
-      "properties": {
-        "data_type": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "component_metadata": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/UIComponentMetadata"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        }
-      },
-      "title": "UIBlockConfiguration",
-      "type": "object"
-    },
-    "UIComponentMetadata": {
-      "description": "UI Component Metadata - output of the component selection and configuration step.",
+    "UIBlockComponentMetadata": {
+      "description": "UI Component Metadata - part shared between UIBlockConfiguration and UIComponentMetadata.",
       "properties": {
         "id": {
           "anyOf": [
@@ -125,28 +71,6 @@
         "title": {
           "type": "string"
         },
-        "reasonForTheComponentSelection": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "confidenceScore": {
-          "anyOf": [
-            {
-              "type": "string"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
         "component": {
           "type": "string"
         },
@@ -155,15 +79,6 @@
             "$ref": "#/$defs/DataField"
           },
           "type": "array"
-        },
-        "json_data": {
-          "anyOf": [
-            {},
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
         }
       },
       "required": [
@@ -171,7 +86,83 @@
         "component",
         "fields"
       ],
-      "title": "UIComponentMetadata",
+      "title": "UIBlockComponentMetadata",
+      "type": "object"
+    },
+    "UIBlockConfiguration": {
+      "description": "UI Block configuration",
+      "properties": {
+        "data_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "input_data_transformer_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "json_wrapping_field_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "component_metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIBlockComponentMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "UIBlockConfiguration",
+      "type": "object"
+    },
+    "UIBlockRendering": {
+      "description": "UI Block Rendering - output of the UI rendering step.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "component_system": {
+          "type": "string"
+        },
+        "mime_type": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "component_system",
+        "mime_type",
+        "content"
+      ],
+      "title": "UIBlockRendering",
       "type": "object"
     }
   },

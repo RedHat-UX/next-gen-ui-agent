@@ -10,7 +10,7 @@ from langgraph.types import Command
 from next_gen_ui_agent import AgentInput, InputData, NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.model import InferenceBase, LangChainModelInference
-from next_gen_ui_agent.types import AgentConfig, Rendition
+from next_gen_ui_agent.types import AgentConfig, UIBlockRendering
 from typing_extensions import TypedDict
 
 logger = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class AgentState(MessagesState):
     user_prompt: str
     components: list[UIComponentMetadata]
     components_data: list[ComponentDataBase]
-    renditions: list[Rendition]
+    renditions: list[UIBlockRendering]
 
 
 class AgentInputState(MessagesState):
@@ -33,7 +33,7 @@ class AgentInputState(MessagesState):
 class AgentOutputState(MessagesState):
     components: list[UIComponentMetadata]
     components_data: list[ComponentDataBase]
-    renditions: list[Rendition]
+    renditions: list[UIBlockRendering]
 
 
 # Graph Config Schema

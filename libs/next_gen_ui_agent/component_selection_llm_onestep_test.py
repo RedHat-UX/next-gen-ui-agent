@@ -60,7 +60,14 @@ response = """
 @pytest.mark.asyncio
 async def test_component_selection_run_OK() -> None:
     user_input = "Tell me brief details of Toy Story"
-    input_data = InputData({"id": "1", "data": movies_data, "type": "movie.detail"})
+    input_data = InputDataInternal(
+        {
+            "id": "1",
+            "data": movies_data,
+            "type": "movie.detail",
+            "input_data_transformer_name": "json",
+        }
+    )
 
     msg = {"type": "assistant", "content": response}
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
@@ -73,6 +80,8 @@ async def test_component_selection_run_OK() -> None:
         inference, user_input, input_data
     )
     assert result.component == "one-card"
+    assert result.json_wrapping_field_name is None
+    assert result.input_data_transformer_name == "json"
     # assert json_data are not wrapped as it is disabled
     assert result.json_data == json.loads(movies_data)
 
@@ -93,6 +102,8 @@ async def test_component_selection_run_json_wrapping_OK() -> None:
         inference, user_input, input_data
     )
     assert result.component == "one-card"
+    assert result.json_wrapping_field_name == "movie_detail"
+    assert result.input_data_transformer_name is None
     # assert json_data are wrapped as type is provided
     assert result.json_data == json.loads(
         '{ "movie_detail" :' + movies_data_TO_WRAP + "}"
@@ -113,6 +124,8 @@ async def test_component_selection_run_json_wrapping_no_OK() -> None:
         inference, user_input, input_data
     )
     assert result.component == "one-card"
+    assert result.json_wrapping_field_name is None
+    assert result.input_data_transformer_name is None
     # assert json_data are not wrapped as type is not provided
     assert result.json_data == json.loads(movies_data_TO_WRAP)
 
@@ -121,7 +134,12 @@ async def test_component_selection_run_json_wrapping_no_OK() -> None:
 async def test_component_selection_run_stringinput_notype_OK() -> None:
     user_input = "Tell me brief details of Toy Story"
     input_data = InputDataInternal(
-        {"id": "1", "data": "", "json_data": "large string data"}
+        {
+            "id": "1",
+            "data": "",
+            "json_data": "large string data",
+            "input_data_transformer_name": "json",
+        }
     )
 
     msg = {"type": "assistant", "content": response}
@@ -133,9 +151,14 @@ async def test_component_selection_run_stringinput_notype_OK() -> None:
         inference, user_input, input_data
     )
     assert result.component == "one-card"
+    assert result.json_wrapping_field_name == "data"
+    assert result.input_data_transformer_name == "json"
     # assert json_data are wrapped string from input data
-    assert result.json_data == wrap_string_as_json(
-        "large string data", None, MAX_STRING_DATA_LENGTH_FOR_LLM
+    assert (
+        result.json_data
+        == wrap_string_as_json(
+            "large string data", None, MAX_STRING_DATA_LENGTH_FOR_LLM
+        )[0]
     )
 
 
@@ -155,9 +178,14 @@ async def test_component_selection_run_stringinput_withype_OK() -> None:
         inference, user_input, input_data
     )
     assert result.component == "one-card"
+    assert result.json_wrapping_field_name == "test_type"
+    assert result.input_data_transformer_name is None
     # assert json_data are wrapped string from input data
-    assert result.json_data == wrap_string_as_json(
-        "large string data", "test_type", MAX_STRING_DATA_LENGTH_FOR_LLM
+    assert (
+        result.json_data
+        == wrap_string_as_json(
+            "large string data", "test_type", MAX_STRING_DATA_LENGTH_FOR_LLM
+        )[0]
     )
 
 
@@ -183,8 +211,12 @@ async def test_component_selection_run_INVALID_LLM_RESPONSE() -> None:
 
 @pytest.mark.asyncio
 async def test_component_selection() -> None:
-    input_data_1 = InputData({"id": "1", "data": movies_data})
-    input_data_2 = InputData({"id": "2", "data": movies_data})
+    input_data_1 = InputDataInternal(
+        {"id": "1", "data": movies_data, "input_data_transformer_name": "json"}
+    )
+    input_data_2 = InputDataInternal(
+        {"id": "2", "data": movies_data, "input_data_transformer_name": "yaml"}
+    )
 
     input = AgentInput(
         {
@@ -202,10 +234,15 @@ async def test_component_selection() -> None:
 
     assert len(result) == 2
     ids = []
+    input_data_transformer_names = []
     for r in result:
+        assert r.json_wrapping_field_name is None
+        input_data_transformer_names.append(r.input_data_transformer_name)
         ids.append(r.id)
     assert "1" in ids
     assert "2" in ids
+    assert "json" in input_data_transformer_names
+    assert "yaml" in input_data_transformer_names
 
 
 if __name__ == "__main__":

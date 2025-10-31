@@ -8,13 +8,7 @@ from mcp import types
 from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import (
-    AgentConfig,
-    AgentInput,
-    InputData,
-    UIBlock,
-    UIBlockConfiguration,
-)
+from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData, UIBlock
 from next_gen_ui_mcp.types import MCPGenerateUIOutput
 from pydantic import Field
 
@@ -282,14 +276,11 @@ class NextGenUIMCPServer:
             blocks: list[UIBlock] = []
             for index, r in enumerate(renderings):
                 component_metadata = next(c for c in components if c.id == r.id)
-                component_metadata.json_data = None
-                component_metadata.reasonForTheComponentSelection = None
-
                 input_data = next(sd for sd in structured_data if sd["id"] == r.id)
 
-                block_config = UIBlockConfiguration(
+                block_config = ngui_agent.construct_UIBlockConfiguration(
+                    input_data=input_data,
                     component_metadata=component_metadata,
-                    data_type=input_data.get("type"),
                 )
 
                 blocks.append(UIBlock(id=r.id, rendering=r, configuration=block_config))

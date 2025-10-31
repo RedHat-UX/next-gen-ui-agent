@@ -15,6 +15,7 @@ from next_gen_ui_agent.input_data_transform.input_data_transform import (
     init_input_data_transformers,
     input_data_transformer_extension_manager,
     perform_input_data_transformation,
+    perform_input_data_transformation_with_transformer_name,
 )
 from next_gen_ui_agent.input_data_transform.json_input_data_transformer import (
     JsonInputDataTransformer,
@@ -286,11 +287,12 @@ class TestPerformInputDataTransformation:
         input_data = InputData(
             id="1", data='{"name": "John", "age": 30, "city": "New York"}'
         )
-        result = perform_input_data_transformation(input_data)
+        result, transformer_name = perform_input_data_transformation(input_data)
 
         expected = {"name": "John", "age": 30, "city": "New York"}
         assert result == expected
         assert isinstance(result, dict)
+        assert transformer_name == "json"
 
     def test_perform_input_data_transformation_CONFIGURED_DEFAULT(self) -> None:
         """Test performing YAML input data transformation."""
@@ -306,11 +308,12 @@ age: 30
 city: New York
 """,
         )
-        result = perform_input_data_transformation(input_data)
+        result, transformer_name = perform_input_data_transformation(input_data)
 
         expected = {"name": "John", "age": 30, "city": "New York"}
         assert result == expected
         assert isinstance(result, dict)
+        assert transformer_name == "yaml"
 
     def test_perform_input_data_transformation_CONFIGURED_PER_TYPE(self) -> None:
         """Test performing YAML input data transformation."""
@@ -332,11 +335,56 @@ age: 30
 city: New York
 """,
         )
-        result = perform_input_data_transformation(input_data)
+        result, transformer_name = perform_input_data_transformation(input_data)
 
         expected = {"name": "John", "age": 30, "city": "New York"}
         assert result == expected
         assert isinstance(result, dict)
+        assert transformer_name == "yaml"
+
+
+class TestPerformInputDataTransformationWithTransformerName:
+    """Test cases for input_data_transform module."""
+
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        init_input_data_transformers(AgentConfig())
+
+    def test_perform_input_data_transformation_with_transformer_name(self) -> None:
+        """Test performing YAML input data transformation with transformer name."""
+
+        input_data = InputData(
+            id="1",
+            type="yaml_data",
+            data="""
+name: John
+age: 30
+city: New York
+""",
+        )
+        result = perform_input_data_transformation_with_transformer_name(
+            input_data, "yaml"
+        )
+
+        expected = {"name": "John", "age": 30, "city": "New York"}
+        assert result == expected
+        assert isinstance(result, dict)
+
+    def test_perform_input_data_transformation_with_transformer_name_invalid_transformer_name(
+        self,
+    ) -> None:
+        """Test performing YAML input data transformation with invalid transformer name."""
+
+        input_data = InputData(
+            id="1",
+            data="",
+        )
+        with pytest.raises(
+            KeyError, match="No input data transformer found for name: invalid"
+        ):
+            perform_input_data_transformation_with_transformer_name(
+                input_data, "invalid"
+            )
 
 
 class TestConstantsAndGlobals:
