@@ -17,6 +17,8 @@ from next_gen_ui_agent.types import (
     AgentInput,
     DataField,
     InputData,
+    UIBlockComponentMetadata,
+    UIBlockConfiguration,
     UIComponentMetadata,
     UIComponentMetadataHandBuildComponent,
 )
@@ -478,6 +480,92 @@ class TestComponentSelectionWrapping:
         assert r.component == "one-card"
         assert r.json_data is not None
         assert r.json_data == {"my_type": [{"title": "Toy Story"}]}
+
+
+class TestRefreshComponent:
+    """Test suite for refresh_component method."""
+
+    @pytest.mark.asyncio
+    async def test_refresh_component_missing_input_data_transformer_name(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="1", data='[{"title": "Toy Story"}]', type="my_type")
+        block_configuration = UIBlockConfiguration(
+            component_metadata=UIComponentMetadata(
+                component="one-card",
+                id="1",
+                title="Toy Story",
+                fields=[DataField(name="Title", data_path="movie.title")],
+            ),
+            json_wrapping_field_name="my_type",
+        )
+        with pytest.raises(
+            KeyError,
+            match="Input data transformer name missing in the block configuration",
+        ):
+            await agent.refresh_component(input_data, block_configuration)
+
+    @pytest.mark.asyncio
+    async def test_refresh_component_missing_component_metadata(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="1", data='[{"title": "Toy Story"}]', type="my_type")
+        block_configuration = UIBlockConfiguration(
+            input_data_transformer_name="json", json_wrapping_field_name="my_type"
+        )
+        with pytest.raises(
+            KeyError, match="Component metadata missing in the block configuration"
+        ):
+            await agent.refresh_component(input_data, block_configuration)
+
+    @pytest.mark.asyncio
+    async def test_refresh_component_OK_without_wrapping(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="1", data='[{"title": "Toy Story"}]', type="my_type")
+        block_configuration = UIBlockConfiguration(
+            component_metadata=UIBlockComponentMetadata(
+                component="one-card",
+                id="1",
+                title="Toy Story",
+                fields=[DataField(name="Title", data_path="$..title")],
+            ),
+            input_data_transformer_name="json",
+        )
+        result = await agent.refresh_component(input_data, block_configuration)
+        assert result.component == "one-card"
+        assert result.id == "1"
+        assert result.title == "Toy Story"
+        assert result.fields is not None
+        assert len(result.fields) == 1
+        assert result.fields[0].data_path == "$..title"
+        assert result.fields[0].name == "Title"
+        assert result.json_data == [{"title": "Toy Story"}]
+        assert result.input_data_transformer_name == "json"
+        assert result.json_wrapping_field_name is None
+
+    @pytest.mark.asyncio
+    async def test_refresh_component_OK_with_wrapping(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="1", data='[{"title": "Toy Story"}]', type="my_type")
+        block_configuration = UIBlockConfiguration(
+            component_metadata=UIBlockComponentMetadata(
+                component="one-card",
+                id="1",
+                title="Toy Story",
+                fields=[DataField(name="Title", data_path="$..my_type.title")],
+            ),
+            input_data_transformer_name="json",
+            json_wrapping_field_name="my_type",
+        )
+        result = await agent.refresh_component(input_data, block_configuration)
+        assert result.component == "one-card"
+        assert result.id == "1"
+        assert result.title == "Toy Story"
+        assert result.fields is not None
+        assert len(result.fields) == 1
+        assert result.fields[0].data_path == "$..my_type.title"
+        assert result.fields[0].name == "Title"
+        assert result.json_data == {"my_type": [{"title": "Toy Story"}]}
+        assert result.input_data_transformer_name == "json"
+        assert result.json_wrapping_field_name == "my_type"
 
 
 class TestConstructUIBlockConfiguration:

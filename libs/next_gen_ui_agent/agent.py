@@ -25,7 +25,9 @@ from next_gen_ui_agent.design_system_handler import (
 from next_gen_ui_agent.input_data_transform.input_data_transform import (
     init_input_data_transformers,
     perform_input_data_transformation,
+    perform_input_data_transformation_with_transformer_name,
 )
+from next_gen_ui_agent.json_data_wrapper import wrap_data
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
 from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
@@ -118,7 +120,7 @@ class NextGenUIAgent:
     async def component_selection(
         self, input: AgentInput, inference: Optional[InferenceBase] = None
     ) -> list[UIComponentMetadata]:
-        """STEP 1: Select component and generate its configuration metadata."""
+        """STEP 2: Select component and generate its configuration metadata."""
 
         # select per type configured components, for rest run LLM powered component selection, then join results together
         ret: list[UIComponentMetadata] = []
@@ -161,10 +163,36 @@ class NextGenUIAgent:
 
         return ret
 
+    async def refresh_component(
+        self, input_data: InputData, block_configuration: UIBlockConfiguration
+    ) -> UIComponentMetadata:
+        """STEP 2a: Refresh component configuration metadata for new `input_data` using previous `block_configuration`."""
+
+        if not block_configuration.input_data_transformer_name:
+            raise KeyError(
+                "Input data transformer name missing in the block configuration"
+            )
+
+        if not block_configuration.component_metadata:
+            raise KeyError("Component metadata missing in the block configuration")
+
+        json_data = perform_input_data_transformation_with_transformer_name(
+            input_data, block_configuration.input_data_transformer_name
+        )
+
+        json_data = wrap_data(json_data, block_configuration.json_wrapping_field_name)
+
+        return UIComponentMetadata(
+            **block_configuration.component_metadata.model_dump(),
+            json_data=json_data,
+            input_data_transformer_name=block_configuration.input_data_transformer_name,
+            json_wrapping_field_name=block_configuration.json_wrapping_field_name,
+        )
+
     def data_transformation(
         self, input_data: list[InputData], components: list[UIComponentMetadata]
     ) -> list[ComponentDataBase]:
-        """STEP 2: Transform generated metadata into component metadata including data values taken from InputData JSON."""
+        """STEP 3: Transform generated component configuration metadata into component data. Mainly pick up showed data values from `input_data`."""
         return enhance_component_by_input_data(
             input_data=input_data, components=components
         )
@@ -174,7 +202,7 @@ class NextGenUIAgent:
         components: list[ComponentDataBase],
         component_system: Optional[str] = None,
     ) -> list[UIBlockRendering]:
-        """STEP 3: Render the component with the chosen component system,
+        """STEP 4: Render the component with the chosen component system,
         either via AgentConfig or parameter provided to this method."""
 
         component_system = (
@@ -199,7 +227,12 @@ class NextGenUIAgent:
     def construct_UIBlockConfiguration(
         self, input_data: InputData, component_metadata: UIComponentMetadata
     ) -> UIBlockConfiguration:
-        """Construct UIBlockConfiguration from component metadata and input data."""
+        """
+        Construct `UIBlockConfiguration` for component_metadata and input_data,
+        so #refresh_component() can be used later to refresh the component configuration for new input_data.
+
+        It should be returned from AI framework/protocol binding so *Controlling Assistant* can send it back later when it needs to refresh component for the new data.
+        """
 
         # put sanitized data paths to the UIBlockConfiguration
         if component_metadata.fields:

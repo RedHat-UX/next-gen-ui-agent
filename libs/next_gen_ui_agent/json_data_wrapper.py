@@ -58,3 +58,12 @@ def wrap_string_as_json(
     if max_length and len(data) > max_length:
         data = data[:max_length] + "..."
     return {field_name: data}, field_name
+
+
+def wrap_data(data: Any, wrapping_field_name: str | None) -> Any:
+    """
+    Wrap data into a dictionary with a single field if `wrapping_field_name` is provided.
+    """
+    if wrapping_field_name:
+        return {wrapping_field_name: data}
+    return data
