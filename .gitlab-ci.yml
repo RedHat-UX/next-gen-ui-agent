@@ -2,132 +2,68 @@
 # This mirrors the GitHub Actions workflow but runs on GitLab
 # Uses Ollama for testing (same as GitHub Actions)
 
-# Default settings for all jobs
 default:
   tags:
-    - shared-podman # GitLab runner tag
+    - shared-podman
 
-# Workflow triggers - when pipeline runs
 workflow:
   rules:
-    # Run on manual triggers via UI
     - if: $CI_PIPELINE_SOURCE == "web"
       when: always
-
-    # Run on scheduled pipelines (configure in GitLab UI: CI/CD > Schedules)
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
-
-    # Run on pushes to test_ai_eval branch (for testing)
     - if: $CI_COMMIT_BRANCH == "test_ai_eval"
       when: always
-
-    # Run on pushes to main branch (after merge)
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: always
-
-    # Don't run for other cases
     - when: never
 
-# Variables used throughout the pipeline
 variables:
   PYTHON_VERSION: "3.13"
   INFERENCE_MODEL: "llama3.2:3b"
   PYTHONPATH: "tests:libs"
   DEBIAN_FRONTEND: "noninteractive"
 
-# Define pipeline stages
 stages:
   - test
-  - report
 
-# Main evaluation job - runs both Movies and K8s tests
 complete_eval:
   stage: test
   image: ubuntu:latest
-
   tags:
     - shared-podman
-
-  # 20 hours timeout (same as GitHub Actions)
   timeout: 20 hours
-
-  # Main pipeline script
-  script:
+  before_script:
     - echo "=== Setting up environment ==="
     - apt-get update
     - apt-get install -y software-properties-common curl
-
-    # Install Python 3.13
     - echo "=== Installing Python 3.13 ==="
     - add-apt-repository -y ppa:deadsnakes/ppa
     - apt-get update
     - apt-get install -y python3.13 python3.13-venv python3.13-dev python3-pip
     - python3.13 --version
-    - python3.13 -m pip --version
-
-    # Install Python dependencies
     - echo "=== Installing Python dependencies ==="
     - python3.13 -m pip install --upgrade pip
     - python3.13 -m pip install -r libs/3rdparty/python/agent-core-requirements.txt
     - python3.13 -m pip install -r libs/3rdparty/python/langchain-requirements.txt
     - python3.13 -m pip install -r libs/3rdparty/python/llama-stack-requirements.txt
     - python3.13 -m pip install -c libs/3rdparty/python/llama-stack-client-constraints.txt -r libs/3rdparty/python/llama-stack-client-requirements.txt
-
-    # Install Ollama
     - echo "=== Installing Ollama ==="
     - curl -fsSL https://ollama.com/install.sh | sh
-
-    # Start Ollama in background
-    - echo "=== Starting Ollama service ==="
+    - echo "=== Starting Ollama ==="
     - ollama serve &
-    - OLLAMA_PID=$!
-    - echo "Ollama started with PID $OLLAMA_PID"
-
-    # Wait for Ollama to be ready
-    - echo "=== Waiting for Ollama to be ready ==="
-    - |
-      for i in {1..30}; do
-        if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then
-          echo "Ollama is ready!"
-          break
-        fi
-        echo "Waiting for Ollama to start... ($i/30)"
-        sleep 2
-      done
-
-    # Pull the model
-    - echo "=== Pulling model: $INFERENCE_MODEL ==="
+    - sleep 5
+    - for i in {1..30}; do if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then echo "Ollama ready!" && break; fi; sleep 2; done
     - ollama pull $INFERENCE_MODEL
-    - ollama list
-
-    # Create required directories
-    - echo "=== Creating required directories ==="
-    - mkdir -p ~/.llama/providers.d
-    - mkdir -p tests/ai_eval_components/errors
-    - mkdir -p tests/ai_eval_components/errors_k8s
-
-    # Run Movies/Subscriptions evaluation
-    - echo "=== Running Movies/Subscriptions Evaluation Tests ==="
+    - mkdir -p ~/.llama/providers.d tests/ai_eval_components/errors tests/ai_eval_components/errors_k8s
+  script:
+    - echo "=== Running Movies/Subscriptions Tests ==="
     - python3.13 -m ai_eval_components.eval
-
-    # Run K8s evaluation
-    - echo "=== Running Kubernetes Evaluation Tests ==="
+    - echo "=== Running Kubernetes Tests ==="
     - python3.13 -m ai_eval_components.eval_k8s
-
-    # Generate combined HTML report
-    - echo "=== Generating Combined HTML Report ==="
-    - |
-      python3.13 -m ai_eval_components.generate_report \
-        --datasets dataset,dataset_k8s \
-        --labels "Movies/Subscriptions,Kubernetes" \
-        --error-dirs errors,errors_k8s \
-        --title "GitLab CI Evaluation Report (Ollama - $INFERENCE_MODEL)" \
-        --output tests/ai_eval_components/gitlab_eval_report.html
-
-    - echo "=== Pipeline completed successfully! ==="
-
-  # Save artifacts (reports and errors)
+    - echo "=== Generating Report ==="
+    - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --title "GitLab CI Evaluation Report" --output tests/ai_eval_components/gitlab_eval_report.html
+    - echo "=== Completed ==="
   artifacts:
     when: always
     paths:
@@ -137,54 +73,3 @@ complete_eval:
       - tests/ai_eval_components/perf_stats.json
       - tests/ai_eval_components/perf_stats_k8s.json
     expire_in: 30 days
-
-  # Allow download of artifacts
-  allow_failure: false
-
-# Optional: Add a quick validation job that runs first
-validate_setup:
-  stage: .pre
-  image: ubuntu:latest
-
-  tags:
-    - shared-podman
-
-  script:
-    - echo "=== Validating repository structure ==="
-    - test -f libs/3rdparty/python/agent-core-requirements.txt || (echo "Missing agent-core-requirements.txt" && exit 1)
-    - test -f libs/3rdparty/python/langchain-requirements.txt || (echo "Missing langchain-requirements.txt" && exit 1)
-    - test -d tests/ai_eval_components || (echo "Missing tests/ai_eval_components directory" && exit 1)
-    - echo "✅ Repository structure validated"
-  allow_failure: false
-  when: always
-# ==================== USAGE INSTRUCTIONS ====================
-#
-# 1. COMMIT AND PUSH:
-#    git add .gitlab-ci.yml
-#    git commit -m "Add GitLab CI pipeline with Ollama"
-#    git push origin test_ai_eval
-#    (GitLab will auto-mirror from GitHub)
-#
-# 2. RUN PIPELINE:
-#    - Go to GitLab: CI/CD > Pipelines > Run pipeline
-#    - Select branch: test_ai_eval
-#    - Click "Run pipeline"
-#
-# 3. VIEW RESULTS:
-#    - Watch pipeline progress in GitLab UI
-#    - After completion: Browse artifacts
-#    - Download gitlab_eval_report.html
-#
-# 4. SCHEDULE (Optional):
-#    - Go to: CI/CD > Schedules > New schedule
-#    - Cron: 0 2 * * 2 (Every Tuesday at 2 AM UTC)
-#    - Branch: main or test_ai_eval
-#
-# 5. SWITCH TO EXTERNAL MODEL API (Later):
-#    If you want to use external model APIs instead of Ollama:
-#    - Add CI/CD variables in GitLab UI (Settings > CI/CD > Variables)
-#    - Configure MODEL_API_URL, MODEL_API_KEY, MODEL_API_MODEL
-#    - Modify script to use API instead of Ollama
-#
-# ==================== END USAGE INSTRUCTIONS ====================
-
