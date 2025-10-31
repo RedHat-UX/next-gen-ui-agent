@@ -24,7 +24,7 @@ workflow:
 
     # Run on pushes to main branch (after merge)
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: on_success
+      when: always
 
     # Don't run for other cases
     - when: never
