@@ -43,11 +43,10 @@ complete_eval:
     - apt-get install -y python3.13 python3.13-venv python3.13-dev python3-pip
     - python3.13 --version
     - echo "=== Installing Python dependencies ==="
-    - python3.13 -m pip install --upgrade pip
-    - python3.13 -m pip install -r libs/3rdparty/python/agent-core-requirements.txt
-    - python3.13 -m pip install -r libs/3rdparty/python/langchain-requirements.txt
-    - python3.13 -m pip install -r libs/3rdparty/python/llama-stack-requirements.txt
-    - python3.13 -m pip install -c libs/3rdparty/python/llama-stack-client-constraints.txt -r libs/3rdparty/python/llama-stack-client-requirements.txt
+    - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/agent-core-requirements.txt
+    - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/langchain-requirements.txt
+    - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/llama-stack-requirements.txt
+    - python3.13 -m pip install --break-system-packages -c libs/3rdparty/python/llama-stack-client-constraints.txt -r libs/3rdparty/python/llama-stack-client-requirements.txt
     - echo "=== Installing Ollama ==="
     - curl -fsSL https://ollama.com/install.sh | sh
     - echo "=== Starting Ollama ==="
