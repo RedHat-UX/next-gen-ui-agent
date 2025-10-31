@@ -10,7 +10,7 @@ from next_gen_ui_agent.types import (
     AgentConfig,
     AgentConfigComponent,
     AgentConfigDataType,
-    Rendition,
+    UIBlockRendering,
     UIComponentMetadata,
     UIComponentMetadataHandBuildComponent,
 )
@@ -112,7 +112,7 @@ async def test_agent_turn_from_steps() -> None:
             assert payload_cm.component == "one-card"
         if ng_event["event_type"] == "rendering":
             logger.info("Result: %s", ng_event["payload"])
-            payload_re: Rendition = ng_event["payload"][0]
+            payload_re: UIBlockRendering = ng_event["payload"][0]
             rendering = json.loads(str(payload_re.content))
             assert rendering["title"] == "Toy Story"
 

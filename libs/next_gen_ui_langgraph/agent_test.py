@@ -14,7 +14,7 @@ from next_gen_ui_agent.types import (
     AgentConfigComponent,
     AgentConfigDataType,
     InputData,
-    Rendition,
+    UIBlockRendering,
     UIComponentMetadataHandBuildComponent,
 )
 from next_gen_ui_langgraph.agent import GraphConfig, NextGenUILangGraphAgent
@@ -92,7 +92,7 @@ async def test_agent_MESSAGESIN_WITH_COMPONENT_SYSTEM() -> None:
     # renditions for configured component system are present
     renditions = result["renditions"]
     assert len(renditions) == 1
-    r: Rendition = renditions[0]
+    r: UIBlockRendering = renditions[0]
     assert r.id != ""
     assert r.content == c_data.model_dump_json()
 
@@ -202,7 +202,7 @@ async def test_agent_STATEIN_WITH_COMPONENT_SYSTEM() -> None:
     # renditions for configured component system are present
     renditions = result["renditions"]
     assert len(renditions) == 1
-    r: Rendition = renditions[0]
+    r: UIBlockRendering = renditions[0]
     assert r.id != ""
     assert r.content == c_data.model_dump_json()
 

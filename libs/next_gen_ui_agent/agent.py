@@ -34,8 +34,8 @@ from next_gen_ui_agent.types import (
     AgentInput,
     InputData,
     InputDataInternal,
-    Rendition,
     UIBlockConfiguration,
+    UIBlockRendering,
     UIComponentMetadata,
 )
 from stevedore import ExtensionManager
@@ -173,7 +173,7 @@ class NextGenUIAgent:
         self,
         components: list[ComponentDataBase],
         component_system: Optional[str] = None,
-    ) -> list[Rendition]:
+    ) -> list[UIBlockRendering]:
         """STEP 3: Render the component with the chosen component system,
         either via AgentConfig or parameter provided to this method."""
 

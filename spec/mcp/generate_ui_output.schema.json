@@ -19,31 +19,6 @@
       "title": "DataField",
       "type": "object"
     },
-    "Rendition": {
-      "description": "Rendition of the component - output of the UI rendering step.",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "component_system": {
-          "type": "string"
-        },
-        "mime_type": {
-          "type": "string"
-        },
-        "content": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "id",
-        "component_system",
-        "mime_type",
-        "content"
-      ],
-      "title": "Rendition",
-      "type": "object"
-    },
     "UIBlock": {
       "description": "UI Block model with all details",
       "properties": {
@@ -53,7 +28,7 @@
         "rendering": {
           "anyOf": [
             {
-              "$ref": "#/$defs/Rendition"
+              "$ref": "#/$defs/UIBlockRendering"
             },
             {
               "type": "null"
@@ -163,6 +138,31 @@
         }
       },
       "title": "UIBlockConfiguration",
+      "type": "object"
+    },
+    "UIBlockRendering": {
+      "description": "UI Block Rendering - output of the UI rendering step.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "component_system": {
+          "type": "string"
+        },
+        "mime_type": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "component_system",
+        "mime_type",
+        "content"
+      ],
+      "title": "UIBlockRendering",
       "type": "object"
     }
   },

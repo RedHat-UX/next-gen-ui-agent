@@ -2,7 +2,7 @@ import logging
 
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.renderer.base_renderer import RendererContext, StrategyFactory
-from next_gen_ui_agent.types import Rendition
+from next_gen_ui_agent.types import UIBlockRendering
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 def design_system_handler(
     components: list[ComponentDataBase],
     factory: StrategyFactory,
-) -> list[Rendition]:
+) -> list[UIBlockRendering]:
     outputs = []
     for component in components:
         logger.debug(
@@ -31,7 +31,7 @@ def design_system_handler(
 
         logger.info("%s=%s", component.id, output)
         outputs.append(
-            Rendition(
+            UIBlockRendering(
                 id=component.id,
                 content=output,
                 component_system=factory.get_component_system_name(),

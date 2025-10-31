@@ -223,8 +223,8 @@ class UIComponentMetadataHandBuildComponent(UIComponentMetadata):
     """Type of the hand-build component."""
 
 
-class Rendition(BaseModel):
-    """Rendition of the component - output of the UI rendering step."""
+class UIBlockRendering(BaseModel):
+    """UI Block Rendering - output of the UI rendering step."""
 
     id: str
     component_system: str
@@ -249,7 +249,7 @@ class UIBlock(BaseModel):
     """UI Block model with all details"""
 
     id: str
-    rendering: Optional[Rendition] = None
+    rendering: Optional[UIBlockRendering] = None
     "Rendering of UI block"
     configuration: Optional[UIBlockConfiguration] = None
     "Configuration of the block"
