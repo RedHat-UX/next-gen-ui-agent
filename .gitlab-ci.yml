@@ -20,7 +20,9 @@ workflow:
 
 variables:
   PYTHON_VERSION: "3.13"
-  INFERENCE_MODEL: "llama3.2:3b"
+  # INFERENCE_MODEL: Set this in GitLab CI/CD Variables
+  # For Ollama (default): "llama3.2:3b"
+  # For models.corp: "RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic"
   PYTHONPATH: "tests:libs"
   DEBIAN_FRONTEND: "noninteractive"
   SSL_VERIFY: "false"
@@ -48,14 +50,19 @@ complete_eval:
     - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/langchain-requirements.txt
     - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/llama-stack-requirements.txt
     - python3.13 -m pip install --break-system-packages -c libs/3rdparty/python/llama-stack-client-constraints.txt -r libs/3rdparty/python/llama-stack-client-requirements.txt
-    - echo "=== Installing Ollama ==="
-    - curl -fsSL https://ollama.com/install.sh | sh
-    - echo "=== Starting Ollama ==="
-    - ollama serve &
-    - sleep 5
-    - for i in {1..30}; do if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then echo "Ollama ready!" && break; fi; sleep 2; done
-    - ollama pull $INFERENCE_MODEL
     - mkdir -p ~/.llama/providers.d tests/ai_eval_components/errors tests/ai_eval_components/errors_k8s
+    - |
+      if [ -z "$MODEL_API_URL" ]; then
+        echo "=== Installing Ollama (no MODEL_API_URL detected) ==="
+        curl -fsSL https://ollama.com/install.sh | sh
+        echo "=== Starting Ollama ==="
+        ollama serve &
+        sleep 5
+        for i in {1..30}; do if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then echo "Ollama ready!" && break; fi; sleep 2; done
+        ollama pull ${INFERENCE_MODEL:-llama3.2:3b}
+      else
+        echo "=== Using external API at $MODEL_API_URL (skipping Ollama installation) ==="
+      fi
   script:
     - echo "=== Running Movies/Subscriptions Tests ==="
     - python3.13 -m ai_eval_components.eval
