@@ -18,7 +18,10 @@ from next_gen_ui_agent.component_selection_pertype import (
 )
 from next_gen_ui_agent.data_transform.data_transformer_utils import sanitize_data_path
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
-from next_gen_ui_agent.data_transformation import enhance_component_by_input_data
+from next_gen_ui_agent.data_transformation import (
+    enhance_component_by_input_data,
+    generate_component_data,
+)
 from next_gen_ui_agent.design_system_handler import (
     design_system_handler as _design_system_handler,
 )
@@ -41,6 +44,7 @@ from next_gen_ui_agent.types import (
     UIComponentMetadata,
 )
 from stevedore import ExtensionManager
+from typing_extensions import deprecated
 
 logger = logging.getLogger(__name__)
 
@@ -189,6 +193,13 @@ class NextGenUIAgent:
             json_wrapping_field_name=block_configuration.json_wrapping_field_name,
         )
 
+    def transform_data(
+        self, input_data: InputData, component: UIComponentMetadata
+    ) -> ComponentDataBase:
+        """STEP 3: Transform generated component configuration metadata into component data. Mainly pick up showed data values from `input_data`."""
+        return generate_component_data(input_data, component)
+
+    @deprecated("Use transform_data instead")
     def data_transformation(
         self, input_data: list[InputData], components: list[UIComponentMetadata]
     ) -> list[ComponentDataBase]:
