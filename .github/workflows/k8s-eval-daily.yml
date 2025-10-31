@@ -1,11 +1,6 @@
 name: Complete Evaluation Tests (Movies + K8s)
 
 on:
-  # TEMPORARY: Run on push to test_ai_eval (REMOVE before merging to main!)
-  push:
-    branches:
-      - "test_ai_eval"
-
   # Run every Tuesday at 2 AM UTC (ONLY runs on default branch 'main' after merge)
   schedule:
     - cron: "0 2 * * 2"
