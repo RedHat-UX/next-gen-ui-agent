@@ -66,7 +66,7 @@ def save_perf_stats_to_file(output_file: str):
     """Save performance stats to JSON file for report generation"""
     stats_data = {
         "overall": get_perf_stat_all(),
-        "by_component": get_perf_stat_for_components()
+        "by_component": get_perf_stat_for_components(),
     }
     with open(output_file, "w") as f:
         json.dump(stats_data, f, indent=2)

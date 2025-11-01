@@ -178,4 +178,3 @@ if __name__ == "__main__":
                 dataset.append(dataset_row)
 
             write_dataset_file(dataset_dir_path, component_name, 0, dataset)
-
