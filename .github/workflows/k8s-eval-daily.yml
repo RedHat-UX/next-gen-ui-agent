@@ -1,22 +1,13 @@
 name: Complete Evaluation Tests (Movies + K8s)
 
 on:
-  # TEMPORARY: Run on push to test_ai_eval (REMOVE before merging to main!)
-  push:
-    branches:
-      - "test_ai_eval"
-
-  # Run every Tuesday at 2 AM UTC (ONLY runs on default branch 'main' after merge)
-  schedule:
-    - cron: "0 2 * * 2"
-
   # Allow manual trigger (run on-demand when needed - works on any branch!)
   workflow_dispatch:
 
 jobs:
   complete-eval:
     name: Run Complete Evaluation Tests (Movies + K8s)
-    runs-on: ubuntu-latest
+    runs-on: macos-13 # 4 Intel cores, 14GB RAM - better LLM performance with Metal acceleration
     timeout-minutes: 1200 # 20 hours - prevent GitHub's 6-hour auto-cancel
 
     steps:
@@ -43,7 +34,8 @@ jobs:
 
       - name: Install Ollama (for LLM)
         run: |
-          curl -fsSL https://ollama.com/install.sh | sh
+          # Install Ollama on macOS using Homebrew
+          brew install ollama
           # Start Ollama in background
           ollama serve &
           # Wait for Ollama to be ready
