@@ -4,11 +4,16 @@ on:
   # Allow manual trigger (run on-demand when needed - works on any branch!)
   workflow_dispatch:
 
+  # Run on push to github-actions-test-eval branch (for testing)
+  push:
+    branches:
+      - github-actions-test-eval
+
 jobs:
   complete-eval:
     name: Run Complete Evaluation Tests (Movies + K8s)
-    runs-on: macos-13 # 4 Intel cores, 14GB RAM - better LLM performance with Metal acceleration
-    timeout-minutes: 1200 # 20 hours - prevent GitHub's 6-hour auto-cancel
+    runs-on: macos-latest
+    timeout-minutes: 1200
 
     steps:
       - name: Checkout code
@@ -73,6 +78,7 @@ jobs:
             --labels "Movies/Subscriptions,Kubernetes" \
             --error-dirs errors,errors_k8s \
             --title "Complete Evaluation Report" \
+            --model "llama3.2:3b (Ollama on macOS-latest M1)" \
             --output tests/ai_eval_components/complete_eval_report.html
 
       - name: Upload evaluation report
