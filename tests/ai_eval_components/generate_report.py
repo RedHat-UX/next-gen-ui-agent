@@ -201,7 +201,7 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None):
     return results
 
 
-def generate_html_report(results, title="Evaluation Report"):
+def generate_html_report(results, title="Evaluation Report", model=None):
     """Generate HTML report from results."""
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -403,7 +403,7 @@ def generate_html_report(results, title="Evaluation Report"):
 <body>
     <div class="container">
         <h1>🚀 {title}</h1>
-        <div class="timestamp">Generated: {timestamp}</div>
+        <div class="timestamp">Generated: {timestamp}{' | Model: ' + model if model else ''}</div>
 
         <div class="component-stats" style="margin-bottom: 20px;">
             <h2>📋 Test Execution Summary</h2>
@@ -690,6 +690,11 @@ Examples:
         default="tests/ai_eval_components/eval_report.html",
         help="Output HTML file path (default: tests/ai_eval_components/eval_report.html)",
     )
+    parser.add_argument(
+        "--model",
+        default=None,
+        help="Model name to display in report (e.g., 'llama3.2:3b (Ollama)')",
+    )
 
     args = parser.parse_args()
 
@@ -727,7 +732,7 @@ Examples:
             )
 
     print("\nGenerating HTML report...")
-    html = generate_html_report(results, title=args.title)
+    html = generate_html_report(results, title=args.title, model=args.model)
 
     output_path = Path(args.output)
     output_path.write_text(html)
