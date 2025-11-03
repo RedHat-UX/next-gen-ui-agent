@@ -14,7 +14,6 @@ from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
 from next_gen_ui_agent.types import InputData, UIComponentMetadata
-from typing_extensions import deprecated
 
 logger = logging.getLogger(__name__)
 
@@ -48,19 +47,3 @@ def generate_component_data(
         component.component
     )
     return data_transformer.process(component, input_data)
-
-
-@deprecated("Use generate_component_data instead")
-def enhance_component_by_input_data(
-    input_data: list[InputData], components: list[UIComponentMetadata]
-) -> list[ComponentDataBase]:
-    """Enhance component fields by values to be shown, taken from the data."""
-    ret: list[ComponentDataBase] = []
-
-    for component in components:
-        for data in input_data:
-            if data["id"] != component.id:
-                continue
-            ret.append(generate_component_data(data, component))
-
-    return ret

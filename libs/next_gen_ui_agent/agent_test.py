@@ -1,4 +1,5 @@
 import os
+from typing import cast
 from unittest.mock import patch
 
 import pytest
@@ -10,6 +11,10 @@ from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
 )
 from next_gen_ui_agent.data_transform.data_transformer_utils import sanitize_data_path
+from next_gen_ui_agent.data_transform.types import (
+    ComponentDataBase,
+    ComponentDataOneCard,
+)
 from next_gen_ui_agent.types import (
     AgentConfig,
     AgentConfigComponent,
@@ -27,44 +32,32 @@ from next_gen_ui_testing.model import MockedInference
 from pydantic_core import ValidationError, from_json
 
 
-def test_config_yaml_str() -> None:
-    config_yaml = "component_system: json\ninput_data_json_wrapping: false"
-    agent = NextGenUIAgent(config=config_yaml)
-    assert agent.config.component_system == "json"
-    assert agent._component_selection_strategy.input_data_json_wrapping is False
+class TestAgentConfiguration:
+    def test_config_yaml_str(self) -> None:
+        config_yaml = "component_system: json\ninput_data_json_wrapping: false"
+        agent = NextGenUIAgent(config=config_yaml)
+        assert agent.config.component_system == "json"
+        assert agent._component_selection_strategy.input_data_json_wrapping is False
 
-
-def test_config_input_data_json_wrapping_default() -> None:
-    agent = NextGenUIAgent()
-    # check that input_data_json_wrapping is True by default
-    assert agent._component_selection_strategy.input_data_json_wrapping is True
-
-
-class TestRenderingStep:
-    def test_design_system_handler_wrong_name(self) -> None:
+    def test_config_input_data_json_wrapping_default(self) -> None:
         agent = NextGenUIAgent()
+        # check that input_data_json_wrapping is True by default
+        assert agent._component_selection_strategy.input_data_json_wrapping is True
+
+    def test_config_component_system_not_configured(self) -> None:
+        agent = NextGenUIAgent()
+        assert agent.config.component_system is None
+
+    def test_config_component_system_configured(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig(component_system="json"))
+        assert agent.config.component_system == "json"
+
+    def test_config_component_system_unknown(self) -> None:
         with pytest.raises(
-            Exception,
-            match="configured component system 'bad' is not present in extension_manager. Make sure you install appropriate dependency",
+            ValueError,
+            match="Configured component system 'unknown' is not found. Make sure you install appropriate dependency.",
         ):
-            agent.design_system_handler(list(), "bad")
-
-    def test_design_system_handler_json(self) -> None:
-        agent = NextGenUIAgent()
-        c = get_transformed_component()
-        result = agent.design_system_handler([c], "json")
-
-        assert result[0].mime_type == "application/json"
-        assert result[0].component_system == "json"
-        assert result[0].id == c.id
-
-        r = from_json(result[0].content)
-        assert r["component"] == "one-card"
-
-    def test_renderers(self) -> None:
-        agent = NextGenUIAgent()
-        assert len(agent.renderers) > 0
-        assert agent.renderers.index("json") == 0
+            NextGenUIAgent(config=AgentConfig(component_system="unknown"))
 
 
 class TestComponentSelection:
@@ -357,7 +350,7 @@ class TestCreateComponentSelectionStrategy:
             assert strategy.unsupported_components is True
 
 
-class TestComponentSelectionDataTransformation:
+class TestComponentSelectionInputDataTransformation:
     """Test suite for input data transformation in component selection step."""
 
     @pytest.mark.asyncio
@@ -455,7 +448,7 @@ class TestComponentSelectionDataTransformation:
         assert r.json_data == [{"name": "MYNAME"}]
 
 
-class TestComponentSelectionWrapping:
+class TestComponentSelectionInputDataJsonWrapping:
     """Test suite for input data transformation in component selection step - wrapping."""
 
     @pytest.mark.asyncio
@@ -624,3 +617,107 @@ class TestConstructUIBlockConfiguration:
         assert configuration.component_metadata.fields[
             0
         ].data_path == sanitize_data_path("movie.title")
+
+
+class TestTransformData:
+    def test_transform_data(self) -> None:
+        agent = NextGenUIAgent()
+        input_data = InputData(
+            id="123",
+            data="""{"name": "John Doe"}""",
+        )
+        component = UIComponentMetadata.model_validate(
+            {
+                "id": "123",
+                "title": "John Doe",
+                "component": "one-card",
+                "fields": [
+                    {"name": "Name", "data_path": "name"},
+                ],
+            }
+        )
+        component_data = cast(
+            ComponentDataOneCard, agent.transform_data(input_data, component)
+        )
+        assert component_data.title == "John Doe"
+        assert component_data.id == "123"
+        assert component_data.component == "one-card"
+        assert component_data.fields[0].name == "Name"
+        assert component_data.fields[0].data == ["John Doe"]
+
+
+class TestDeprecatedTransformDataStep:
+    def test_data_transformation(self) -> None:
+        agent = NextGenUIAgent()
+        input_data = [InputData(id="1", data='{"title": "Toy Story"}', type="my_type")]
+        components = [
+            UIComponentMetadata.model_validate(
+                {
+                    "id": "1",
+                    "title": "Toy Story",
+                    "component": "one-card",
+                    "fields": [{"name": "Title", "data_path": "title"}],
+                }
+            )
+        ]
+        components_data = agent.data_transformation(input_data, components)
+        component_data = cast(ComponentDataOneCard, components_data[0])
+        assert component_data.id == "1"
+        assert component_data.component == "one-card"
+        assert component_data.fields[0].name == "Title"
+        assert component_data.fields[0].data == ["Toy Story"]
+
+
+class TestGenerateRendering:
+    def test_generate_rendering_wrong_component_system_name(self) -> None:
+        agent = NextGenUIAgent()
+        with pytest.raises(
+            Exception,
+            match="UI component system 'bad' is not found. Make sure you install appropriate dependency.",
+        ):
+            agent.generate_rendering(
+                ComponentDataBase(id="1", component="one-card"), "bad"
+            )
+
+    def test_generate_rendering_json(self) -> None:
+        agent = NextGenUIAgent()
+        c = get_transformed_component()
+        result = agent.generate_rendering(c, "json")
+
+        assert result.mime_type == "application/json"
+        assert result.component_system == "json"
+        assert result.id == c.id
+
+        r = from_json(result.content)
+        assert r["component"] == "one-card"
+
+    def test_generate_rendering_configured_default_component_system(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig(component_system="json"))
+        c = get_transformed_component()
+        result = agent.generate_rendering(c, None)
+
+        assert result.mime_type == "application/json"
+        assert result.component_system == "json"
+        assert result.id == c.id
+
+        r = from_json(result.content)
+        assert r["component"] == "one-card"
+
+    def test_renderers(self) -> None:
+        agent = NextGenUIAgent()
+        assert len(agent.renderers) > 0
+        assert agent.renderers.index("json") == 0
+
+
+class TestDeprecatedGenerateRenderingStep:
+    def test_design_system_handler_json(self) -> None:
+        agent = NextGenUIAgent()
+        c = get_transformed_component()
+        result = agent.design_system_handler([c], "json")
+
+        assert result[0].mime_type == "application/json"
+        assert result[0].component_system == "json"
+        assert result[0].id == c.id
+
+        r = from_json(result[0].content)
+        assert r["component"] == "one-card"

@@ -11,7 +11,7 @@ PLUGGABLE_RENDERERS_NAMESPACE = "next_gen_ui.agent.renderer_factory"
 
 
 class RenderStrategyBase(ABC):
-    """Renderer Base."""
+    """UI Renderer Base."""
 
     def render(self, component: ComponentDataBase) -> str:
         """Prepare additional fields for rendering if necessary and finally call generate_output"""
@@ -25,16 +25,16 @@ class RenderStrategyBase(ABC):
     def generate_output(
         self, component: ComponentDataBase, additional_context: dict
     ) -> str:
-        """Generate output by defined strategy.
+        """Generate output by defined UI renderer strategy.
 
-        If not overriden then JSON dump is performed
+        If not overriden then JSON dump is performed to generate the UI representation of the component.
         """
         return component.model_dump_json()
 
 
 class RendererStrategyBaseWithArrayValueFileds(RenderStrategyBase):
     """
-    Render Base for components represented by ComponentDataBaseWithArrayValueFileds.
+    UI Renderer Base for components represented by ComponentDataBaseWithArrayValueFileds.
     Adds additional context info for rendering:
     * data_length - number - number of items in the data array
     * field_names - array of strings - names of the fields
@@ -58,12 +58,19 @@ class RendererStrategyBaseWithArrayValueFileds(RenderStrategyBase):
 
 
 class RendererContext:
-    """Render performing rendering based for given strategy."""
+    """Render performing rendering for given strategy."""
 
     def __init__(self, strategy: RenderStrategyBase):
         self.render_strategy = strategy
 
-    def render(self, component: ComponentDataBase):
+    def render(self, component: ComponentDataBase) -> str:
+        """
+        Render the UI component with the given strategy - UI renderer.
+        Returns the rendered representation of the UI component as a string.
+
+        Raises ValueError if the component is not supported by the strategy.
+        Raises Exception if there is an issue while rendering the component.
+        """
         return self.render_strategy.render(component)
 
 
