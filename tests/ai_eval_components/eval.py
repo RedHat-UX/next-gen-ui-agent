@@ -147,7 +147,7 @@ def evaluate_agent_for_dataset_row(
 
     input_data_type = dsr.get("input_data_type")
     # wrap parsed JSON data structure into data type field if provided and wrapping is necessary as in ComponentSelectionStrategy
-    json_data = wrap_json_data(json_data, input_data_type)
+    json_data, field_name = wrap_json_data(json_data, input_data_type)
     # we have to reduce arrays size to avoid LLM context window limit as in ComponentSelectionStrategy
     json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
 
@@ -177,6 +177,7 @@ def evaluate_agent_for_dataset_row(
             llm_response, input_data_id
         )
         component.json_data = json_data
+        component.json_wrapping_field_name = field_name
     except Exception as e:
         errors.append(
             ComponentDataValidationError(
