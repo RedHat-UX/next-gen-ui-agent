@@ -28,7 +28,7 @@ from next_gen_ui_agent.types import (
     UIComponentMetadataHandBuildComponent,
 )
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
-from next_gen_ui_testing.model import MockedInference
+from next_gen_ui_testing.model import MockedExceptionInference, MockedInference
 from pydantic_core import ValidationError, from_json
 
 
@@ -60,7 +60,117 @@ class TestAgentConfiguration:
             NextGenUIAgent(config=AgentConfig(component_system="unknown"))
 
 
-class TestComponentSelection:
+class TestSelectComponent:
+    @pytest.mark.asyncio
+    async def test_select_component_hbc_mapped(self) -> None:
+        """Test that hand-build components alone are selected correctly."""
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    ),
+                    "other.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="table-special")]
+                    ),
+                }
+            )
+        )
+        input_data = InputData(id="1", data='{"title": "HBC data"}', type="my.type")
+
+        # inference is not necessary!
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        # order of components in result is implementation detail of the `agent.component_selection` method!
+        assert isinstance(component, UIComponentMetadataHandBuildComponent)
+        assert component.component == "hand-build-component"
+        assert component.id == "1"
+        assert component.component_type == "one-card-special"
+
+    @pytest.mark.asyncio
+    async def test_select_component_hbc_requested(self) -> None:
+        """Test that hand-build components alone are selected correctly."""
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    ),
+                    "other.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="table-special")]
+                    ),
+                }
+            )
+        )
+        input_data = InputData(
+            id="3",
+            data='{"title": "Toy Story"}',
+            type="other.type",
+            hand_build_component_type="provided-special",
+        )
+
+        # inference is not necessary!
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        # order of components in result is implementation detail of the `agent.component_selection` method!
+        assert isinstance(component, UIComponentMetadataHandBuildComponent)
+        assert component.component == "hand-build-component"
+        assert component.id == "3"
+        assert component.component_type == "provided-special"
+
+    @pytest.mark.asyncio
+    async def test_select_component_dynamic(self) -> None:
+        """Test that LLM inference components are processed correctly, without HBC even configured."""
+        mocked_llm_component = UIComponentMetadata(
+            component="one-card",
+            id="1",
+            title="Toy Story",
+            fields=[DataField(name="Title", data_path="movie.title")],
+        )
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="1", data='{"title": "Toy Story"}')
+
+        component = await agent.select_component(
+            user_prompt="Test prompt",
+            input_data=input_data,
+            inference=MockedInference(mocked_llm_component),
+        )
+        # order of components in result is implementation detail of the `agent.component_selection` method!
+        assert component.component == "one-card"
+        assert component.id == "1"
+        assert component.title == "Toy Story"
+
+    @pytest.mark.asyncio
+    async def test_component_selection_llm_inference_necessar(self) -> None:
+        """Test that LLM inference object is required when inference is necessary."""
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="2", data='{"title": "Toy Story"}')
+        with pytest.raises(
+            ValueError,
+            match="Inference is not defined neither as an input parameter nor as an agent's config",
+        ):
+            await agent.select_component(
+                user_prompt="Test prompt", input_data=input_data
+            )
+
+    @pytest.mark.asyncio
+    async def test_select_component_llm_inference_error(self) -> None:
+        """Test that LLM inference error is propagated when LLM inference fails."""
+
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(id="1", data='{"title": "Toy Story"}')
+
+        with pytest.raises(RuntimeError, match="LLM inference error"):
+            await agent.select_component(
+                user_prompt="Test prompt",
+                input_data=input_data,
+                inference=MockedExceptionInference(RuntimeError("LLM inference error")),
+            )
+
+
+class TestDeprecatedComponentSelection:
     @pytest.mark.asyncio
     async def test_component_selection_hbc_mixed(self) -> None:
         """Test that hand-build components and LLM inferenced components are processed correctly in the same run."""
@@ -85,8 +195,8 @@ class TestComponentSelection:
         input = AgentInput(
             user_prompt="Test prompt",
             input_data=[
-                InputData(id="2", data='{"title": "Toy Story"}'),
                 InputData(id="1", data='{"title": "HBC data"}', type="my.type"),
+                InputData(id="2", data='{"title": "Toy Story"}'),
                 InputData(id="3", data='{"title": "Toy Story"}'),
                 InputData(id="4", data='{"title": "Toy Story"}', type="other.type"),
                 InputData(id="5", data='{"title": "Toy Story"}', type="unmaped.type"),
@@ -101,18 +211,21 @@ class TestComponentSelection:
         assert components[0].component == "hand-build-component"
         assert components[0].id == "1"
         assert components[0].component_type == "one-card-special"
-        assert isinstance(components[1], UIComponentMetadataHandBuildComponent)
-        assert components[1].component == "hand-build-component"
-        assert components[1].id == "4"
-        assert components[1].component_type == "table-special"
+
         # other components come from the inference
-        assert components[2].component == "one-card"
-        assert components[2].id == "2"
-        assert components[2].title == "Toy Story"
+        assert components[1].component == "one-card"
+        assert components[1].id == "2"
+        assert components[1].title == "Toy Story"
         # inference result is the same, but id differs
-        assert components[3].component == "one-card"
-        assert components[3].id == "3"
-        assert components[3].title == "Toy Story"
+        assert components[2].component == "one-card"
+        assert components[2].id == "3"
+        assert components[2].title == "Toy Story"
+
+        assert isinstance(components[3], UIComponentMetadataHandBuildComponent)
+        assert components[3].component == "hand-build-component"
+        assert components[3].id == "4"
+        assert components[3].component_type == "table-special"
+
         # inference result is the same, but id differs - unmaped type goes through LLM inference
         assert components[4].component == "one-card"
         assert components[4].id == "5"
@@ -213,7 +326,7 @@ class TestComponentSelection:
         )
         with pytest.raises(
             ValueError,
-            match="config field 'inference' is not defined neither in input parameter nor agent's config",
+            match="Inference is not defined neither as an input parameter nor as an agent's config",
         ):
             await agent.component_selection(input=input)
 
@@ -350,11 +463,11 @@ class TestCreateComponentSelectionStrategy:
             assert strategy.unsupported_components is True
 
 
-class TestComponentSelectionInputDataTransformation:
-    """Test suite for input data transformation in component selection step."""
+class TestSelectComponent_InputDataTransformation:
+    """Test suite for input data transformation in select_component step."""
 
     @pytest.mark.asyncio
-    async def test_component_selection_DATA_TRANSFORMATION_CONFIGURED_PER_TYPE_YAML(
+    async def test_select_component_DATA_TRANSFORMATION_CONFIGURED_PER_TYPE_YAML(
         self,
     ) -> None:
         # HBC used here so we do not need inference and we also see that selection per type works correctly
@@ -370,16 +483,16 @@ class TestComponentSelectionInputDataTransformation:
         )
         input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
 
-        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
-        result = await agent.component_selection(input=input)
-        assert result is not None
-        r = result[0]
-        assert r.component == "hand-build-component"
-        assert r.json_data is not None
-        assert r.json_data == [{"name": "MYNAME"}]
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        assert component.json_data == [{"name": "MYNAME"}]
 
     @pytest.mark.asyncio
-    async def test_component_selection_DATA_TRANSFORMATION_PER_TYPE_NOT_CONFIGURED_DATA_JSON(
+    async def test_select_component_DATA_TRANSFORMATION_PER_TYPE_NOT_CONFIGURED_DATA_JSON(
         self,
     ) -> None:
         # HBC used here so we do not need inference and we also see that selection per type works correctly
@@ -394,16 +507,16 @@ class TestComponentSelectionInputDataTransformation:
         )
         input_data = InputData(id="1", data='{"name": "MYNAME"}', type="my.type")
 
-        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
-        result = await agent.component_selection(input=input)
-        assert result is not None
-        r = result[0]
-        assert r.component == "hand-build-component"
-        assert r.json_data is not None
-        assert r.json_data == {"name": "MYNAME"}
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        assert component.json_data == {"name": "MYNAME"}
 
     @pytest.mark.asyncio
-    async def test_component_selection_DATA_TRANSFORMATION_NOT_CONFIGURED_DATA_INVALID(
+    async def test_select_component_DATA_TRANSFORMATION_NOT_CONFIGURED_DATA_INVALID(
         self,
     ) -> None:
         # HBC used here so we do not need inference and we also see that selection per type works correctly
@@ -418,12 +531,13 @@ class TestComponentSelectionInputDataTransformation:
         )
         input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
 
-        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
         with pytest.raises(ValueError, match="Invalid JSON format of the Input Data: "):
-            await agent.component_selection(input=input)
+            await agent.select_component(
+                user_prompt="Test prompt", input_data=input_data
+            )
 
     @pytest.mark.asyncio
-    async def test_component_selection_DATA_TRANSFORMATION_CONFIGURED_YAML(
+    async def test_select_component_DATA_TRANSFORMATION_CONFIGURED_YAML(
         self,
     ) -> None:
         # HBC used here so we do not need inference and we also see that selection per type works correctly
@@ -439,25 +553,24 @@ class TestComponentSelectionInputDataTransformation:
         )
         input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
 
-        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
-        result = await agent.component_selection(input=input)
-        assert result is not None
-        r = result[0]
-        assert r.component == "hand-build-component"
-        assert r.json_data is not None
-        assert r.json_data == [{"name": "MYNAME"}]
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        assert component.json_data == [{"name": "MYNAME"}]
 
 
-class TestComponentSelectionInputDataJsonWrapping:
-    """Test suite for input data transformation in component selection step - wrapping."""
+class TestSelectComponent_InputDataJsonWrapping:
+    """Test suite for input data transformation in select_component step - wrapping."""
 
     @pytest.mark.asyncio
-    async def test_component_selection_WRAPPING(self) -> None:
+    async def test_select_component_WRAPPING(self) -> None:
         agent = NextGenUIAgent(config=AgentConfig(input_data_json_wrapping=True))
 
         input_data = InputData(id="1", data='[{"title": "Toy Story"}]', type="my_type")
 
-        input = AgentInput(user_prompt="Test prompt", input_data=[input_data])
         mocked_llm_component = UIComponentMetadata(
             component="one-card",
             id="1",
@@ -465,14 +578,15 @@ class TestComponentSelectionInputDataJsonWrapping:
             fields=[DataField(name="Title", data_path="movie.title")],
         )
 
-        result = await agent.component_selection(
-            input=input, inference=MockedInference(mocked_llm_component)
+        component = await agent.select_component(
+            user_prompt="Test prompt",
+            input_data=input_data,
+            inference=MockedInference(mocked_llm_component),
         )
-        assert result is not None
-        r = result[0]
-        assert r.component == "one-card"
-        assert r.json_data is not None
-        assert r.json_data == {"my_type": [{"title": "Toy Story"}]}
+        assert component is not None
+        assert component.component == "one-card"
+        assert component.json_data is not None
+        assert component.json_data == {"my_type": [{"title": "Toy Story"}]}
 
 
 class TestRefreshComponent:

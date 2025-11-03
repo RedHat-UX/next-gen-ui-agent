@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from typing import Optional
@@ -126,51 +127,51 @@ class NextGenUIAgent:
         else:
             super().__setattr__(name, value)
 
-    async def component_selection(
-        self, input: AgentInput, inference: Optional[InferenceBase] = None
-    ) -> list[UIComponentMetadata]:
+    async def select_component(
+        self,
+        user_prompt: str,
+        input_data: InputData,
+        inference: Optional[InferenceBase] = None,
+    ) -> UIComponentMetadata:
         """STEP 2: Select component and generate its configuration metadata."""
 
         # select per type configured components, for rest run LLM powered component selection, then join results together
-        ret: list[UIComponentMetadata] = []
-        to_dynamic_selection: list[InputData] = []
-        for input_data in input["input_data"]:
-            json_data, input_data_transformer_name = perform_input_data_transformation(
-                input_data
-            )
+        json_data, input_data_transformer_name = perform_input_data_transformation(
+            input_data
+        )
 
-            # select component InputData.type or InputData.hand_build_component_type
-            component = select_component_per_type(input_data, json_data)
-            if component:
-                component.input_data_transformer_name = input_data_transformer_name
-                ret.append(component)
-            else:
-                # Copy input_data and just add a json_data
-                id: InputDataInternal = {
-                    **input_data,
-                    "json_data": json_data,
-                    "input_data_transformer_name": input_data_transformer_name,
-                }
-                to_dynamic_selection.append(id)
-
-        if to_dynamic_selection:
+        # select component InputData.type or InputData.hand_build_component_type
+        component = select_component_per_type(input_data, json_data)
+        if component:
+            component.input_data_transformer_name = input_data_transformer_name
+            return component
+        else:
             inference = inference if inference else self.inference
             if not inference:
                 raise ValueError(
-                    "config field 'inference' is not defined neither in input parameter nor agent's config"
+                    "Inference is not defined neither as an input parameter nor as an agent's config"
                 )
 
-            input_to_dynamic_selection = AgentInput(
-                user_prompt=input["user_prompt"], input_data=to_dynamic_selection
+            input_data_for_strategy: InputDataInternal = {
+                **input_data,
+                "json_data": json_data,
+                "input_data_transformer_name": input_data_transformer_name,
+            }
+            return await self._component_selection_strategy.select_component(
+                inference, user_prompt, input_data_for_strategy
             )
-            from_dynamic_selection = (
-                await self._component_selection_strategy.select_components(
-                    inference, input_to_dynamic_selection
-                )
-            )
-            ret.extend(from_dynamic_selection)
 
-        return ret
+    @deprecated("Use select_component instead")
+    async def component_selection(
+        self, input: AgentInput, inference: Optional[InferenceBase] = None
+    ) -> list[UIComponentMetadata]:
+        components = await asyncio.gather(
+            *[
+                self.select_component(input["user_prompt"], data, inference)
+                for data in input["input_data"]
+            ]
+        )
+        return components
 
     async def refresh_component(
         self, input_data: InputData, block_configuration: UIBlockConfiguration
