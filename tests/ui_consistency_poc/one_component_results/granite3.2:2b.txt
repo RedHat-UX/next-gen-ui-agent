@@ -1,0 +1,252 @@
+*** 1. Current: Info about Toy Story. Previous: subscriptions table - change of the data entity ***
+
+Response one previous component: {
+  "id": "1",
+  "title": "Toy Story",
+  "reasonForTheComponentSelection": "One item available in the data, matching the 'table' component configuration",
+  "confidenceScore": "95%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Title",
+      "data_path": "movie.title"
+    },
+    {
+      "name": "Year",
+      "data_path": "movie.year"
+    },
+    {
+      "name": "Countries",
+      "data_path": "movie.countries[size up to 6]"
+    },
+    {
+      "name": "Languages",
+      "data_path": "movie.languages[size up to 6]"
+    },
+    {
+      "name": "IMDB Rating",
+      "data_path": "imdb.rating"
+    },
+    {
+      "name": "Votes on IMDb",
+      "data_path": "imdb.votes"
+    },
+    {
+      "name": "Revenue",
+      "data_path": "revenue"
+    },
+    {
+      "name": "Budget",
+      "data_path": "budget"
+    },
+    {
+      "name": "Trailer URL",
+      "data_path": "trailerUrl"
+    }
+  ]
+}
+
+Response multipleprevious prompts: {
+  "id": "1",
+  "title": "Toy Story",
+  "reasonForTheComponentSelection": "One item available in the data, focusing on basic information",
+  "confidenceScore": "90%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Title",
+      "data_path": "movie.title"
+    },
+    {
+      "name": "Year",
+      "data_path": "movie.year"
+    },
+    {
+      "name": "Languages",
+      "data_path": "languages[size up to 6]"
+    },
+    {
+      "name": "IMDB Rating",
+      "data_path": "imdb.rating"
+    },
+    {
+      "name": "Countries",
+      "data_path": "countries[size up to 6]"
+    },
+    {
+      "name": "Trailer URL",
+      "data_path": "trailerUrl"
+    }
+  ]
+}
+
+Response no history: {
+  "id": "1",
+  "title": "Toy Story",
+  "reasonForTheComponentSelection": "One item available in the data, focusing on key details and a visual element",
+  "confidenceScore": "90%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Title",
+      "data_path": "movie.title"
+    },
+    {
+      "name": "Year",
+      "data_path": "movie.year"
+    },
+    {
+      "name": "Languages",
+      "data_path": "movie.languages[size up to 6]"
+    },
+    {
+      "name": "IMDB Rating",
+      "data_path": "imdb.rating"
+    },
+    {
+      "name": "Countries",
+      "data_path": "movie.countries[size up to 6]"
+    },
+    {
+      "name": "Trailer URL",
+      "data_path": "trailerUrl"
+    }
+  ]
+}
+
+*** 2. Current: When was the movie released? Previous: Info about Toy Story - additional info asked about data entity from previous conversation step ***
+
+Response one previous component: {
+  "id": "1",
+  "title": "Toy Story",
+  "reasonForTheComponentSelection": "One item available in the data, matching the user query for movie release year",
+  "confidenceScore": "95%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Title",
+      "data_path": "movie.title"
+    },
+    {
+      "name": "Released Year",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+Response multiple previous prompts: {
+  "id": "1",
+  "title": "Toy Story Release Date",
+  "reasonForTheComponentSelection": "One item available in the data, focusing on a specific field (release date)",
+  "confidenceScore": "90%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Release Date",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+Response no history: {
+  "id": "1",
+  "title": "Movie Release Date",
+  "reasonForTheComponentSelection": "Single item available in the data, focusing on one specific field",
+  "confidenceScore": "90%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Released",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+*** 3. Current: Show me the poster only. Previous: Info about Toy Story - the same data entity, but user prompt asks for different UI component  ***
+
+Response one previous component: {
+  "id": "1",
+  "title": "Toy Story Poster",
+  "reasonForTheComponentSelection": "One item available in the data, matches the user query for showing a single image",
+  "confidenceScore": "95%",
+  "component": "image",
+  "fields": [
+    {
+      "name": "posterUrl",
+      "data_path": "movie.pictureUrl"
+    }
+  ]
+}
+
+Response multiple previous prompts: {
+  "id": "1",
+  "title": "Toy Story Poster",
+  "reasonForTheComponentSelection": "One image available in the data, suitable for showing posters or similar visual content.",
+  "confidenceScore": "95%",
+  "component": "image",
+  "fields": [
+    {
+      "name": "Poster",
+      "data_path": "movie.pictureUrl"
+    }
+  ]
+}
+
+Response no history: {
+  "id": "1",
+  "title": "Movie Poster",
+  "reasonForTheComponentSelection": "One image available in the data, suitable for a single-item visualization",
+  "confidenceScore": "95%",
+  "component": "image",
+  "fields": [
+    {
+      "name": "posterUrl",
+      "data_path": "movie.pictureUrl"
+    }
+  ]
+}
+
+*** 4. Current: When was the movie released? Previous: Poster only, Info about Toy Story, Subscriptions table - multiple previous conversation steps including entity change and then component type change to another and back ***
+
+Response one previous component: {
+  "id": "1",
+  "title": "Toy Story Release Year",
+  "reasonForTheComponentSelection": "Single item available in the data, focusing on a specific field",
+  "confidenceScore": "95%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Release Year",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+Response multiple previous prompts: {
+  "id": "1",
+  "title": "Toy Story Release Date",
+  "reasonForTheComponentSelection": "One item available in the data, focusing on a specific field (release date)",
+  "confidenceScore": "90%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Release Date",
+      "data_path": "movie.released"
+    }
+  ]
+}
+
+Response no history: {
+  "id": "1",
+  "title": "Movie Release Date",
+  "reasonForTheComponentSelection": "Single item available in the data, focusing on one specific field",
+  "confidenceScore": "90%",
+  "component": "one-card",
+  "fields": [
+    {
+      "name": "Released",
+      "data_path": "movie.released"
+    }
+  ]
+}
+

@@ -45,7 +45,12 @@ class ComponentSelectionStrategy(ABC):
         self.logger.debug("---CALL component_selection---")
         components = await asyncio.gather(
             *[
-                self.component_selection_run(inference, input["user_prompt"], data)
+                self.component_selection_run(
+                    inference,
+                    input["user_prompt"],
+                    data,
+                    input.get("previous_user_prompts"),
+                )
                 for data in input["input_data"]
             ]
         )
@@ -59,6 +64,7 @@ class ComponentSelectionStrategy(ABC):
         inference: InferenceBase,
         user_prompt: str,
         input_data: InputData,
+        previous_user_prompts: list[str] | None = None,
     ) -> UIComponentMetadata:
         """Run Component Selection task."""
 
@@ -93,7 +99,11 @@ class ComponentSelectionStrategy(ABC):
             json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
 
         inference_output = await self.perform_inference(
-            inference, user_prompt, json_data_for_llm, input_data_id
+            inference,
+            user_prompt,
+            json_data_for_llm,
+            input_data_id,
+            previous_user_prompts,
         )
 
         try:
@@ -113,6 +123,7 @@ class ComponentSelectionStrategy(ABC):
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
+        previous_user_prompts: list[str] | None = None,
     ) -> list[str]:
         """
         Perform inference to select UI components and configure them.
@@ -123,6 +134,7 @@ class ComponentSelectionStrategy(ABC):
             user_prompt: User prompt to be processed
             json_data: JSON data parsed into python objects to be processed
             input_data_id: ID of the input data
+            previous_user_prompts: list of previous user prompts to keep consystency in conversational history
 
         Returns:
             List of strings with LLM inference outputs

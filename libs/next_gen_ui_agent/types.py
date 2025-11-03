@@ -176,6 +176,8 @@ class AgentInput(TypedDict):
 
     user_prompt: str
     """User prompt to be processed."""
+    previous_user_prompts: NotRequired[list[str] | None]
+    """Previous user prompts - used to achieve UI component consistency through the conversation. List starts with the most recent prompt from the histroy and goes to older."""
     input_data: list[InputData]
     """Input data to be processed - one or more can be provided."""
 
