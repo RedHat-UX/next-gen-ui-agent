@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 from typing import Optional
@@ -18,10 +19,8 @@ from next_gen_ui_agent.component_selection_pertype import (
 )
 from next_gen_ui_agent.data_transform.data_transformer_utils import sanitize_data_path
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
-from next_gen_ui_agent.data_transformation import enhance_component_by_input_data
-from next_gen_ui_agent.design_system_handler import (
-    design_system_handler as _design_system_handler,
-)
+from next_gen_ui_agent.data_transformation import generate_component_data
+from next_gen_ui_agent.design_system_handler import render_component
 from next_gen_ui_agent.input_data_transform.input_data_transform import (
     init_input_data_transformers,
     perform_input_data_transformation,
@@ -29,7 +28,10 @@ from next_gen_ui_agent.input_data_transform.input_data_transform import (
 )
 from next_gen_ui_agent.json_data_wrapper import wrap_data
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer.base_renderer import (
+    PLUGGABLE_RENDERERS_NAMESPACE,
+    StrategyFactory,
+)
 from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.types import (
     AgentConfig,
@@ -41,6 +43,7 @@ from next_gen_ui_agent.types import (
     UIComponentMetadata,
 )
 from stevedore import ExtensionManager
+from typing_extensions import deprecated
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +70,13 @@ class NextGenUIAgent:
             self.config = config
 
         self.inference = inference
+
+        if self.config.component_system and self.config.component_system != "json":
+            if self.config.component_system not in self._extension_manager.names():
+                raise ValueError(
+                    f"Configured component system '{self.config.component_system}' is not found. "
+                    + "Make sure you install appropriate dependency."
+                )
 
         init_pertype_components_mapping(self.config)
         init_input_data_transformers(self.config)
@@ -117,51 +127,51 @@ class NextGenUIAgent:
         else:
             super().__setattr__(name, value)
 
-    async def component_selection(
-        self, input: AgentInput, inference: Optional[InferenceBase] = None
-    ) -> list[UIComponentMetadata]:
+    async def select_component(
+        self,
+        user_prompt: str,
+        input_data: InputData,
+        inference: Optional[InferenceBase] = None,
+    ) -> UIComponentMetadata:
         """STEP 2: Select component and generate its configuration metadata."""
 
         # select per type configured components, for rest run LLM powered component selection, then join results together
-        ret: list[UIComponentMetadata] = []
-        to_dynamic_selection: list[InputData] = []
-        for input_data in input["input_data"]:
-            json_data, input_data_transformer_name = perform_input_data_transformation(
-                input_data
-            )
+        json_data, input_data_transformer_name = perform_input_data_transformation(
+            input_data
+        )
 
-            # select component InputData.type or InputData.hand_build_component_type
-            component = select_component_per_type(input_data, json_data)
-            if component:
-                component.input_data_transformer_name = input_data_transformer_name
-                ret.append(component)
-            else:
-                # Copy input_data and just add a json_data
-                id: InputDataInternal = {
-                    **input_data,
-                    "json_data": json_data,
-                    "input_data_transformer_name": input_data_transformer_name,
-                }
-                to_dynamic_selection.append(id)
-
-        if to_dynamic_selection:
+        # select component InputData.type or InputData.hand_build_component_type
+        component = select_component_per_type(input_data, json_data)
+        if component:
+            component.input_data_transformer_name = input_data_transformer_name
+            return component
+        else:
             inference = inference if inference else self.inference
             if not inference:
                 raise ValueError(
-                    "config field 'inference' is not defined neither in input parameter nor agent's config"
+                    "Inference is not defined neither as an input parameter nor as an agent's config"
                 )
 
-            input_to_dynamic_selection = AgentInput(
-                user_prompt=input["user_prompt"], input_data=to_dynamic_selection
+            input_data_for_strategy: InputDataInternal = {
+                **input_data,
+                "json_data": json_data,
+                "input_data_transformer_name": input_data_transformer_name,
+            }
+            return await self._component_selection_strategy.select_component(
+                inference, user_prompt, input_data_for_strategy
             )
-            from_dynamic_selection = (
-                await self._component_selection_strategy.select_components(
-                    inference, input_to_dynamic_selection
-                )
-            )
-            ret.extend(from_dynamic_selection)
 
-        return ret
+    @deprecated("Use select_component instead")
+    async def component_selection(
+        self, input: AgentInput, inference: Optional[InferenceBase] = None
+    ) -> list[UIComponentMetadata]:
+        components = await asyncio.gather(
+            *[
+                self.select_component(input["user_prompt"], data, inference)
+                for data in input["input_data"]
+            ]
+        )
+        return components
 
     async def refresh_component(
         self, input_data: InputData, block_configuration: UIBlockConfiguration
@@ -189,40 +199,63 @@ class NextGenUIAgent:
             json_wrapping_field_name=block_configuration.json_wrapping_field_name,
         )
 
+    def transform_data(
+        self, input_data: InputData, component: UIComponentMetadata
+    ) -> ComponentDataBase:
+        """STEP 3: Transform generated component configuration metadata into component data. Mainly pick up showed data values from `input_data`."""
+        return generate_component_data(input_data, component)
+
+    @deprecated("Use transform_data instead")
     def data_transformation(
         self, input_data: list[InputData], components: list[UIComponentMetadata]
     ) -> list[ComponentDataBase]:
         """STEP 3: Transform generated component configuration metadata into component data. Mainly pick up showed data values from `input_data`."""
-        return enhance_component_by_input_data(
-            input_data=input_data, components=components
-        )
+        ret: list[ComponentDataBase] = []
 
-    def design_system_handler(
-        self,
-        components: list[ComponentDataBase],
-        component_system: Optional[str] = None,
-    ) -> list[UIBlockRendering]:
+        for component in components:
+            for data in input_data:
+                if data["id"] != component.id:
+                    continue
+                ret.append(self.transform_data(data, component))
+
+        return ret
+
+    def generate_rendering(
+        self, component: ComponentDataBase, component_system: Optional[str] = None
+    ) -> UIBlockRendering:
         """STEP 4: Render the component with the chosen component system,
         either via AgentConfig or parameter provided to this method."""
-
         component_system = (
             component_system if component_system else self.config.component_system
         )
         if not component_system:
             raise Exception("Component system not defined")
 
-        factory = JsonStrategyFactory()
+        factory: StrategyFactory
         if component_system == "json":
-            pass
+            factory = JsonStrategyFactory()
         elif component_system not in self._extension_manager.names():
             raise ValueError(
-                f"configured component system '{component_system}' is not present in extension_manager. "
-                + "Make sure you install appropriate dependency"
+                f"UI component system '{component_system}' is not found. "
+                + "Make sure you install appropriate dependency."
             )
         else:
             factory = self._extension_manager[component_system].obj
 
-        return _design_system_handler(components, factory)
+        return render_component(component, factory)
+
+    @deprecated("Use generate_rendering instead")
+    def design_system_handler(
+        self,
+        components: list[ComponentDataBase],
+        component_system: Optional[str] = None,
+    ) -> list[UIBlockRendering]:
+        """STEP 4: Render the components with the chosen component system,
+        either via AgentConfig or parameter provided to this method."""
+        outputs = []
+        for component in components:
+            outputs.append(self.generate_rendering(component, component_system))
+        return outputs
 
     def construct_UIBlockConfiguration(
         self, input_data: InputData, component_metadata: UIComponentMetadata

@@ -1,6 +1,4 @@
-import asyncio
 import json
-import logging
 
 import pytest
 from langchain_core.language_models import FakeMessagesListChatModel
@@ -8,10 +6,9 @@ from next_gen_ui_agent.component_selection_llm_strategy import (
     MAX_STRING_DATA_LENGTH_FOR_LLM,
 )
 from next_gen_ui_agent.json_data_wrapper import wrap_string_as_json
-from next_gen_ui_agent.types import AgentInput, InputDataInternal
+from next_gen_ui_agent.types import InputDataInternal
 from pytest import fail
 
-from . import InputData
 from .component_selection_llm_onestep import OnestepLLMCallComponentSelectionStrategy
 from .model import LangChainModelInference
 
@@ -58,7 +55,7 @@ response = """
 
 
 @pytest.mark.asyncio
-async def test_component_selection_run_OK() -> None:
+async def test_select_component_OK() -> None:
     user_input = "Tell me brief details of Toy Story"
     input_data = InputDataInternal(
         {
@@ -76,7 +73,7 @@ async def test_component_selection_run_OK() -> None:
     component_selection = OnestepLLMCallComponentSelectionStrategy(
         input_data_json_wrapping=False
     )
-    result = await component_selection.component_selection_run(
+    result = await component_selection.select_component(
         inference, user_input, input_data
     )
     assert result.component == "one-card"
@@ -87,9 +84,9 @@ async def test_component_selection_run_OK() -> None:
 
 
 @pytest.mark.asyncio
-async def test_component_selection_run_json_wrapping_OK() -> None:
+async def test_select_component_json_wrapping_OK() -> None:
     user_input = "Tell me brief details of Toy Story"
-    input_data = InputData(
+    input_data = InputDataInternal(
         {"id": "1", "data": movies_data_TO_WRAP, "type": "movie.detail"}
     )
 
@@ -98,7 +95,7 @@ async def test_component_selection_run_json_wrapping_OK() -> None:
     inference = LangChainModelInference(llm)
 
     component_selection = OnestepLLMCallComponentSelectionStrategy(False)
-    result = await component_selection.component_selection_run(
+    result = await component_selection.select_component(
         inference, user_input, input_data
     )
     assert result.component == "one-card"
@@ -111,16 +108,16 @@ async def test_component_selection_run_json_wrapping_OK() -> None:
 
 
 @pytest.mark.asyncio
-async def test_component_selection_run_json_wrapping_no_OK() -> None:
+async def test_select_component_json_wrapping_no_OK() -> None:
     user_input = "Tell me brief details of Toy Story"
-    input_data = InputData({"id": "1", "data": movies_data_TO_WRAP})
+    input_data = InputDataInternal({"id": "1", "data": movies_data_TO_WRAP})
 
     msg = {"type": "assistant", "content": response}
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
     inference = LangChainModelInference(llm)
 
     component_selection = OnestepLLMCallComponentSelectionStrategy(False)
-    result = await component_selection.component_selection_run(
+    result = await component_selection.select_component(
         inference, user_input, input_data
     )
     assert result.component == "one-card"
@@ -131,7 +128,7 @@ async def test_component_selection_run_json_wrapping_no_OK() -> None:
 
 
 @pytest.mark.asyncio
-async def test_component_selection_run_stringinput_notype_OK() -> None:
+async def test_select_component_stringinput_notype_OK() -> None:
     user_input = "Tell me brief details of Toy Story"
     input_data = InputDataInternal(
         {
@@ -147,7 +144,7 @@ async def test_component_selection_run_stringinput_notype_OK() -> None:
     inference = LangChainModelInference(llm)
 
     component_selection = OnestepLLMCallComponentSelectionStrategy(False)
-    result = await component_selection.component_selection_run(
+    result = await component_selection.select_component(
         inference, user_input, input_data
     )
     assert result.component == "one-card"
@@ -163,7 +160,7 @@ async def test_component_selection_run_stringinput_notype_OK() -> None:
 
 
 @pytest.mark.asyncio
-async def test_component_selection_run_stringinput_withype_OK() -> None:
+async def test_select_component_stringinput_with_type_OK() -> None:
     user_input = "Tell me brief details of Toy Story"
     input_data = InputDataInternal(
         {"id": "1", "data": "", "json_data": "large string data", "type": "test.type"}
@@ -174,7 +171,7 @@ async def test_component_selection_run_stringinput_withype_OK() -> None:
     inference = LangChainModelInference(llm)
 
     component_selection = OnestepLLMCallComponentSelectionStrategy(False)
-    result = await component_selection.component_selection_run(
+    result = await component_selection.select_component(
         inference, user_input, input_data
     )
     assert result.component == "one-card"
@@ -190,9 +187,9 @@ async def test_component_selection_run_stringinput_withype_OK() -> None:
 
 
 @pytest.mark.asyncio
-async def test_component_selection_run_INVALID_LLM_RESPONSE() -> None:
+async def test_select_component_INVALID_LLM_RESPONSE() -> None:
     user_input = "Tell me brief details of Toy Story"
-    input_data = InputData({"id": "1", "data": movies_data})
+    input_data = InputDataInternal({"id": "1", "data": movies_data})
 
     msg = {"type": "assistant", "content": "invalid json"}
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
@@ -200,52 +197,8 @@ async def test_component_selection_run_INVALID_LLM_RESPONSE() -> None:
 
     try:
         component_selection = OnestepLLMCallComponentSelectionStrategy(False)
-        await component_selection.component_selection_run(
-            inference, user_input, input_data
-        )
+        await component_selection.select_component(inference, user_input, input_data)
         fail("Exception expected")
     except Exception as e:
         assert e.__class__.__name__ == "ValueError"
         pass
-
-
-@pytest.mark.asyncio
-async def test_component_selection() -> None:
-    input_data_1 = InputDataInternal(
-        {"id": "1", "data": movies_data, "input_data_transformer_name": "json"}
-    )
-    input_data_2 = InputDataInternal(
-        {"id": "2", "data": movies_data, "input_data_transformer_name": "yaml"}
-    )
-
-    input = AgentInput(
-        {
-            "user_prompt": "Tell me brief details of Toy Story",
-            "input_data": [input_data_1, input_data_2],
-        }
-    )
-
-    msg = {"type": "assistant", "content": response}
-    llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
-    inference = LangChainModelInference(llm)
-
-    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
-    result = await component_selection.select_components(inference, input)
-
-    assert len(result) == 2
-    ids = []
-    input_data_transformer_names = []
-    for r in result:
-        assert r.json_wrapping_field_name is None
-        input_data_transformer_names.append(r.input_data_transformer_name)
-        ids.append(r.id)
-    assert "1" in ids
-    assert "2" in ids
-    assert "json" in input_data_transformer_names
-    assert "yaml" in input_data_transformer_names
-
-
-if __name__ == "__main__":
-    logging.basicConfig()
-    logging.getLogger().setLevel(logging.DEBUG)
-    asyncio.run(test_component_selection_run_OK())
