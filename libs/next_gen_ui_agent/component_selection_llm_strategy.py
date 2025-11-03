@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 from abc import ABC, abstractmethod
@@ -7,7 +6,7 @@ from typing import Any
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data, wrap_string_as_json
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import AgentInput, InputData, UIComponentMetadata
+from next_gen_ui_agent.types import InputDataInternal, UIComponentMetadata
 
 MAX_STRING_DATA_LENGTH_FOR_LLM = 1000
 """Maximum length of the string data passed to the LLM in characters."""
@@ -30,37 +29,23 @@ class ComponentSelectionStrategy(ABC):
         self.logger = logger
         self.input_data_json_wrapping = input_data_json_wrapping
 
-    async def select_components(
-        self, inference: InferenceBase, input: AgentInput
-    ) -> list[UIComponentMetadata]:
-        """
-        Select UI components based on input data and user prompt.
-        Args:
-            inference: Inference to use to call LLM by the agent
-            input: Agent input
-            json_data: optional JSON data parsed into python objects to be processed
-        Returns:
-            List of `UIComponentMetadata`
-        """
-        self.logger.debug("---CALL component_selection---")
-        components = await asyncio.gather(
-            *[
-                self.component_selection_run(inference, input["user_prompt"], data)
-                for data in input["input_data"]
-            ]
-        )
-        if self.logger.isEnabledFor(logging.DEBUG):
-            self.logger.debug(components)
-
-        return components
-
-    async def component_selection_run(
+    async def select_component(
         self,
         inference: InferenceBase,
         user_prompt: str,
-        input_data: InputData,
+        input_data: InputDataInternal,
     ) -> UIComponentMetadata:
-        """Run Component Selection task."""
+        """
+        Select UI component based on input data and user prompt.
+        Args:
+            inference: Inference to use to call LLM by the agent
+            user_prompt: User prompt to be processed
+            input_data: Input data to be processed
+        Returns:
+            Generated `UIComponentMetadata`
+        Raises:
+            Exception: If the component selection fails
+        """
 
         input_data_id = input_data["id"]
         self.logger.debug("---CALL component_selection_run--- id: %s", {input_data_id})
@@ -68,7 +53,7 @@ class ComponentSelectionStrategy(ABC):
         json_data = input_data.get("json_data")
         input_data_transformer_name: str | None = input_data.get(
             "input_data_transformer_name"
-        )  # type: ignore
+        )
 
         if not json_data:
             json_data = json.loads(input_data["data"])

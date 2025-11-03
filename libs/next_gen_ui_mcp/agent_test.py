@@ -486,7 +486,7 @@ async def test_tool_generate_ui_description_all() -> None:
         == "Structured Input Data. Array of objects with 'id' and 'data' keys. NEVER generate this."
     )
     assert tool_generate_ui.description == (
-        "Generate UI components for given user_prompt. "
+        "Generate multiple UI components for given user_prompt. "
         "Always get fresh data from another tool first. "
         "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
     )

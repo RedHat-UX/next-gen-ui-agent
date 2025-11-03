@@ -157,7 +157,7 @@ You can find the input schema in [spec/mcp/generate_ui_input.schema.json](https:
 
 Object containing:
 
-- UI blocks
+- UI blocks with rendering and configuration
 - summary
 
 By default the result is provided as [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) where structured content contains JSON object and the text content just "human readable summary".
@@ -174,16 +174,52 @@ Example:
 {
   "blocks": [
     {
-      "id": "tool_call_id",
+      "id": "e5e2db10-de22-4165-889c-02de2f24c901",
       "rendering": {
-        "id": "tool_call_id",
+        "id": "e5e2db10-de22-4165-889c-02de2f24c901",
         "component_system": "json",
         "mime_type": "application/json",
-        "content": "{\"id\":\"id\",\"data\":\"some-data\",\"component\":\"log\"}"
+        "content": "{\"component\":\"one-card\",\"image\":\"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\"id\":\"e5e2db10-de22-4165-889c-02de2f24c901\",\"title\":\"Toy Story Movie Details\",\"fields\":[{\"name\":\"Title\",\"data_path\":\"$..movie_detail.title\",\"data\":[\"Toy Story\"]},{\"name\":\"Release Year\",\"data_path\":\"$..movie_detail.year\",\"data\":[1995]},{\"name\":\"IMDB Rating\",\"data_path\":\"$..movie_detail.imdbRating\",\"data\":[8.3]},{\"name\":\"Runtime (min)\",\"data_path\":\"$..movie_detail.runtime\",\"data\":[81]},{\"name\":\"Plot\",\"data_path\":\"$..movie_detail.plot\",\"data\":[\"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\"]}]}"
+      },
+      "configuration": {
+        "data_type": "movie_detail",
+        "input_data_transformer_name": "json",
+        "json_wrapping_field_name": "movie_detail",
+        "component_metadata": {
+          "id": "e5e2db10-de22-4165-889c-02de2f24c901",
+          "title": "Toy Story Movie Details",
+          "component": "one-card",
+          "fields": [
+            {
+              "name": "Title",
+              "data_path": "$..movie_detail.title"
+            },
+            {
+              "name": "Release Year",
+              "data_path": "$..movie_detail.year"
+            },
+            {
+              "name": "IMDB Rating",
+              "data_path": "$..movie_detail.imdbRating"
+            },
+            {
+              "name": "Runtime (min)",
+              "data_path": "$..movie_detail.runtime"
+            },
+            {
+              "name": "Plot",
+              "data_path": "$..movie_detail.plot"
+            },
+            {
+              "name": "Poster",
+              "data_path": "$..movie_detail.posterUrl"
+            }
+          ]
+        }
       }
     }
   ],
-  "summary": "Components are rendered in UI.\nCount: 1\n1. type: log"
+  "summary": "Components are rendered in UI.\nCount: 1\n1. Title: 'Toy Story Movie Details', type: one-card"
 }
 ```
 

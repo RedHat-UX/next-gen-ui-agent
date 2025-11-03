@@ -102,7 +102,7 @@ class NextGenUIMCPServer:
         @self.mcp.tool(
             name="generate_ui_component",
             description=(
-                "Generate UI components for given user_prompt and data. "
+                "Generate one UI component for given user_prompt and data. "
                 "Always get fresh data from another tool first. "
                 "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
             ),
@@ -151,7 +151,7 @@ class NextGenUIMCPServer:
         @self.mcp.tool(
             name="generate_ui_multiple_components",
             description=(
-                "Generate UI components for given user_prompt. "
+                "Generate multiple UI components for given user_prompt. "
                 "Always get fresh data from another tool first. "
                 "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
             ),
