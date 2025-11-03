@@ -7,8 +7,6 @@ from pathlib import Path
 from ai_eval_components.types import BASE_DATASET_PATH, DATASET_FILE_SUFFIX, DatasetRow
 from next_gen_ui_agent.data_transform.image import ImageDataTransformer
 from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
-from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
-from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.validation.assertions import assert_str_not_blank
 from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
@@ -18,8 +16,6 @@ from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
 """ List of components fully supported by the agent """
 SUPPORTED_COMPONENTS = [
     OneCardDataTransformer.COMPONENT_NAME,
-    SetOfCardsDataTransformer.COMPONENT_NAME,
-    TableDataTransformer.COMPONENT_NAME,
     ImageDataTransformer.COMPONENT_NAME,
     VideoPlayerDataTransformer.COMPONENT_NAME,
 ]

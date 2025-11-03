@@ -60,15 +60,15 @@ jobs:
           # Create LlamaStack directory (required by eval)
           mkdir -p ~/.llama/providers.d
 
-          # Run Velias's tests (Movies/Subscriptions dataset)
+          # Run tests (Movies/Subscriptions dataset with all components)
           echo "=== Running Movies/Subscriptions Tests ==="
           PYTHONPATH=tests:libs INFERENCE_MODEL=llama3.2:3b \
-            python -m ai_eval_components.eval
+            python -m ai_eval_components.eval -c all
 
-          # Run K8s tests
+          # Run K8s tests (with all components: one-card, set-of-cards, table)
           echo "=== Running K8s Tests ==="
           PYTHONPATH=tests:libs INFERENCE_MODEL=llama3.2:3b \
-            python -m ai_eval_components.eval_k8s
+            python -m ai_eval_components.eval_k8s -c all
 
       - name: Generate combined HTML report
         if: always()
