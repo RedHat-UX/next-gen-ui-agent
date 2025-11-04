@@ -137,7 +137,7 @@
           "type": "null"
         }
       ],
-      "default": null,
+      "default": "json",
       "description": "Component system to use to render the UI component. Default is `json`. UI renderers have to be installed to use other systems."
     },
     "data_transformer": {

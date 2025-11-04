@@ -35,7 +35,7 @@ def movies(title: str):
     """
     logger.debug("Get movie, title: %s", title)
     response = find_movie(title)
-    logger.debug("returning: %s", response)
+    logger.info("------MOVIES Agent,returning: %s", response)
     return response
 
 
@@ -61,33 +61,9 @@ async def run_movies_agent():
         stream=False,
     )
 
-    # No Stream way, when stream=False,
-    for step in response.steps:
-        print(f"\n\n------MOVIES Agent step_type={step.step_type}")
-        pprint.pp(step.model_dump(), width=120)
-
-        if step.step_type == "tool_execution":
-            async for ngui_event in ngui_agent.create_turn(user_input, steps=[step]):
-                print(f"\n\n------NGUI Agent event_type={ngui_event['event_type']}")
-                pprint.pp(ngui_event["payload"], width=120)
-
-    # Stream way, when stream=True,
-    # for chunk in response:
-    #     payload = chunk.event.payload
-    #     if payload.event_type == "step_complete":
-    #         step = payload.step_details
-    #         print(f"\n\n-------MOVIES Agent step_type={step.step_type}")
-    #         if step.step_type == "tool_execution":
-    #             pprint.pp(json.loads(step.tool_responses[0].content))
-    #             async for ng_agent_event in ngui_agent.create_turn(user_input, steps=[step]):
-    #                 print(f"\n\n-------NGUI Agent event_type={ng_agent_event['event_type']}")
-    #                 pprint.pp(ng_agent_event["payload"], width=120)
-    #         if step.step_type == "inference":
-    #             pprint.pp(step.api_model_response.content, width=120)
-
-    # from llama_stack_client.lib.agents.event_logger import EventLogger
-    # for log in EventLogger().log(response):
-    #     log.print()
+    async for ngui_event in ngui_agent.create_turn(user_input, steps=response.steps):
+        print(f"\n\n------NGUI Agent event_type={ngui_event['event_type']}")
+        pprint.pp(ngui_event["payload"], width=120)
 
 
 if __name__ == "__main__":

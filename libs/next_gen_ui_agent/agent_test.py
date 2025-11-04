@@ -46,7 +46,7 @@ class TestAgentConfiguration:
 
     def test_config_component_system_not_configured(self) -> None:
         agent = NextGenUIAgent()
-        assert agent.config.component_system is None
+        assert agent.config.component_system == "json"
 
     def test_config_component_system_configured(self) -> None:
         agent = NextGenUIAgent(config=AgentConfig(component_system="json"))

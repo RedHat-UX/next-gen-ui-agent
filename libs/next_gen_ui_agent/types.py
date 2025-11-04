@@ -84,7 +84,7 @@ class AgentConfig(BaseModel):
     """Next Gen UI Agent Configuration."""
 
     component_system: Optional[str] = Field(
-        default=None,
+        default="json",
         description="Component system to use to render the UI component. Default is `json`. UI renderers have to be installed to use other systems.",
     )
     """Component system to use to render the UI component."""
@@ -184,7 +184,7 @@ class UIBlockComponentMetadata(BaseModel):
     """UI Component Metadata - part shared between UIBlockConfiguration and UIComponentMetadata."""
 
     id: Optional[str] = None
-    """ID of the data this instance is for."""
+    """ID of the `InputData` this instance is for."""
     title: str
     """Title of the component."""
     component: str
@@ -227,6 +227,7 @@ class UIBlockRendering(BaseModel):
     """UI Block Rendering - output of the UI rendering step."""
 
     id: str
+    """ID of the `InputData` this instance is for."""
     component_system: str
     mime_type: str
     content: str
@@ -249,6 +250,7 @@ class UIBlock(BaseModel):
     """UI Block model with all details"""
 
     id: str
+    """ID of the `InputData` this instance is for."""
     rendering: Optional[UIBlockRendering] = None
     "Rendering of UI block"
     configuration: Optional[UIBlockConfiguration] = None
