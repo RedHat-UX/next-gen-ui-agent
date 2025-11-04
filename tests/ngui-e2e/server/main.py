@@ -11,8 +11,6 @@ from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 from next_gen_ui_langgraph.readme_example import (
     compare_movies,
     get_all_movies,
-    get_box_office_leaders,
-    get_top_rated_movies,
     search_movie,
 )
 from pydantic import BaseModel, SecretStr
@@ -44,21 +42,20 @@ movies_agent = create_react_agent(
     tools=[
         search_movie,
         get_all_movies,
-        get_top_rated_movies,
         compare_movies,
-        get_box_office_leaders,
     ],
     prompt="""You are a helpful movies assistant. Use the available tools to answer user questions about movies.
 
-CRITICAL TOOL SELECTION RULES:
-1. "compare opening weekends" / "compare revenue" / "all movies" → ALWAYS use get_all_movies()
-2. "Toy Story budget" → use search_movie(title="Toy Story")
-3. "top rated" / "best movies" → use get_top_rated_movies()
-4. "Toy Story vs Matrix" (specific names) → use compare_movies(titles="Toy Story, The Matrix")
-5. "highest grossing" / "box office leaders" → use get_box_office_leaders()
-
-NEVER pass field names like "openingWeekend" or "revenue" to compare_movies().
-compare_movies() ONLY accepts actual movie titles like "Toy Story, The Matrix".
+TOOL SELECTION RULES:
+1. IF user asks about ONE specific movie (and no comparisons) → use search_movie(title="Movie Name")
+   Examples: "Toy Story budget", "show me Inception trailer"
+   
+2. IF user asks to COMPARE specific movies by name → use compare_movies(titles="Movie1, Movie2")
+   Examples: "compare The Dark Knight and Inception", "Toy Story vs Matrix"
+   
+3. For ALL OTHER queries → use get_all_movies()
+   Examples: "all movies", "top rated", "highest grossing", "genre distribution", 
+   "compare revenue", "box office leaders"
 
 The database includes: revenue, budget, profit, ROI, ratings, awards, genres, directors, openingWeekend, and weeklyBoxOffice.""",
 )

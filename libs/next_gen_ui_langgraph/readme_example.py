@@ -277,7 +277,6 @@ def get_all_movies():
     """Get all movies in the database with comprehensive details including ratings, box office, awards, and weekly performance.
     Use this when user asks for:
     - all movies, movie list, or wants to see all available movies
-    - comparing multiple movies (without specific titles)
     - opening weekends, box office trends, or revenue comparisons across all movies
     - DISTRIBUTION queries (e.g., "genre distribution", "rating distribution", "director distribution")
     - AGGREGATION queries (e.g., "average rating", "total revenue", "highest budget")
@@ -288,70 +287,29 @@ def get_all_movies():
     return json.dumps(all_movies, default=str)
 
 
-def get_top_rated_movies(min_rating: float = 8.0):
-    """Get top-rated movies above a minimum rating threshold.
-    Args:
-        min_rating: Minimum IMDB rating (default 8.0)
-    """
-    print(f"Returning movies with rating >= {min_rating}")
-    top_movies = [
-        {"movie": movie}
-        for movie in MOVIES_DB.values()
-        if movie["imdbRating"] >= min_rating
-    ]
-    return json.dumps(top_movies, default=str) if top_movies else None
-
-
 def compare_movies(titles: str):
-    """Compare multiple movies side by side by their specific titles.
-    ONLY use this when user mentions SPECIFIC movie names like 'Toy Story, The Matrix'.
-    For comparing ALL movies by a field (like opening weekends, revenue), use get_all_movies() instead.
-
-    Args:
-        titles: Comma-separated movie titles e.g. 'Toy Story, The Matrix, Inception'
-    """
-    print(f"Comparing movies: {titles}")
+    """Compare specific movies by their titles. Returns only the requested movies.
+    Use when user asks to compare specific movie titles.
     
-    # Check if user is asking for "all movies" - redirect to get_all_movies()
-    if "all" in titles.lower() and "movie" in titles.lower():
-        print("Detected 'all movies' - redirecting to get_all_movies()")
+    Args:
+        titles: Comma-separated movie titles e.g. 'The Dark Knight, Inception'
+    """
+    print(f"Comparing specific movies: {titles}")
+    requested = [t.strip().lower() for t in titles.split(",")]
+    results = []
+    
+    for movie in MOVIES_DB.values():
+        # Check if any requested title matches this movie
+        if any(req in movie["title"].lower() for req in requested):
+            results.append({"movie": movie})
+    
+    # Fallback to all movies if no matches found
+    if not results:
+        print("No matching movies found, returning all movies")
         return get_all_movies()
     
-    movie_list = [t.strip() for t in titles.split(",")]
-
-    # Check if user is asking for a field comparison instead of specific movies
-    field_keywords = [
-        "opening",
-        "weekend",
-        "revenue",
-        "budget",
-        "roi",
-        "rating",
-        "profit",
-    ]
-    if any(keyword in titles.lower() for keyword in field_keywords):
-        print(
-            f"WARNING: '{titles}' looks like a field name, not movie titles. "
-            "Consider using get_all_movies() instead."
-        )
-        return None
-
-    results = []
-    for title in movie_list:
-        title_lower = title.lower().replace(" ", "_")
-        for key, movie_data in MOVIES_DB.items():
-            if title_lower in key or key in title_lower:
-                results.append({"movie": movie_data})
-                break
-
-    return json.dumps(results, default=str) if results else None
-
-
-def get_box_office_leaders():
-    """Get movies sorted by box office revenue. Perfect for revenue comparison charts."""
-    print("Returning box office leaders")
-    sorted_movies = sorted(MOVIES_DB.values(), key=lambda m: m["revenue"], reverse=True)
-    return json.dumps([{"movie": m} for m in sorted_movies], default=str)
+    print(f"Found {len(results)} matching movies")
+    return json.dumps(results, default=str)
 
 
 movies_agent = create_react_agent(
@@ -359,30 +317,20 @@ movies_agent = create_react_agent(
     tools=[
         search_movie,
         get_all_movies,
-        get_top_rated_movies,
         compare_movies,
-        get_box_office_leaders,
     ],
     prompt="""You are a helpful movies assistant. Use the available tools to answer user questions about movies.
 
-CRITICAL TOOL SELECTION RULES:
-1. "compare opening weekends" / "compare revenue" / "all movies" → ALWAYS use get_all_movies()
-2. IF USER MENTIONS A SPECIFIC MOVIE NAME in the query → use search_movie(title="Movie Name"):
-   - "Show daily box office for The Dark Knight" → search_movie(title="The Dark Knight")
-   - "Weekly revenue for Inception" → search_movie(title="Inception")
-   - "Toy Story budget" → search_movie(title="Toy Story")
-   - "box office for Interstellar" → search_movie(title="Interstellar")
-   ⚠️  ONLY use search_movie() when user asks about ONE specific movie!
-3. DISTRIBUTION/AGGREGATION queries → ALWAYS use get_all_movies():
-   - "genre distribution", "rating distribution", "director distribution"
-   - "average rating", "total revenue", "highest budget"
-   - Any query asking about patterns/statistics across all movies
-4. "top rated" / "best movies" → use get_top_rated_movies()
-5. "Toy Story vs Matrix" (specific names) → use compare_movies(titles="Toy Story, The Matrix")
-6. "highest grossing" / "box office leaders" → use get_box_office_leaders()
-
-NEVER pass field names like "openingWeekend" or "revenue" to compare_movies().
-compare_movies() ONLY accepts actual movie titles like "Toy Story, The Matrix".
+TOOL SELECTION RULES:
+1. IF user asks about ONE specific movie (and no comparisons) → use search_movie(title="Movie Name")
+   Examples: "Toy Story budget", "show me Inception trailer"
+   
+2. IF user asks to COMPARE specific movies by name → use compare_movies(titles="Movie1, Movie2")
+   Examples: "compare The Dark Knight and Inception", "Toy Story vs Matrix"
+   
+3. For ALL OTHER queries → use get_all_movies()
+   Examples: "all movies", "top rated", "highest grossing", "genre distribution", 
+   "compare revenue", "box office leaders"
 
 The database includes: revenue, budget, profit, ROI, ratings, awards, genres, directors, openingWeekend, and weeklyBoxOffice.""",
 )

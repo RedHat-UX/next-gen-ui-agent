@@ -69,18 +69,13 @@ Some parts of the project require LamaStack server to be running on your laptop 
 
 ### Prerequisities
 
-# install dev requirements
-```sh
-pip install -r requirements_dev.txt
-```
-
-# Install dev deps
+Install dev deps
 
 ```sh
 pip3 install -r requirements_dev.txt
 ```
 
-# Install pre commit hook to perform python code lint and checks.
+Install pre commit hook to perform python code lint and checks.
 
 ```sh
 pre-commit install
