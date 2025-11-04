@@ -9,12 +9,7 @@ from mcp import types
 from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import (
-    AgentConfig,
-    InputData,
-    UIBlock,
-    UIComponentMetadata,
-)
+from next_gen_ui_agent.types import AgentConfig, InputData, UIBlock, UIComponentMetadata
 from next_gen_ui_mcp.types import MCPGenerateUIOutput
 from pydantic import Field
 
@@ -182,7 +177,7 @@ class NextGenUIMCPServer:
                 await ctx.error(f"UI generation failed: {e}")
                 raise e
 
-            await ctx.info(f"Successfully generated UI component")
+            await ctx.info("Successfully generated UI component")
 
             block_config = self.ngui_agent.construct_UIBlockConfiguration(
                 input_data=input_data,
@@ -333,7 +328,6 @@ class NextGenUIMCPServer:
         blocks: list[UIBlock],
         summary: str,
     ) -> ToolResult:
-
         output = MCPGenerateUIOutput(blocks=blocks, summary=summary)
 
         if self.structured_output_enabled:
