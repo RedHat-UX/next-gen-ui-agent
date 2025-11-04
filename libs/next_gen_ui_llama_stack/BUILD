@@ -5,7 +5,6 @@ python_sources(
         # Has to be explicitly noted because of missing trans deps in llama-stack-client
         "libs/3rdparty/python:llama-stack-client",
     ],
-    interpreter_constraints=["CPython>=3.12,<3.14"],
 )
 
 # This target sets the metadata for all the Python test files in this directory.
