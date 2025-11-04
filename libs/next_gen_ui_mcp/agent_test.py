@@ -449,7 +449,7 @@ async def test_mcp_agent_system_info_resource() -> None:
     """Test the MCP agent's system info resource."""
     # Create agent (no inference parameter needed with new MCP sampling approach)
     ngui_agent = NextGenUIMCPServer(
-        config=AgentConfig(component_system="rhds"), name="TestAgent"
+        config=AgentConfig(component_system="json"), name="TestAgent"
     )
 
     # Get the FastMCP server
@@ -467,7 +467,7 @@ async def test_mcp_agent_system_info_resource() -> None:
         assert text_content is not None
         system_info = json.loads(text_content)
         assert system_info["agent_name"] == "NextGenUIMCPServer"
-        assert system_info["component_system"] == "rhds"
+        assert system_info["component_system"] == "json"
         assert "capabilities" in system_info
 
 
