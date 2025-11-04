@@ -408,6 +408,10 @@ async def test_generate_ui_component_no_data(external_inference) -> None:
 
 @pytest.mark.asyncio
 async def test_generate_ui_component_bad_json(external_inference) -> None:
+    """
+    Test how bad input (invalid json) is propagated to client.
+    Important part of agentic flow where agent can fix the input based on the error message.
+    """
     ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),
         name="TestAgentExternal",
