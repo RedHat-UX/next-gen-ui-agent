@@ -29,7 +29,7 @@ class RenderStrategyBase(ABC):
 
         If not overriden then JSON dump is performed
         """
-        return component.model_dump_json()
+        return component.model_dump_json(exclude_none=True)
 
 
 class RendererStrategyBaseWithArrayValueFileds(RenderStrategyBase):

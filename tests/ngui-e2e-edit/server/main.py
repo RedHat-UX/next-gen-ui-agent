@@ -10,8 +10,8 @@ from langgraph.prebuilt import create_react_agent
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 from next_gen_ui_langgraph.readme_example import (
     compare_movies,
+    get_all_movies,
     get_box_office_leaders,
-    get_pixar_movies,
     get_top_rated_movies,
     search_movie,
 )
@@ -43,12 +43,24 @@ movies_agent = create_react_agent(
     model=llm,
     tools=[
         search_movie,
-        get_pixar_movies,
+        get_all_movies,
         get_top_rated_movies,
         compare_movies,
         get_box_office_leaders,
     ],
-    prompt="You are a helpful movies assistant. Use the available tools to answer user questions about movies, ratings, and box office performance.",
+    prompt="""You are a helpful movies assistant. Use the available tools to answer user questions about movies.
+
+CRITICAL TOOL SELECTION RULES:
+1. "compare opening weekends" / "compare revenue" / "all movies" → ALWAYS use get_all_movies()
+2. "Toy Story budget" → use search_movie(title="Toy Story")
+3. "top rated" / "best movies" → use get_top_rated_movies()
+4. "Toy Story vs Matrix" (specific names) → use compare_movies(titles="Toy Story, The Matrix")
+5. "highest grossing" / "box office leaders" → use get_box_office_leaders()
+
+NEVER pass field names like "openingWeekend" or "revenue" to compare_movies().
+compare_movies() ONLY accepts actual movie titles like "Toy Story, The Matrix".
+
+The database includes: revenue, budget, profit, ROI, ratings, awards, genres, directors, openingWeekend, and weeklyBoxOffice.""",
 )
 
 ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()

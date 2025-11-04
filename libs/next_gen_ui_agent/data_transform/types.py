@@ -182,8 +182,10 @@ class ComponentDataVideo(ComponentDataBaseWithTitle):
 class ChartDataPoint(BaseModel):
     """A single data point in a chart series"""
 
+    model_config = {"exclude_none": True}
+
     name: Optional[str] = Field(
-        default=None, description="Optional name for the data point"
+        default=None, description="Optional name for the data point (rarely used, excluded from output if None)"
     )
     x: Union[str, int, float] = Field(
         description="X-axis value (label for the data point)"
@@ -203,25 +205,21 @@ class ChartSeries(BaseModel):
 class ComponentDataChart(ComponentDataBaseWithTitle):
     """Component Data for Chart visualization."""
 
+    model_config = {"exclude_none": True}
+
     component: Literal["chart"] = "chart"
     title: Optional[str] = Field(default=None, description="title of the chart")
-    chartType: Optional[Literal["bar", "line", "pie", "donut"]] = Field(
+    chartType: Optional[Literal["bar", "mirrored-bar", "line", "pie", "donut"]] = Field(
         default="bar", description="Type of chart to render"
     )
     data: Optional[list[ChartSeries]] = Field(
         default=None, description="Array of data series for the chart"
     )
-    width: Optional[int] = Field(
-        default=600, description="Width of the chart in pixels"
-    )
-    height: Optional[int] = Field(
-        default=400, description="Height of the chart in pixels"
-    )
     themeColor: Optional[str] = Field(
         default="multi", description="PatternFly chart theme color"
     )
-    legendPosition: Optional[Literal["bottom", "right"]] = Field(
-        default="bottom", description="Position of the legend"
+    horizontal: Optional[bool] = Field(
+        default=None, description="Display bars horizontally (labels on y-axis) - use true for long x-axis labels. Defaults to false (vertical) when omitted."
     )
     ariaTitle: Optional[str] = Field(
         default=None, description="Accessibility title for screen readers"
@@ -230,7 +228,7 @@ class ComponentDataChart(ComponentDataBaseWithTitle):
         default=None, description="Accessibility description for screen readers"
     )
     donutSubTitle: Optional[str] = Field(
-        default="Total", description="Subtitle for donut charts"
+        default=None, description="Subtitle displayed in center of donut charts (only applicable when chartType='donut')"
     )
 
 

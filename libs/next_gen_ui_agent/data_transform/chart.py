@@ -11,7 +11,8 @@ from typing_extensions import override
 
 # Chart type inference patterns
 CHART_TYPE_PATTERNS = {
-    "bar": ["bar chart", "bar graph", "compare", "comparison"],
+    "bar": ["bar chart", "bar graph"],
+    "mirrored-bar": ["mirrored bar", "mirrored-bar", "compare two metrics", "roi vs", "vs budget", "revenue vs profit", "compare roi and budget"],
     "line": ["line chart", "line graph", "trend", "over time", "timeline"],
     "pie": ["pie chart", "proportion", "percentage", "share", "distribution"],
     "donut": ["donut chart", "donut graph"],
@@ -184,19 +185,55 @@ class ChartDataTransformer(DataTransformerBase[ComponentDataChart]):
                 f"[Chart] Not enough fields ({len(fields) if fields else 0}), attempting auto-generation"
             )
             if len(fields) == 1:
-                self._create_single_point_chart(json_data, component, fields[0])
+                # For pie/donut charts with 1 field, count occurrences
+                chart_type = getattr(component, 'chartType', None)
+                if chart_type in ['pie', 'donut']:
+                    print(f"[Chart] Single field for {chart_type} chart - will count occurrences")
+                    self._create_frequency_chart(json_data, component, fields[0])
+                else:
+                    self._create_single_point_chart(json_data, component, fields[0])
             return
 
         print(f"[Chart] Have {len(fields)} fields, proceeding with extraction")
+        
+        # Special case: pie/donut charts with 2 fields where second field is invalid
+        chart_type = getattr(component, 'chartType', None)
+        if chart_type in ['pie', 'donut'] and len(fields) == 2:
+            second_field_path = fields[1].data_path.strip()
+            # Check if second field is empty or just brackets (invalid)
+            if not second_field_path or second_field_path in ['[]', '{}', '']:
+                print(f"[Chart] {chart_type} chart with invalid second field '{second_field_path}' - treating as single field")
+                self._create_frequency_chart(json_data, component, fields[0])
+                return
 
-        # First field is typically the x-axis (categories/labels)
-        # Remaining fields are y-axis values (can be multiple series)
-        x_field = fields[0]
-        y_fields = fields[1:]
-
-        print(
-            f"[Chart] x_field: {x_field.name}, y_fields: {[f.name for f in y_fields]}"
+        # Detect nested time-series pattern: fields with [*]...[*] indicate nested arrays
+        # Pattern: Field 0 = series identifier, Field 1 = nested x-axis, Field 2 = nested y-axis
+        is_nested_timeseries = (
+            len(fields) >= 3
+            and "[*]" in fields[1].data_path
+            and "[*]" in fields[2].data_path
+            and fields[1].data_path.count("[*]") > fields[0].data_path.count("[*]")
         )
+
+        print(f"[Chart] Detected nested time-series pattern: {is_nested_timeseries}")
+
+        if is_nested_timeseries:
+            # For nested time-series: Field 0 = series ID, Field 1 = x-axis, Field 2 = y-axis
+            print("[Chart] Using nested time-series field mapping:")
+            print(
+                f"[Chart]   Series identifier: {fields[0].name} ({fields[0].data_path})"
+            )
+            print(f"[Chart]   X-axis: {fields[1].name} ({fields[1].data_path})")
+            print(f"[Chart]   Y-axis: {fields[2].name} ({fields[2].data_path})")
+            self._extract_nested_timeseries_data(json_data, fields)
+            return
+        else:
+            # Traditional flat structure: Field 0 = x-axis, Fields 1+ = y-axis series
+            x_field = fields[0]
+            y_fields = fields[1:]
+            print(
+                f"[Chart] Using flat field mapping - x_field: {x_field.name}, y_fields: {[f.name for f in y_fields]}"
+            )
 
         # Extract x values
         x_values = []
@@ -261,6 +298,221 @@ class ChartDataTransformer(DataTransformerBase[ComponentDataChart]):
         if series_list:
             self._component_data.data = series_list
 
+    def _extract_nested_timeseries_data(self, json_data: Any, fields: list):
+        """
+        Extract nested time-series data where:
+        - Field 0: Series identifier (e.g., movies[*].title)
+        - Field 1: Nested x-axis (e.g., movies[*].weeklyBoxOffice[*].week)
+        - Field 2: Nested y-axis (e.g., movies[*].weeklyBoxOffice[*].revenue)
+        
+        Strategy: Extract base items, then for each item access its nested array directly
+        """
+        from jsonpath_ng import parse
+
+        print("[Chart] _extract_nested_timeseries_data called")
+        print(f"[Chart] Available top-level keys in json_data: {list(json_data.keys()) if isinstance(json_data, dict) else 'not a dict'}")
+
+        series_id_field = fields[0]
+        x_field = fields[1]
+        y_field = fields[2]
+
+        # Determine the base path (e.g., "movies[*]" from "movies[*].weeklyBoxOffice[*].week")
+        original_base_path = None
+        if "[*]" in x_field.data_path:
+            parts = x_field.data_path.split("[*]")
+            if len(parts) >= 2:
+                original_base_path = parts[0] + "[*]"
+                print(f"[Chart] Detected base path from field: {original_base_path}")
+
+        if not original_base_path:
+            print("[Chart] Could not determine base path")
+            return
+
+        # Extract base items (e.g., all movie objects)
+        base_path = original_base_path  # Start with the path from fields
+        try:
+            base_data_path = self._normalize_data_path(base_path)
+            print(f"[Chart] Normalized base path: {base_data_path}")
+            jsonpath_expr = parse(base_data_path)
+            base_matches = jsonpath_expr.find(json_data)
+            base_items = [match.value for match in base_matches]
+            print(f"[Chart] Found {len(base_items)} base items with path '{base_data_path}'")
+            
+            if base_items and len(base_items) > 0:
+                print(f"[Chart] First base item type: {type(base_items[0])}")
+                print(f"[Chart] First base item keys: {base_items[0].keys() if isinstance(base_items[0], dict) else 'not a dict'}")
+                if isinstance(base_items[0], dict):
+                    print(f"[Chart] First base item sample: {list(base_items[0].keys())[:5]}")
+        except Exception as e:
+            print(f"[Chart] Error extracting base items: {e}")
+            import traceback
+            traceback.print_exc()
+            return
+
+        if not base_items:
+            print("[Chart] No base items found with specified path")
+            print("[Chart] Attempting fallback: searching for any array in json_data")
+            
+            # Fallback: try to find the actual array in the data
+            if isinstance(json_data, dict):
+                for key, value in json_data.items():
+                    if isinstance(value, list) and len(value) > 0:
+                        print(f"[Chart] Found array at key '{key}' with {len(value)} items")
+                        print(f"[Chart] First item in array: {type(value[0])}")
+                        if isinstance(value[0], dict):
+                            print(f"[Chart] First item keys: {list(value[0].keys())}")
+                            # Try to use this array instead
+                            base_items = value
+                            # Update base path to match actual data (but keep original for suffix calculation)
+                            base_path = key + "[*]"
+                            print(f"[Chart] Using fallback base path: {base_path}")
+                            print(f"[Chart] Original base path was: {original_base_path}")
+                            break
+            
+            if not base_items:
+                print("[Chart] Fallback also found no base items")
+                return
+
+        # Extract field names from paths
+        # The paths might not match the actual data structure, so we need to parse carefully
+        # e.g., "movies[*].title" but actual data is compare_movies[*].movie.title
+        
+        # Parse what comes after the ORIGINAL base path (before fallback)
+        series_id_suffix = series_id_field.data_path.replace(original_base_path, "").lstrip(".")
+        x_field_suffix = x_field.data_path.replace(original_base_path, "").lstrip(".")
+        y_field_suffix = y_field.data_path.replace(original_base_path, "").lstrip(".")
+        
+        print(f"[Chart] Field suffixes (after removing original base path '{original_base_path}'):")
+        print(f"[Chart]   Series ID suffix: {series_id_suffix}")
+        print(f"[Chart]   X field suffix: {x_field_suffix}")
+        print(f"[Chart]   Y field suffix: {y_field_suffix}")
+        
+        # Check if base items have a wrapper key (like {"movie": {...}} instead of direct fields)
+        # If so, we need to prepend the wrapper key to our suffixes
+        if base_items and isinstance(base_items[0], dict):
+            item_keys = list(base_items[0].keys())
+            print(f"[Chart] Base item has keys: {item_keys}")
+            
+            # If there's exactly one key and it's an object, it's likely a wrapper
+            if len(item_keys) == 1 and isinstance(base_items[0][item_keys[0]], dict):
+                wrapper_key = item_keys[0]
+                print(f"[Chart] Detected wrapper key: '{wrapper_key}'")
+                print(f"[Chart] Wrapper object has keys: {list(base_items[0][wrapper_key].keys())[:10]}")
+                
+                # Prepend the wrapper key to each suffix ONLY if not already present
+                if not series_id_suffix.startswith(f"{wrapper_key}."):
+                    series_id_suffix = f"{wrapper_key}.{series_id_suffix}"
+                if not x_field_suffix.startswith(f"{wrapper_key}."):
+                    x_field_suffix = f"{wrapper_key}.{x_field_suffix}"
+                if not y_field_suffix.startswith(f"{wrapper_key}."):
+                    y_field_suffix = f"{wrapper_key}.{y_field_suffix}"
+                
+                print(f"[Chart] Adjusted suffixes with wrapper key:")
+                print(f"[Chart]   Series ID suffix: {series_id_suffix}")
+                print(f"[Chart]   X field suffix: {x_field_suffix}")
+                print(f"[Chart]   Y field suffix: {y_field_suffix}")
+        
+        # For nested paths like "weeklyBoxOffice[*].week"
+        # Extract the nested array name and field: "weeklyBoxOffice" and "week"
+        x_parts = x_field_suffix.split("[*]")
+        y_parts = y_field_suffix.split("[*]")
+        
+        if len(x_parts) >= 2:
+            x_array_name = x_parts[0]  # "weeklyBoxOffice" or "movie.weeklyBoxOffice"
+            x_field_name = x_parts[1].lstrip(".")  # "week"
+        else:
+            print(f"[Chart] Could not parse x field structure from suffix: {x_field_suffix}")
+            return
+            
+        if len(y_parts) >= 2:
+            y_array_name = y_parts[0]  # "weeklyBoxOffice" or "movie.weeklyBoxOffice"
+            y_field_name = y_parts[1].lstrip(".")  # "revenue"
+        else:
+            print(f"[Chart] Could not parse y field structure from suffix: {y_field_suffix}")
+            return
+
+        print(f"[Chart] Parsed structure:")
+        print(f"[Chart]   Series ID suffix: {series_id_suffix}")
+        print(f"[Chart]   X array path: {x_array_name}, field: {x_field_name}")
+        print(f"[Chart]   Y array path: {y_array_name}, field: {y_field_name}")
+
+        # Helper function to navigate nested paths like "movie.title"
+        def get_nested_value(obj, path):
+            """Navigate a dotted path in a nested dict"""
+            parts = path.split(".")
+            current = obj
+            for part in parts:
+                if isinstance(current, dict):
+                    current = current.get(part)
+                    if current is None:
+                        return None
+                else:
+                    return None
+            return current
+
+        # Create a series for each base item
+        series_list = []
+        for idx, base_item in enumerate(base_items):
+            if not isinstance(base_item, dict):
+                print(f"[Chart] Skipping base item {idx}: not a dictionary")
+                continue
+
+            print(f"[Chart] Processing base item {idx}, keys: {list(base_item.keys())}")
+
+            # Get series identifier (might be nested like "movie.title")
+            series_id = get_nested_value(base_item, series_id_suffix)
+            if series_id is None:
+                series_id = f"Series {idx}"
+                print(f"[Chart]   Could not find series ID at path '{series_id_suffix}', using default: {series_id}")
+            else:
+                print(f"[Chart]   Found series ID: {series_id}")
+
+            # Get the nested array (might be nested like "movie.weeklyBoxOffice")
+            nested_array = get_nested_value(base_item, x_array_name)
+            if not isinstance(nested_array, list):
+                print(f"[Chart]   Path '{x_array_name}' did not yield an array (got {type(nested_array)}), skipping")
+                continue
+
+            print(f"[Chart]   Found nested array at '{x_array_name}' with {len(nested_array)} items")
+
+            # Extract x and y values from the nested array
+            x_values = []
+            y_values = []
+            for item in nested_array:
+                if isinstance(item, dict):
+                    x_val = item.get(x_field_name)
+                    y_val = item.get(y_field_name)
+                    if x_val is not None and y_val is not None:
+                        x_values.append(x_val)
+                        y_values.append(y_val)
+
+            print(f"[Chart]   Extracted {len(x_values)} x values and {len(y_values)} y values")
+
+            if len(x_values) != len(y_values) or len(x_values) == 0:
+                print(f"[Chart]   Skipping series: mismatched or empty data")
+                continue
+
+            # Create data points
+            data_points = []
+            for x_val, y_val in zip(x_values, y_values):
+                try:
+                    y_numeric = float(y_val) if y_val is not None else 0.0
+                    data_points.append(
+                        ChartDataPoint(x=str(x_val), y=y_numeric, name=None)
+                    )
+                except (ValueError, TypeError) as e:
+                    print(f"[Chart]   Skipping non-numeric y value: {y_val} for x={x_val}, error: {e}")
+
+            if data_points:
+                series_list.append(ChartSeries(name=str(series_id), data=data_points))
+                print(f"[Chart]   Created series '{series_id}' with {len(data_points)} points")
+
+        if series_list:
+            self._component_data.data = series_list
+            print(f"[Chart] Successfully created {len(series_list)} series")
+        else:
+            print("[Chart] No series created from nested time-series data")
+
     def _create_single_point_chart(
         self, json_data: Any, component: UIComponentMetadata, field: Any
     ):
@@ -299,6 +551,64 @@ class ChartDataTransformer(DataTransformerBase[ComponentDataChart]):
                     print("[Chart] Value is not numeric, cannot create chart")
         except Exception as e:
             print(f"[Chart] Error creating single-point chart: {e}")
+    
+    def _create_frequency_chart(
+        self, json_data: Any, component: UIComponentMetadata, field: Any
+    ):
+        """Create a pie/donut chart by counting occurrences of categories (for single field)."""
+        from jsonpath_ng import parse
+        from collections import Counter
+
+        print(f"[Chart] Creating frequency chart for field: {field.name}")
+
+        # Try to extract categories from the single field
+        try:
+            # Use the same normalization as multi-field extraction
+            data_path = self._normalize_data_path(field.data_path)
+            print(
+                f"[Chart] Normalized field path: '{field.data_path}' -> '{data_path}'"
+            )
+
+            jsonpath_expr = parse(data_path)
+            matches = jsonpath_expr.find(json_data)
+            print(f"[Chart] Found {len(matches)} matches for frequency chart")
+
+            if matches and len(matches) > 0:
+                # Extract all category values, flattening lists/arrays
+                categories = []
+                for match in matches:
+                    value = match.value
+                    # If the extracted value is a list/array, flatten it
+                    if isinstance(value, (list, tuple)):
+                        print(f"[Chart] Flattening list/array: {value}")
+                        categories.extend([str(item) for item in value])
+                    else:
+                        categories.append(str(value))
+                
+                print(f"[Chart] Extracted categories: {categories[:20]}{'...' if len(categories) > 20 else ''}")
+                
+                # Count occurrences
+                category_counts = Counter(categories)
+                print(f"[Chart] Category counts: {dict(category_counts)}")
+                
+                # Create data points from counts
+                data_points = []
+                for category, count in category_counts.items():
+                    data_points.append(ChartDataPoint(x=category, y=float(count)))
+                
+                if data_points:
+                    self._component_data.data = [
+                        ChartSeries(name=field.name, data=data_points)
+                    ]
+                    print(f"[Chart] Created frequency chart with {len(data_points)} categories")
+                else:
+                    print("[Chart] No data points created from frequency counts")
+            else:
+                print("[Chart] No matches found, cannot create frequency chart")
+        except Exception as e:
+            print(f"[Chart] Error creating frequency chart: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _normalize_data_path(self, data_path: str) -> str:
         """Normalize LLM-generated data paths to valid JSONPath."""
@@ -306,6 +616,11 @@ class ChartDataTransformer(DataTransformerBase[ComponentDataChart]):
 
         # Clean up whitespace and convert spaces to dots
         data_path = data_path.strip().replace(" ", ".")
+
+        # Pattern 0: Remove invalid [size:N] or [size up to N] syntax that LLM sometimes generates
+        # "genres[size:1][*]" or "genres[size up to 6][*]" -> "genres[*]"
+        data_path = re.sub(r"\[size[^\]]*\]", "", data_path)
+        print(f"[Chart] After removing [size:N]: {data_path}")
 
         # Pattern 1: Remove array indices [0], [1], etc. -> treat like []
         # "movies[0].imdbRating" -> "movies.imdbRating"

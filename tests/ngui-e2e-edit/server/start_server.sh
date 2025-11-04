@@ -42,5 +42,5 @@ echo "PYTHONPATH: $PYTHONPATH"
 echo "LLM_MODEL: $LLM_MODEL"
 echo "LLM_BASE_URL: $LLM_BASE_URL"
 echo ""
-"$PYTHON_BIN" -m uvicorn main:app --reload
+"$PYTHON_BIN" -m uvicorn main:app --reload --log-level info
 
