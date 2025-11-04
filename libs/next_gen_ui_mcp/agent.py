@@ -207,7 +207,7 @@ class NextGenUIMCPServer:
             structured_data: Annotated[
                 List[InputData] | None,
                 Field(
-                    description="Structured Input Data. Array of objects with 'id' and 'data' keys. NEVER generate this."
+                    description="Structured Input Data. Array of objects with 'id', 'data' and 'type' keys. NEVER generate this."
                 ),
             ] = None,
         ) -> ToolResult:
@@ -235,6 +235,9 @@ class NextGenUIMCPServer:
                         for data in structured_data
                     ]
                 )
+                # TODO: Consider using Progress to inform client about the progress and send result of individual component processing
+                # https://modelcontextprotocol.io/specification/2025-03-26/basic/utilities/progress
+
                 # Format output as artifacts
                 human_output = [
                     "Components are rendered in UI.",

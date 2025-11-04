@@ -583,7 +583,7 @@ async def test_tool_generate_ui_description_all() -> None:
     )
     assert (
         tool_generate_ui.inputSchema["properties"]["structured_data"]["description"]
-        == "Structured Input Data. Array of objects with 'id' and 'data' keys. NEVER generate this."
+        == "Structured Input Data. Array of objects with 'id', 'data' and 'type' keys. NEVER generate this."
     )
     assert tool_generate_ui.description == (
         "Generate multiple UI components for given user_prompt. "
