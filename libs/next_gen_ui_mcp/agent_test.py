@@ -384,6 +384,28 @@ async def test_generate_ui_component_data_id_gen(
 
 
 @pytest.mark.asyncio
+async def test_generate_ui_component_no_data(external_inference) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        name="TestAgentExternal",
+        inference=external_inference,
+    )
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        with pytest.raises(Exception) as excinfo:
+            await client.call_tool(
+                "generate_ui_component",
+                {
+                    "user_prompt": "Tell me brief details of Toy Story",
+                    # "data": json.dumps(movies_data, default=str),
+                    "data_type": "data_type_ignored",
+                },
+            )
+    # Test standard MCP behaviour
+    assert str(excinfo.value) == "Input validation error: 'data' is a required property"
+
+
+@pytest.mark.asyncio
 async def test_generate_ui_multiple_components_no_data(external_inference) -> None:
     ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),

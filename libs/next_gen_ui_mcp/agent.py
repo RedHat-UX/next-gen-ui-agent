@@ -138,14 +138,9 @@ class NextGenUIMCPServer:
                 ),
             ] = None,
         ) -> ToolResult:
-            if data and data_type:
-                if not data_id:
-                    data_id = str(uuid.uuid4())
-                input_data = InputData(data=data, type=data_type, id=data_id)
-            else:
-                raise ValueError(
-                    "No data or data_type arguments provided. No UI component generated."
-                )
+            if not data_id:
+                data_id = str(uuid.uuid4())
+            input_data = InputData(data=data, type=data_type, id=data_id)
 
             inference = await self.get_ngui_inference(ctx)
 
