@@ -8,7 +8,13 @@ from mcp import types
 from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import AgentConfig, AgentInput, InputData, UIBlock
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    AgentInput,
+    InputData,
+    UIBlock,
+    UIComponentMetadata,
+)
 from next_gen_ui_mcp.types import MCPGenerateUIOutput
 from pydantic import Field
 
@@ -94,6 +100,7 @@ class NextGenUIMCPServer:
             self.enabled_tools = MCP_ALL_TOOLS
         self._setup_mcp_tools()
         self.inference = inference
+        self.ngui_agent = NextGenUIAgent(config=self.config)
 
     def _setup_mcp_tools(self) -> None:
         """Set up MCP tools for the agent."""
@@ -139,14 +146,54 @@ class NextGenUIMCPServer:
             if data and data_type:
                 if not data_id:
                     data_id = str(uuid.uuid4())
-                structured_data = [InputData(data=data, type=data_type, id=data_id)]
-                return await self.generate_ui(
-                    ctx=ctx, user_prompt=user_prompt, structured_data=structured_data
-                )
+                input_data = InputData(data=data, type=data_type, id=data_id)
             else:
                 raise ValueError(
                     "No data or data_type arguments provided. No UI component generated."
                 )
+
+            inference = await self.get_ngui_inference(ctx)
+
+            await ctx.info("Starting UI generation...")
+
+            try:
+                # Run the complete agent pipeline using the configured inference
+                # 1. Component selection
+                await ctx.info("Performing component selection...")
+                component_metadata = await self.ngui_agent.select_component(
+                    user_prompt=user_prompt, input_data=input_data, inference=inference
+                )
+
+                # 2. Data transformation
+                await ctx.info("Transforming data to match components...")
+                components_data = self.ngui_agent.transform_data(
+                    input_data=input_data, component=component_metadata
+                )
+
+                # 3. Design system rendering
+                await ctx.info("Rendering final UI components...")
+                rendering = self.ngui_agent.generate_rendering(
+                    component=components_data,
+                    component_system=self.config.component_system,
+                )
+
+            except Exception as e:
+                logger.exception("Error during UI generation")
+                await ctx.error(f"UI generation failed: {e}")
+                raise e
+
+            await ctx.info(f"Successfully generated UI component")
+
+            block_config = self.ngui_agent.construct_UIBlockConfiguration(
+                input_data=input_data,
+                component_metadata=component_metadata,
+            )
+            ui_block = UIBlock(
+                id=rendering.id, rendering=rendering, configuration=block_config
+            )
+            summary = f"Component is rendered in UI. {self.component_info(component_metadata)}"
+
+            return self.create_mcp_output(blocks=[ui_block], summary=summary)
 
         @self.mcp.tool(
             name="generate_ui_multiple_components",
@@ -179,9 +226,67 @@ class NextGenUIMCPServer:
                 raise ValueError(
                     "No data provided! Get data from another tool again and then call this tool again."
                 )
-            return await self.generate_ui(
-                ctx=ctx, user_prompt=user_prompt, structured_data=structured_data
+
+            inference = await self.get_ngui_inference(ctx)
+
+            await ctx.info("Starting UI generation...")
+
+            # Create agent input
+            agent_input = AgentInput(
+                user_prompt=user_prompt, input_data=structured_data
             )
+
+            try:
+                # Run the complete agent pipeline using the configured inference
+                # 1. Component selection
+                await ctx.info("Performing component selection...")
+                components = await self.ngui_agent.component_selection(
+                    input=agent_input, inference=inference
+                )
+
+                # 2. Data transformation
+                await ctx.info("Transforming data to match components...")
+                components_data = self.ngui_agent.data_transformation(
+                    input_data=structured_data, components=components
+                )
+
+                # 3. Design system rendering
+                await ctx.info("Rendering final UI components...")
+                renderings = self.ngui_agent.design_system_handler(
+                    components=components_data,
+                    component_system=self.config.component_system,
+                )
+            except Exception as e:
+                logger.exception("Error during UI generation")
+                await ctx.error(f"UI generation failed: {e}")
+                raise e
+
+            await ctx.info(f"Successfully generated {len(renderings)} UI components")
+
+            # Format output as artifacts
+            human_output = [
+                "Components are rendered in UI.",
+                f"Count: {len(components)}",
+            ]
+
+            blocks: list[UIBlock] = []
+            for index, r in enumerate(renderings):
+                component_metadata = next(c for c in components if c.id == r.id)
+                data = next(sd for sd in structured_data if sd["id"] == r.id)
+
+                block_config = self.ngui_agent.construct_UIBlockConfiguration(
+                    input_data=data,
+                    component_metadata=component_metadata,
+                )
+
+                blocks.append(UIBlock(id=r.id, rendering=r, configuration=block_config))
+                human_output.append(
+                    f"{index + 1}. {self.component_info(component_metadata)}"
+                )
+
+            human_output_str = "\n".join(human_output)
+
+            return self.create_mcp_output(blocks=blocks, summary=human_output_str)
 
         @self.mcp.resource(
             "system://info",
@@ -198,124 +303,51 @@ class NextGenUIMCPServer:
                 ],
             }
 
-    async def generate_ui(
+    async def get_ngui_inference(self, ctx: Context) -> InferenceBase:
+        # Choose inference provider based on configuration
+        if not self.inference:
+            # Create sampling-based inference using the MCP context
+            inference = MCPSamplingInference(ctx, max_tokens=self.sampling_max_tokens)
+            await ctx.info("Using MCP sampling to leverage client's LLM...")
+            return inference
+        else:
+            # Using external inference provider
+            await ctx.info("Using external inference provider...")
+            return self.inference
+
+    def component_info(self, component_metadata: UIComponentMetadata) -> str:
+        return (
+            f"Title: '{component_metadata.title}', type: {component_metadata.component}"
+        )
+
+    def create_mcp_output(
         self,
-        ctx: Context,
-        user_prompt: str,
-        structured_data: List[InputData],
+        blocks: list[UIBlock],
+        summary: str,
     ) -> ToolResult:
-        """Generate UI components from user prompt and input data.
 
-        This tool can use either external inference providers or MCP sampling capabilities.
-        When external inference is provided, it uses that directly. Otherwise, it creates
-        an InferenceBase using MCP sampling to leverage the client's LLM.
+        output = MCPGenerateUIOutput(blocks=blocks, summary=summary)
 
-        Args:
-            user_prompt: User's request or prompt describing what UI to generate
-            structured_data: List of input data items with 'id' and 'data' keys
-            ctx: MCP context providing access to sampling capabilities
-
-        Returns:
-            List of rendered UI components ready for display
-        """
-
-        if not structured_data or len(structured_data) == 0:
-            # TODO: Do analysis of input_data and check if data field contains data or not
-            raise ValueError("No data provided. No UI component generated.")
-
-        try:
-            inference = self.inference
-
-            # Choose inference provider based on configuration
-            if not inference:
-                # Create sampling-based inference using the MCP context
-                inference = MCPSamplingInference(
-                    ctx, max_tokens=self.sampling_max_tokens
-                )
-                await ctx.info("Using MCP sampling to leverage client's LLM...")
-            else:
-                # Using external inference provider
-                await ctx.info("Using external inference provider...")
-
-            # Instantiate NextGenUIAgent with the chosen inference
-            ngui_agent = NextGenUIAgent(config=self.config, inference=inference)
-
-            await ctx.info("Starting UI generation...")
-
-            # Create agent input
-            agent_input = AgentInput(
-                user_prompt=user_prompt, input_data=structured_data
+        if self.structured_output_enabled:
+            return ToolResult(
+                content=[TextContent(text=summary, type="text")],
+                structured_content=output.model_dump(
+                    exclude_unset=True, exclude_defaults=True, exclude_none=True
+                ),
             )
-
-            # Run the complete agent pipeline using the configured inference
-            # 1. Component selection
-            await ctx.info("Performing component selection...")
-            components = await ngui_agent.component_selection(input=agent_input)
-
-            # 2. Data transformation
-            await ctx.info("Transforming data to match components...")
-            components_data = ngui_agent.data_transformation(
-                input_data=structured_data, components=components
+        else:
+            return ToolResult(
+                content=[
+                    TextContent(
+                        text=output.model_dump_json(
+                            exclude_unset=True,
+                            exclude_defaults=True,
+                            exclude_none=True,
+                        ),
+                        type="text",
+                    )
+                ]
             )
-
-            # 3. Design system rendering
-            await ctx.info("Rendering final UI components...")
-            renderings = ngui_agent.design_system_handler(
-                components=components_data,
-                component_system=self.config.component_system,
-            )
-
-            await ctx.info(f"Successfully generated {len(renderings)} UI components")
-
-            # Format output as artifacts
-            human_output = [
-                "Components are rendered in UI.",
-                f"Count: {len(components_data)}",
-            ]
-
-            blocks: list[UIBlock] = []
-            for index, r in enumerate(renderings):
-                component_metadata = next(c for c in components if c.id == r.id)
-                input_data = next(sd for sd in structured_data if sd["id"] == r.id)
-
-                block_config = ngui_agent.construct_UIBlockConfiguration(
-                    input_data=input_data,
-                    component_metadata=component_metadata,
-                )
-
-                blocks.append(UIBlock(id=r.id, rendering=r, configuration=block_config))
-
-                c_info = f"{index + 1}. Title: '{component_metadata.title}', type: {component_metadata.component}"
-                human_output.append(c_info)
-
-            human_output_str = "\n".join(human_output)
-            output = MCPGenerateUIOutput(blocks=blocks, summary=human_output_str)
-
-            if self.structured_output_enabled:
-                return ToolResult(
-                    content=[TextContent(text=human_output_str, type="text")],
-                    structured_content=output.model_dump(
-                        exclude_unset=True, exclude_defaults=True, exclude_none=True
-                    ),
-                )
-            else:
-                return ToolResult(
-                    content=[
-                        TextContent(
-                            text=output.model_dump_json(
-                                exclude_unset=True,
-                                exclude_defaults=True,
-                                exclude_none=True,
-                            ),
-                            type="text",
-                        )
-                    ]
-                )
-
-        except Exception as e:
-            logger.exception("Error during UI generation")
-            await ctx.error(f"UI generation failed: {e}")
-            raise e
 
     def run(
         self,

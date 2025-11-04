@@ -13,7 +13,7 @@ from next_gen_ui_testing.model import MockedExceptionInference, MockedInference
 
 
 @pytest.mark.asyncio
-async def test_mcp_agent_with_sampling_inference() -> None:
+async def test_generate_ui_multiple_components_sampling_inference() -> None:
     """Test the MCP agent's generate_ui tool functionality with mocked sampling."""
     from unittest.mock import patch
 
@@ -89,7 +89,9 @@ async def test_mcp_agent_with_sampling_inference() -> None:
 
 
 @pytest.mark.asyncio
-async def test_mcp_agent_with_sampling_inference_bad_return_type() -> None:
+async def test_generate_ui_multiple_components_sampling_inference_bad_return_type() -> (
+    None
+):
     # client sampling handler with mocked response
     async def sampling_handler_image(_messages, _params, _context):
         image = types.ImageContent(type="image", data="", mimeType="t")
@@ -148,7 +150,9 @@ def external_inference():
 
 
 @pytest.mark.asyncio
-async def test_mcp_agent_with_external_inference(external_inference) -> None:
+async def test_generate_ui_multiple_components_external_inference(
+    external_inference,
+) -> None:
     """Test the MCP agent's generate_ui tool functionality with external inference provider."""
 
     # Create agent with external inference (not using MCP sampling)
@@ -217,7 +221,7 @@ async def test_mcp_agent_with_external_inference(external_inference) -> None:
 
 
 @pytest.mark.asyncio
-async def test_mcp_agent_with_external_inference_no_structured_output(
+async def test_generate_ui_multiple_components_external_inference_no_structured_output(
     external_inference,
 ) -> None:
     """Test the MCP agent's generate_ui tool functionality with external inference provider."""
@@ -266,7 +270,7 @@ async def test_mcp_agent_with_external_inference_no_structured_output(
 
 
 @pytest.mark.asyncio
-async def test_generate_ui(
+async def test_generate_ui_component(
     external_inference,
 ) -> None:
     ngui_agent = NextGenUIMCPServer(
@@ -276,9 +280,6 @@ async def test_generate_ui(
     )
 
     movies_data = find_movie("Toy Story")
-    # input_data: List[InputData] = [
-    #     {"id": "external_test_id", "data": json.dumps(movies_data, default=str)}
-    # ]
 
     async with Client(ngui_agent.get_mcp_server()) as client:
         result = await client.call_tool(
@@ -296,6 +297,11 @@ async def test_generate_ui(
 
     # Parse the JSON response
     output = MCPGenerateUIOutput.model_validate(result.data)
+    assert (
+        output.summary
+        == "Component is rendered in UI. Title: 'Toy Story External', type: one-card"
+    )
+
     rendering = output.blocks[0].rendering
     # Verify the component structure
     assert rendering is not None
@@ -309,7 +315,42 @@ async def test_generate_ui(
 
 
 @pytest.mark.asyncio
-async def test_generate_ui_data_id_gen(
+async def test_generate_ui_component_sampling_inference_bad_return_type() -> None:
+    # client sampling handler with mocked response
+    async def sampling_handler_image(_messages, _params, _context):
+        image = types.ImageContent(type="image", data="", mimeType="t")
+        response = CreateMessageResult(content=image, role="assistant", model="t")
+        return response
+
+    ngui_agent = NextGenUIMCPServer(config=AgentConfig(component_system="json"))
+
+    # Get the FastMCP server
+    mcp_server = ngui_agent.get_mcp_server()
+
+    # Create test input data
+    movies_data = find_movie("Toy Story")
+
+    # Mock the context methods to avoid the "context not available" error during testing
+    async with Client(mcp_server, sampling_handler=sampling_handler_image) as client:
+        # Test the generate_ui tool through the MCP server
+        with pytest.raises(Exception) as excinfo:
+            await client.call_tool(
+                "generate_ui_component",
+                {
+                    "user_prompt": "Tell me brief details of Toy Story",
+                    "data": json.dumps(movies_data, default=str),
+                    "data_type": "data_type_ignored",
+                    "data_id": "external_test_id",
+                },
+            )
+        assert (
+            str(excinfo.value)
+            == "Error calling tool 'generate_ui_component': Failed to call model via MCP sampling: Sample Response returned unknown type: image"
+        )
+
+
+@pytest.mark.asyncio
+async def test_generate_ui_component_data_id_gen(
     external_inference,
 ) -> None:
     ngui_agent = NextGenUIMCPServer(
@@ -366,7 +407,7 @@ async def test_generate_ui_multiple_components_no_data(external_inference) -> No
 
 
 @pytest.mark.asyncio
-async def test_generate_ui_data_configuration(external_inference) -> None:
+async def test_generate_ui_component_data_configuration(external_inference) -> None:
     ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),
         name="TestAgentExternal",
