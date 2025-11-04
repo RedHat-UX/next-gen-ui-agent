@@ -9,7 +9,12 @@ from mcp import types
 from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import AgentConfig, InputData, UIBlock, UIComponentMetadata
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    InputData,
+    UIBlock,
+    UIBlockConfiguration,
+)
 from next_gen_ui_mcp.types import MCPGenerateUIOutput
 from pydantic import Field
 
@@ -140,50 +145,23 @@ class NextGenUIMCPServer:
         ) -> ToolResult:
             if not data_id:
                 data_id = str(uuid.uuid4())
-            input_data = InputData(data=data, type=data_type, id=data_id)
-
-            inference = await self.get_ngui_inference(ctx)
 
             await ctx.info("Starting UI generation...")
-
             try:
-                # Run the complete agent pipeline using the configured inference
-                # 1. Component selection
-                await ctx.info("Performing component selection...")
-                component_metadata = await self.ngui_agent.select_component(
-                    user_prompt=user_prompt, input_data=input_data, inference=inference
+                input_data = InputData(data=data, type=data_type, id=data_id)
+                inference = await self.get_ngui_inference(ctx)
+                ui_block = await self.generate_ui_block(
+                    ctx=ctx,
+                    user_prompt=user_prompt,
+                    input_data=input_data,
+                    inference=inference,
                 )
-
-                # 2. Data transformation
-                await ctx.info("Transforming data to match components...")
-                components_data = self.ngui_agent.transform_data(
-                    input_data=input_data, component=component_metadata
-                )
-
-                # 3. Design system rendering
-                await ctx.info("Rendering final UI components...")
-                rendering = self.ngui_agent.generate_rendering(
-                    component=components_data,
-                    component_system=self.config.component_system,
-                )
-
+                summary = f"Component is rendered in UI. {self.component_info(ui_block.configuration)}"
+                return self.create_mcp_output(blocks=[ui_block], summary=summary)
             except Exception as e:
                 logger.exception("Error during UI generation")
                 await ctx.error(f"UI generation failed: {e}")
                 raise e
-
-            await ctx.info("Successfully generated UI component")
-
-            block_config = self.ngui_agent.construct_UIBlockConfiguration(
-                input_data=input_data,
-                component_metadata=component_metadata,
-            )
-            ui_block = UIBlock(
-                id=rendering.id, rendering=rendering, configuration=block_config
-            )
-            summary = f"Component is rendered in UI. {self.component_info(component_metadata)}"
-
-            return self.create_mcp_output(blocks=[ui_block], summary=summary)
 
         @self.mcp.tool(
             name="generate_ui_multiple_components",
@@ -221,73 +199,46 @@ class NextGenUIMCPServer:
 
             await ctx.info("Starting UI generation...")
 
-            try:
-                # Run the complete agent pipeline using the configured inference
-                # 1. Component selection
-                await ctx.info("Performing component selection...")
-                components = await asyncio.gather(
-                    *[
-                        self.ngui_agent.select_component(
-                            user_prompt=user_prompt,
-                            input_data=data,
-                            inference=inference,
-                        )
-                        for data in structured_data
-                    ]
+            tasks = [
+                asyncio.create_task(
+                    self.generate_ui_block(
+                        ctx=ctx,
+                        user_prompt=user_prompt,
+                        input_data=input_data,
+                        inference=inference,
+                    )
                 )
-                # TODO: Consider using Progress to inform client about the progress and send result of individual component processing
-                # https://modelcontextprotocol.io/specification/2025-03-26/basic/utilities/progress
+                for input_data in structured_data
+            ]
+            success_output = ["\nSuccessful generated components:"]
+            failed_output = ["\nFailed component generation:"]
+            blocks = []
+            for completed_task in asyncio.as_completed(tasks):
+                try:
+                    # TODO: Consider using Progress to inform client about the progress and send result of individual component processing
+                    # https://modelcontextprotocol.io/specification/2025-03-26/basic/utilities/progress
 
-                # Format output as artifacts
-                human_output = [
-                    "Components are rendered in UI.",
-                    f"Count: {len(components)}",
-                ]
-                for index, component_metadata in enumerate(components):
-                    # 2. Data transformation
-                    await ctx.info("Transforming data to match components...")
-                    component_data = self.ngui_agent.transform_data(
-                        input_data=structured_data[index], component=component_metadata
+                    ui_block: UIBlock = await completed_task
+
+                    blocks.append(ui_block)
+                    success_output.append(
+                        f"{len(success_output)}. {self.component_info(ui_block.configuration)}"
+                    )
+                except Exception as e:
+                    logger.exception("Error processing component")
+                    failed_output.append(
+                        f"{len(failed_output)}. UI generation failed for this component. {e}"
                     )
 
-                    # 3. Design system rendering
-                    await ctx.info("Rendering final UI components...")
-                    rendering = self.ngui_agent.generate_rendering(
-                        component=component_data,
-                        component_system=self.config.component_system,
-                    )
-
-                    blocks: list[UIBlock] = []
-                    data = next(
-                        sd for sd in structured_data if sd["id"] == rendering.id
-                    )
-
-                    block_config = self.ngui_agent.construct_UIBlockConfiguration(
-                        input_data=data,
-                        component_metadata=component_metadata,
-                    )
-
-                    blocks.append(
-                        UIBlock(
-                            id=rendering.id,
-                            rendering=rendering,
-                            configuration=block_config,
-                        )
-                    )
-                    human_output.append(
-                        f"{index + 1}. {self.component_info(component_metadata)}"
-                    )
-
-                await ctx.info(
-                    f"Successfully generated {len(components)} UI components"
-                )
-                return self.create_mcp_output(
-                    blocks=blocks, summary="\n".join(human_output)
-                )
-            except Exception as e:
-                logger.exception("Error during UI generation")
-                await ctx.error(f"UI generation failed: {e}")
-                raise e
+            await ctx.info(
+                f"Successfully generated {len(success_output)} UI components. Failed: {len(failed_output)} "
+            )
+            summary = "UI components generation summary:"
+            if len(success_output) > 1:
+                summary += "\n".join(success_output)
+            if len(failed_output) > 1:
+                summary += "\n".join(failed_output)
+            return self.create_mcp_output(blocks=blocks, summary=summary)
 
         @self.mcp.resource(
             "system://info",
@@ -316,10 +267,57 @@ class NextGenUIMCPServer:
             await ctx.info("Using external inference provider...")
             return self.inference
 
-    def component_info(self, component_metadata: UIComponentMetadata) -> str:
-        return (
-            f"Title: '{component_metadata.title}', type: {component_metadata.component}"
+    async def generate_ui_block(
+        self,
+        ctx: Context,
+        user_prompt: str,
+        input_data: InputData,
+        inference: InferenceBase,
+    ) -> UIBlock:
+        await ctx.info("Starting UI generation...")
+
+        # Run the complete agent pipeline using the configured inference
+        # 1. Component selection
+        await ctx.info("Performing component selection...")
+        component_metadata = await self.ngui_agent.select_component(
+            user_prompt=user_prompt, input_data=input_data, inference=inference
         )
+
+        # 2. Data transformation
+        await ctx.info("Transforming data to match components...")
+        components_data = self.ngui_agent.transform_data(
+            input_data=input_data, component=component_metadata
+        )
+
+        # 3. Design system rendering
+        await ctx.info("Rendering final UI components...")
+        rendering = self.ngui_agent.generate_rendering(
+            component=components_data,
+            component_system=self.config.component_system,
+        )
+        await ctx.info("Successfully generated UI component")
+
+        block_config = self.ngui_agent.construct_UIBlockConfiguration(
+            input_data=input_data,
+            component_metadata=component_metadata,
+        )
+        ui_block = UIBlock(
+            id=rendering.id, rendering=rendering, configuration=block_config
+        )
+        return ui_block
+
+    def component_info(self, uiblock_config: UIBlockConfiguration | None) -> str:
+        if not uiblock_config:
+            return ""
+        c_info = []
+        if uiblock_config.data_type:
+            c_info.append(f"data_type: '{uiblock_config.data_type}'")
+        if uiblock_config.component_metadata:
+            c_info.append(f"title: '{uiblock_config.component_metadata.title}'")
+            c_info.append(
+                f"component_type: {uiblock_config.component_metadata.component}"
+            )
+        return ", ".join(c_info)
 
     def create_mcp_output(
         self,

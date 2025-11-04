@@ -160,6 +160,9 @@ Object containing:
 - UI blocks with rendering and configuration
 - summary
 
+When error occurs during the execution valid ui blocks are rendered. The failing UI Block is mentioned in the summary and don't appear in `blocks` field.
+
+
 By default the result is provided as [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) where structured content contains JSON object and the text content just "human readable summary".
 It's beneficial to send to Agent only text summary for LLM processing and use structured content for UI rendering on client side.
 
@@ -229,6 +232,8 @@ You can find schema for the reponse in [spec/mcp/generate_ui_output.schema.json]
 The tool that wraps the entire Next Gen UI Agent functionality and with decomposed one input object into individual arguments.
 
 Useful for agents which are able to pass one tool cool result to another.
+
+When error occures, whole tool execution fails.
 
 **Parameters:**
 
