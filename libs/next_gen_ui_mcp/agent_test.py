@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastmcp import Client, Context
+from fastmcp.exceptions import ToolError
 from mcp import CreateMessageResult, types
 from next_gen_ui_agent.types import AgentConfig, InputData, UIComponentMetadata
 from next_gen_ui_mcp import MCPGenerateUIOutput, NextGenUIMCPServer
@@ -403,6 +404,38 @@ async def test_generate_ui_component_no_data(external_inference) -> None:
             )
     # Test standard MCP behaviour
     assert str(excinfo.value) == "Input validation error: 'data' is a required property"
+
+
+@pytest.mark.asyncio
+async def test_generate_ui_component_bad_json(external_inference) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        name="TestAgentExternal",
+        inference=external_inference,
+    )
+
+    movies_data = """{
+        "languages": ["English"],
+        "year": 1995,
+        "imdbId": bad bad bad,
+    }
+"""
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        with pytest.raises(ToolError) as excinfo:
+            await client.call_tool(
+                "generate_ui_component",
+                {
+                    "user_prompt": "Tell me brief details of Toy Story",
+                    "data": movies_data,
+                    "data_type": "data_type_ignored",
+                },
+            )
+    # Test standard MCP behaviour
+    assert (
+        str(excinfo.value)
+        == "Error calling tool 'generate_ui_component': Invalid JSON format of the Input Data: Expecting value: line 4 column 19 (char 76)"
+    )
 
 
 @pytest.mark.asyncio
