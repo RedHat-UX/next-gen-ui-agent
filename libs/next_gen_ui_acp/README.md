@@ -3,13 +3,22 @@
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
 [![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
-[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Deprecated-lightgray)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 Support for [Agent Communication Protocol (ACP)](https://agentcommunicationprotocol.dev/)
+
+**Important Note**: ACP is depracated and is now part of A2A under the Linux Foundation!
 
 ## Provides
 
 * `NextGenUIACPAgent` - code for easy implementation of the ACP server
+    * processes data from every message after latest `role=user` (including), from the first part if it contains `Artifact` or has `trajectory` metadata
+    * `tool_name` from the `trajectory` metadata is used as UI Agent `InputData.type` if present
+    * UI Agent `InputData.id` is randomly generted
+    * processes data in parallel, yields `Message` for every processed piece of data, 
+      with `role=agent` and one `Artifact` containing `trajectory` metadata with `tool_name=next_gen_ui_agent`:
+        * success - Artifact with `name`=`ui_block` and `content_type`=`application/json` and serialized `UIBlock` as a `content`.
+        * error - Artifact with `name`=`error` and `content_type`=`text/plain` and error message as a `content`.
 
 ## Installation
 
@@ -54,14 +63,7 @@ agent = NextGenUIACPAgent(
 async def ngui_agent(
     input: list[Message],
 ) -> AsyncGenerator[RunYield, RunYieldResume]:
-    try:
-        parts = await agent.run(input)
-        yield Message(parts=parts)
-
-    except Exception as e:
-        logger.exception("Error during ngui run")
-        yield Message(parts=[Artifact(content=e, name="error", role="tool")])
-
+   return agent.run(input)
 
 if __name__ == "__main__":
     logging.basicConfig()
