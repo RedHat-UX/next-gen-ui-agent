@@ -10,8 +10,12 @@ Support for [LangGraph](https://www.langchain.com/langgraph) framework.
 ## Provides
 
 * `NextGenUILangGraphAgent` - takes all tool messages from provided LanGraph states, and process data from them into UI components.
-
-Tool name is used as `InputData.type` for each tool message, so can be used for [Hand Build Component](../../docs/guide/data_ui_blocks/hand_build_components.md) selection based on mapping in UI Agent's configuration.
+  * Tool name is used as `InputData.type` for the UI Agent, so [distinct configurations](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/#data_types-dictstr-agentconfigdatatype-optional) 
+      can be applied based on it, like input data transformations, defined UI components (dynamic ot Hand Build) etc.
+  * `AgentOutputState` provides access to all objects from all UI Agent processing phases, including list of data processing errors.
+  * if `component_system` is not `none`, then AI and Tool messages with the results are also produced, both for successfully processed data and processing errors.
+  * successfull processing Tool message contains rendered output (frontend code for the used `component_system`). You can use 
+    `output_messages_with_ui_blocks` agent configuration to get complete `UIBlock` here.
 
 ## Installation
 
