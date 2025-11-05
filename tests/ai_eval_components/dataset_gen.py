@@ -93,40 +93,48 @@ def write_dataset_file(dataset_dir_path, component_name, file_index, dataset):
         json.dump(dataset, f, indent=2, separators=(",", ": "))
 
 
-if __name__ == "__main__":
-    # Parse command line arguments
+def print_help():
+    """Print help message for command line arguments."""
+    print("dataset_gen.py [options]")
+    print("\nOptions:")
+    print(
+        "  -s, --src <path>   Source directory (default: tests/ai_eval_components/dataset_src/)"
+    )
+    print(
+        "  -d, --dest <path>  Destination directory (default: tests/ai_eval_components/dataset/)"
+    )
+    print("  -h                 Show this help message")
+
+
+def load_config():
+    """
+    Load configuration from command line arguments.
+
+    Returns:
+        tuple: (src_path, dest_path) - source and destination directory paths
+    """
     src_path = BASE_MODULE_PATH + "dataset_src/"
     dest_path = BASE_DATASET_PATH
     try:
         opts, args = getopt.getopt(sys.argv[1:], "hs:d:", ["src=", "dest="])
     except getopt.GetoptError:
-        print("dataset_gen.py [options]")
-        print("\nOptions:")
-        print(
-            "  -s, --src <path>   Source directory (default: tests/ai_eval_components/dataset_src/)"
-        )
-        print(
-            "  -d, --dest <path>  Destination directory (default: tests/ai_eval_components/dataset/)"
-        )
-        print("  -h                 Show this help message")
+        print_help()
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == "-h":
-            print("dataset_gen.py [options]")
-            print("\nOptions:")
-            print(
-                "  -s, --src <path>   Source directory (default: tests/ai_eval_components/dataset_src/)"
-            )
-            print(
-                "  -d, --dest <path>  Destination directory (default: tests/ai_eval_components/dataset/)"
-            )
-            print("  -h                 Show this help message")
+            print_help()
             sys.exit()
         elif opt in ("-s", "--src"):
             src_path = arg
         elif opt in ("-d", "--dest"):
             dest_path = arg
+
+    return src_path, dest_path
+
+
+if __name__ == "__main__":
+    src_path, dest_path = load_config()
 
     print("Dataset generation started...")
     print(f"Source directory: {src_path}")
