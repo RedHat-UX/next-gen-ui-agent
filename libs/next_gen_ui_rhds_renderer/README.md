@@ -34,6 +34,10 @@ In this section we'll explain how to add support for rendering [hand build compo
 
 The process is as simple as creating a new renderer package by following steps which are documented [here](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/implementing_serverside/#a-step-by-step-guide-to-create-a-renderer-plugin) with one simplification of the process. In step 5, rather than implementing your own StrategyFactory from scratch, we suggest just extending the RhdsStrategyFactory and overriding two functions that will add the HBC support. Below you can see an example code how your code could look like. The benefit of going this route is that all the standard strategies for dynamically chosen components and Jinja templates remain as they are.
 
+As it's documented below in comment for HbcExampleRhdsStrategy you can also have your own Jinja templates on top of the existing ones.
+
+Full code example can be found in our examples repository [here](https://github.com/RedHat-UX/next-gen-ui-examples/tree/main/rhds-hbc-example-renderer).
+
 ```py
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_rhds_renderer.rhds_renderer import (
@@ -70,14 +74,14 @@ class HbcExampleRhdsStrategyFactory(RhdsStrategyFactory):
 class HbcExampleRhdsStrategy(RhdsStrategyBase):
     """
     Example strategy for HBC components that loads templates from the next_gen_ui_rhds_hbc_example_renderer module.
-    In case you need to load templates from a different module or folder you can override the __init__ method.
+    In case you need to load templates from a different folder you can override the __init__ method.
     Usage:
         class MyStrategy(HbcExampleRhdsStrategyBase):
             def __init__(self):
                 super().__init__("my_templates")
     """
-    pass
 
+    pass
 ```
 
 ## Links
