@@ -1,2 +1,3 @@
 mcp>=1.12.0
-fastmcp>=2.12.4
+# pinned to 2.12.5. Issue with 2.13. See NGUI-471
+fastmcp==2.12.5
