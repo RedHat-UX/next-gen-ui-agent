@@ -149,7 +149,7 @@ This single tool handles:
 **Parameters:**
 
 - `user_prompt` (str, required): User's prompt which we want to enrich with UI components
-- `input_data` (List[Dict], optional): List of input data to render within the UI components.
+- `structured_data` (List[Dict], required): List of structured input data. Each object has to have `id`, `data` and `type` field.
 
 You can find the input schema in [spec/mcp/generate_ui_input.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_input.schema.json).
 
@@ -159,6 +159,9 @@ Object containing:
 
 - UI blocks with rendering and configuration
 - summary
+
+When error occurs during the execution valid ui blocks are rendered. The failing UI Block is mentioned in the summary and don't appear in `blocks` field.
+
 
 By default the result is provided as [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) where structured content contains JSON object and the text content just "human readable summary".
 It's beneficial to send to Agent only text summary for LLM processing and use structured content for UI rendering on client side.
@@ -230,13 +233,14 @@ The tool that wraps the entire Next Gen UI Agent functionality and with decompos
 
 Useful for agents which are able to pass one tool cool result to another.
 
+When error occures, whole tool execution fails.
+
 **Parameters:**
 
 - `user_prompt` (str, required): User's prompt which we want to enrich with UI components
 - `data` (str, required): Raw input data to render within the UI components
 - `data_type` (str, required): Data type
-- `data_id` (str, required): ID of Data
-- `structured_data` (List[Dict], optional): List of input data to render within the UI components. Overrides all other data parameters. Not visible in schema.
+- `data_id` (str, optional): ID of Data. If not present, ID is generated.
 
 **Returns:**
 
