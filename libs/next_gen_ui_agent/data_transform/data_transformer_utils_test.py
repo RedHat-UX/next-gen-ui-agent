@@ -323,37 +323,19 @@ def test_fill_fields_with_data_SIMPLE_OBJECT() -> None:
             "title": "Toy Story Details",
             "fields": [
                 {"name": "String", "data_path": "movie.string"},
-                {
-                    "name": "Number Int",
-                    "data_path": "movie.numberint",
-                },
+                {"name": "Number Int", "data_path": "movie.numberint"},
                 {
                     "name": "Nested number float",
                     "data_path": "movie.nested.numberfloat",
                 },
                 {"name": "Boolean", "data_path": "movie.boolean"},
                 {"name": "Date", "data_path": "movie.date"},
-                {
-                    "name": "Array of strings",
-                    "data_path": "arrayofstrings[*]",
-                },
-                {
-                    "name": "Array of strings without [*]",
-                    "data_path": "arrayofstrings",
-                },
-                {
-                    "name": "Array one string",
-                    "data_path": "movie.arrayonestring[*]",
-                },
-                {
-                    "name": "Empty array",
-                    "data_path": "arrayempty[*]",
-                },
+                {"name": "Array of strings", "data_path": "arrayofstrings[*]"},
+                {"name": "Array of strings without [*]", "data_path": "arrayofstrings"},
+                {"name": "Array one string", "data_path": "movie.arrayonestring[*]"},
+                {"name": "Empty array", "data_path": "arrayempty[*]"},
                 {"name": "Null Field", "data_path": "nullfield"},
-                {
-                    "name": "Unknown Field",
-                    "data_path": "movie.unknownfield",
-                },
+                {"name": "Unknown Field", "data_path": "movie.unknownfield"},
                 {
                     "name": "Unknown Array Field",
                     "data_path": "movie.nested.unknownarray[*]",
@@ -362,10 +344,7 @@ def test_fill_fields_with_data_SIMPLE_OBJECT() -> None:
                     "name": "One subfield from array of objects",
                     "data_path": "arrayofobjects[*].id",
                 },
-                {
-                    "name": "Nested object",
-                    "data_path": "movie.nested",
-                },
+                {"name": "Nested object", "data_path": "movie.nested"},
                 {
                     "name": "Objects from array of objects",
                     "data_path": "arrayofobjects[*]",
@@ -488,51 +467,27 @@ def test_fill_fields_with_data_ARRAY() -> None:
             "component": "set-of-card",
             "title": "Toy Story Details",
             "fields": [
-                {
-                    "name": "String",
-                    "data_path": "movies[*].string",
-                },
-                {
-                    "name": "Number Int",
-                    "data_path": "movies[*].numberint",
-                },
+                {"name": "String", "data_path": "movies[*].string"},
+                {"name": "Number Int", "data_path": "movies[*].numberint"},
                 {
                     "name": "Nested number float",
                     "data_path": "movies[*].nested.numberfloat",
                 },
-                {
-                    "name": "Boolean",
-                    "data_path": "movies[*].boolean",
-                },
+                {"name": "Boolean", "data_path": "movies[*].boolean"},
                 {"name": "Date", "data_path": "movies[*].date"},
-                {
-                    "name": "Array of strings",
-                    "data_path": "movies[*].arrayofstrings",
-                },
+                {"name": "Array of strings", "data_path": "movies[*].arrayofstrings"},
                 {
                     "name": "Array of strings with [*]",
                     "data_path": "movies[*].arrayofstrings[*]",
                 },
-                {
-                    "name": "Array one string",
-                    "data_path": "movies[*].arrayonestring",
-                },
-                {
-                    "name": "Empty array",
-                    "data_path": "movies[*].arrayempty",
-                },
-                {
-                    "name": "Null Field",
-                    "data_path": "movies[*].nullfield",
-                },
+                {"name": "Array one string", "data_path": "movies[*].arrayonestring"},
+                {"name": "Empty array", "data_path": "movies[*].arrayempty"},
+                {"name": "Null Field", "data_path": "movies[*].nullfield"},
                 {
                     "name": "Null Field in one only",
                     "data_path": "movies[*].nullfieldinoneonly",
                 },
-                {
-                    "name": "Unknown Field",
-                    "data_path": "movies[*].unknownfield",
-                },
+                {"name": "Unknown Field", "data_path": "movies[*].unknownfield"},
                 {
                     "name": "Field in second only",
                     "data_path": "movies[*].fieldinsecondonly",
@@ -541,10 +496,7 @@ def test_fill_fields_with_data_ARRAY() -> None:
                     "name": "Unknown Array Field",
                     "data_path": "movies[*].nested.unknownarray[*]",
                 },
-                {
-                    "name": "Array of objects",
-                    "data_path": "movies[*].arrayofobjects",
-                },
+                {"name": "Array of objects", "data_path": "movies[*].arrayofobjects"},
                 {
                     "name": "Array of strings with []",
                     "data_path": "movies[*].arrayofstrings[*]",
@@ -668,56 +620,29 @@ def test_fill_fields_with_data_ARRAY_IN_ROOT() -> None:
             "title": "Toy Story Details",
             "fields": [
                 {"name": "String", "data_path": "[*].stringf"},
-                {
-                    "name": "Number Int",
-                    "data_path": "$..[*].numberint",
-                },
-                {
-                    "name": "Nested number float",
-                    "data_path": "[*].nested.numberfloat",
-                },
+                {"name": "Number Int", "data_path": "$..[*].numberint"},
+                {"name": "Nested number float", "data_path": "[*].nested.numberfloat"},
                 {"name": "Boolean", "data_path": "[*].boolean"},
                 {"name": "Date", "data_path": "[*].date"},
-                {
-                    "name": "Array of strings",
-                    "data_path": "[*].arrayofstrings",
-                },
+                {"name": "Array of strings", "data_path": "[*].arrayofstrings"},
                 {
                     "name": "Array of strings with [*]",
                     "data_path": "[*].arrayofstrings[*]",
                 },
-                {
-                    "name": "Array one string",
-                    "data_path": "[*].arrayonestring",
-                },
-                {
-                    "name": "Empty array",
-                    "data_path": "[*].arrayempty",
-                },
-                {
-                    "name": "Null Field",
-                    "data_path": "[*].nullfield",
-                },
+                {"name": "Array one string", "data_path": "[*].arrayonestring"},
+                {"name": "Empty array", "data_path": "[*].arrayempty"},
+                {"name": "Null Field", "data_path": "[*].nullfield"},
                 {
                     "name": "Null Field in one only",
                     "data_path": "[*].nullfieldinoneonly",
                 },
-                {
-                    "name": "Unknown Field",
-                    "data_path": "[*].unknownfield",
-                },
-                {
-                    "name": "Field in second only",
-                    "data_path": "[*].fieldinsecondonly",
-                },
+                {"name": "Unknown Field", "data_path": "[*].unknownfield"},
+                {"name": "Field in second only", "data_path": "[*].fieldinsecondonly"},
                 {
                     "name": "Unknown Array Field",
                     "data_path": "[*].nested.unknownarray[*]",
                 },
-                {
-                    "name": "Array of objects",
-                    "data_path": "[*].arrayofobjects",
-                },
+                {"name": "Array of objects", "data_path": "[*].arrayofobjects"},
                 {
                     "name": "Array of strings with []",
                     "data_path": "[*].arrayofstrings[*]",
@@ -827,31 +752,13 @@ def test_fill_fields_with_data_SIMPLE_OBJECT_IN_ARRAY_IN_ROOT() -> None:
                 },
                 {"name": "Boolean", "data_path": "boolean"},
                 {"name": "Date", "data_path": "date"},
-                {
-                    "name": "Array of strings",
-                    "data_path": "arrayofstrings[*]",
-                },
-                {
-                    "name": "Array of strings without [*]",
-                    "data_path": "arrayofstrings",
-                },
-                {
-                    "name": "Array one string",
-                    "data_path": "arrayonestring[*]",
-                },
-                {
-                    "name": "Empty array",
-                    "data_path": "arrayempty[*]",
-                },
+                {"name": "Array of strings", "data_path": "arrayofstrings[*]"},
+                {"name": "Array of strings without [*]", "data_path": "arrayofstrings"},
+                {"name": "Array one string", "data_path": "arrayonestring[*]"},
+                {"name": "Empty array", "data_path": "arrayempty[*]"},
                 {"name": "Null Field", "data_path": "nullfield"},
-                {
-                    "name": "Unknown Field",
-                    "data_path": "unknownfield",
-                },
-                {
-                    "name": "Unknown Array Field",
-                    "data_path": "nested.unknownarray[*]",
-                },
+                {"name": "Unknown Field", "data_path": "unknownfield"},
+                {"name": "Unknown Array Field", "data_path": "nested.unknownarray[*]"},
                 {
                     "name": "One subfield from array of objects",
                     "data_path": "arrayofobjects[*].id",
