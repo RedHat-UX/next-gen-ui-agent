@@ -536,6 +536,9 @@ async def test_generate_ui_component_data_configuration(external_inference) -> N
     assert component_metadata.title == "Toy Story External"
     assert component_metadata.fields is not None
 
+    assert component_metadata.fields[0].data_path == "$..movie.title"
+    assert component_metadata.fields[0].id == "title"
+
 
 @pytest.mark.asyncio
 async def test_mcp_agent_system_info_resource() -> None:

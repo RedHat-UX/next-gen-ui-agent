@@ -1,5 +1,6 @@
 from abc import ABC
 from typing import Any, Literal, Optional
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired, TypedDict
@@ -18,6 +19,9 @@ CONFIG_OPTIONS_DATA_TRANSFORMER = Optional[
 
 class DataField(BaseModel):
     """UI Component Field Metadata."""
+
+    id: str = Field(description="Field ID", default_factory=lambda: uuid4().hex)
+    """Field ID"""
 
     name: str = Field(description="Field name to be shown in the UI")
     """Field name to be shown in the UI."""

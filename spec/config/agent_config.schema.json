@@ -109,6 +109,10 @@
     "DataField": {
       "description": "UI Component Field Metadata.",
       "properties": {
+        "id": {
+          "description": "Field ID",
+          "type": "string"
+        },
         "name": {
           "description": "Field name to be shown in the UI",
           "type": "string"
