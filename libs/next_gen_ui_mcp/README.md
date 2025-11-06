@@ -194,26 +194,32 @@ Example:
           "component": "one-card",
           "fields": [
             {
+              "id": "title",
               "name": "Title",
               "data_path": "$..movie_detail.title"
             },
             {
+              "id": "year",
               "name": "Release Year",
               "data_path": "$..movie_detail.year"
             },
             {
+              "id": "imdbRating",
               "name": "IMDB Rating",
               "data_path": "$..movie_detail.imdbRating"
             },
             {
+              "id": "runtime",
               "name": "Runtime (min)",
               "data_path": "$..movie_detail.runtime"
             },
             {
+              "id": "plot",
               "name": "Plot",
               "data_path": "$..movie_detail.plot"
             },
             {
+              "id": "posterUrl",
               "name": "Poster",
               "data_path": "$..movie_detail.posterUrl"
             }

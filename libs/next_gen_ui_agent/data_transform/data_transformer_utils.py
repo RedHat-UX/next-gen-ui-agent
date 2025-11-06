@@ -1,6 +1,7 @@
 import logging
 import re
 from typing import Any, Callable
+from uuid import uuid4
 
 from jsonpath_ng import parse  # type: ignore
 from next_gen_ui_agent.data_transform.types import (
@@ -16,6 +17,39 @@ from next_gen_ui_agent.data_transform.validation.assertions import is_url_http
 from next_gen_ui_agent.types import DataField
 
 logger = logging.getLogger(__name__)
+
+
+def generate_field_id(source_str: str | None) -> str:
+    """
+    Generate field ID from data_path
+    If not provided, generate UUID4
+    """
+    if source_str is None or source_str == "":
+        return uuid4().hex
+
+    # pods_list_in_namespace[*].NAME
+    if not source_str.startswith("$") and "[*]." in source_str:
+        source_str = source_str[source_str.rindex("[*].") + 4 :]
+
+    source_str = (
+        source_str.replace("$..[*].", "")
+        .replace("$.[*].", "")
+        .replace("$..", "")
+        .replace("$.", "")
+    )
+
+    # movie.title
+    if "[" not in source_str and source_str.count(".") == 1:
+        source_str = source_str[source_str.rindex(".") + 1 :]
+
+    source_str = source_str.replace("[*].", "-").replace(".", "_")
+
+    result = re.sub(r"[^a-zA-Z0-9_-]", "", source_str)
+    result = result.strip()
+    if result == "":
+        return uuid4().hex
+
+    return result
 
 
 def copy_simple_fields_from_ui_component_metadata(
@@ -155,6 +189,8 @@ def fill_fields_with_simple_data(fields: list[DataFieldSimpleValue], json_data: 
     for field in fields:
         sp = sanitize_data_path(field.data_path)
         field.data_path = sp if sp else ""
+        if sp:
+            field.id = generate_field_id(field.data_path)
         field.data = sanitize_matched_simple_data(
             get_data_value_for_path(sp, json_data)
         )
@@ -189,6 +225,8 @@ def fill_fields_with_array_data(fields: list[DataFieldArrayValue], json_data: An
     for field in fields:
         sp = sanitize_data_path(field.data_path)
         field.data_path = sp if sp else ""
+        if sp:
+            field.id = generate_field_id(field.data_path)
         d = get_data_value_for_path(sp, json_data)
         field.data = sanitize_matched_array_data(d)
 

@@ -6,6 +6,7 @@ import pytest
 from fastmcp import Client, Context
 from fastmcp.exceptions import ToolError
 from mcp import CreateMessageResult, types
+from next_gen_ui_agent.data_transform.types import ComponentDataBaseWithArrayValueFileds
 from next_gen_ui_agent.types import AgentConfig, InputData, UIComponentMetadata
 from next_gen_ui_mcp import MCPGenerateUIOutput, NextGenUIMCPServer
 from next_gen_ui_mcp.__main__ import add_health_routes
@@ -74,17 +75,19 @@ async def test_generate_ui_multiple_components_sampling_inference() -> None:
     assert rendering.id == "test_id"
 
     assert rendering.content is not None
-    component = json.loads(rendering.content)
-    assert component["component"] == "one-card"
-    assert component["title"] == "Toy Story"
+    rendering_json = ComponentDataBaseWithArrayValueFileds.model_validate_json(
+        rendering.content
+    )
+    assert rendering_json.component == "one-card"
+    assert rendering_json.title == "Toy Story"
 
     # Verify some field data
-    assert len(component["fields"]) == 3
-    assert component["fields"][0]["name"] == "Title"
-    assert component["fields"][0]["data"] == ["Toy Story"]
+    assert len(rendering_json.fields) == 3
+    assert rendering_json.fields[0].name == "Title"
+    assert rendering_json.fields[0].data == ["Toy Story"]
 
-    assert component["fields"][1]["name"] == "Year"
-    assert component["fields"][1]["data"] == [1995]
+    assert rendering_json.fields[1].name == "Year"
+    assert rendering_json.fields[1].data == [1995]
 
     mock_info.assert_any_call("Using MCP sampling to leverage client's LLM...")
 
@@ -163,17 +166,21 @@ async def test_generate_ui_multiple_components_external_inference(
 
     # Parse the inner content to verify the UI component structure
     assert rendering.content is not None
-    component = json.loads(rendering.content)
-    assert component["component"] == "one-card"
-    assert component["title"] == "Toy Story External"
+    rendering_json = ComponentDataBaseWithArrayValueFileds.model_validate_json(
+        rendering.content
+    )
+
+    assert rendering_json.component == "one-card"
+    assert rendering_json.title == "Toy Story External"
 
     # Verify some field data
-    assert len(component["fields"]) == 4
-    assert component["fields"][0]["name"] == "Title"
-    assert component["fields"][0]["data"] == ["Toy Story"]
+    assert len(rendering_json.fields) == 4
+    assert rendering_json.fields[0].id == "title"
+    assert rendering_json.fields[0].name == "Title"
+    assert rendering_json.fields[0].data == ["Toy Story"]
 
-    assert component["fields"][1]["name"] == "Year"
-    assert component["fields"][1]["data"] == [1995]
+    assert rendering_json.fields[1].name == "Year"
+    assert rendering_json.fields[1].data == [1995]
 
     # Verify summary
     expected_summary = (
@@ -278,9 +285,11 @@ async def test_generate_ui_component(
 
     # Parse the inner content to verify the UI component structure
     assert rendering.content is not None
-    component = json.loads(rendering.content)
-    assert component["component"] == "one-card"
-    assert component["title"] == "Toy Story External"
+    rendering_json = ComponentDataBaseWithArrayValueFileds.model_validate_json(
+        rendering.content
+    )
+    assert rendering_json.component == "one-card"
+    assert rendering_json.title == "Toy Story External"
 
 
 @pytest.mark.asyncio
@@ -526,6 +535,9 @@ async def test_generate_ui_component_data_configuration(external_inference) -> N
     assert component_metadata.component == "one-card"
     assert component_metadata.title == "Toy Story External"
     assert component_metadata.fields is not None
+
+    assert component_metadata.fields[0].data_path == "$..movie.title"
+    assert component_metadata.fields[0].id == "title"
 
 
 @pytest.mark.asyncio

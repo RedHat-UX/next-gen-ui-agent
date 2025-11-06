@@ -16,7 +16,10 @@ from next_gen_ui_agent.component_selection_pertype import (
     init_pertype_components_mapping,
     select_component_per_type,
 )
-from next_gen_ui_agent.data_transform.data_transformer_utils import sanitize_data_path
+from next_gen_ui_agent.data_transform.data_transformer_utils import (
+    generate_field_id,
+    sanitize_data_path,
+)
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transformation import generate_component_data
 from next_gen_ui_agent.design_system_handler import render_component
@@ -228,6 +231,7 @@ class NextGenUIAgent:
         if component_metadata.fields:
             for field in component_metadata.fields:
                 field.data_path = sanitize_data_path(field.data_path)  # type: ignore
+                field.id = generate_field_id(field.data_path)
 
         return UIBlockConfiguration(
             component_metadata=component_metadata,

@@ -4,6 +4,7 @@ from next_gen_ui_agent.data_transform.data_transformer_utils import (
     fill_fields_with_array_data,
     fill_fields_with_simple_data,
     find_image,
+    generate_field_id,
     get_data_value_for_path,
     sanitize_data_path,
 )
@@ -158,6 +159,36 @@ def test_sanitize_data_path() -> None:
     )
     assert sanitize_data_path("actors[size up to 6]") == "$..actors"
     assert sanitize_data_path("['actors[size up to 6]']") == "$..actors"
+
+
+def test_generate_field_id() -> None:
+    assert generate_field_id(None) is not None
+    assert generate_field_id("") is not None
+    assert generate_field_id(" ") is not None
+    assert generate_field_id("  ") is not None
+
+    # direct object handling (CSV parser or 1 object)
+    assert generate_field_id("pods_list_in_namespace[*].NAME") == "NAME"
+    assert generate_field_id("movie.title") == "title"
+
+    assert generate_field_id("$.movie.title") == "title"
+    assert generate_field_id("$..movie.title") == "title"
+    assert generate_field_id("movie.sub.title") == "movie_sub_title"
+
+    # [*] handling
+    assert generate_field_id("$..movie.title[*].ID") == "movie_title-ID"
+    assert generate_field_id("$..[*].title") == "title"
+
+    # Handle paths with descriptive content in brackets
+    assert (
+        generate_field_id("$..items[134].title") == "items134_title"
+    )  # numeric indices should be preserved
+
+    # Gemini flash LLMs outputs sanitizations
+    assert generate_field_id("$..[0].subscription.name") == "0_subscription_name"
+    assert generate_field_id("$..[*].subscription.name") == "name"
+
+    assert generate_field_id("$..actors") == "actors"
 
 
 def test_get_data_value_for_path_INVALID() -> None:
@@ -480,6 +511,7 @@ def test_fill_fields_with_data_ARRAY() -> None:
 
     fill_fields_with_array_data(fields, ARRAY)
 
+    assert fields[0].id == "movies-string"
     assert fields[0].data == ["Toy Story", "Toy Story 2"]  # String
     assert fields[1].data == [1995, 1996]  # Number Int
     assert fields[2].data == [8.3, 8.4]  # Nested number float
@@ -589,10 +621,7 @@ def test_fill_fields_with_data_ARRAY_IN_ROOT() -> None:
             "fields": [
                 {"name": "String", "data_path": "[*].stringf"},
                 {"name": "Number Int", "data_path": "$..[*].numberint"},
-                {
-                    "name": "Nested number float",
-                    "data_path": "[*].nested.numberfloat",
-                },
+                {"name": "Nested number float", "data_path": "[*].nested.numberfloat"},
                 {"name": "Boolean", "data_path": "[*].boolean"},
                 {"name": "Date", "data_path": "[*].date"},
                 {"name": "Array of strings", "data_path": "[*].arrayofstrings"},
@@ -608,10 +637,7 @@ def test_fill_fields_with_data_ARRAY_IN_ROOT() -> None:
                     "data_path": "[*].nullfieldinoneonly",
                 },
                 {"name": "Unknown Field", "data_path": "[*].unknownfield"},
-                {
-                    "name": "Field in second only",
-                    "data_path": "[*].fieldinsecondonly",
-                },
+                {"name": "Field in second only", "data_path": "[*].fieldinsecondonly"},
                 {
                     "name": "Unknown Array Field",
                     "data_path": "[*].nested.unknownarray[*]",
@@ -716,7 +742,10 @@ def test_fill_fields_with_data_SIMPLE_OBJECT_IN_ARRAY_IN_ROOT() -> None:
             "title": "Toy Story Details",
             "fields": [
                 {"name": "String", "data_path": "[0].string"},
-                {"name": "Number Int", "data_path": "[*].numberint"},
+                {
+                    "name": "Number Int",
+                    "data_path": "[*].numberint",
+                },
                 {
                     "name": "Nested number float",
                     "data_path": "nested.numberfloat",
@@ -729,10 +758,7 @@ def test_fill_fields_with_data_SIMPLE_OBJECT_IN_ARRAY_IN_ROOT() -> None:
                 {"name": "Empty array", "data_path": "arrayempty[*]"},
                 {"name": "Null Field", "data_path": "nullfield"},
                 {"name": "Unknown Field", "data_path": "unknownfield"},
-                {
-                    "name": "Unknown Array Field",
-                    "data_path": "nested.unknownarray[*]",
-                },
+                {"name": "Unknown Array Field", "data_path": "nested.unknownarray[*]"},
                 {
                     "name": "One subfield from array of objects",
                     "data_path": "arrayofobjects[*].id",
@@ -802,7 +828,11 @@ def test_find_image_BY_image_url_suffix() -> None:
                     "data_path": "movies[*].string",
                     "data": ["https://image.tmdb.org/"],
                 },
-                {"name": "tLink", "data_path": "movies[*].stLink", "data": ["sdas"]},
+                {
+                    "name": "tLink",
+                    "data_path": "movies[*].stLink",
+                    "data": ["sdas"],
+                },
                 {
                     "name": "testLink",
                     "data_path": "movies[*].stringLink",

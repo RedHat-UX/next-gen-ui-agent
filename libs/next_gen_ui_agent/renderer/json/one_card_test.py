@@ -20,7 +20,12 @@ def test_render_json_output() -> None:
             "title": "Toy Story Details",
             "component": "one-card",
             "fields": [
-                {"name": "Title", "data_path": "movie.title", "data": ["Toy Story"]}
+                {
+                    "id": "movie_title",
+                    "name": "Title",
+                    "data_path": "movie.title",
+                    "data": ["Toy Story"],
+                }
             ],
             "image": "https://image.tmdb.org/t/p/b.jpg",
         }
