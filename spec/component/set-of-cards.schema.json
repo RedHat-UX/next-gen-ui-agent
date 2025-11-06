@@ -3,6 +3,10 @@
     "DataFieldArrayValue": {
       "description": "Component field description with data containing array of values obtained from the input_data to be rendered as a dynamic component of the \"array of objects\" type.\nEvery item of the data array should be rendered as a table row or a card in the set of cards UI component.\nIndividual data values in the array can be simple values or arrays of simple values to be rendered as a one field of the row/card.",
       "properties": {
+        "id": {
+          "description": "Field ID",
+          "type": "string"
+        },
         "name": {
           "description": "Field name",
           "type": "string"
