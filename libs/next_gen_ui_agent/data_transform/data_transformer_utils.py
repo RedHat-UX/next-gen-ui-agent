@@ -55,27 +55,13 @@ def generate_field_id(source_str: str | None) -> str:
 def copy_simple_fields_from_ui_component_metadata(
     fields: list[DataField],
 ) -> list[DataFieldSimpleValue]:
-    return [
-        DataFieldSimpleValue(
-            id=generate_field_id(field.data_path),
-            name=field.name,
-            data_path=field.data_path,
-        )
-        for field in fields
-    ]
+    return [DataFieldSimpleValue(**field.model_dump()) for field in fields]
 
 
 def copy_array_fields_from_ui_component_metadata(
     fields: list[DataField],
 ) -> list[DataFieldArrayValue]:
-    return [
-        DataFieldArrayValue(
-            id=generate_field_id(field.data_path),
-            name=field.name,
-            data_path=field.data_path,
-        )
-        for field in fields
-    ]
+    return [DataFieldArrayValue(**field.model_dump()) for field in fields]
 
 
 def sanitize_data_path(data_path: str | None) -> str | None:
@@ -203,6 +189,8 @@ def fill_fields_with_simple_data(fields: list[DataFieldSimpleValue], json_data: 
     for field in fields:
         sp = sanitize_data_path(field.data_path)
         field.data_path = sp if sp else ""
+        if sp:
+            field.id = generate_field_id(field.data_path)
         field.data = sanitize_matched_simple_data(
             get_data_value_for_path(sp, json_data)
         )
@@ -237,6 +225,8 @@ def fill_fields_with_array_data(fields: list[DataFieldArrayValue], json_data: An
     for field in fields:
         sp = sanitize_data_path(field.data_path)
         field.data_path = sp if sp else ""
+        if sp:
+            field.id = generate_field_id(field.data_path)
         d = get_data_value_for_path(sp, json_data)
         field.data = sanitize_matched_array_data(d)
 

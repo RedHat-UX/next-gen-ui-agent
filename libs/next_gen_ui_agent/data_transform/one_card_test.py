@@ -37,7 +37,7 @@ def test_process() -> None:
     assert result.fields[0].id == "title"
     assert result.fields[0].name == "Title"
     assert result.fields[0].data == ["Toy Story"]
-    assert result.fields[1].id == "movie_authors"
+    assert result.fields[1].id == "authors"
     assert result.fields[1].name == "Authors"
     assert result.fields[1].data == ["A1", "A2", "A3"]
     assert result.fields[2].id == "authors"

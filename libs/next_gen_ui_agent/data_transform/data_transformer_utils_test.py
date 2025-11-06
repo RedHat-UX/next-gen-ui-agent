@@ -322,62 +322,51 @@ def test_fill_fields_with_data_SIMPLE_OBJECT() -> None:
             "component": "one-card",
             "title": "Toy Story Details",
             "fields": [
-                {"id": "test-id", "name": "String", "data_path": "movie.string"},
+                {"name": "String", "data_path": "movie.string"},
                 {
-                    "id": "test-id",
                     "name": "Number Int",
                     "data_path": "movie.numberint",
                 },
                 {
-                    "id": "test-id",
                     "name": "Nested number float",
                     "data_path": "movie.nested.numberfloat",
                 },
-                {"id": "test-id", "name": "Boolean", "data_path": "movie.boolean"},
-                {"id": "test-id", "name": "Date", "data_path": "movie.date"},
+                {"name": "Boolean", "data_path": "movie.boolean"},
+                {"name": "Date", "data_path": "movie.date"},
                 {
-                    "id": "test-id",
                     "name": "Array of strings",
                     "data_path": "arrayofstrings[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array of strings without [*]",
                     "data_path": "arrayofstrings",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array one string",
                     "data_path": "movie.arrayonestring[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "Empty array",
                     "data_path": "arrayempty[*]",
                 },
-                {"id": "test-id", "name": "Null Field", "data_path": "nullfield"},
+                {"name": "Null Field", "data_path": "nullfield"},
                 {
-                    "id": "test-id",
                     "name": "Unknown Field",
                     "data_path": "movie.unknownfield",
                 },
                 {
-                    "id": "test-id",
                     "name": "Unknown Array Field",
                     "data_path": "movie.nested.unknownarray[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "One subfield from array of objects",
                     "data_path": "arrayofobjects[*].id",
                 },
                 {
-                    "id": "test-id",
                     "name": "Nested object",
                     "data_path": "movie.nested",
                 },
                 {
-                    "id": "test-id",
                     "name": "Objects from array of objects",
                     "data_path": "arrayofobjects[*]",
                 },
@@ -500,83 +489,67 @@ def test_fill_fields_with_data_ARRAY() -> None:
             "title": "Toy Story Details",
             "fields": [
                 {
-                    "id": "test-id",
                     "name": "String",
                     "data_path": "movies[*].string",
                 },
                 {
-                    "id": "test-id",
                     "name": "Number Int",
                     "data_path": "movies[*].numberint",
                 },
                 {
-                    "id": "test-id",
                     "name": "Nested number float",
                     "data_path": "movies[*].nested.numberfloat",
                 },
                 {
-                    "id": "test-id",
                     "name": "Boolean",
                     "data_path": "movies[*].boolean",
                 },
-                {"id": "test-id", "name": "Date", "data_path": "movies[*].date"},
+                {"name": "Date", "data_path": "movies[*].date"},
                 {
-                    "id": "test-id",
                     "name": "Array of strings",
                     "data_path": "movies[*].arrayofstrings",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array of strings with [*]",
                     "data_path": "movies[*].arrayofstrings[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array one string",
                     "data_path": "movies[*].arrayonestring",
                 },
                 {
-                    "id": "test-id",
                     "name": "Empty array",
                     "data_path": "movies[*].arrayempty",
                 },
                 {
-                    "id": "test-id",
                     "name": "Null Field",
                     "data_path": "movies[*].nullfield",
                 },
                 {
-                    "id": "test-id",
                     "name": "Null Field in one only",
                     "data_path": "movies[*].nullfieldinoneonly",
                 },
                 {
-                    "id": "test-id",
                     "name": "Unknown Field",
                     "data_path": "movies[*].unknownfield",
                 },
                 {
-                    "id": "test-id",
                     "name": "Field in second only",
                     "data_path": "movies[*].fieldinsecondonly",
                 },
                 {
-                    "id": "test-id",
                     "name": "Unknown Array Field",
                     "data_path": "movies[*].nested.unknownarray[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array of objects",
                     "data_path": "movies[*].arrayofobjects",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array of strings with []",
                     "data_path": "movies[*].arrayofstrings[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "One subfield from array of objects",
                     "data_path": "movies[*].arrayofobjects[*].id",
                 },
@@ -586,6 +559,7 @@ def test_fill_fields_with_data_ARRAY() -> None:
 
     fill_fields_with_array_data(fields, ARRAY)
 
+    assert fields[0].id == "movies-string"
     assert fields[0].data == ["Toy Story", "Toy Story 2"]  # String
     assert fields[1].data == [1995, 1996]  # Number Int
     assert fields[2].data == [8.3, 8.4]  # Nested number float
@@ -693,76 +667,62 @@ def test_fill_fields_with_data_ARRAY_IN_ROOT() -> None:
             "component": "set-of-card",
             "title": "Toy Story Details",
             "fields": [
-                {"id": "test-id", "name": "String", "data_path": "[*].stringf"},
+                {"name": "String", "data_path": "[*].stringf"},
                 {
-                    "id": "test-id",
                     "name": "Number Int",
                     "data_path": "$..[*].numberint",
                 },
                 {
-                    "id": "test-id",
                     "name": "Nested number float",
                     "data_path": "[*].nested.numberfloat",
                 },
-                {"id": "test-id", "name": "Boolean", "data_path": "[*].boolean"},
-                {"id": "test-id", "name": "Date", "data_path": "[*].date"},
+                {"name": "Boolean", "data_path": "[*].boolean"},
+                {"name": "Date", "data_path": "[*].date"},
                 {
-                    "id": "test-id",
                     "name": "Array of strings",
                     "data_path": "[*].arrayofstrings",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array of strings with [*]",
                     "data_path": "[*].arrayofstrings[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array one string",
                     "data_path": "[*].arrayonestring",
                 },
                 {
-                    "id": "test-id",
                     "name": "Empty array",
                     "data_path": "[*].arrayempty",
                 },
                 {
-                    "id": "test-id",
                     "name": "Null Field",
                     "data_path": "[*].nullfield",
                 },
                 {
-                    "id": "test-id",
                     "name": "Null Field in one only",
                     "data_path": "[*].nullfieldinoneonly",
                 },
                 {
-                    "id": "test-id",
                     "name": "Unknown Field",
                     "data_path": "[*].unknownfield",
                 },
                 {
-                    "id": "test-id",
                     "name": "Field in second only",
                     "data_path": "[*].fieldinsecondonly",
                 },
                 {
-                    "id": "test-id",
                     "name": "Unknown Array Field",
                     "data_path": "[*].nested.unknownarray[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array of objects",
                     "data_path": "[*].arrayofobjects",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array of strings with []",
                     "data_path": "[*].arrayofstrings[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "One subfield from array of objects",
                     "data_path": "[*].arrayofobjects[*].id",
                 },
@@ -856,58 +816,48 @@ def test_fill_fields_with_data_SIMPLE_OBJECT_IN_ARRAY_IN_ROOT() -> None:
             "component": "one-card",
             "title": "Toy Story Details",
             "fields": [
-                {"id": "test-id", "name": "String", "data_path": "[0].string"},
+                {"name": "String", "data_path": "[0].string"},
                 {
-                    "id": "test-id",
                     "name": "Number Int",
                     "data_path": "[*].numberint",
                 },
                 {
-                    "id": "test-id",
                     "name": "Nested number float",
                     "data_path": "nested.numberfloat",
                 },
-                {"id": "test-id", "name": "Boolean", "data_path": "boolean"},
-                {"id": "test-id", "name": "Date", "data_path": "date"},
+                {"name": "Boolean", "data_path": "boolean"},
+                {"name": "Date", "data_path": "date"},
                 {
-                    "id": "test-id",
                     "name": "Array of strings",
                     "data_path": "arrayofstrings[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array of strings without [*]",
                     "data_path": "arrayofstrings",
                 },
                 {
-                    "id": "test-id",
                     "name": "Array one string",
                     "data_path": "arrayonestring[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "Empty array",
                     "data_path": "arrayempty[*]",
                 },
-                {"id": "test-id", "name": "Null Field", "data_path": "nullfield"},
+                {"name": "Null Field", "data_path": "nullfield"},
                 {
-                    "id": "test-id",
                     "name": "Unknown Field",
                     "data_path": "unknownfield",
                 },
                 {
-                    "id": "test-id",
                     "name": "Unknown Array Field",
                     "data_path": "nested.unknownarray[*]",
                 },
                 {
-                    "id": "test-id",
                     "name": "One subfield from array of objects",
                     "data_path": "arrayofobjects[*].id",
                 },
-                {"id": "test-id", "name": "Nested object", "data_path": "nested"},
+                {"name": "Nested object", "data_path": "nested"},
                 {
-                    "id": "test-id",
                     "name": "Objects from array of objects",
                     "data_path": "arrayofobjects[*]",
                 },
@@ -967,37 +917,31 @@ def test_find_image_BY_image_url_suffix() -> None:
             "title": "Toy Story Details",
             "fields": [
                 {
-                    "id": "test-id",
                     "name": "String",
                     "data_path": "movies[*].string",
                     "data": ["https://image.tmdb.org/"],
                 },
                 {
-                    "id": "test-id",
                     "name": "tLink",
                     "data_path": "movies[*].stLink",
                     "data": ["sdas"],
                 },
                 {
-                    "id": "test-id",
                     "name": "testLink",
                     "data_path": "movies[*].stringLink",
                     "data": ["https://image.tmdb.org/aajpg"],
                 },
                 {
-                    "id": "test-id",
                     "name": "Image",
                     "data_path": "movies[*].image",
                     "data": ["https://image.tmdb.org/test_path.jPg"],
                 },
                 {
-                    "id": "test-id",
                     "name": "Image URL",
                     "data_path": "movies[*].imageUrl",
                     "data": ["https://image.tmdb.org/test_path.svg"],
                 },
                 {
-                    "id": "test-id",
                     "name": "Image Link",
                     "data_path": "movies[*].imageLink",
                     "data": ["https://image.tmdb.org/test_path.png"],
@@ -1023,19 +967,16 @@ def test_find_image_BY_field_name_suffix_link() -> None:
             "title": "Toy Story Details",
             "fields": [
                 {
-                    "id": "test-id",
                     "name": "String",
                     "data_path": "movies[*].string",
                     "data": ["https://image.tmdb.org/"],
                 },
                 {
-                    "id": "test-id",
                     "name": "Test",
                     "data_path": "movies[*].string_image_LINk",
                     "data": ["https://image.tmdb.org/aa"],
                 },
                 {
-                    "id": "test-id",
                     "name": "ImageLink",
                     "data_path": "movies[*].image",
                     "data": ["https://image.tmdb.org/test_path.jp"],
@@ -1061,19 +1002,16 @@ def test_find_image_BY_field_name_suffix_url() -> None:
             "title": "Toy Story Details",
             "fields": [
                 {
-                    "id": "test-id",
                     "name": "String",
                     "data_path": "movies[*].string",
                     "data": ["https://image.tmdb.org/"],
                 },
                 {
-                    "id": "test-id",
                     "name": "Test",
                     "data_path": "movies[*].posterUrL",
                     "data": ["https://image.tmdb.org/aa"],
                 },
                 {
-                    "id": "test-id",
                     "name": "ImageLink",
                     "data_path": "movies[*].image",
                     "data": ["https://image.tmdb.org/test_path.jp"],
