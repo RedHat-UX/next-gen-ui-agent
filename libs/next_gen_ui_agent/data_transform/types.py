@@ -1,4 +1,5 @@
 from typing import Any, Literal, Optional, Union
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
@@ -19,7 +20,7 @@ class ComponentDataBaseWithTitle(ComponentDataBase):
 class DataFieldBase(BaseModel):
     """Base of the Component Data Field model"""
 
-    id: str = Field(description="Field ID")
+    id: str = Field(description="Field ID", default_factory=lambda: uuid4().hex)
     name: str = Field(description="Field name")
     data_path: str = Field(description="JSON Path to input data")
     data: Any
