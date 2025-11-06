@@ -243,19 +243,18 @@ cz bump 0.1.0 --dry-run
 
 ### Generate release notes
 
-Take changelog and genereate a Release Notes by [Google Gemini](https://gemini.google.com/) with following prompt and pasted changelog:
+Paste generated changelog to CHANGELOG.TXT (do not commit!), select it and ask Cursor for selected text:
 
 ```
 Create release notes that clearly document:
  - A high-level overview of the release.
  - Key features and benefits.
  - Known issues or limitations.
-
-The changelog for this release is following:
-<CHANGELOG.TXT - only particular version>
 ```
 
-Review generated release notes and add it into [docs/development/release_notes.md](./docs/development/release_notes.md) and push it to main branch.
+Cursor should update `release_notes.md` for you.
+Create a PR with generated notes and label PR as `AI Assisted`. Then manually currate it and push changes again.
+Finally merge PR and do `Perform version bump (release)` locally.
 
 ### Perform version bump (release)
 
