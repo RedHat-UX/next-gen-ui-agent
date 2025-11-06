@@ -28,6 +28,12 @@ export default function ChatBotPage() {
 
   const { loading, fetchData } = useFetch();
 
+  // Check if debug mode is enabled via URL parameter
+  const isDebugMode = React.useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('debug') === 'true';
+  }, []);
+
   // Mock mode state
   const [isMockMode, setIsMockMode] = useState(false);
   const [selectedMock, setSelectedMock] = useState<string>('');
@@ -244,65 +250,69 @@ export default function ChatBotPage() {
       gap: '0',
       overflow: 'hidden'
     }}>
-      {/* Test Panel - Left Side */}
-      <div style={{
-        width: `${panelWidth}px`,
-        minWidth: `${panelWidth}px`,
-        maxWidth: `${panelWidth}px`,
-        height: '100vh',
-        overflow: 'auto',
-        backgroundColor: 'var(--pf-v6-global--BackgroundColor--100)',
-        padding: '16px',
-        position: 'relative'
-      }}>
-        <TestPanel
-          isMockMode={isMockMode}
-          onMockModeChange={setIsMockMode}
-          selectedMock={selectedMock}
-          onMockSelect={handleMockSelect}
-          customJson={customJson}
-          onCustomJsonChange={setCustomJson}
-          onSendCustomJson={handleSendCustomJson}
-          onSendMockDirect={handleSendMockDirect}
-          onPromptSelect={handleQuickPromptSelect}
-          disabled={loading}
-        />
-      </div>
-
-      {/* Resize Handle */}
-      <div
-        onMouseDown={handleMouseDown}
-        onMouseEnter={() => setIsHoveringHandle(true)}
-        onMouseLeave={() => setIsHoveringHandle(false)}
-        style={{
-          width: '6px',
-          height: '100vh',
-          cursor: 'col-resize',
-          backgroundColor: (isResizing || isHoveringHandle)
-            ? 'var(--pf-v6-global--primary-color--100)' 
-            : 'var(--pf-v6-global--BorderColor--100)',
-          transition: isResizing ? 'none' : 'background-color 0.2s',
-          position: 'relative',
-          zIndex: 10
-        }}
-      >
-        {/* Visual indicator on the handle */}
+      {/* Test Panel - Left Side (only shown when debug=true) */}
+      {isDebugMode && (
         <div style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '3px',
-          height: '40px',
-          backgroundColor: (isResizing || isHoveringHandle)
-            ? 'var(--pf-v6-global--BackgroundColor--100)' 
-            : 'var(--pf-v6-global--Color--200)',
-          borderRadius: '2px',
-          opacity: 0.6
-        }} />
-      </div>
+          width: `${panelWidth}px`,
+          minWidth: `${panelWidth}px`,
+          maxWidth: `${panelWidth}px`,
+          height: '100vh',
+          overflow: 'auto',
+          backgroundColor: 'var(--pf-v6-global--BackgroundColor--100)',
+          padding: '16px',
+          position: 'relative'
+        }}>
+          <TestPanel
+            isMockMode={isMockMode}
+            onMockModeChange={setIsMockMode}
+            selectedMock={selectedMock}
+            onMockSelect={handleMockSelect}
+            customJson={customJson}
+            onCustomJsonChange={setCustomJson}
+            onSendCustomJson={handleSendCustomJson}
+            onSendMockDirect={handleSendMockDirect}
+            onPromptSelect={handleQuickPromptSelect}
+            disabled={loading}
+          />
+        </div>
+      )}
 
-      {/* Chatbot - Right Side */}
+      {/* Resize Handle (only shown when debug=true) */}
+      {isDebugMode && (
+        <div
+          onMouseDown={handleMouseDown}
+          onMouseEnter={() => setIsHoveringHandle(true)}
+          onMouseLeave={() => setIsHoveringHandle(false)}
+          style={{
+            width: '6px',
+            height: '100vh',
+            cursor: 'col-resize',
+            backgroundColor: (isResizing || isHoveringHandle)
+              ? 'var(--pf-v6-global--primary-color--100)' 
+              : 'var(--pf-v6-global--BorderColor--100)',
+            transition: isResizing ? 'none' : 'background-color 0.2s',
+            position: 'relative',
+            zIndex: 10
+          }}
+        >
+          {/* Visual indicator on the handle */}
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '3px',
+            height: '40px',
+            backgroundColor: (isResizing || isHoveringHandle)
+              ? 'var(--pf-v6-global--BackgroundColor--100)' 
+              : 'var(--pf-v6-global--Color--200)',
+            borderRadius: '2px',
+            opacity: 0.6
+          }} />
+        </div>
+      )}
+
+      {/* Chatbot - Takes full width when debug=false, right side when debug=true */}
       <div style={{ flex: 1, height: '100vh', display: 'flex', flexDirection: 'column' }}>
         <Chatbot displayMode={displayMode} isVisible={isVisible}>
           <ChatbotContent>

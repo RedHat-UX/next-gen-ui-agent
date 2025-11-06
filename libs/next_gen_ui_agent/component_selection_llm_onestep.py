@@ -80,7 +80,9 @@ Provide list of "fields" to be visualized in the UI component. Select only relev
 If the selected UI component requires specific fields mentioned in its description, provide them. Provide "name" for every field.
 For every field provide "data_path" containing JSONPath to get the value from the Data. Do not use any formatting or calculation in the "data_path".
 
-Select one from there UI components: {get_ui_components_description(self.unsupported_components)}
+
+Select from these UI components: {get_ui_components_description(self.unsupported_components)}
+
 
 {CHART_INSTRUCTIONS}
     """
@@ -130,10 +132,6 @@ Response example for one-item data:
     ) -> UIComponentMetadata:
         """Parse inference output and return UIComponentMetadata or throw exception if inference output is invalid."""
 
-        # Log the raw LLM output for debugging
-        print(f"[ComponentSelection] Raw LLM output (first 1000 chars):")
-        print(inference_output[0][:1000] if len(inference_output[0]) > 1000 else inference_output[0])
-        
         # allow values coercing by `strict=False`
         # allow partial json parsing by `allow_partial=True`, validation will fail on missing fields then. See https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
         try:
@@ -144,6 +142,6 @@ Response example for one-item data:
             return result
         except Exception as e:
             print(f"[ComponentSelection] ERROR parsing LLM output: {e}")
-            print(f"[ComponentSelection] Full output:")
+            print("[ComponentSelection] Full output:")
             print(inference_output[0])
             raise

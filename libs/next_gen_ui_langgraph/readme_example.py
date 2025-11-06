@@ -261,7 +261,7 @@ def search_movie(title: str):
     """Search for a single movie by title.
     Use this ONLY when user asks about a SPECIFIC movie by name.
     DO NOT use for distribution/aggregation queries - use get_all_movies() instead.
-    
+
     Args:
         title: Movie title e.g. 'Toy Story', 'Finding Nemo'
     """
@@ -290,24 +290,66 @@ def get_all_movies():
 def compare_movies(titles: str):
     """Compare specific movies by their titles. Returns only the requested movies.
     Use when user asks to compare specific movie titles.
-    
+
     Args:
         titles: Comma-separated movie titles e.g. 'The Dark Knight, Inception'
     """
     print(f"Comparing specific movies: {titles}")
     requested = [t.strip().lower() for t in titles.split(",")]
     results = []
-    
+
     for movie in MOVIES_DB.values():
         # Check if any requested title matches this movie
         if any(req in movie["title"].lower() for req in requested):
             results.append({"movie": movie})
-    
+
     # Fallback to all movies if no matches found
     if not results:
         print("No matching movies found, returning all movies")
         return get_all_movies()
-    
+
+    print(f"Found {len(results)} matching movies")
+    return json.dumps(results, default=str)
+
+
+def filter_movies(director: str = None, genre: str = None, actor: str = None):
+    """Filter movies by director, genre, or actor.
+    Use when user asks for movies by a specific director, genre, or actor.
+
+    Args:
+        director: Director name e.g. 'Christopher Nolan', 'Frank Darabont'
+        genre: Genre e.g. 'Action', 'Drama', 'Animation'
+        actor: Actor name e.g. 'Tom Hanks', 'Leonardo DiCaprio'
+    """
+    print(f"Filtering movies by director={director}, genre={genre}, actor={actor}")
+    results = []
+
+    for movie in MOVIES_DB.values():
+        match = True
+
+        # Filter by director
+        if director and director.lower() not in movie.get("director", "").lower():
+            match = False
+
+        # Filter by genre
+        if genre and not any(
+            genre.lower() in g.lower() for g in movie.get("genres", [])
+        ):
+            match = False
+
+        # Filter by actor
+        if actor and not any(
+            actor.lower() in a.lower() for a in movie.get("actors", [])
+        ):
+            match = False
+
+        if match:
+            results.append({"movie": movie})
+
+    if not results:
+        print("No matching movies found")
+        return json.dumps([], default=str)
+
     print(f"Found {len(results)} matching movies")
     return json.dumps(results, default=str)
 
@@ -318,18 +360,22 @@ movies_agent = create_react_agent(
         search_movie,
         get_all_movies,
         compare_movies,
+        filter_movies,
     ],
     prompt="""You are a helpful movies assistant. Use the available tools to answer user questions about movies.
 
 TOOL SELECTION RULES:
 1. IF user asks about ONE specific movie (and no comparisons) → use search_movie(title="Movie Name")
    Examples: "Toy Story budget", "show me Inception trailer"
-   
+
 2. IF user asks to COMPARE specific movies by name → use compare_movies(titles="Movie1, Movie2")
    Examples: "compare The Dark Knight and Inception", "Toy Story vs Matrix"
-   
-3. For ALL OTHER queries → use get_all_movies()
-   Examples: "all movies", "top rated", "highest grossing", "genre distribution", 
+
+3. IF user asks for movies by director, genre, or actor → use filter_movies(director="Name") or filter_movies(genre="Genre") or filter_movies(actor="Name")
+   Examples: "Christopher Nolan movies", "Action movies", "Tom Hanks films"
+
+4. For ALL OTHER queries → use get_all_movies()
+   Examples: "all movies", "top rated", "highest grossing", "genre distribution",
    "compare revenue", "box office leaders"
 
 The database includes: revenue, budget, profit, ROI, ratings, awards, genres, directors, openingWeekend, and weeklyBoxOffice.""",
