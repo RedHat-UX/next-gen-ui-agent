@@ -19,6 +19,7 @@ class ComponentDataBaseWithTitle(ComponentDataBase):
 class DataFieldBase(BaseModel):
     """Base of the Component Data Field model"""
 
+    id: str = Field(description="Field ID")
     name: str = Field(description="Field name")
     data_path: str = Field(description="JSON Path to input data")
     data: Any

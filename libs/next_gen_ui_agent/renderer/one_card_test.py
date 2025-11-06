@@ -9,9 +9,20 @@ def test_process() -> None:
             "title": "Toy Story Details",
             "component": "one-card",
             "fields": [
-                {"name": "Title", "data_path": "movie.title", "data": ["Toy Story"]},
-                {"name": "Authors", "data_path": "NA", "data": ["A1", "A2", "A3"]},
                 {
+                    "id": "movie_title",
+                    "name": "Title",
+                    "data_path": "movie.title",
+                    "data": ["Toy Story"],
+                },
+                {
+                    "id": "NA",
+                    "name": "Authors",
+                    "data_path": "NA",
+                    "data": ["A1", "A2", "A3"],
+                },
+                {
+                    "id": "movie_posterUrl",
                     "name": "Poster",
                     "data_path": "movie.posterUrl",
                     "data": [

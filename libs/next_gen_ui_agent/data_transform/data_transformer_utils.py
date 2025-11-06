@@ -1,6 +1,7 @@
 import logging
 import re
 from typing import Any, Callable
+from uuid import uuid4
 
 from jsonpath_ng import parse  # type: ignore
 from next_gen_ui_agent.data_transform.types import (
@@ -18,16 +19,63 @@ from next_gen_ui_agent.types import DataField
 logger = logging.getLogger(__name__)
 
 
+def generate_field_id(source_str: str | None) -> str:
+    """
+    Generate field ID from data_path
+    If not provided, generate UUID4
+    """
+    if source_str is None or source_str == "":
+        return uuid4().hex
+
+    # pods_list_in_namespace[*].NAME
+    if not source_str.startswith("$") and "[*]." in source_str:
+        source_str = source_str[source_str.rindex("[*].") + 4 :]
+
+    source_str = (
+        source_str.replace("$..[*].", "")
+        .replace("$.[*].", "")
+        .replace("$..", "")
+        .replace("$.", "")
+    )
+
+    # movie.title
+    if "[" not in source_str and source_str.count(".") == 1:
+        source_str = source_str[source_str.rindex(".") + 1 :]
+
+    source_str = source_str.replace("[*].", "-").replace(".", "_")
+
+    result = re.sub(r"[^a-zA-Z0-9_-]", "", source_str)
+    result = result.strip()
+    if result == "":
+        return uuid4().hex
+
+    return result
+
+
 def copy_simple_fields_from_ui_component_metadata(
     fields: list[DataField],
 ) -> list[DataFieldSimpleValue]:
-    return [DataFieldSimpleValue(**field.model_dump()) for field in fields]
+    return [
+        DataFieldSimpleValue(
+            id=generate_field_id(field.data_path),
+            name=field.name,
+            data_path=field.data_path,
+        )
+        for field in fields
+    ]
 
 
 def copy_array_fields_from_ui_component_metadata(
     fields: list[DataField],
 ) -> list[DataFieldArrayValue]:
-    return [DataFieldArrayValue(**field.model_dump()) for field in fields]
+    return [
+        DataFieldArrayValue(
+            id=generate_field_id(field.data_path),
+            name=field.name,
+            data_path=field.data_path,
+        )
+        for field in fields
+    ]
 
 
 def sanitize_data_path(data_path: str | None) -> str | None:
