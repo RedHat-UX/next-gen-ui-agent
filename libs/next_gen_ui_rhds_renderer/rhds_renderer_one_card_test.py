@@ -22,7 +22,7 @@ def test_renderer_one_card_full() -> None:
     agent = NextGenUIAgent()
     agent._extension_manager = extension_manager_rhds()
     component = get_transformed_component()
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     print(rendition)
     assert (
         rendition
@@ -88,7 +88,7 @@ def test_renderer_one_card_array_boolean() -> None:
     agent._extension_manager = extension_manager_rhds()
     component = get_transformed_component_testing_data()
 
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     assert rendition
     assert "True, False" in rendition
 
@@ -97,7 +97,7 @@ def test_renderer_one_card_array_numbers() -> None:
     agent = NextGenUIAgent()
     agent._extension_manager = extension_manager_rhds()
     component = get_transformed_component_testing_data()
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     assert rendition
     assert "1, 2, 3" in rendition
 
@@ -107,7 +107,7 @@ def test_renderer_one_card_image() -> None:
     agent._extension_manager = extension_manager_rhds()
     component = get_transformed_component_testing_data()
 
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     assert rendition
     assert (
         '<img src="https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg" slot="image" aria-label="Toy Story Details">'

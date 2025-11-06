@@ -19,7 +19,6 @@ from next_gen_ui_agent.types import (
     AgentConfig,
     AgentConfigComponent,
     AgentConfigDataType,
-    AgentInput,
     DataField,
     InputData,
     UIBlockComponentMetadata,
@@ -168,167 +167,6 @@ class TestSelectComponent:
                 input_data=input_data,
                 inference=MockedExceptionInference(RuntimeError("LLM inference error")),
             )
-
-
-class TestDeprecatedComponentSelection:
-    @pytest.mark.asyncio
-    async def test_component_selection_hbc_mixed(self) -> None:
-        """Test that hand-build components and LLM inferenced components are processed correctly in the same run."""
-        mocked_llm_component = UIComponentMetadata(
-            component="one-card",
-            id="1",
-            title="Toy Story",
-            fields=[DataField(name="Title", data_path="movie.title")],
-        )
-        agent = NextGenUIAgent(
-            config=AgentConfig(
-                data_types={
-                    "my.type": AgentConfigDataType(
-                        components=[AgentConfigComponent(component="one-card-special")]
-                    ),
-                    "other.type": AgentConfigDataType(
-                        components=[AgentConfigComponent(component="table-special")]
-                    ),
-                }
-            )
-        )
-        input = AgentInput(
-            user_prompt="Test prompt",
-            input_data=[
-                InputData(id="1", data='{"title": "HBC data"}', type="my.type"),
-                InputData(id="2", data='{"title": "Toy Story"}'),
-                InputData(id="3", data='{"title": "Toy Story"}'),
-                InputData(id="4", data='{"title": "Toy Story"}', type="other.type"),
-                InputData(id="5", data='{"title": "Toy Story"}', type="unmaped.type"),
-            ],
-        )
-        components = await agent.component_selection(
-            input=input, inference=MockedInference(mocked_llm_component)
-        )
-        assert len(components) == 5
-        # order of components in result is implementation detail of the `agent.component_selection` method!
-        assert isinstance(components[0], UIComponentMetadataHandBuildComponent)
-        assert components[0].component == "hand-build-component"
-        assert components[0].id == "1"
-        assert components[0].component_type == "one-card-special"
-
-        # other components come from the inference
-        assert components[1].component == "one-card"
-        assert components[1].id == "2"
-        assert components[1].title == "Toy Story"
-        # inference result is the same, but id differs
-        assert components[2].component == "one-card"
-        assert components[2].id == "3"
-        assert components[2].title == "Toy Story"
-
-        assert isinstance(components[3], UIComponentMetadataHandBuildComponent)
-        assert components[3].component == "hand-build-component"
-        assert components[3].id == "4"
-        assert components[3].component_type == "table-special"
-
-        # inference result is the same, but id differs - unmaped type goes through LLM inference
-        assert components[4].component == "one-card"
-        assert components[4].id == "5"
-        assert components[4].title == "Toy Story"
-
-    @pytest.mark.asyncio
-    async def test_component_selection_hbc_only(self) -> None:
-        """Test that hand-build components alone are selected correctly."""
-        agent = NextGenUIAgent(
-            config=AgentConfig(
-                data_types={
-                    "my.type": AgentConfigDataType(
-                        components=[AgentConfigComponent(component="one-card-special")]
-                    ),
-                    "other.type": AgentConfigDataType(
-                        components=[AgentConfigComponent(component="table-special")]
-                    ),
-                }
-            )
-        )
-        input = AgentInput(
-            user_prompt="Test prompt",
-            input_data=[
-                # mapped HBC
-                InputData(id="1", data='{"title": "HBC data"}', type="my.type"),
-                # HBC directly requested by component type, it has precedence over type mapping (tested here also)!
-                InputData(
-                    id="3",
-                    data='{"title": "Toy Story"}',
-                    type="other.type",
-                    hand_build_component_type="provided-special",
-                ),
-                # mapped HBC
-                InputData(id="4", data='{"title": "Toy Story"}', type="other.type"),
-            ],
-        )
-        # inference is not necessary!
-        components = await agent.component_selection(input=input)
-        assert len(components) == 3
-        # order of components in result is implementation detail of the `agent.component_selection` method!
-        assert isinstance(components[0], UIComponentMetadataHandBuildComponent)
-        assert components[0].component == "hand-build-component"
-        assert components[0].id == "1"
-        assert components[0].component_type == "one-card-special"
-        assert isinstance(components[1], UIComponentMetadataHandBuildComponent)
-        assert components[1].component == "hand-build-component"
-        assert components[1].id == "3"
-        assert components[1].component_type == "provided-special"
-        assert isinstance(components[2], UIComponentMetadataHandBuildComponent)
-        assert components[2].component == "hand-build-component"
-        assert components[2].id == "4"
-        assert components[2].component_type == "table-special"
-
-    @pytest.mark.asyncio
-    async def test_component_selection_llm_only(self) -> None:
-        """Test that LLM inference components are processed correctly, without HBC even configured."""
-        mocked_llm_component = UIComponentMetadata(
-            component="one-card",
-            id="1",
-            title="Toy Story",
-            fields=[DataField(name="Title", data_path="movie.title")],
-        )
-        agent = NextGenUIAgent(config=AgentConfig())
-        input = AgentInput(
-            user_prompt="Test prompt",
-            input_data=[
-                InputData(id="2", data='{"title": "Toy Story"}'),
-                InputData(id="3", data='{"title": "Toy Story"}'),
-                InputData(id="5", data='{"title": "Toy Story"}', type="unmaped.type"),
-            ],
-        )
-        components = await agent.component_selection(
-            input=input, inference=MockedInference(mocked_llm_component)
-        )
-        assert len(components) == 3
-        # order of components in result is implementation detail of the `agent.component_selection` method!
-        assert components[0].component == "one-card"
-        assert components[0].id == "2"
-        assert components[0].title == "Toy Story"
-        # inference result is the same, but id differs
-        assert components[1].component == "one-card"
-        assert components[1].id == "3"
-        assert components[1].title == "Toy Story"
-        # inference result is the same, but id differs - unmaped type goes through LLM inference
-        assert components[2].component == "one-card"
-        assert components[2].id == "5"
-        assert components[2].title == "Toy Story"
-
-    @pytest.mark.asyncio
-    async def test_component_selection_llm_inference_necessar(self) -> None:
-        """Test that LLM inference object is required when inference is necessary."""
-        agent = NextGenUIAgent(config=AgentConfig())
-        input = AgentInput(
-            user_prompt="Test prompt",
-            input_data=[
-                InputData(id="2", data='{"title": "Toy Story"}'),
-            ],
-        )
-        with pytest.raises(
-            ValueError,
-            match="Inference is not defined neither as an input parameter nor as an agent's config",
-        ):
-            await agent.component_selection(input=input)
 
 
 class TestCreateComponentSelectionStrategy:
@@ -760,28 +598,6 @@ class TestTransformData:
         assert component_data.fields[0].data == ["John Doe"]
 
 
-class TestDeprecatedTransformDataStep:
-    def test_data_transformation(self) -> None:
-        agent = NextGenUIAgent()
-        input_data = [InputData(id="1", data='{"title": "Toy Story"}', type="my_type")]
-        components = [
-            UIComponentMetadata.model_validate(
-                {
-                    "id": "1",
-                    "title": "Toy Story",
-                    "component": "one-card",
-                    "fields": [{"name": "Title", "data_path": "title"}],
-                }
-            )
-        ]
-        components_data = agent.data_transformation(input_data, components)
-        component_data = cast(ComponentDataOneCard, components_data[0])
-        assert component_data.id == "1"
-        assert component_data.component == "one-card"
-        assert component_data.fields[0].name == "Title"
-        assert component_data.fields[0].data == ["Toy Story"]
-
-
 class TestGenerateRendering:
     def test_generate_rendering_wrong_component_system_name(self) -> None:
         agent = NextGenUIAgent()
@@ -821,17 +637,3 @@ class TestGenerateRendering:
         agent = NextGenUIAgent()
         assert len(agent.renderers) > 0
         assert agent.renderers.index("json") == 0
-
-
-class TestDeprecatedGenerateRenderingStep:
-    def test_design_system_handler_json(self) -> None:
-        agent = NextGenUIAgent()
-        c = get_transformed_component()
-        result = agent.design_system_handler([c], "json")
-
-        assert result[0].mime_type == "application/json"
-        assert result[0].component_system == "json"
-        assert result[0].id == c.id
-
-        r = from_json(result[0].content)
-        assert r["component"] == "one-card"

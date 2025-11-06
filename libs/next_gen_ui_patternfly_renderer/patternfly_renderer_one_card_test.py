@@ -32,7 +32,7 @@ def test_renderer_one_card() -> None:
     )
     agent._extension_manager = em
     component = get_transformed_component()
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     assert (
         rendition
         == """import React from 'react';
