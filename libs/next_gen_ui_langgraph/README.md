@@ -13,9 +13,11 @@ Support for [LangGraph](https://www.langchain.com/langgraph) framework.
   * Tool name is used as `InputData.type` for the UI Agent, so [distinct configurations](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/#data_types-dictstr-agentconfigdatatype-optional) 
       can be applied based on it, like input data transformations, defined UI components (dynamic ot Hand Build) etc.
   * `AgentOutputState` provides access to all objects from all UI Agent processing phases, including list of data processing errors.
-  * if `component_system` is not `none`, then AI and Tool messages with the results are also produced, both for successfully processed data and processing errors.
-  * successfull processing Tool message contains rendered output (frontend code for the used `component_system`). You can use 
-    `output_messages_with_ui_blocks` agent configuration to get complete `UIBlock` here.
+  * If `component_system` is not `none`, then `design_system_handler` phase is also executed, which produces output state lists:
+      * `renditions` and complete `ui_blocks`
+      * Tool messages with the results, both for successfully processed data and processing errors. One AI message is produced also, containing info about that tool calls.
+      * Tool messages representing successful processing contain rendered output (frontend code for the used `component_system`). You can use 
+        `output_messages_with_ui_blocks` agent configuration to get complete `UIBlock` here.
 
 ## Installation
 
@@ -132,6 +134,7 @@ def run() -> None:
     )
 
     print(f"===Next Gen UI {component_system} Rendition===", ngui_response["renditions"][0].content)
+    print(f"===Next Gen UI Block===", ngui_response["ui_blocks"][0])
 
 
 if __name__ == "__main__":
@@ -162,6 +165,20 @@ Narrator: "One toy stands tall."
     'video': 'https://www.youtube.com/embed/v-PjgYDrg70',
     'video_img': 'https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg'
 }
+
+===Next Gen UI Block===
+{
+    "id": "iuhekjge",
+    "rendering": {
+        "component_system": "json",
+        "mime_type": "application/json",
+        "content": "{'component':'videoplayer', ...}"
+    },
+    "configuration": {
+        ...
+    }
+}
+
 ```
 
 ## Links

@@ -4,7 +4,7 @@ import uuid
 from typing import Literal, Optional
 
 from langchain_core.language_models import BaseChatModel
-from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
+from langchain_core.messages import AIMessage, BaseMessage, ToolCall, ToolMessage
 from langchain_core.runnables.config import RunnableConfig
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Command
@@ -196,6 +196,7 @@ class NextGenUILangGraphAgent:
 
         results = []
         ui_blocks = []
+        tool_calls = []
         messages: list[BaseMessage] = []
         for component_data in state["components_data"]:
             try:
@@ -221,23 +222,20 @@ class NextGenUILangGraphAgent:
                 )
 
                 tm = ToolMessage(
+                    status="success",
                     name=f"ngui_{component_system}",
                     tool_call_id=str(result.id) + uuid.uuid4().hex,
                     content=ui_block.model_dump_json()
                     if self.output_messages_with_ui_blocks
                     else str(result.content),
                 )
-                ai = AIMessage(
-                    content="", name=f"ngui_{component_system}", id=uuid.uuid4().hex
+                tool_calls.append(
+                    ToolCall(
+                        id=tm.tool_call_id,
+                        name=tm.name,  # type: ignore
+                        args={},
+                    )
                 )
-                ai.tool_calls.append(
-                    {
-                        "id": tm.tool_call_id,
-                        "name": f"ngui_{component_system}",
-                        "args": {},
-                    }
-                )
-                messages.append(ai)
                 messages.append(tm)
                 ui_blocks.append(ui_block)
             except Exception as e:
@@ -249,24 +247,28 @@ class NextGenUILangGraphAgent:
         if errors:
             for error in errors:
                 tm = ToolMessage(
+                    status="error",
                     name=f"ngui_error_{component_system}",
                     tool_call_id=uuid.uuid4().hex,
                     content=error,
                 )
-                ai = AIMessage(
-                    content="",
-                    name=f"ngui_error_{component_system}",
-                    id=uuid.uuid4().hex,
+                tool_calls.append(
+                    ToolCall(
+                        id=tm.tool_call_id,
+                        name=tm.name,  # type: ignore
+                        args={},
+                    )
                 )
-                ai.tool_calls.append(
-                    {
-                        "id": tm.tool_call_id,
-                        "name": f"ngui_error_{component_system}",
-                        "args": {},
-                    }
-                )
-                messages.append(ai)
                 messages.append(tm)
+
+        # TODO content with details similar as in MCP Server?
+        ai = AIMessage(
+            content=f"Successfully generated {len(results)} UI components. Failed: {len(errors)}",
+            name=f"ngui_{component_system}",
+            id=uuid.uuid4().hex,
+            tool_calls=tool_calls,
+        )
+        messages.append(ai)
 
         return {
             "messages": messages,

@@ -49,7 +49,7 @@ async def call_assistant(
         stream_mode="messages",
     ):
         langgraph_node = metadata["langgraph_node"]  # type: ignore
-        if langgraph_node == "design_system_handler" and msg.content:  # type: ignore
+        if langgraph_node == "design_system_handler" and msg.type == "tool" and msg.content:  # type: ignore
             return msg.content  # type: ignore
     return ""
 

@@ -116,13 +116,19 @@ async def test_agent_MESSAGESIN_WITH_COMPONENT_SYSTEM() -> None:
     retmsgs: list[AnyMessage] = result["messages"]
     assert len(retmsgs) == 4
     # first two messages are input one, we have to assert next two which are output
-    assert retmsgs[2].type == "ai"
-    assert retmsgs[2].name == "ngui_json"
-    assert retmsgs[2].content == ""
 
-    assert retmsgs[3].type == "tool"
-    assert retmsgs[3].name == "ngui_json"
-    assert retmsgs[3].content == c_data.model_dump_json()
+    tool_message: ToolMessage = retmsgs[2]  # type: ignore
+    assert tool_message.status == "success"
+    assert tool_message.tool_call_id is not None
+    assert tool_message.type == "tool"
+    assert tool_message.name == "ngui_json"
+    assert tool_message.content == c_data.model_dump_json()
+
+    ai_message: AIMessage = retmsgs[3]  # type: ignore
+    assert ai_message.type == "ai"
+    assert ai_message.name == "ngui_json"
+    assert ai_message.content == "Successfully generated 1 UI components. Failed: 0"
+    assert len(ai_message.tool_calls) == 1
 
 
 @pytest.mark.asyncio
@@ -228,13 +234,14 @@ async def test_agent_STATEIN_WITH_COMPONENT_SYSTEM() -> None:
     retmsgs: list[AnyMessage] = result["messages"]
     assert len(retmsgs) == 2
     # no input messages, two are output
-    assert retmsgs[0].type == "ai"
-    assert retmsgs[0].name == "ngui_json"
-    assert retmsgs[0].content == ""
 
-    assert retmsgs[1].type == "tool"
+    assert retmsgs[0].type == "tool"
+    assert retmsgs[0].name == "ngui_json"
+    assert retmsgs[0].content == c_data.model_dump_json()
+
+    assert retmsgs[1].type == "ai"
     assert retmsgs[1].name == "ngui_json"
-    assert retmsgs[1].content == c_data.model_dump_json()
+    assert retmsgs[1].content == "Successfully generated 1 UI components. Failed: 0"
 
 
 @pytest.mark.asyncio
@@ -348,8 +355,8 @@ async def test_agent_ERROR_HANDLING_AT_DIFFERENT_STAGES() -> None:
 
     # Should have: 2 messages for success (AI + Tool), 6 messages for 3 errors (AI + Tool each)
     assert (
-        len(retmsgs) == 8
-    ), f"Expected 8 messages (2 success + 6 error), got {len(retmsgs)}"
+        len(retmsgs) == 5
+    ), f"Expected 5 messages (1 success + 4 error), got {len(retmsgs)}"
 
     # Count successful and error messages
     success_messages = [
@@ -363,8 +370,14 @@ async def test_agent_ERROR_HANDLING_AT_DIFFERENT_STAGES() -> None:
         len(success_messages) == 2
     ), f"Expected 2 success messages (AI + Tool), got {len(success_messages)}"
     assert (
-        len(error_messages) == 6
-    ), f"Expected 6 error messages (3 errors × 2 messages each), got {len(error_messages)}"
+        len(error_messages) == 3
+    ), f"Expected 3 error Tool messages, got {len(error_messages)}"
+
+    ai_messages = [m for m in retmsgs if m.type == "ai"]
+    assert len(ai_messages) == 1
+
+    tool_messages = [m for m in retmsgs if m.type == "tool"]
+    assert len(tool_messages) == 4
 
     # Verify error message contents
     error_tool_messages = [m for m in error_messages if m.type == "tool"]
@@ -398,7 +411,10 @@ async def test_agent_ERROR_HANDLING_AT_DIFFERENT_STAGES() -> None:
             assert isinstance(message, AIMessage)
             assert message.type == "ai"
             assert message.name == "ngui_json"
-            assert message.content == ""
+            assert (
+                message.content == "Successfully generated 1 UI components. Failed: 3"
+            )
+            assert len(message.tool_calls) == 4
 
 
 if __name__ == "__main__":
