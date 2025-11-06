@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 ui_components_description_supported = """
 * one-card - component to visualize multiple fields from one-item Data. One image can be shown if url is available in the Data. Array of objects can't be shown as a field.
-* video-player - component to play a video from one-item Data. Video like trailer, promo video. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
+* video-player - component to play a video from one-item Data. Video like trailer, promo video. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70. REQUIRED: You MUST include a field with data_path pointing to the video URL (e.g., trailerUrl, videoUrl, video, url)
 * image - component to show one image from one-item Data. Image like poster, cover, picture. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
 * chart - component to visualize numeric Data as charts (bar, line, pie, donut, mirrored-bar). See detailed CHART COMPONENT RULES below.
 """

@@ -12,7 +12,7 @@ from pydantic_core import from_json
 
 ui_components_description_supported = """
 * one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
-* video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
+* video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70. REQUIRED: You MUST include a field with data_path pointing to the video URL (e.g., trailerUrl, videoUrl, video, url)
 * image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
 * chart - component to visualize numeric data as charts (bar, line, pie, donut, mirrored-bar). See detailed CHART COMPONENT RULES below.
 """
