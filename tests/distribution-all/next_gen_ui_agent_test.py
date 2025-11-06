@@ -13,8 +13,8 @@ test_component: ComponentDataOneCard = (
 # Can run without package installation because json is part of the agent and no autodiscovery is needed
 def test_design_system_handler_json() -> None:
     agent = NextGenUIAgent()
-    res = agent.design_system_handler([test_component], "json")
-    json_str = res[0].content
+    res = agent.generate_rendering(test_component, "json")
+    json_str = res.content
     result = ComponentDataOneCard.model_validate_json(json_str)
     assert result.title == "Toy Story Details"
     assert result.fields[0].data == ["Toy Story"]
@@ -25,8 +25,8 @@ def test_design_system_handler_json() -> None:
 @pytest.mark.distribution
 def test_design_system_handler_rhds() -> None:
     agent = NextGenUIAgent()
-    res = agent.design_system_handler([test_component], "rhds")
-    rendition = res[0].content
+    res = agent.generate_rendering(test_component, "rhds")
+    rendition = res.content
     assert "<rh-card" in rendition
 
 

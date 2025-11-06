@@ -19,7 +19,7 @@ def test_renderer_image_full() -> None:
     agent = NextGenUIAgent()
     agent._extension_manager = extension_manager_rhds()
     component = get_transformed_component("image")
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     print(rendition)
     assert (
         rendition

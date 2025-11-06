@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import os
 from typing import Optional
@@ -35,7 +34,6 @@ from next_gen_ui_agent.renderer.base_renderer import (
 from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.types import (
     AgentConfig,
-    AgentInput,
     InputData,
     InputDataInternal,
     UIBlockConfiguration,
@@ -43,7 +41,6 @@ from next_gen_ui_agent.types import (
     UIComponentMetadata,
 )
 from stevedore import ExtensionManager
-from typing_extensions import deprecated
 
 logger = logging.getLogger(__name__)
 
@@ -161,18 +158,6 @@ class NextGenUIAgent:
                 inference, user_prompt, input_data_for_strategy
             )
 
-    @deprecated("Use select_component instead")
-    async def component_selection(
-        self, input: AgentInput, inference: Optional[InferenceBase] = None
-    ) -> list[UIComponentMetadata]:
-        components = await asyncio.gather(
-            *[
-                self.select_component(input["user_prompt"], data, inference)
-                for data in input["input_data"]
-            ]
-        )
-        return components
-
     async def refresh_component(
         self, input_data: InputData, block_configuration: UIBlockConfiguration
     ) -> UIComponentMetadata:
@@ -205,21 +190,6 @@ class NextGenUIAgent:
         """STEP 3: Transform generated component configuration metadata into component data. Mainly pick up showed data values from `input_data`."""
         return generate_component_data(input_data, component)
 
-    @deprecated("Use transform_data instead")
-    def data_transformation(
-        self, input_data: list[InputData], components: list[UIComponentMetadata]
-    ) -> list[ComponentDataBase]:
-        """STEP 3: Transform generated component configuration metadata into component data. Mainly pick up showed data values from `input_data`."""
-        ret: list[ComponentDataBase] = []
-
-        for component in components:
-            for data in input_data:
-                if data["id"] != component.id:
-                    continue
-                ret.append(self.transform_data(data, component))
-
-        return ret
-
     def generate_rendering(
         self, component: ComponentDataBase, component_system: Optional[str] = None
     ) -> UIBlockRendering:
@@ -243,19 +213,6 @@ class NextGenUIAgent:
             factory = self._extension_manager[component_system].obj
 
         return render_component(component, factory)
-
-    @deprecated("Use generate_rendering instead")
-    def design_system_handler(
-        self,
-        components: list[ComponentDataBase],
-        component_system: Optional[str] = None,
-    ) -> list[UIBlockRendering]:
-        """STEP 4: Render the components with the chosen component system,
-        either via AgentConfig or parameter provided to this method."""
-        outputs = []
-        for component in components:
-            outputs.append(self.generate_rendering(component, component_system))
-        return outputs
 
     def construct_UIBlockConfiguration(
         self, input_data: InputData, component_metadata: UIComponentMetadata

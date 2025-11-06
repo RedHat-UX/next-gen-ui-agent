@@ -20,7 +20,7 @@ def test_renderer_video_full() -> None:
     agent = NextGenUIAgent()
     agent._extension_manager = extension_manager_rhds()
     component = get_transformed_component("video-player")
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     print(rendition)
     assert (
         rendition
@@ -52,7 +52,7 @@ def test_renderer_video_bad_url() -> None:
     agent._extension_manager = extension_manager_rhds()
     component: ComponentDataVideo = get_transformed_component("video-player")
     delattr(component, "video")
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     print(rendition)
     assert (
         rendition
