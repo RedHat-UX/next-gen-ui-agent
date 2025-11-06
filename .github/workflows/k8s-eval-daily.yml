@@ -1,5 +1,8 @@
 name: Complete Evaluation Tests (Movies + K8s)
 
+permissions:
+  contents: read
+
 on:
   # Allow manual trigger (run on-demand when needed - works on any branch!)
   workflow_dispatch:
