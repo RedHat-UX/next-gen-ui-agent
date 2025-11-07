@@ -31,7 +31,7 @@ FastAPI backend server for the NGUI end-to-end testing application. Provides AI-
    pants export
    # change `3.12.11` in the path to your python version, or to `latest` for venv symlink created from `CONTRIBUTING.md`!
    source dist/export/python/virtualenvs/python-default/3.12.11/bin/activate
-   export PYTHONPATH=$PWD/libs:$PWD/tests:$PYTHONPATH
+   export PYTHONPATH=./libs:./tests:$PYTHONPATH
    ```
 
 ### Dependencies
@@ -104,8 +104,8 @@ ollama pull llama3.2:3b
 ### Start the Server
 
 ```bash
-# from repo root
-PYTHONPATH="$PWD/libs:$PWD/tests" python -m uvicorn --app-dir tests/ngui-e2e/server main:app --reload
+cd tests/ngui-e2e/server
+uvicorn main:app --reload
 ```
 
 The server will be available at:

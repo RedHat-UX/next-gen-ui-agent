@@ -176,3 +176,47 @@ def trim_to_json(text: str) -> str:
         return text[start_index:]
 
     return text[start_index:end_index]
+
+
+def correct_chart_component_name(json_str: str) -> str:
+    """
+    Correct common LLM mistakes where it outputs chart type as component name.
+    
+    LLMs sometimes output "bar-chart", "line-chart", etc. as component names
+    instead of using "chart" with a separate "chartType" field.
+    
+    This function automatically corrects:
+    - "bar-chart" → "chart" with "chartType": "bar"
+    - "line-chart" → "chart" with "chartType": "line"
+    - "pie-chart" → "chart" with "chartType": "pie"
+    - "donut-chart" → "chart" with "chartType": "donut"
+    - "mirrored-bar-chart" → "chart" with "chartType": "mirrored-bar"
+    
+    Args:
+        json_str: JSON string potentially containing incorrect component names
+        
+    Returns:
+        Corrected JSON string with proper component/chartType structure
+    """
+    chart_type_mapping = {
+        "bar-chart": "bar",
+        "line-chart": "line",
+        "pie-chart": "pie",
+        "donut-chart": "donut",
+        "mirrored-bar-chart": "mirrored-bar"
+    }
+    
+    for wrong_name, chart_type in chart_type_mapping.items():
+        if f'"{wrong_name}"' in json_str:
+            print(f"[ComponentSelection] Correcting component name: {wrong_name} -> chart (chartType: {chart_type})")
+            # Handle both with and without spaces after colon
+            json_str = json_str.replace(
+                f'"component":"{wrong_name}"', 
+                f'"component":"chart","chartType":"{chart_type}"'
+            )
+            json_str = json_str.replace(
+                f'"component": "{wrong_name}"', 
+                f'"component": "chart", "chartType": "{chart_type}"'
+            )
+    
+    return json_str

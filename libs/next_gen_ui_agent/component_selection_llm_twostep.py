@@ -47,9 +47,16 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
     ) -> UIComponentMetadata:
         """Parse inference output and return UIComponentMetadata or throw exception if inference output is invalid."""
 
+        # Correct common LLM mistakes with component names (e.g., "bar-chart" -> "chart" with chartType)
+        from next_gen_ui_agent.component_selection_llm_strategy import (
+            correct_chart_component_name,
+        )
+        
+        component_str = correct_chart_component_name(inference_output[0])
+        
         # allow values coercing by `strict=False`
         # allow partial json parsing by `allow_partial=True`, validation will fail on missing fields then. See https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
-        part = from_json(inference_output[0], allow_partial=True)
+        part = from_json(component_str, allow_partial=True)
 
         # parse fields if they are available
         if len(inference_output) > 1:

@@ -9,7 +9,7 @@ UI_COMPONENTS_DESCRIPTION_SUPPORTED = """
 * one-card - component to visualize multiple fields from one-item Data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
 * video-player - component to play video from one-item Data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70. REQUIRED: You MUST include a field with data_path pointing to the video URL (e.g., trailerUrl, videoUrl, video, url)
 * image - component to show one image from one-item Data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
-* chart - component to visualize numeric Data as charts (bar, line, pie, donut, mirrored-bar). See detailed CHART COMPONENT RULES below.
+* chart - component to visualize numeric Data. IMPORTANT: component name is always "chart", then specify chart type separately using "chartType" field (values: "bar", "line", "pie", "donut", "mirrored-bar"). See detailed CHART COMPONENT RULES below.
 """.strip()
 
 # Additional components for advanced use cases

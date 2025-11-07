@@ -61,7 +61,12 @@ The database includes: revenue, budget, profit, ROI, ratings, awards, genres, di
 )
 
 ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()
-ngui_cfg = {"configurable": {"component_system": "json"}}
+ngui_cfg = {
+    "configurable": {
+        "component_system": "json",
+        "unsupported_components": True,  # Enable experimental components like chart, table, set-of-cards
+    }
+}
 
 # === FastAPI setup ===
 app = FastAPI()
@@ -100,6 +105,28 @@ def create_error_response(
     return response
 
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint to verify server and Ollama connectivity."""
+    try:
+        # Test Ollama connection
+        _ = llm.invoke("test")
+        return {
+            "status": "healthy",
+            "ollama_connected": True,
+            "model": model,
+            "base_url": base_url,
+        }
+    except Exception as e:
+        return {
+            "status": "unhealthy",
+            "ollama_connected": False,
+            "error": str(e),
+            "model": model,
+            "base_url": base_url,
+        }
+
+
 @app.post("/generate")
 async def generate_response(request: GenerateRequest):
     try:
@@ -117,9 +144,15 @@ async def generate_response(request: GenerateRequest):
         print("Step 1: Invoking movies agent...")
         try:
             movie_response = movies_agent.invoke(
-                {"messages": [{"role": "user", "content": prompt.strip()}]}
+                {"messages": [{"role": "user", "content": prompt.strip()}]},
+                {"recursion_limit": 10},  # Allow the agent to run tool execution steps
             )
             print(f"Movies agent response: {movie_response}")
+            print(f"Number of messages: {len(movie_response.get('messages', []))}")
+            for i, msg in enumerate(movie_response.get("messages", [])):
+                print(
+                    f"Message {i}: Type={type(msg).__name__}, Content preview={str(msg)[:200]}"
+                )
 
             # Validate movie response
             if not movie_response or not movie_response.get("messages"):
