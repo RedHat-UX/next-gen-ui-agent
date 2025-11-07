@@ -2,7 +2,7 @@ from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 from next_gen_ui_agent.renderer.table_shareable_tests import BaseTableRendererTests
 from next_gen_ui_rhds_renderer import RhdsStrategyFactory
-from next_gen_ui_testing.agent_testing import extension_manager_rhds
+from next_gen_ui_testing.agent_testing import extension_manager_for_testing
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
 
 component_system = "rhds"
@@ -17,7 +17,9 @@ class TestTableRHDSRendererWithShareableTests(BaseTableRendererTests):
 
 def test_renderer_table() -> None:
     agent = NextGenUIAgent()
-    agent._extension_manager = extension_manager_rhds()
+    agent._extension_manager = extension_manager_for_testing(
+        "rhds", RhdsStrategyFactory()
+    )
     component = get_transformed_component("table")
     rendition = agent.generate_rendering(component, component_system).content
     print(rendition)
