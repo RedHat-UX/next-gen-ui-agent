@@ -4,61 +4,44 @@
 
 ## Release Notes - Version 0.3.0
 
-This release represents a major architectural advancement for Next Gen UI, focusing on robustness, reliability, and production readiness. We've completely refactored the core agent API to provide superior error handling and parallel processing capabilities, migrated to FastMCP for enhanced MCP functionality, and introduced a comprehensive input data transformation framework. This release also brings significant improvements to all agent implementations, better configuration management, and production deployment support.
+This release represents a major advancement for Next Gen UI, focusing on robustness, reliability, and production readiness. We've improved the core agent API to provide better error handling and parallel processing capabilities, migrated to FastMCP for enhanced MCP functionality, and introduced a comprehensive input data transformation framework. This release also brings significant improvements to all AI framework/protocol implementations, better configuration management, and production deployment support.
 
 ### Key Features and Benefits
 
-* **Core Agent API Refactoring**:
-    * **Improved Error Handling**: Completely redesigned core agent API with robust error handling mechanisms, ensuring graceful failure recovery and better error reporting across all agent implementations.
-    * **Parallel Processing with Immediate Results**: Enhanced architecture now supports parallel processing with immediate result return, significantly improving performance for concurrent operations.
-    * **Data Refresh Support**: Added native support for data refresh operations in the core agent, enabling dynamic content updates without full reprocessing.
-
-* **Agent Implementation Updates**:
-    * **LangGraph Agent Enhancement**: Updated to use the new core agent API with improved error handling and processing flow (NGUI-451).
-    * **LlamaStack Agent Improvements**: Leverages new core agent API for better error handling and parallel processing with immediate result return (NGUI-452).
-    * **MCP Server Refactoring**: Completely refactored to use the new agent API with improved error handling, now marked as fully supported with FastMCP version 2.12.5 (NGUI-453, NGUI-472).
-    * **ACP Agent Deprecation**: While updated to use the new core agent API, the ACP Agent is now officially deprecated (NGUI-455).
-
 * **Model Context Protocol (MCP) Enhancements**:
-    * **FastMCP Migration**: Migrated from MCP SDK to FastMCP, unlocking additional features and improved performance (NGUI-396).
-    * **Component Configuration Return**: MCP tools now return component configuration, providing better context for UI rendering decisions (NGUI-426).
+    * **MCP Server Status change**: MCP server matured from TechPreview and is Supported (NGUI-472)
+    * **MCP Server Refactoring**: Refactored to use the new agent API with improved error handling and parallel processing (NGUI-453)
+    * **MCP SDK update**: Migrated to FastMCP version 2.12.5 (NGUI-396).
+    * **Component Configuration Return**: MCP tools now return component configuration, providing better context for UI rendering (NGUI-426).
     * **Structured Data Support**: Added comprehensive support for structured data and LLM-handled data in MCP operations (NGUI-432).
-    * **Enhanced Results**: Implemented structured results and summary information in MCP responses (NGUI-398).
     * **Improved Tool Descriptions**: Enhanced MCP tool descriptions for better LLM understanding and more accurate tool selection (NGUI-374).
-    * **Input Data Exclusion**: Optimized MCP tool calls by excluding input_data to reduce payload size and improve performance (NGUI-397).
-
-* **Input Data Transformation Framework**:
-    * **Extensible Architecture**: Introduced a comprehensive input data transformation framework, allowing flexible data processing pipelines (NGUI-355).
-    * **Multiple Transformer Support**:
-        - **YAML Transformer**: Native YAML data transformation support (NGUI-355).
-        - **CSV Transformers**: Added CSV input data transformers for tabular data processing (NGUI-391).
-        - **Fixed Width Columns Table**: Specialized transformer for fixed-width columnar data formats (NGUI-356).
-        - **No-op Transformer**: Added `noop` transformer for pass-through scenarios (NGUI-407).
-    * **Configurable Default Transformer**: Added ability to configure default input data transformer, streamlining data processing workflows (NGUI-405).
-    * **Smart Data Wrapping**: Implemented automatic wrapping of JSON input data with problematic structures for improved LLM processing (NGUI-354).
-
-* **Configuration Improvements**:
-    * **Enhanced Schema**: Improved configuration schema with better support for "enum-like" options, providing clearer configuration validation (NGUI-394).
-    * **Field ID Support**: Added field ID to data_field object with updated spec schemas for better data field identification (NGUI-444).
     * **YAML Configuration**: Added support for YAML file configuration in MCP with ability to handle multiple YAML files (NGUI-362).
-    * **Spec Schema Separation**: Refactored spec schemas to be separated from tests for better maintainability (NGUI-428).
-
-* **Dynamic Component System**:
-    * **Pre-configured Components**: Introduced ability to use dynamic components with pre-defined configuration per data type, reducing configuration overhead (NGUI-364).
-    * **Enhanced Component Specs**: Exported and documented table and set-of-cards JSON specifications (NGUI-380).
-    * **Improved Wrapping**: Fixed data wrapping functionality for non-HBC (Hand Built Components) components (NGUI-395).
-
-* **Production Readiness**:
-    * **OpenShift Deployment**: Added OpenShift deployment YAML configurations for enterprise production environments (NGUI-377).
-    * **Split Architecture**: Redesigned ngui-e2e architecture with updated deployment strategy for better scalability (NGUI-330).
-    * **Improved Testing**: Enhanced pytest configuration to fail on unknown markers and fixed missing dependencies (NGUI-386).
     * **Better Error Handling**: Configured MCP to raise exceptions on errors for faster debugging and more reliable operation (NGUI-387).
 
-### Known Issues or Limitations
+* **Input Data Transformation Framework**:
+    * **Extensible Architecture**: Introduced a comprehensive pluggable input data transformation framework, allowing flexible data processing (NGUI-355).
+    * **Multiple Data Formats Supported OOTB**:
+        - **JSON Transformer**: JSON data support
+        - **YAML Transformer**: YAML data support (NGUI-355).
+        - **CSV Transformers**: Added CSV input data transformers for tabular data processing (NGUI-391).
+        - **Fixed Width Columns Table Transformer**: Specialized transformer for fixed-width columnar data formats (NGUI-356).
+        - **No-op Transformer**: Added `noop` transformer for pass-through scenarios (NGUI-407).
+    * Added ability to configure default input data transformer, but also transformers for individual input data types (NGUI-405).
+    * **Smart Data Wrapping**: Implemented automatic wrapping of JSON input data with problematic structures for improved LLM inference (NGUI-354).
 
-* **ACP Agent Deprecation**: The ACP Agent has been officially deprecated in this release. While it has been updated to use the new core agent API, users should plan to migrate to alternative agent implementations (LangGraph, LlamaStack, or MCP) for continued support.
-* **Breaking Changes**: The core agent API refactoring introduces breaking changes for custom agent implementations. Custom agents will need to be updated to conform to the new API structure.
-* **Data Transformation**: The evaluation script requires a patch for data passing to the data transformation step. Users working with custom evaluation workflows should review the changes in commit 645d73a.
+* **Core Agent Improvements**:
+    * **Improved Error Handling**: Redesigned core agent API with robust error handling mechanisms, ensuring graceful failure recovery and better error reporting across all AI framework/protocol implementations.
+    * **Parallel Processing with Immediate Results**: Architecture now supports parallel processing with immediate result return, improving performance for concurrent operations.
+    * **Enhanced Schema**: Improved configuration schema with better support for "enum-like" options, providing clearer configuration validation (NGUI-394).
+    * **Pre-configured Components**: Introduced ability to use dynamic components with pre-defined configuration per input data type (NGUI-364).
+    * **Enhanced Component Specs**: Exported and documented table and set-of-cards JSON specifications (NGUI-380).
+    * **Test App Split Architecture**: Redesigned NGUI e2e test app architecture with updated deployment strategy for better scalability (NGUI-330).
+    * **Improved Testing**: Enhanced pytest configuration to fail on unknown markers and fixed missing dependencies (NGUI-386).
+
+* **AI framework/protocol Implementation Updates**:
+    * **LangGraph Agent Enhancement**: Updated to use the new core agent API with improved error handling and parallel processing flow (NGUI-451).
+    * **LlamaStack Agent Improvements**: Leverages new core agent API for better error handling and parallel processing with immediate result return (NGUI-452).
+    * **ACP Agent Deprecation**: ACP Agent is now officially deprecated as ACP protocol itself is deprecated (NGUI-455).
 
 ---
 
