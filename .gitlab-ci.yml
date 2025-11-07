@@ -1,6 +1,5 @@
 # GitLab CI/CD Pipeline for LLM Evaluation Tests
 # This mirrors the GitHub Actions workflow but runs on GitLab
-# Uses Ollama for testing (same as GitHub Actions)
 
 default:
   tags:
@@ -12,17 +11,12 @@ workflow:
       when: always
     - if: $CI_PIPELINE_SOURCE == "schedule"
       when: always
-    - if: $CI_COMMIT_BRANCH == "test_ai_eval"
-      when: always
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: always
     - when: never
 
 variables:
   PYTHON_VERSION: "3.13"
-  # INFERENCE_MODEL: Set this in GitLab CI/CD Variables
-  # For Ollama (default): "llama3.2:3b"
-  # For models.corp: "RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic"
   PYTHONPATH: "tests:libs"
   DEBIAN_FRONTEND: "noninteractive"
   SSL_VERIFY: "false"
@@ -54,7 +48,6 @@ complete_eval:
     - echo "=== DEBUG - Checking CI/CD Variables ==="
     - echo "MODEL_API_URL is set to '${MODEL_API_URL}'"
     - echo "INFERENCE_MODEL is set to '${INFERENCE_MODEL}'"
-    - echo "MODEL_API_KEY is set to '${MODEL_API_KEY:0:10}...'"
     - |
       if [ -z "$MODEL_API_URL" ] || [ -z "$INFERENCE_MODEL" ] || [ -z "$MODEL_API_KEY" ]; then
         echo "ERROR: Required CI/CD variables not set!"
@@ -68,7 +61,7 @@ complete_eval:
     - echo "=== Running Kubernetes Tests ==="
     - python3.13 -m ai_eval_components.eval_k8s
     - echo "=== Generating Report ==="
-    - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --title "GitLab CI Evaluation Report" --output tests/ai_eval_components/gitlab_eval_report.html
+    - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --title "GitLab CI Evaluation Report" --model "${INFERENCE_MODEL}" --output tests/ai_eval_components/gitlab_eval_report.html
     - echo "=== Completed ==="
   artifacts:
     when: always

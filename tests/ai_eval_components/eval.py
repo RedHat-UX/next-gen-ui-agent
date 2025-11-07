@@ -246,11 +246,11 @@ def init_openai_api_inference_from_env(
             f"Creating UI Agent with OpenAI API inference model={model} base_url={base_url} temperature={temperature}"
         )
 
-        # Create HTTP client with SSL verification controlled by environment variable
-        # Default: verify=True (secure), only False if SSL_VERIFY=false is set
-        http_client = httpx.AsyncClient(
-            verify=os.getenv("SSL_VERIFY", "true").lower() != "false"
-        )
+        # # Create HTTP client with SSL verification controlled by environment variable
+        # # Default: verify=True (secure), only False if SSL_VERIFY=false is set
+        # http_client = httpx.AsyncClient(
+        #     verify=os.getenv("SSL_VERIFY", "true").lower() != "false"
+        # )
 
         return LangChainModelInference(
             model=ChatOpenAI(
