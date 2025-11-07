@@ -1,0 +1,16 @@
+[
+  {
+    "comment": "K8s: Cluster comparison",
+    "prompts_file": "prompts_cluster.json",
+    "backend_data_files": [
+      "cluster_info.json"
+    ]
+  },
+  {
+    "comment": "K8s: Service troubleshooting",
+    "prompts_file": "prompts_services.json",
+    "backend_data_files": [
+      "services.json"
+    ]
+  }
+]

@@ -1,0 +1,28 @@
+{
+  "failing_pods": [
+    {
+      "name": "payment-service-7d4b6c8f9-xk2j9",
+      "namespace": "production-app",
+      "status": "CrashLoopBackOff",
+      "restart_count": 15,
+      "last_restart": "2024-10-03T09:15:23Z",
+      "error_message": "Error: ECONNREFUSED connect to database",
+      "node": "worker-01.prod.example.com",
+      "image": "registry.redhat.io/payment-service:v2.1.3",
+      "cpu_limit": "500m",
+      "memory_limit": "1Gi"
+    },
+    {
+      "name": "user-auth-6b8d4f7c2-m9n4p",
+      "namespace": "production-app",
+      "status": "ImagePullBackOff",
+      "restart_count": 0,
+      "last_restart": "2024-10-03T08:45:12Z",
+      "error_message": "Failed to pull image: registry.redhat.io/user-auth:v1.5.2 not found",
+      "node": "worker-02.prod.example.com",
+      "image": "registry.redhat.io/user-auth:v1.5.2",
+      "cpu_limit": "200m",
+      "memory_limit": "512Mi"
+    }
+  ]
+}

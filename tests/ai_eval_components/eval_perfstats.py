@@ -62,6 +62,17 @@ def print_perf_stats():
     print("")
 
 
+def save_perf_stats_to_file(output_file: str):
+    """Save performance stats to JSON file for report generation"""
+    stats_data = {
+        "overall": get_perf_stat_all(),
+        "by_component": get_perf_stat_for_components(),
+    }
+    with open(output_file, "w") as f:
+        json.dump(stats_data, f, indent=2)
+    print(f"📊 Performance stats saved to: {output_file}")
+
+
 if __name__ == "__main__":
     # dev code only
     report_perf_stats(12, 25, "c1")

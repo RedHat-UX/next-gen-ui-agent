@@ -1,0 +1,46 @@
+[
+  {
+    "id": "set-of-cards-000021",
+    "user_prompt": "Show me persistent volume status",
+    "backend_data": "{\n  \"persistent_volumes\": [\n    {\n      \"name\": \"pvc-database-prod\",\n      \"namespace\": \"production-app\",\n      \"status\": \"Bound\",\n      \"size\": \"100Gi\",\n      \"used\": \"78Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteOnce\",\n      \"mount_path\": \"/var/lib/postgresql/data\",\n      \"last_backup\": \"2024-10-03T01:00:00Z\"\n    },\n    {\n      \"name\": \"pvc-logs-storage\",\n      \"namespace\": \"openshift-logging\",\n      \"status\": \"Bound\",\n      \"size\": \"500Gi\",\n      \"used\": \"423Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteMany\",\n      \"mount_path\": \"/var/log/containers\",\n      \"last_backup\": \"2024-10-03T02:30:00Z\"\n    },\n    {\n      \"name\": \"pvc-temp-storage\",\n      \"namespace\": \"development\",\n      \"status\": \"Pending\",\n      \"size\": \"50Gi\",\n      \"used\": \"0Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteOnce\",\n      \"mount_path\": \"/tmp/data\",\n      \"error\": \"Insufficient storage capacity\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/persistent_volumes.json",
+      "prompt_file": "prompts_storage.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000022",
+    "user_prompt": "Are any PVCs pending?",
+    "backend_data": "{\n  \"persistent_volumes\": [\n    {\n      \"name\": \"pvc-database-prod\",\n      \"namespace\": \"production-app\",\n      \"status\": \"Bound\",\n      \"size\": \"100Gi\",\n      \"used\": \"78Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteOnce\",\n      \"mount_path\": \"/var/lib/postgresql/data\",\n      \"last_backup\": \"2024-10-03T01:00:00Z\"\n    },\n    {\n      \"name\": \"pvc-logs-storage\",\n      \"namespace\": \"openshift-logging\",\n      \"status\": \"Bound\",\n      \"size\": \"500Gi\",\n      \"used\": \"423Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteMany\",\n      \"mount_path\": \"/var/log/containers\",\n      \"last_backup\": \"2024-10-03T02:30:00Z\"\n    },\n    {\n      \"name\": \"pvc-temp-storage\",\n      \"namespace\": \"development\",\n      \"status\": \"Pending\",\n      \"size\": \"50Gi\",\n      \"used\": \"0Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteOnce\",\n      \"mount_path\": \"/tmp/data\",\n      \"error\": \"Insufficient storage capacity\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/persistent_volumes.json",
+      "prompt_file": "prompts_storage.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000023",
+    "user_prompt": "Which volumes are almost full?",
+    "backend_data": "{\n  \"persistent_volumes\": [\n    {\n      \"name\": \"pvc-database-prod\",\n      \"namespace\": \"production-app\",\n      \"status\": \"Bound\",\n      \"size\": \"100Gi\",\n      \"used\": \"78Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteOnce\",\n      \"mount_path\": \"/var/lib/postgresql/data\",\n      \"last_backup\": \"2024-10-03T01:00:00Z\"\n    },\n    {\n      \"name\": \"pvc-logs-storage\",\n      \"namespace\": \"openshift-logging\",\n      \"status\": \"Bound\",\n      \"size\": \"500Gi\",\n      \"used\": \"423Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteMany\",\n      \"mount_path\": \"/var/log/containers\",\n      \"last_backup\": \"2024-10-03T02:30:00Z\"\n    },\n    {\n      \"name\": \"pvc-temp-storage\",\n      \"namespace\": \"development\",\n      \"status\": \"Pending\",\n      \"size\": \"50Gi\",\n      \"used\": \"0Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteOnce\",\n      \"mount_path\": \"/tmp/data\",\n      \"error\": \"Insufficient storage capacity\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/persistent_volumes.json",
+      "prompt_file": "prompts_storage.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000024",
+    "user_prompt": "Show me storage usage",
+    "backend_data": "{\n  \"persistent_volumes\": [\n    {\n      \"name\": \"pvc-database-prod\",\n      \"namespace\": \"production-app\",\n      \"status\": \"Bound\",\n      \"size\": \"100Gi\",\n      \"used\": \"78Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteOnce\",\n      \"mount_path\": \"/var/lib/postgresql/data\",\n      \"last_backup\": \"2024-10-03T01:00:00Z\"\n    },\n    {\n      \"name\": \"pvc-logs-storage\",\n      \"namespace\": \"openshift-logging\",\n      \"status\": \"Bound\",\n      \"size\": \"500Gi\",\n      \"used\": \"423Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteMany\",\n      \"mount_path\": \"/var/log/containers\",\n      \"last_backup\": \"2024-10-03T02:30:00Z\"\n    },\n    {\n      \"name\": \"pvc-temp-storage\",\n      \"namespace\": \"development\",\n      \"status\": \"Pending\",\n      \"size\": \"50Gi\",\n      \"used\": \"0Gi\",\n      \"storage_class\": \"gp3-csi\",\n      \"access_mode\": \"ReadWriteOnce\",\n      \"mount_path\": \"/tmp/data\",\n      \"error\": \"Insufficient storage capacity\"\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/persistent_volumes.json",
+      "prompt_file": "prompts_storage.json"
+    }
+  }
+]

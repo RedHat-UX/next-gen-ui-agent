@@ -1,0 +1,57 @@
+[
+  {
+    "cluster": {
+      "name": "prod-openshift-cluster",
+      "version": "4.14",
+      "provider": "AWS",
+      "region": "us-east-1",
+      "nodes": 5,
+      "status": "healthy",
+      "pods": 234,
+      "namespaces": 45,
+      "cpu_usage": "65%",
+      "memory_usage": "72%",
+      "created": "2024-01-15",
+      "url": "https://console-openshift-console.apps.prod.example.com",
+      "description": "Production OpenShift cluster running critical workloads"
+    }
+  },
+  {
+    "cluster": {
+      "name": "prod-openshift-us-east",
+      "status": "healthy",
+      "version": "4.14.8",
+      "nodes": 12,
+      "api_server_status": "running",
+      "etcd_health": "healthy",
+      "uptime_days": 45,
+      "last_backup": "2024-10-03T02:30:00Z",
+      "region": "us-east-1",
+      "cpu_usage_percent": 68,
+      "memory_usage_percent": 72,
+      "storage_usage_percent": 45,
+      "cluster_logo_url": "https://connect.redhat.com/sites/default/files/2021-06/OpenShift-LogoType.svg__0.png",
+      "monitoring_dashboard_url": "https://console-openshift-console.apps.prod.example.com/monitoring",
+      "cluster_overview_video_url": "https://youtu.be/XdlVs37KD1I?si=bKtqtOsPN95IgTGX"
+    }
+  },
+  {
+    "cluster": {
+      "name": "dev-openshift-us-west",
+      "status": "degraded",
+      "version": "4.13.12",
+      "nodes": 6,
+      "api_server_status": "running",
+      "etcd_health": "warning",
+      "uptime_days": 12,
+      "last_backup": "2024-10-02T02:30:00Z",
+      "region": "us-west-2",
+      "cpu_usage_percent": 45,
+      "memory_usage_percent": 89,
+      "storage_usage_percent": 78,
+      "cluster_logo_url": "https://connect.redhat.com/sites/default/files/2021-06/OpenShift-LogoType.svg__0.png",
+      "monitoring_dashboard_url": "https://console-openshift-console.apps.prod.example.com/monitoring",
+      "cluster_overview_video_url": "https://youtu.be/XdlVs37KD1I?si=bKtqtOsPN95IgTGX"
+    }
+  }
+]

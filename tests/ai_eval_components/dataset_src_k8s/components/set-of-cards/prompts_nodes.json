@@ -1,0 +1,7 @@
+[
+  "Show me all worker nodes",
+  "Are any nodes NotReady?",
+  "Which node has high CPU usage?",
+  "Show me node resource usage",
+  "Is worker-03 healthy?"
+]

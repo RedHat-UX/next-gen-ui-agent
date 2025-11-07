@@ -1,0 +1,39 @@
+{
+  "services": [
+    {
+      "name": "payment-service",
+      "namespace": "production-app",
+      "type": "ClusterIP",
+      "cluster_ip": "10.128.45.23",
+      "ports": [{ "port": 8080, "target_port": 8080 }],
+      "endpoints": 3,
+      "healthy_endpoints": 2,
+      "dns_resolution": "healthy",
+      "ingress_url": "https://payments.apps.prod.example.com"
+    },
+    {
+      "name": "user-database",
+      "namespace": "production-app",
+      "type": "ClusterIP",
+      "cluster_ip": "10.128.67.89",
+      "ports": [{ "port": 5432, "target_port": 5432 }],
+      "endpoints": 1,
+      "healthy_endpoints": 1,
+      "dns_resolution": "healthy",
+      "ingress_url": null
+    },
+    {
+      "name": "api-gateway",
+      "namespace": "production-app",
+      "type": "LoadBalancer",
+      "cluster_ip": "10.128.12.45",
+      "external_ip": "34.123.45.67",
+      "ports": [{ "port": 443, "target_port": 8443 }],
+      "endpoints": 2,
+      "healthy_endpoints": 0,
+      "dns_resolution": "failed",
+      "ingress_url": "https://api.prod.example.com",
+      "error": "No healthy endpoints available"
+    }
+  ]
+}

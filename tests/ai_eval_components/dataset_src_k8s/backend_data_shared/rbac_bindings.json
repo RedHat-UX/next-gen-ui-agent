@@ -1,0 +1,31 @@
+{
+  "rbac_bindings": [
+    {
+      "user": "admin@redhat.com",
+      "role": "cluster-admin",
+      "type": "ClusterRoleBinding",
+      "namespace": "*",
+      "permissions": ["*"],
+      "last_login": "2024-10-03T08:30:00Z",
+      "mfa_enabled": true
+    },
+    {
+      "user": "developer@redhat.com",
+      "role": "edit",
+      "type": "RoleBinding",
+      "namespace": "development",
+      "permissions": ["get", "list", "create", "update", "delete"],
+      "last_login": "2024-10-03T07:15:00Z",
+      "mfa_enabled": true
+    },
+    {
+      "user": "viewer@redhat.com",
+      "role": "view",
+      "type": "RoleBinding",
+      "namespace": "production-app",
+      "permissions": ["get", "list"],
+      "last_login": "2024-10-02T16:45:00Z",
+      "mfa_enabled": false
+    }
+  ]
+}
