@@ -57,12 +57,14 @@ complete_eval:
   script:
     - echo "=== Running Movies/Subscriptions Tests ==="
     - >
-      python3.13 -c "import httpx; o=httpx.AsyncClient.__init__;
+      python3.13 -c "import sys; sys.argv.extend(['-c', 'all']);
+      import httpx; o=httpx.AsyncClient.__init__;
       httpx.AsyncClient.__init__=lambda s,*a,**k: o(s,*a,**{**k,'verify':False});
       import runpy; runpy.run_module('ai_eval_components.eval', run_name='__main__')"
     - echo "=== Running Kubernetes Tests ==="
     - >
-      python3.13 -c "import httpx; o=httpx.AsyncClient.__init__;
+      python3.13 -c "import sys; sys.argv.extend(['-c', 'all']);
+      import httpx; o=httpx.AsyncClient.__init__;
       httpx.AsyncClient.__init__=lambda s,*a,**k: o(s,*a,**{**k,'verify':False});
       import runpy; runpy.run_module('ai_eval_components.eval_k8s', run_name='__main__')"
     - echo "=== Generating Report ==="
