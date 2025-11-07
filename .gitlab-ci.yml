@@ -19,7 +19,6 @@ variables:
   PYTHON_VERSION: "3.13"
   PYTHONPATH: "tests:libs"
   DEBIAN_FRONTEND: "noninteractive"
-  SSL_VERIFY: "false"
 
 stages:
   - test
@@ -57,9 +56,15 @@ complete_eval:
     - echo "=== Using models.corp API at $MODEL_API_URL ==="
   script:
     - echo "=== Running Movies/Subscriptions Tests ==="
-    - python3.13 -m ai_eval_components.eval
+    - >
+      python3.13 -c "import httpx; o=httpx.AsyncClient.__init__;
+      httpx.AsyncClient.__init__=lambda s,*a,**k: o(s,*a,**{**k,'verify':False});
+      import runpy; runpy.run_module('ai_eval_components.eval', run_name='__main__')"
     - echo "=== Running Kubernetes Tests ==="
-    - python3.13 -m ai_eval_components.eval_k8s
+    - >
+      python3.13 -c "import httpx; o=httpx.AsyncClient.__init__;
+      httpx.AsyncClient.__init__=lambda s,*a,**k: o(s,*a,**{**k,'verify':False});
+      import runpy; runpy.run_module('ai_eval_components.eval_k8s', run_name='__main__')"
     - echo "=== Generating Report ==="
     - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --title "GitLab CI Evaluation Report" --model "${INFERENCE_MODEL}" --output tests/ai_eval_components/gitlab_eval_report.html
     - echo "=== Completed ==="
