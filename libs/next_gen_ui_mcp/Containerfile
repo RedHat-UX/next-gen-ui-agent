@@ -3,6 +3,18 @@
 # Build locally
 # pants package ::
 #
+# In case you're using podman instead of docker, you have to alias docker command to podman in order for Pants to use it.
+#
+# sudo ln -s $(which podman) /usr/local/bin/docker
+#
+# Make sure the /usr/local/bin path is in the $PATH environment variable.
+#
+# Also it may happen that the command will fail with an error that the image named 4 lines below doesn't exist.
+# This can be fixed by first pulling the image with podman:
+#
+# podman pull registry.access.redhat.com/ubi9/python-312-minimal:9.6
+#
+#
 # Run:
 # podman run --rm -it -p 5000:5000 --env MCP_PORT="5000" --env NGUI_MODEL="llama3.2" --env NGUI_PROVIDER_API_BASE_URL=http://host.containers.internal:11434 --env NGUI_PROVIDER_API_KEY="ollama" quay.io/next-gen-ui/mcp
 FROM registry.access.redhat.com/ubi9/python-312-minimal:9.6
