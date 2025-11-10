@@ -1,0 +1,178 @@
+{
+  "$defs": {
+    "ChartDataPoint": {
+      "description": "A single data point in a chart series",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional name for the data point"
+        },
+        "x": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "X-axis value (label for the data point)"
+        },
+        "y": {
+          "description": "Y-axis value (numeric value)",
+          "type": "number"
+        }
+      },
+      "required": ["x", "y"],
+      "title": "ChartDataPoint",
+      "type": "object"
+    },
+    "ChartSeries": {
+      "description": "A series of data points for the chart",
+      "properties": {
+        "name": {
+          "description": "Name of the series (shown in legend)",
+          "type": "string"
+        },
+        "data": {
+          "description": "Array of data points in this series",
+          "items": {
+            "$ref": "#/$defs/ChartDataPoint"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["name", "data"],
+      "title": "ChartSeries",
+      "type": "object"
+    }
+  },
+  "description": "Component Data for Chart visualization.",
+  "properties": {
+    "component": {
+      "const": "chart",
+      "default": "chart",
+      "type": "string"
+    },
+    "id": {
+      "description": "id of the backend data this component is for",
+      "type": "string"
+    },
+    "title": {
+      "type": "string",
+      "description": "title of the chart"
+    },
+    "chartType": {
+      "anyOf": [
+        {
+          "enum": ["bar", "line", "pie", "donut", "mirrored-bar"],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "bar",
+      "description": "Type of chart to render"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ChartSeries"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Array of data series for the chart"
+    },
+    "width": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": 600,
+      "description": "Width of the chart in pixels"
+    },
+    "height": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": 400,
+      "description": "Height of the chart in pixels"
+    },
+    "themeColor": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "multi",
+      "description": "PatternFly chart theme color"
+    },
+    "ariaTitle": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Accessibility title for screen readers"
+    },
+    "ariaDesc": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Accessibility description for screen readers"
+    },
+    "donutSubTitle": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "Total",
+      "description": "Subtitle for donut charts"
+    }
+  },
+  "required": ["id", "title"],
+  "title": "ComponentDataChart",
+  "type": "object"
+}
+

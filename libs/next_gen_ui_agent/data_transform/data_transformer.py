@@ -9,17 +9,37 @@ from next_gen_ui_agent.data_transform.data_transformer_utils import (
     sanitize_data_path,
 )
 from next_gen_ui_agent.data_transform.types import (
+    ComponentDataAudio,
     ComponentDataBase,
     ComponentDataBaseWithArrayValueFileds,
     ComponentDataBaseWithSimpleValueFileds,
     ComponentDataBaseWithTitle,
+    ComponentDataChart,
+    ComponentDataHandBuildComponent,
+    ComponentDataImage,
+    ComponentDataOneCard,
+    ComponentDataSetOfCards,
+    ComponentDataTable,
+    ComponentDataVideo,
 )
 from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
 from next_gen_ui_agent.types import InputData, UIComponentMetadata
 
-T = TypeVar("T", bound=ComponentDataBase)
+T = TypeVar(
+    "T",
+    ComponentDataBase,
+    ComponentDataBaseWithTitle,
+    ComponentDataAudio,
+    ComponentDataChart,
+    ComponentDataImage,
+    ComponentDataOneCard,
+    ComponentDataSetOfCards,
+    ComponentDataTable,
+    ComponentDataVideo,
+    ComponentDataHandBuildComponent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -126,4 +146,4 @@ class DataTransformerBase(ABC, Generic[T]):
                     else:
                         data_len = len(field.data)
 
-        return self._component_data  # type: ignore
+        return self._component_data

@@ -11,7 +11,8 @@ backend_packages.add = [
   "pants.backend.docker",
 ]
 pants_ignore = [
-  "requirements_dev.txt"
+  "requirements_dev.txt",
+  "tests/ngui-e2e/client/node_modules"
 ]
 
 [source]
