@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, EmptyState, EmptyStateBody, Title } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 // @ts-ignore - dynamicui module doesn't have type definitions
-import DynamicUILibrary from 'dynamicui';
+import DynamicUILibrary from '@rhngui/patternfly-react-renderer';
 import ErrorBoundary from './ErrorBoundary';
 
 interface DynamicComponentProps {
