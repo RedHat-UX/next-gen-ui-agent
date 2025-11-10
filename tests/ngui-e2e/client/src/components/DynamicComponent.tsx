@@ -41,37 +41,24 @@ const ComponentNotAvailableMessage: React.FC<{ errors: string[]; config?: any; s
   showRawConfig 
 }) => (
   <EmptyState variant="sm">
-    <div style={{ 
-      display: 'flex', 
-      justifyContent: 'center', 
-      marginBottom: '16px',
-      color: 'var(--pf-v6-global--warning-color--100)'
-    }}>
-      <ExclamationTriangleIcon size={48} />
+    <div className="dynamic-error-icon-container">
+      <ExclamationTriangleIcon />
     </div>
     <Title headingLevel="h4" size="md">
       Component Not Available
     </Title>
     <EmptyStateBody>
       <p>The requested component could not be rendered.</p>
-      <ul style={{ textAlign: 'left', marginTop: '10px' }}>
+      <ul className="dynamic-error-list">
         {errors.map((error, index) => (
           <li key={index}>{error}</li>
         ))}
       </ul>
       
       {showRawConfig && config && (
-        <details style={{ marginTop: '15px', textAlign: 'left' }}>
+        <details className="dynamic-debug-details">
           <summary>Raw Config (Debug)</summary>
-          <pre style={{ 
-            fontSize: '12px', 
-            background: 'var(--pf-v6-global--BackgroundColor--light-300)',
-            padding: '10px',
-            borderRadius: '4px',
-            marginTop: '8px',
-            maxHeight: '200px',
-            overflow: 'auto'
-          }}>
+          <pre className="dynamic-debug-pre">
             {JSON.stringify(config, null, 2)}
           </pre>
         </details>
@@ -109,14 +96,9 @@ const DynamicComponent: React.FC<DynamicComponentProps> = ({
       </ul>
       
       {showRawConfig && (
-        <details style={{ marginTop: '10px' }}>
+        <details className="dynamic-loading-details">
           <summary>Component Config</summary>
-          <pre style={{ 
-            fontSize: '12px', 
-            marginTop: '8px',
-            maxHeight: '150px',
-            overflow: 'auto'
-          }}>
+          <pre className="dynamic-loading-pre">
             {JSON.stringify(config, null, 2)}
           </pre>
         </details>

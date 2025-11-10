@@ -31,12 +31,12 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ config, messageId }) => 
 
   if (!isExpanded) {
     return (
-      <div style={{ marginTop: '12px' }}>
+      <div className="json-viewer-collapsed">
         <Button
           variant="link"
           icon={<CodeIcon />}
           onClick={() => setIsExpanded(true)}
-          style={{ padding: '4px 8px', fontSize: '13px' }}
+          className="json-viewer-toggle-btn"
         >
           View Component JSON
         </Button>
@@ -45,13 +45,13 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ config, messageId }) => 
   }
 
   return (
-    <div style={{ marginTop: '12px' }}>
-      <Panel variant="bordered" style={{ backgroundColor: 'var(--pf-v6-global--BackgroundColor--light-100)' }}>
+    <div className="json-viewer-expanded">
+      <Panel variant="bordered" className="json-viewer-panel">
         <PanelMain>
           <PanelMainBody>
-            <Split hasGutter style={{ marginBottom: '8px', alignItems: 'center' }}>
+            <Split hasGutter className="json-viewer-header">
               <SplitItem isFilled>
-                <strong style={{ fontSize: '13px', color: 'var(--pf-v6-global--Color--100)' }}>
+                <strong className="json-viewer-title">
                   Component Configuration JSON
                 </strong>
               </SplitItem>
@@ -62,7 +62,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ config, messageId }) => 
                     icon={<CopyIcon />}
                     onClick={handleCopy}
                     aria-label="Copy JSON"
-                    style={{ padding: '4px' }}
+                    className="json-viewer-icon-btn"
                   />
                 </Tooltip>
               </SplitItem>
@@ -73,28 +73,19 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ config, messageId }) => 
                     icon={<CompressIcon />}
                     onClick={() => setIsExpanded(false)}
                     aria-label="Collapse JSON viewer"
-                    style={{ padding: '4px' }}
+                    className="json-viewer-icon-btn"
                   />
                 </Tooltip>
               </SplitItem>
             </Split>
             
-            <CodeBlock
-              style={{
-                maxHeight: '400px',
-                overflow: 'auto'
-              }}
-            >
+            <CodeBlock className="json-viewer-code">
               <CodeBlockCode>
                 {jsonString}
               </CodeBlockCode>
             </CodeBlock>
             
-            <div style={{ 
-              marginTop: '8px', 
-              fontSize: '12px', 
-              color: 'var(--pf-v6-global--Color--200)' 
-            }}>
+            <div className="json-viewer-stats">
               {Object.keys(config).length} properties • {jsonString.length} characters
             </div>
           </PanelMainBody>

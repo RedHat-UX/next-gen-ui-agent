@@ -122,7 +122,7 @@ export const MockModeToggle: React.FC<MockModeToggleProps> = ({
                         ref={toggleRef}
                         onClick={onToggleClick}
                         isExpanded={isOpen}
-                        style={{ width: '100%' }}
+                        className="mock-toggle-menu"
                       >
                         {currentMockName || selectedMock || 'Select a mock component...'}
                       </MenuToggle>
@@ -160,11 +160,7 @@ export const MockModeToggle: React.FC<MockModeToggleProps> = ({
                             setJsonError('');
                           }}
                           rows={15}
-                          style={{ 
-                            fontFamily: 'monospace', 
-                            fontSize: '12px',
-                            backgroundColor: 'var(--pf-v6-global--BackgroundColor--light-100)'
-                          }}
+                          className="mock-textarea-preview"
                         />
                       </StackItem>
                       {jsonError && (
@@ -218,7 +214,7 @@ export const MockModeToggle: React.FC<MockModeToggleProps> = ({
                           }}
                           placeholder='Paste custom component JSON here...'
                           rows={10}
-                          style={{ fontFamily: 'monospace', fontSize: '12px' }}
+                          className="mock-textarea-custom"
                         />
                       </StackItem>
                       {jsonError && (

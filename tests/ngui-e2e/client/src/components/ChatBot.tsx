@@ -244,24 +244,15 @@ export default function ChatBotPage() {
   };
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      height: '100vh',
-      gap: '0',
-      overflow: 'hidden'
-    }}>
+    <div className="chatbot-layout">
       {/* Test Panel - Left Side (only shown when debug=true) */}
       {isDebugMode && (
-        <div style={{
-          width: `${panelWidth}px`,
-          minWidth: `${panelWidth}px`,
-          maxWidth: `${panelWidth}px`,
-          height: '100vh',
-          overflow: 'auto',
-          backgroundColor: 'var(--pf-v6-global--BackgroundColor--100)',
-          padding: '16px',
-          position: 'relative'
-        }}>
+        <div 
+          className="chatbot-panel"
+          style={{
+            '--panel-width': `${panelWidth}px`
+          } as React.CSSProperties}
+        >
           <TestPanel
             isMockMode={isMockMode}
             onMockModeChange={setIsMockMode}
@@ -280,40 +271,18 @@ export default function ChatBotPage() {
       {/* Resize Handle (only shown when debug=true) */}
       {isDebugMode && (
         <div
+          className={`chatbot-resize-handle ${isResizing ? 'is-dragging' : ''}`}
           onMouseDown={handleMouseDown}
           onMouseEnter={() => setIsHoveringHandle(true)}
           onMouseLeave={() => setIsHoveringHandle(false)}
-          style={{
-            width: '6px',
-            height: '100vh',
-            cursor: 'col-resize',
-            backgroundColor: (isResizing || isHoveringHandle)
-              ? 'var(--pf-v6-global--primary-color--100)' 
-              : 'var(--pf-v6-global--BorderColor--100)',
-            transition: isResizing ? 'none' : 'background-color 0.2s',
-            position: 'relative',
-            zIndex: 10
-          }}
         >
           {/* Visual indicator on the handle */}
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '3px',
-            height: '40px',
-            backgroundColor: (isResizing || isHoveringHandle)
-              ? 'var(--pf-v6-global--BackgroundColor--100)' 
-              : 'var(--pf-v6-global--Color--200)',
-            borderRadius: '2px',
-            opacity: 0.6
-          }} />
+          <div className="chatbot-resize-handle-indicator" />
         </div>
       )}
 
       {/* Chatbot - Takes full width when debug=false, right side when debug=true */}
-      <div style={{ flex: 1, height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div className="chatbot-content">
         <Chatbot displayMode={displayMode} isVisible={isVisible}>
           <ChatbotContent>
             {/* Update the announcement prop on MessageBox whenever a new message is sent

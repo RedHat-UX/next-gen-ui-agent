@@ -49,32 +49,19 @@ export const TestPanel: React.FC<TestPanelProps> = ({
   };
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ 
-        marginBottom: '16px',
-        paddingBottom: '12px',
-        borderBottom: '1px solid var(--pf-v6-global--BorderColor--100)'
-      }}>
-        <h2 style={{ 
-          margin: 0, 
-          fontSize: '20px',
-          fontWeight: 600,
-          color: 'var(--pf-v6-global--Color--100)'
-        }}>
+    <div className="test-panel-container">
+      <div className="test-panel-header">
+        <h2 className="test-panel-title">
           🧪 Test & Debug Panel
         </h2>
-        <p style={{ 
-          margin: '4px 0 0 0',
-          fontSize: '13px',
-          color: 'var(--pf-v6-global--Color--200)'
-        }}>
+        <p className="test-panel-subtitle">
           Test components with live agent or mock data
         </p>
       </div>
       
-      <Panel variant="bordered" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <PanelMain style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <PanelMainBody style={{ flex: 1, overflow: 'auto' }}>
+      <Panel variant="bordered" className="test-panel-flex">
+        <PanelMain className="test-panel-flex">
+          <PanelMainBody className="test-panel-body">
             <Tabs 
               activeKey={activeTabKey} 
               onSelect={handleTabClick}
@@ -89,11 +76,11 @@ export const TestPanel: React.FC<TestPanelProps> = ({
               }
               aria-label="Quick test prompts"
             >
-              <div style={{ paddingTop: '16px' }}>
+              <div className="test-panel-tab-content">
                 {isMockMode ? (
-                  <div style={{ textAlign: 'center', padding: '20px', color: 'var(--pf-v6-global--Color--200)' }}>
+                  <div className="test-panel-disabled-message">
                     <p><strong>Quick Prompts are disabled in Mock Mode</strong></p>
-                    <p style={{ fontSize: '14px', marginTop: '8px' }}>
+                    <p className="test-panel-disabled-hint">
                       Switch to the Mock Mode tab and turn off Mock Mode to use Quick Prompts with the live agent.
                     </p>
                   </div>
@@ -115,7 +102,7 @@ export const TestPanel: React.FC<TestPanelProps> = ({
               }
               aria-label="Mock mode configuration"
             >
-              <div style={{ paddingTop: '16px' }}>
+              <div className="test-panel-tab-content">
                 <MockModeToggle
                   isMockMode={isMockMode}
                   onMockModeChange={onMockModeChange}
@@ -134,69 +121,46 @@ export const TestPanel: React.FC<TestPanelProps> = ({
               title={<TabTitleText>ℹ️ Help</TabTitleText>}
               aria-label="Help and information"
             >
-              <div style={{ paddingTop: '16px' }}>
-                <div style={{ padding: '0 16px' }}>
-                  <h3 style={{ marginTop: 0 }}>🚀 Quick Prompts</h3>
-                  <p style={{ color: 'var(--pf-v6-global--Color--200)' }}>
+              <div className="test-panel-tab-content">
+                <div className="help-content">
+                  <h3 className="help-section-title">🚀 Quick Prompts</h3>
+                  <p className="help-text">
                     One-click test prompts that go through the <strong>real LLM pipeline</strong>.
                     Perfect for integration testing and verifying agent behavior.
                   </p>
-                  <ul style={{ marginLeft: '20px', color: 'var(--pf-v6-global--Color--200)' }}>
+                  <ul className="help-list">
                     <li>17 pre-configured prompts</li>
                     <li>Tests: Cards, Tables, Charts, Media, Mixed components</li>
                     <li>Full backend processing with real agent</li>
                     <li>Expected component type shown on each card</li>
                   </ul>
 
-                  <h3 style={{ marginTop: '24px' }}>🎭 Mock Mode</h3>
-                  <p style={{ color: 'var(--pf-v6-global--Color--200)' }}>
+                  <h3 className="help-section-title help-section-title-spacing">🎭 Mock Mode</h3>
+                  <p className="help-text">
                     Test UI rendering <strong>without calling the backend</strong>.
                     Perfect for rapid UI development and component testing.
                   </p>
-                  <ul style={{ marginLeft: '20px', color: 'var(--pf-v6-global--Color--200)' }}>
+                  <ul className="help-list">
                     <li>8 pre-configured component examples</li>
                     <li>Instant rendering (no agent delay)</li>
                     <li>Preview & edit JSON before sending</li>
                     <li>Custom JSON input for testing</li>
                   </ul>
 
-                  <h3 style={{ marginTop: '24px' }}>📊 Comparison</h3>
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: '1fr 1fr', 
-                    gap: '16px',
-                    marginTop: '12px'
-                  }}>
-                    <div style={{ 
-                      padding: '12px', 
-                      border: '1px solid var(--pf-v6-global--BorderColor--100)',
-                      borderRadius: '4px'
-                    }}>
+                  <h3 className="help-section-title help-section-title-spacing">📊 Comparison</h3>
+                  <div className="help-comparison-grid">
+                    <div className="help-comparison-card">
                       <strong>Quick Prompts</strong>
-                      <ul style={{ 
-                        marginLeft: '20px', 
-                        fontSize: '13px',
-                        color: 'var(--pf-v6-global--Color--200)',
-                        marginTop: '8px'
-                      }}>
+                      <ul className="help-comparison-list">
                         <li>Full pipeline test</li>
                         <li>Real agent (2-5 sec)</li>
                         <li>Integration testing</li>
                         <li>Live backend required</li>
                       </ul>
                     </div>
-                    <div style={{ 
-                      padding: '12px', 
-                      border: '1px solid var(--pf-v6-global--BorderColor--100)',
-                      borderRadius: '4px'
-                    }}>
+                    <div className="help-comparison-card">
                       <strong>Mock Mode</strong>
-                      <ul style={{ 
-                        marginLeft: '20px', 
-                        fontSize: '13px',
-                        color: 'var(--pf-v6-global--Color--200)',
-                        marginTop: '8px'
-                      }}>
+                      <ul className="help-comparison-list">
                         <li>UI testing only</li>
                         <li>Instant rendering</li>
                         <li>Component development</li>
@@ -205,23 +169,17 @@ export const TestPanel: React.FC<TestPanelProps> = ({
                     </div>
                   </div>
 
-                  <h3 style={{ marginTop: '24px' }}>💡 Tips</h3>
-                  <ul style={{ marginLeft: '20px', color: 'var(--pf-v6-global--Color--200)' }}>
+                  <h3 className="help-section-title help-section-title-spacing">💡 Tips</h3>
+                  <ul className="help-list">
                     <li><strong>Start with Mock Mode</strong> - Perfect your component UI</li>
                     <li><strong>Switch to Quick Prompts</strong> - Verify real agent behavior</li>
                     <li><strong>Iterate</strong> - Toggle between both as needed</li>
                     <li><strong>Check Expected vs Actual</strong> - Each prompt shows expected component type</li>
                   </ul>
 
-                  <div style={{ 
-                    marginTop: '24px', 
-                    padding: '12px', 
-                    backgroundColor: 'var(--pf-v6-global--BackgroundColor--light-100)',
-                    borderRadius: '4px',
-                    fontSize: '13px'
-                  }}>
+                  <div className="help-doc-box">
                     <strong>📚 Documentation:</strong>
-                    <ul style={{ marginLeft: '20px', marginTop: '8px', marginBottom: 0 }}>
+                    <ul className="help-doc-list">
                       <li>QUICK_PROMPTS_GUIDE.md</li>
                       <li>MOCK_MODE_GUIDE.md</li>
                       <li>EXTENDED_MOCK_GUIDE.md</li>

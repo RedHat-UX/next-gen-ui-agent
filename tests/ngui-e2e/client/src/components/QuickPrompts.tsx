@@ -44,16 +44,12 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
         isSelectable 
         isClickable
         onClick={() => handlePromptClick(prompt)}
-        style={{ 
-          height: '100%',
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          opacity: disabled ? 0.6 : 1
-        }}
+        className={`quick-prompt-card ${disabled ? 'quick-prompt-card-disabled' : 'quick-prompt-card-enabled'}`}
       >
         <CardTitle>
           <Stack>
             <StackItem>
-              <span style={{ fontSize: '24px' }}>{prompt.icon || '💬'}</span>
+              <span className="quick-prompt-icon">{prompt.icon || '💬'}</span>
             </StackItem>
             <StackItem>
               <Label color="blue" isCompact>
@@ -65,10 +61,10 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
         <CardBody>
           <Stack hasGutter>
             <StackItem>
-              <strong style={{ fontSize: '13px' }}>{prompt.prompt}</strong>
+              <strong className="quick-prompt-title">{prompt.prompt}</strong>
             </StackItem>
             <StackItem>
-              <small style={{ color: 'var(--pf-v6-global--Color--200)' }}>
+              <small className="quick-prompt-description">
                 {prompt.description}
               </small>
             </StackItem>
@@ -81,7 +77,7 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
   return (
     <Stack hasGutter>
       <StackItem>
-        <small style={{ color: 'var(--pf-v6-global--Color--200)' }}>
+        <small className="quick-prompts-hint">
           Click a prompt to test different component types through the LLM
         </small>
       </StackItem>
@@ -96,7 +92,7 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
                   title={<TabTitleText>🎴 Cards ({groupedPrompts.cards.length})</TabTitleText>}
                   aria-label="Cards prompts"
                 >
-                  <div style={{ paddingTop: '16px' }}>
+                  <div className="test-panel-tab-content">
                     <Grid hasGutter>
                       {groupedPrompts.cards.map(renderPromptCard)}
                     </Grid>
@@ -108,7 +104,7 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
                   title={<TabTitleText>📋 Tables ({groupedPrompts.tables.length})</TabTitleText>}
                   aria-label="Tables prompts"
                 >
-                  <div style={{ paddingTop: '16px' }}>
+                  <div className="test-panel-tab-content">
                     <Grid hasGutter>
                       {groupedPrompts.tables.map(renderPromptCard)}
                     </Grid>
@@ -120,7 +116,7 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
                   title={<TabTitleText>📊 Charts ({groupedPrompts.charts.length})</TabTitleText>}
                   aria-label="Charts prompts"
                 >
-                  <div style={{ paddingTop: '16px' }}>
+                  <div className="test-panel-tab-content">
                     <Grid hasGutter>
                       {groupedPrompts.charts.map(renderPromptCard)}
                     </Grid>
@@ -132,7 +128,7 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
                   title={<TabTitleText>🎥 Media ({groupedPrompts.media.length})</TabTitleText>}
                   aria-label="Media prompts"
                 >
-                  <div style={{ paddingTop: '16px' }}>
+                  <div className="test-panel-tab-content">
                     <Grid hasGutter>
                       {groupedPrompts.media.map(renderPromptCard)}
                     </Grid>
@@ -144,7 +140,7 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
                   title={<TabTitleText>🎭 Mixed ({groupedPrompts.mixed.length})</TabTitleText>}
                   aria-label="Mixed prompts"
                 >
-                  <div style={{ paddingTop: '16px' }}>
+                  <div className="test-panel-tab-content">
                     <Grid hasGutter>
                       {groupedPrompts.mixed.map(renderPromptCard)}
                     </Grid>
