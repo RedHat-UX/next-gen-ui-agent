@@ -13,6 +13,7 @@ ui_components_description_supported = """
 * one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
 * video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
 * image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
+* chart - component to visualize numeric data as charts. Specify the chart type in "chartType" field: "bar", "line", "pie", "donut", or "mirrored-bar". Use for data comparisons, trends, distributions, and metrics.
 """
 
 ui_components_description_all = (
@@ -103,6 +104,19 @@ Response example for one-item data:
     "fields" : [
         {"name":"Name","data_path":"order.name"},
         {"name":"Creation Date","data_path":"order.creationDate"}
+    ]
+}
+
+Response example for chart data:
+{
+    "title": "Movie Revenue Comparison",
+    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
+    "confidenceScore": "90%",
+    "component": "chart",
+    "chartType": "bar",
+    "fields" : [
+        {"name":"Movie","data_path":"movies[*].title"},
+        {"name":"Revenue","data_path":"movies[*].revenue"}
     ]
 }"""
 
