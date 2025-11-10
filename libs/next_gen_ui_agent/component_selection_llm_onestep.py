@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+from next_gen_ui_agent.component_selection_chart_instructions import CHART_INSTRUCTIONS
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
     trim_to_json,
@@ -80,7 +81,9 @@ If the selected UI component requires specific fields mentioned in its descripti
 For every field provide "data_path" containing JSONPath to get the value from the Data. Do not use any formatting or calculation in the "data_path".
 
 Select one from there UI components: {get_ui_components_description(self.unsupported_components)}
-    """
+
+{CHART_INSTRUCTIONS}
+"""
 
         sys_msg_content += """
 Response example for multi-item data:

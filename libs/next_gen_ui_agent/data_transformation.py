@@ -1,5 +1,6 @@
 import copy
 import logging
+from typing import cast
 
 from next_gen_ui_agent.data_transform.audio import AudioPlayerDataTransformer
 from next_gen_ui_agent.data_transform.chart import ChartDataTransformer
@@ -29,32 +30,22 @@ COMPONENT_TRANSFORMERS_REGISTRY: dict[str, DataTransformerBase] = {
 }
 
 
-def get_data_transformer(component: str) -> DataTransformerBase:
+def get_data_transformer(component: str) -> DataTransformerBase[ComponentDataBase]:
     """Get data transformer for UI component"""
-    # TODO improve this by use of FactoryPattern instead of instance copy
+    # TODO improve this by use of FactoryPattern instead of instance copy?
     data_transformer = COMPONENT_TRANSFORMERS_REGISTRY.get(component)
     if data_transformer:
         data_transformer = copy.deepcopy(data_transformer)
-        return data_transformer
+        return cast(DataTransformerBase[ComponentDataBase], data_transformer)
     else:
         raise Exception(f"No data transformer found for component {component}")
 
 
-def enhance_component_by_input_data(
-    input_data: list[InputData], components: list[UIComponentMetadata]
-) -> list[ComponentDataBase]:
-    """Enhance component fields by values to be shown, taken from the data."""
-    ret: list[ComponentDataBase] = []
-
-    for component in components:
-        for data in input_data:
-            if data["id"] != component.id:
-                continue
-            # TODO ERRHANDLING system error should be returned if no data are found for the component["id"]
-
-            data_transformer: DataTransformerBase = get_data_transformer(
-                component.component
-            )
-            ret.append(data_transformer.process(component, data))
-
-    return ret
+def generate_component_data(
+    input_data: InputData, component: UIComponentMetadata
+) -> ComponentDataBase:
+    """Generate component data from input data and component metadata"""
+    data_transformer: DataTransformerBase[ComponentDataBase] = get_data_transformer(
+        component.component
+    )
+    return data_transformer.process(component, input_data)

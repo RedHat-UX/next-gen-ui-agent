@@ -1,6 +1,11 @@
 import logging
 from typing import Any
 
+from next_gen_ui_agent.component_selection_chart_instructions import (
+    CHART_FIELD_SELECTION_EXAMPLES,
+    CHART_FIELD_SELECTION_EXTENSION,
+    CHART_INSTRUCTIONS,
+)
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
     trim_to_json,
@@ -122,6 +127,7 @@ Provide title for the UI component in "title".
 
 Select from these UI components: {get_ui_components_description(self.unsupported_components)}
 
+{CHART_INSTRUCTIONS}
 """
 
         sys_msg_content += """
@@ -229,6 +235,7 @@ SYS_PROMPT_COMPONENT_EXTENSIONS = {
 Do not use the same "data_path" for multiple fields.
 One field can point to the large image shown as the main image in the card UI, if url is available in the "Data".
 Show ID value only if it seems important for the user, like order ID. Do not show ID value if it is not important for the user.""",
+    "chart": CHART_FIELD_SELECTION_EXTENSION,
 }
 
 
@@ -369,4 +376,5 @@ Response example 2:
     }
 ]
 """,
+    "chart": CHART_FIELD_SELECTION_EXAMPLES,
 }
