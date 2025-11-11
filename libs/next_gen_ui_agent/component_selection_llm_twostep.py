@@ -147,6 +147,8 @@ Provide title for the UI component in "title".
 Select from these UI components: {get_ui_components_description(self.unsupported_components)}
 
 {CHART_INSTRUCTIONS}
+
+🔴 CRITICAL - JSONPATH: Carefully analyze the actual Data structure. If fields are nested (e.g., items[*].movie.title), you MUST include the full path. Do NOT skip intermediate objects.
 """
 
         sys_msg_content += """
@@ -237,6 +239,9 @@ Provide reason for the every field selection in the "reason".
 Provide your confidence for the every field selection as a percentage in the "confidenceScore".
 Provide "name" for every field.
 For every field provide "data_path" containing path to get the value from the "Data". Do not use formatting or calculation in the "data_path".
+
+🔴 CRITICAL - JSONPATH: Carefully analyze the actual Data structure. If fields are nested (e.g., items[*].movie.title), you MUST include the full path. Do NOT skip intermediate objects.
+
 {get_sys_prompt_component_extensions(component)}
 
 {get_sys_prompt_component_examples(component)}

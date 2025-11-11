@@ -84,6 +84,8 @@ Provide list of "fields" to be visualized in the UI component. Select only relev
 If the selected UI component requires specific fields mentioned in its description, provide them. Provide "name" for every field.
 For every field provide "data_path" containing JSONPath to get the value from the Data. Do not use any formatting or calculation in the "data_path".
 
+🔴 CRITICAL - JSONPATH: Carefully analyze the actual Data structure. If fields are nested (e.g., items[*].movie.title), you MUST include the full path. Do NOT skip intermediate objects.
+
 Select one from there UI components: {get_ui_components_description(self.unsupported_components)}
 
 {CHART_INSTRUCTIONS}
@@ -127,7 +129,7 @@ Response example for bar chart:
     ]
 }
 
-Response example for mirrored-bar chart (comparing 2 metrics):
+Response example for mirrored-bar chart (comparing 2 metrics, note nested structure):
 {
     "title": "Movie ROI and Budget Comparison",
     "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
@@ -135,9 +137,9 @@ Response example for mirrored-bar chart (comparing 2 metrics):
     "component": "chart",
     "chartType": "mirrored-bar",
     "fields" : [
-        {"name":"Movie","data_path":"movies[*].title"},
-        {"name":"ROI","data_path":"movies[*].roi"},
-        {"name":"Budget","data_path":"movies[*].budget"}
+        {"name":"Movie","data_path":"get_all_movies[*].movie.title"},
+        {"name":"ROI","data_path":"get_all_movies[*].movie.roi"},
+        {"name":"Budget","data_path":"get_all_movies[*].movie.budget"}
     ]
 }
 

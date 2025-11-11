@@ -13,17 +13,20 @@ mirrored-bar: [category, metric1, metric2]
 line: [item_id, time, values] ← item_id FIRST
 pie/donut: [category] ← backend auto-counts, don't add count!
 
-JSONPATH:
-✓ "items[*].field" or "items[*].nested[*].value"
+JSONPATH (CRITICAL - Follow exact data structure):
+1. Analyze the actual Data structure provided
+2. Follow nesting exactly: if data is `items[*].movie.title`, use that path
+3. Use [*] for arrays: "items[*].genres[*]"
+✓ "items[*].field" OR "items[*].nested.field" OR "items[*].nested[*].value"
 ✗ NO "items[size up to 6][*]" or "['key[size...]]..."
-Arrays: Use [*] to flatten (e.g., "items[*].genres[*]")
 
 RULES:
 • Don't add unrequested metrics
 • horizontal=true if labels >15 chars
 
 EXAMPLES:
-Bar: {"chartType":"bar","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"Score","data_path":"items[*].score"}]}
+Bar (flat): {"chartType":"bar","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"Score","data_path":"items[*].score"}]}
+Bar (nested): {"chartType":"bar","fields":[{"name":"Item","data_path":"items[*].product.name"},{"name":"Sales","data_path":"items[*].product.sales"}]}
 Mirrored: {"chartType":"mirrored-bar","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"A","data_path":"items[*].a"},{"name":"B","data_path":"items[*].b"}]}
 Line: {"chartType":"line","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"Week","data_path":"items[*].weekly[*].week"},{"name":"Value","data_path":"items[*].weekly[*].value"}]}
 Pie: {"chartType":"pie","fields":[{"name":"Genre","data_path":"items[*].genres[*]"}]}
@@ -38,8 +41,9 @@ Pie/donut: backend counts, use [*] for arrays. Line: item_id FIRST!
 
 # Two-step strategy: field examples
 CHART_FIELD_SELECTION_EXAMPLES = """
-Bar: [{"name":"Movie","data_path":"movies[*].title"},{"name":"Revenue","data_path":"movies[*].revenue"}]
-Mirrored: [{"name":"Movie","data_path":"movies[*].title"},{"name":"Rating","data_path":"movies[*].rating"},{"name":"Revenue","data_path":"movies[*].revenue"}]
+Bar (flat): [{"name":"Movie","data_path":"movies[*].title"},{"name":"Revenue","data_path":"movies[*].revenue"}]
+Bar (nested): [{"name":"Movie","data_path":"get_all_movies[*].movie.title"},{"name":"Revenue","data_path":"get_all_movies[*].movie.revenue"}]
+Mirrored (nested): [{"name":"Movie","data_path":"get_all_movies[*].movie.title"},{"name":"ROI","data_path":"get_all_movies[*].movie.roi"},{"name":"Budget","data_path":"get_all_movies[*].movie.budget"}]
 Line: [{"name":"Movie","data_path":"movies[*].title"},{"name":"Week","data_path":"movies[*].weekly[*].week"},{"name":"Revenue","data_path":"movies[*].weekly[*].revenue"}]
 Pie: [{"name":"Genre","data_path":"movies[*].genres[*]"}]
 Donut: [{"name":"Category","data_path":"movies[*].category"}]
