@@ -225,9 +225,11 @@ class NextGenUILangGraphAgent:
                     status="success",
                     name=f"ngui_{component_system}",
                     tool_call_id=str(result.id) + uuid.uuid4().hex,
-                    content=ui_block.model_dump_json()
-                    if self.output_messages_with_ui_blocks
-                    else str(result.content),
+                    content=(
+                        ui_block.model_dump_json()
+                        if self.output_messages_with_ui_blocks
+                        else str(result.content)
+                    ),
                 )
                 tool_calls.append(
                     ToolCall(

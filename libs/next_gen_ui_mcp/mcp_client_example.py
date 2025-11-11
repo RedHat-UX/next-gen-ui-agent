@@ -454,7 +454,9 @@ async def demo_ui_generation(server_url: str, ollama_model: str):
     async with sse_client(server_url) as (read_stream, write_stream):
         logger.info("✅ Connected to NextGenUI MCP server at %s", server_url)
         logger.debug(
-            "🔄 Got streams - read: %s, write: %s", type(read_stream), type(write_stream)
+            "🔄 Got streams - read: %s, write: %s",
+            type(read_stream),
+            type(write_stream),
         )
 
         # Use ClientSession as async context manager with sampling callback (following official SDK pattern)
