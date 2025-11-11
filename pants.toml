@@ -1,5 +1,5 @@
 [GLOBAL]
-pants_version = "2.24.2"
+pants_version = "2.29.0"
 backend_packages.add = [
   "pants.backend.build_files.fmt.black",  
   "pants.backend.python",
@@ -15,7 +15,7 @@ pants_ignore = [
 ]
 
 [source]
-# The Python source root is the repo root. See https://www.pantsbuild.org/docs/source-roots.
+# The Python source root is the rinterpreter_constraints = ["CPython>=3.12,<3.14"]epo root. See https://www.pantsbuild.org/docs/source-roots.
 root_patterns = ["/libs", "/tests", "/spec"]
 
 [python]
@@ -62,4 +62,5 @@ requirements = ["//libs/3rdparty/python:pytest"]
 [flake8]
 install_from_resolve = "flake8"
 requirements = ["//libs/3rdparty/python:flake8"]
+
 

@@ -25,10 +25,10 @@ class ImageDataTransformer(DataTransformerBase[ComponentDataImage]):
 
     @override
     def main_processing(self, json_data: Any, component: UIComponentMetadata):
-        fields: list[
-            DataFieldSimpleValue
-        ] = data_transformer_utils.copy_simple_fields_from_ui_component_metadata(
-            component.fields
+        fields: list[DataFieldSimpleValue] = (
+            data_transformer_utils.copy_simple_fields_from_ui_component_metadata(
+                component.fields
+            )
         )
         data_transformer_utils.fill_fields_with_simple_data(fields, json_data)
 
