@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from typing import Any, Optional
 
@@ -8,11 +9,20 @@ from fastapi.middleware.cors import CORSMiddleware
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
+from next_gen_ui_agent.agent_config import AgentConfig
 from next_gen_ui_langgraph.readme_example import get_all_movies, search_movie
-from pydantic import BaseModel, SecretStr
+from pydantic import BaseModel, Field, SecretStr
 
 # Load environment variables
 load_dotenv()
+
+# Configure logging to show INFO level messages from next_gen_ui_agent
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+# Set next_gen_ui_agent logger to INFO level
+logging.getLogger('next_gen_ui_agent').setLevel(logging.INFO)
 
 # Validate required environment variables
 required_env_vars = ["LLM_MODEL", "LLM_BASE_URL"]
@@ -26,11 +36,72 @@ model = os.getenv("LLM_MODEL", "llama3.2:3b")
 base_url = os.getenv("LLM_BASE_URL", "http://localhost:11434/v1")
 api_key = os.getenv("LLM_API_KEY")
 
+# Debug logging for LLM configuration
+print("\n" + "="*60)
+print("LLM CONFIGURATION DEBUG")
+print("="*60)
+print(f"Model: {model}")
+print(f"Base URL: {base_url}")
+print(f"API Key: {'SET (length=' + str(len(api_key)) + ')' if api_key else 'NOT SET'}")
+print("="*60 + "\n")
+
 # Initialize ChatOpenAI with proper argument types
+# Note: Setting http_client for SSL compatibility with corporate APIs
+import httpx
+import urllib3
+
+# Suppress SSL warnings for internal corporate APIs
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Create BOTH sync and async httpx clients with SSL verification disabled
+# (LangChain uses sync for invoke() and async for ainvoke())
+sync_client = httpx.Client(verify=False, timeout=60.0)
+async_client = httpx.AsyncClient(verify=False, timeout=60.0)
+
 if api_key:
-    llm = ChatOpenAI(model=model, base_url=base_url, api_key=SecretStr(api_key))
+    llm = ChatOpenAI(
+        model=model, 
+        base_url=base_url, 
+        api_key=SecretStr(api_key),
+        http_client=sync_client,
+        http_async_client=async_client
+    )
 else:
-    llm = ChatOpenAI(model=model, base_url=base_url)
+    llm = ChatOpenAI(
+        model=model, 
+        base_url=base_url,
+        http_client=sync_client,
+        http_async_client=async_client
+    )
+
+# Test the connection
+print("Testing LLM connection...")
+try:
+    test_response = llm.invoke("test")
+    print(f"✓ LLM connection successful! Response type: {type(test_response)}")
+except Exception as e:
+    print(f"✗ LLM connection FAILED!")
+    print(f"  Error type: {type(e).__name__}")
+    print(f"  Error message: {str(e)}")
+    print(f"  Full error: {repr(e)}")
+    
+    # Try to get more details from the exception
+    import traceback
+    print(f"\nFull traceback:")
+    traceback.print_exc()
+    
+    # Check for underlying cause
+    if hasattr(e, '__cause__') and e.__cause__:
+        print(f"\nUnderlying cause: {type(e.__cause__).__name__}: {e.__cause__}")
+    
+    # Check for response attribute
+    if hasattr(e, 'response'):
+        print(f"\nHTTP Response details:")
+        print(f"  Status: {getattr(e.response, 'status_code', 'N/A')}")
+        print(f"  Headers: {getattr(e.response, 'headers', 'N/A')}")
+        print(f"  Body: {getattr(e.response, 'text', 'N/A')[:1000]}")
+    
+    print("\nThis may cause failures when processing requests.\n")
 
 # Important: use the tool function directly (not call it)
 movies_agent = create_react_agent(
@@ -54,7 +125,35 @@ Examples of get_all_movies() use cases:
 Available data: revenue, budget, profit, ROI, ratings, awards, genres, directors, actors, opening weekend, weekly box office.""",
 )
 
-ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()
+# Create both agent instances with different strategies
+# One-step strategy agent
+config_onestep = AgentConfig(
+    component_selection_strategy="one_llm_call",
+    unsupported_components=True,
+)
+ngui_agent_onestep_instance = NextGenUILangGraphAgent(model=llm, config=config_onestep)
+ngui_agent_onestep = ngui_agent_onestep_instance.build_graph()
+
+# Two-step strategy agent
+config_twostep = AgentConfig(
+    component_selection_strategy="two_llm_calls",
+    unsupported_components=True,
+)
+ngui_agent_twostep_instance = NextGenUILangGraphAgent(model=llm, config=config_twostep)
+ngui_agent_twostep = ngui_agent_twostep_instance.build_graph()
+
+# Store agents in a dictionary for easy access
+ngui_agents = {
+    "one-step": {
+        "instance": ngui_agent_onestep_instance,
+        "graph": ngui_agent_onestep,
+    },
+    "two-step": {
+        "instance": ngui_agent_twostep_instance,
+        "graph": ngui_agent_twostep,
+    }
+}
+
 ngui_cfg = {
     "configurable": {
         "component_system": "json",
@@ -76,6 +175,7 @@ app.add_middleware(
 
 class GenerateRequest(BaseModel):
     prompt: str
+    strategy: Optional[str] = Field(default="one-step", description="Component selection strategy: 'one-step' or 'two-step'")
 
 
 def create_error_response(
@@ -121,6 +221,15 @@ async def health_check():
         }
 
 
+@app.get("/model-info")
+async def get_model_info():
+    """Get information about the connected LLM model."""
+    return {
+        "name": model,
+        "baseUrl": base_url,
+    }
+
+
 @app.post("/generate")
 async def generate_response(request: GenerateRequest):
     try:
@@ -132,7 +241,17 @@ async def generate_response(request: GenerateRequest):
                 "Invalid input", "Prompt cannot be empty or whitespace only"
             )
 
+        # Validate and select strategy
+        strategy = request.strategy
+        if strategy not in ngui_agents:
+            return create_error_response(
+                "Invalid strategy",
+                f"Strategy must be 'one-step' or 'two-step', got '{strategy}'"
+            )
+        
+        selected_agent = ngui_agents[strategy]
         print(f"=== Processing Prompt: {prompt} ===")
+        print(f"Using strategy: {strategy}")
 
         # Step 1: Invoke movies agent with error handling
         print("Step 1: Invoking movies agent...")
@@ -157,14 +276,25 @@ async def generate_response(request: GenerateRequest):
                 )
 
         except Exception as e:
-            print(f"ERROR: Movies agent failed: {e}")
+            print(f"\n{'='*60}")
+            print(f"MOVIES AGENT ERROR DEBUG")
+            print(f"{'='*60}")
+            print(f"Error Type: {type(e).__name__}")
+            print(f"Error Message: {str(e)}")
+            print(f"Full Error: {repr(e)}")
+            if hasattr(e, '__cause__'):
+                print(f"Caused by: {e.__cause__}")
+            if hasattr(e, 'response'):
+                print(f"Response status: {getattr(e.response, 'status_code', 'N/A')}")
+                print(f"Response text: {getattr(e.response, 'text', 'N/A')[:500]}")
+            print(f"{'='*60}\n")
             return create_error_response(
                 "Movies agent error", f"Failed to get movie information: {str(e)}"
             )
 
         # Step 2: Pass to Next Gen UI agent
-        print("Step 2: Invoking NGUI agent...")
-        ngui_response = await ngui_agent.ainvoke(movie_response, ngui_cfg)
+        print(f"Step 2: Invoking NGUI agent with {strategy} strategy...")
+        ngui_response = await selected_agent["graph"].ainvoke(movie_response, ngui_cfg)
         print(f"NGUI agent full response: {ngui_response}")
 
         # Step 3: Comprehensive validation of NGUI response
@@ -293,7 +423,60 @@ async def generate_response(request: GenerateRequest):
                     rendition_content,
                 )
 
-            return {"response": parsed_response}
+            # Add component metadata (reasoning, confidence) for debug mode
+            response_with_metadata = {"response": parsed_response}
+            
+            # Extract component metadata if available
+            components = ngui_response.get("components", [])
+            if components and len(components) > 0:
+                first_component = components[0]
+                metadata = {}
+                
+                # Add reasoning and confidence if available
+                if hasattr(first_component, 'reasonForTheComponentSelection'):
+                    metadata['reason'] = first_component.reasonForTheComponentSelection
+                if hasattr(first_component, 'confidenceScore'):
+                    metadata['confidence'] = first_component.confidenceScore
+                if hasattr(first_component, 'component'):
+                    metadata['componentType'] = first_component.component
+                
+                # Add model information
+                metadata['model'] = {
+                    'name': model,
+                    'baseUrl': base_url
+                }
+                
+                # Add component selection strategy information
+                # Use the strategy from the request
+                metadata['strategy'] = strategy
+                
+                # Add agent messages for debugging (convert to serializable format)
+                try:
+                    messages = movie_response.get('messages', [])
+                    serializable_messages = []
+                    for msg in messages:
+                        msg_dict = {
+                            'type': type(msg).__name__,
+                            'content': str(msg.content) if hasattr(msg, 'content') else str(msg)
+                        }
+                        # Add additional attributes for specific message types
+                        if hasattr(msg, 'tool_calls') and msg.tool_calls:
+                            msg_dict['tool_calls'] = [
+                                {'name': tc.get('name', ''), 'args': tc.get('args', {})}
+                                for tc in msg.tool_calls
+                            ]
+                        if hasattr(msg, 'name'):
+                            msg_dict['name'] = msg.name
+                        serializable_messages.append(msg_dict)
+                    metadata['agentMessages'] = serializable_messages
+                except Exception as e:
+                    print(f"Warning: Could not serialize agent messages: {e}")
+                    
+                if metadata:
+                    response_with_metadata['metadata'] = metadata
+                    print(f"Added metadata to response: {metadata}")
+            
+            return response_with_metadata
 
         except json.JSONDecodeError as e:
             print(f"ERROR: Failed to parse JSON response: {e}")

@@ -5,6 +5,7 @@ from next_gen_ui_agent.component_selection_chart_instructions import CHART_INSTR
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
     trim_to_json,
+    validate_and_correct_chart_type,
 )
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
@@ -20,8 +21,8 @@ ui_components_description_supported = """
 ui_components_description_all = (
     ui_components_description_supported
     + """
-* table - component to visualize array of objects with more than 6 items and small number of shown fields with short values.
-* set-of-cards - component to visualize array of objects with less than 6 items, or high number of shown fields and fields with long values.
+* table - component to visualize array of objects with multiple items (typically 3 or more) in a tabular format. Use when user explicitly requests a table, or for data with many items (especially >6), small number of fields, and short values.
+* set-of-cards - component to visualize array of objects with multiple items. Use for data with fewer items (<6), high number of fields, or fields with long values. Also good when visual separation between items is important.
 """.strip()
 )
 
@@ -72,6 +73,9 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             # logger.debug(input_data)
 
         sys_msg_content = f"""You are helpful and advanced user interface design assistant. Based on the "User query" and JSON formatted "Data", select the best UI component to visualize the "Data" to the user.
+
+CRITICAL: If user explicitly requests a component type ("table", "chart", "cards"), USE IT unless data structure prevents it.
+
 Generate response in the JSON format only. Select one component only into "component".
 Provide the title for the component in "title".
 Provide reason for the component selection in the "reasonForTheComponentSelection".
@@ -89,8 +93,8 @@ Select one from there UI components: {get_ui_components_description(self.unsuppo
 Response example for multi-item data:
 {
     "title": "Orders",
-    "reasonForTheComponentSelection": "More than 6 items in the data",
-    "confidenceScore": "82%",
+    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
+    "confidenceScore": "95%",
     "component": "table",
     "fields" : [
         {"name":"Name","data_path":"orders[*].name"},
@@ -110,7 +114,7 @@ Response example for one-item data:
     ]
 }
 
-Response example for chart data:
+Response example for bar chart:
 {
     "title": "Movie Revenue Comparison",
     "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
@@ -120,6 +124,32 @@ Response example for chart data:
     "fields" : [
         {"name":"Movie","data_path":"movies[*].title"},
         {"name":"Revenue","data_path":"movies[*].revenue"}
+    ]
+}
+
+Response example for mirrored-bar chart (comparing 2 metrics):
+{
+    "title": "Movie ROI and Budget Comparison",
+    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
+    "confidenceScore": "90%",
+    "component": "chart",
+    "chartType": "mirrored-bar",
+    "fields" : [
+        {"name":"Movie","data_path":"movies[*].title"},
+        {"name":"ROI","data_path":"movies[*].roi"},
+        {"name":"Budget","data_path":"movies[*].budget"}
+    ]
+}
+
+Response example for donut chart (user explicitly requested "donut"):
+{
+    "title": "Genre Distribution",
+    "reasonForTheComponentSelection": "User explicitly requested a donut chart for genre distribution",
+    "confidenceScore": "95%",
+    "component": "chart",
+    "chartType": "donut",
+    "fields" : [
+        {"name":"Genre","data_path":"movies[*].genre"}
     ]
 }"""
 
@@ -149,4 +179,19 @@ Response example for chart data:
             from_json(inference_output[0], allow_partial=True), strict=False
         )
         result.id = input_data_id
+        
+        # Post-processing: Validate chart type matches reasoning
+        validate_and_correct_chart_type(result, logger)
+        
+        # Log component selection reasoning
+        logger.info(
+            "[NGUI] Component selection reasoning:\n"
+            "  Component: %s\n"
+            "  Reason: %s\n"
+            "  Confidence: %s",
+            result.component,
+            result.reasonForTheComponentSelection,
+            result.confidenceScore,
+        )
+        
         return result
