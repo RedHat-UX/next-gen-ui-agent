@@ -5,8 +5,8 @@ import uvicorn  # pants: no-infer-dep
 from a2a.server.apps import A2AStarletteApplication  # pants: no-infer-dep
 from a2a.server.request_handlers import DefaultRequestHandler  # pants: no-infer-dep
 from a2a.server.tasks import InMemoryTaskStore  # pants: no-infer-dep
-from agent_card import card  # type: ignore[import-not-found]
-from agent_executor import NextGenUIAgentExecutor  # type: ignore[import-not-found]
+from next_gen_ui_a2a.agent_card import card  # type: ignore[import-not-found]
+from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor  # type: ignore[import-not-found]
 from langchain_openai import ChatOpenAI  # pants: no-infer-dep
 from next_gen_ui_agent.model import LangChainModelInference
 from next_gen_ui_agent.types import AgentConfig
