@@ -1,30 +1,37 @@
-FROM registry.access.redhat.com/ubi9/python-312
+# Next Gen UI A2A Server
+
+# Build locally
+# pants package ::
+#
+# Run:
+# podman run --rm -it -p 9999:9999 --env A2A_PORT="9999" quay.io/next-gen-ui/a2a:dev
+FROM registry.access.redhat.com/ubi9/python-312-minimal:9.6
 
 # Set work directory
-WORKDIR /opt/app-root/
-
-# Install dependencies
-RUN pip install a2a-sdk a2a-sdk[http-server] uvicorn langchain_openai
-
+WORKDIR /opt/app-root/src
 
 # Copy Python Project Files (Container context must be the `python` directory)
-COPY . /opt/app-root
+COPY --chown=1001:root . /opt/app-root/src/
 
 USER root
 
 # Install next_gen_ui dependencies
 RUN pip install \
-    /opt/ngui-dist/next_gen_ui_agent*.whl \
-    /opt/ngui-dist/next_gen_ui_rhds*.whl
+    next_gen_ui_agent*.whl \
+    next_gen_ui_a2a*.whl \
+    next_gen_ui_rhds*.whl \
+    a2a-sdk[http-server] uvicorn langchain_openai
 
 
 # Allow non-root user to access the everything in app-root
-RUN chgrp -R root /opt/app-root/ && chmod -R g+rwx /opt/app-root/
+RUN chgrp -R root /opt/app-root/src && chmod -R g+rwx /opt/app-root/src
+
+ENV A2A_PORT="9999"
 
 # Expose default port (change if needed)
-EXPOSE 9999
+EXPOSE $A2A_PORT
 
 USER 1001
 
 # Run the agent
-CMD python .
+CMD python -m next_gen_ui_a2a
