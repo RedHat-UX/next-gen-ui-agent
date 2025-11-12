@@ -1,2 +1,3 @@
 # Disabling dependency on our package that has not yet released with Python 3.14
+# TODO: NGUI-482 This should be completly removed as the libs source cannot depends on the build packages like rhds renderer
 #next_gen_ui_rhds_renderer
