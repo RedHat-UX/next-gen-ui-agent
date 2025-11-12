@@ -129,6 +129,20 @@ Response example for bar chart:
     ]
 }
 
+Response example for horizontal bar chart (explicit request or long labels):
+{
+    "title": "Average Ratings by Director",
+    "reasonForTheComponentSelection": "User explicitly requested a horizontal bar chart to compare directors, and director names exceed 15 characters",
+    "confidenceScore": "95%",
+    "component": "chart",
+    "chartType": "bar",
+    "horizontal": true,
+    "fields" : [
+        {"name":"Director","data_path":"movies[*].director"},
+        {"name":"Rating","data_path":"movies[*].rating"}
+    ]
+}
+
 Response example for mirrored-bar chart (comparing 2 metrics, note nested structure):
 {
     "title": "Movie ROI and Budget Comparison",
@@ -165,8 +179,17 @@ Response example for donut chart (user explicitly requested "donut"):
         logger.debug("LLM system message:\n%s", sys_msg_content)
         logger.debug("LLM prompt:\n%s", prompt)
 
-        response = trim_to_json(await inference.call_model(sys_msg_content, prompt))
+        raw_response = await inference.call_model(sys_msg_content, prompt)
+        response = trim_to_json(raw_response)
         logger.debug("Component metadata LLM response: %s", response)
+
+        # Store LLM interaction for debugging (stored in instance variable, retrieved in parse_infernce_output)
+        self._last_llm_interaction = {
+            'step': 'component_selection',
+            'system_prompt': sys_msg_content,
+            'user_prompt': prompt,
+            'raw_response': raw_response
+        }
 
         return [response]
 
@@ -181,6 +204,10 @@ Response example for donut chart (user explicitly requested "donut"):
             from_json(inference_output[0], allow_partial=True), strict=False
         )
         result.id = input_data_id
+        
+        # Attach LLM interaction for debugging
+        if hasattr(self, '_last_llm_interaction'):
+            result.llm_interactions = [self._last_llm_interaction]
         
         # Post-processing: Validate chart type matches reasoning
         validate_and_correct_chart_type(result, logger)

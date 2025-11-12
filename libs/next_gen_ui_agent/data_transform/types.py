@@ -135,6 +135,9 @@ class ComponentDataBarChart(ComponentDataChartBase):
     """Component Data for Bar Chart."""
 
     chartType: Literal["bar"] = "bar"
+    horizontal: Optional[bool] = Field(
+        default=None, description="Whether to display the bar chart horizontally"
+    )
 
 
 class ComponentDataLineChart(ComponentDataChartBase):

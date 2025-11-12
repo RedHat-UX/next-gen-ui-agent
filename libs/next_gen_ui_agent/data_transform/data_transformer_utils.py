@@ -104,10 +104,6 @@ def sanitize_data_path(data_path: str | None) -> str | None:
         if data_path.endswith("[*]"):
             data_path = data_path[:-3]
 
-        # data paths with more accesses to array are always invalid
-        if len(data_path.split("[", 3)) > 2:
-            return None
-
         # make sure data are picked in any depth
         if data_path and len(data_path) > 0:
             data_path = f"$..{data_path}"

@@ -88,6 +88,11 @@ class ChartDataTransformer(DataTransformerBase[ComponentDataChart]):
         self._set_chart_type(chart_type)
         logger.debug("Chart type: %s", chart_type)
 
+        # 1.5. Transfer horizontal property for bar charts
+        if chart_type == "bar" and hasattr(component, "horizontal") and component.horizontal is not None:
+            self._component_data.horizontal = component.horizontal
+            logger.debug("Set horizontal: %s", component.horizontal)
+
         # 2. Extract data using standard utilities (like other transformers)
         fields = data_transformer_utils.copy_array_fields_from_ui_component_metadata(
             component.fields
@@ -177,6 +182,11 @@ class ChartDataTransformer(DataTransformerBase[ComponentDataChart]):
             self._build_frequency_series(fields[0])
             return
 
+        # Special handling for line charts with 3 fields (series_id, x, y)
+        if chart_type == "line" and len(fields) == 3:
+            self._build_multi_series_line_chart(fields)
+            return
+
         # Standard chart: First field is x-axis, rest are y-axis series
         if len(fields) < 2:
             logger.warning(
@@ -201,6 +211,73 @@ class ChartDataTransformer(DataTransformerBase[ComponentDataChart]):
                 series_list.append(series)
 
         self._component_data.data = series_list
+
+    def _build_multi_series_line_chart(self, fields: list[DataFieldArrayValue]) -> None:
+        """Build multi-series line chart from 3 fields: series_id, x, y.
+        
+        This handles cases like weekly revenue per movie where:
+        - Field 1: Movie title (series identifier)
+        - Field 2: Week number (x-axis)
+        - Field 3: Revenue (y-axis)
+        
+        When JSONPath extracts nested arrays, it flattens them sequentially:
+        - series_ids: [movie1, movie2, ..., movieN]
+        - x_values: [week1_m1, week2_m1, ..., weekK_m1, week1_m2, ..., weekK_mN]
+        - y_values: [rev1_m1, rev2_m1, ..., revK_m1, rev1_m2, ..., revK_mN]
+        
+        We need to calculate how many points belong to each series and group them.
+        """
+        series_field, x_field, y_field = fields
+        
+        if not series_field.data or not x_field.data or not y_field.data:
+            logger.warning("Missing data in one or more fields for multi-series line chart")
+            return
+        
+        series_ids = series_field.data
+        x_vals = x_field.data
+        y_vals = y_field.data
+        
+        num_series = len(series_ids)
+        num_points = len(x_vals)
+        
+        logger.debug(
+            "Building multi-series line chart: %d series, %d x values, %d y values",
+            num_series,
+            num_points,
+            len(y_vals)
+        )
+        
+        # Calculate points per series (assuming equal distribution)
+        if num_points % num_series != 0:
+            logger.warning(
+                "Data point count (%d) not evenly divisible by series count (%d). "
+                "This may indicate incorrect JSONPath or data structure.",
+                num_points,
+                num_series
+            )
+            return
+        
+        points_per_series = num_points // num_series
+        logger.debug("Each series should have %d data points", points_per_series)
+        
+        # Build series list
+        series_list = []
+        for i, series_id in enumerate(series_ids):
+            start_idx = i * points_per_series
+            end_idx = start_idx + points_per_series
+            
+            data_points = []
+            for j in range(start_idx, end_idx):
+                # Extract numeric value for y
+                numeric_y = self._extract_numeric_value(y_vals[j])
+                if numeric_y is not None:
+                    data_points.append(ChartDataPoint(x=str(x_vals[j]), y=numeric_y))
+            
+            if data_points:  # Only add series if it has data
+                series_list.append(ChartSeries(name=str(series_id), data=data_points))
+        
+        self._component_data.data = series_list
+        logger.debug("Created %d series for multi-series line chart", len(series_list))
 
     def _extract_x_values(self, x_field: DataFieldArrayValue) -> list[str]:
         """Extract x-axis values from field data."""

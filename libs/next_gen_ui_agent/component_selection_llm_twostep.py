@@ -84,6 +84,10 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         )
         result.id = input_data_id
         
+        # Attach LLM interactions for debugging
+        if hasattr(self, '_llm_interactions'):
+            result.llm_interactions = self._llm_interactions
+        
         # Post-processing: Validate chart type matches reasoning
         validate_and_correct_chart_type(result, logger)
         
@@ -115,19 +119,20 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             )
 
         data_for_llm = str(json_data)
+        
+        # Initialize LLM interactions list
+        self._llm_interactions = []
 
-        response_1 = trim_to_json(
-            await self.inference_step_1(inference, user_prompt, data_for_llm)
-        )
+        raw_response_1 = await self.inference_step_1(inference, user_prompt, data_for_llm)
+        response_1 = trim_to_json(raw_response_1)
 
         if self.select_component_only:
             return [response_1]
 
-        response_2 = trim_to_json(
-            await self.inference_step_2(
-                inference, response_1, user_prompt, data_for_llm
-            )
+        raw_response_2 = await self.inference_step_2(
+            inference, response_1, user_prompt, data_for_llm
         )
+        response_2 = trim_to_json(raw_response_2)
 
         return [response_1, response_2]
 
@@ -185,6 +190,16 @@ Response example for bar chart:
     "chartType": "bar"
 }
 
+Response example for horizontal bar chart (explicit request or long labels):
+{
+    "reasonForTheComponentSelection": "User explicitly requested a horizontal bar chart to compare directors, and director names exceed 15 characters",
+    "confidenceScore": "95%",
+    "title": "Average Ratings by Director",
+    "component": "chart",
+    "chartType": "bar",
+    "horizontal": true
+}
+
 Response example for mirrored-bar chart (comparing 2 metrics):
 {
     "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
@@ -215,6 +230,15 @@ Response example for donut chart (user explicitly requested "donut"):
 
         response = await inference.call_model(sys_msg_content, prompt)
         logger.debug("Component selection LLM response: %s", response)
+        
+        # Store step 1 interaction
+        self._llm_interactions.append({
+            'step': 'component_selection',
+            'system_prompt': sys_msg_content,
+            'user_prompt': prompt,
+            'raw_response': response
+        })
+        
         return response
 
     async def inference_step_2(
@@ -259,6 +283,15 @@ For every field provide "data_path" containing path to get the value from the "D
 
         response = await inference.call_model(sys_msg_content, prompt)
         logger.debug("Component configuration LLM response: %s", response)
+        
+        # Store step 2 interaction
+        self._llm_interactions.append({
+            'step': 'field_selection',
+            'system_prompt': sys_msg_content,
+            'user_prompt': prompt,
+            'raw_response': response
+        })
+        
         return response
 
 
