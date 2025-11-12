@@ -9,6 +9,7 @@ from langchain_core.messages import AIMessage
 from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
 from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_agent.model import LangChainModelInference
+from next_gen_ui_agent.types import AgentConfig, UIBlock
 
 USER_PROMPT = "Tell me brief details of Toy Story"
 movies_data_obj = {
@@ -40,10 +41,10 @@ LLM_RESPONSE = """
         "confidenceScore": "100%",
         "component": "one-card",
         "fields" : [
-            {"name":"Title","data_path":"movie.title"},
-            {"name":"Year","data_path":"movie.year"},
-            {"name":"IMDB Rating","data_path":"movie.imdbRating"},
-            {"name":"Release Date","data_path":"movie.released"}
+            {"id": "title", "name":"Title","data_path":"movie.title"},
+            {"id": "year", "name":"Year","data_path":"movie.year"},
+            {"id": "imdb", "name":"IMDB Rating","data_path":"movie.imdbRating"},
+            {"id": "released", "name":"Release Date","data_path":"movie.released"}
         ]
     }
     """
@@ -55,7 +56,7 @@ async def test_agent_executor_one_message_and_metadata() -> None:
     llm = FakeMessagesListChatModel(responses=[msg])
     inference = LangChainModelInference(llm)
 
-    executor = NextGenUIAgentExecutor({"inference": inference})
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
 
     message = Message(
         role=Role.user,
@@ -86,7 +87,12 @@ async def test_agent_executor_one_message_and_metadata() -> None:
         part_root = event.parts[0].root
         if isinstance(part_root, TextPart):
             # print(part_root.text)
-            c = ComponentDataOneCard.model_validate_json(part_root.text)
+            ui_block = UIBlock.model_validate_json(part_root.text)
+            assert ui_block.configuration is not None
+            assert ui_block.configuration.component_metadata is not None
+            assert "one-card" == ui_block.configuration.component_metadata.component
+            assert ui_block.rendering is not None
+            c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
             assert "one-card" == c.component
             assert "Toy Story Details" == c.title
         else:
@@ -101,7 +107,7 @@ async def test_agent_executor_two_messages() -> None:
     llm = FakeMessagesListChatModel(responses=[msg])
     inference = LangChainModelInference(llm)
 
-    executor = NextGenUIAgentExecutor({"inference": inference})
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
 
     message = Message(
         role=Role.user,
@@ -129,7 +135,13 @@ async def test_agent_executor_two_messages() -> None:
         part_root = event.parts[0].root
         if isinstance(part_root, TextPart):
             # print(part_root.text)
-            c = ComponentDataOneCard.model_validate_json(part_root.text)
+            ui_block = UIBlock.model_validate_json(part_root.text)
+            assert ui_block.configuration is not None
+            assert ui_block.configuration.component_metadata is not None
+            assert "one-card" == ui_block.configuration.component_metadata.component
+
+            assert ui_block.rendering is not None
+            c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
             assert "one-card" == c.component
             assert "Toy Story Details" == c.title
         else:

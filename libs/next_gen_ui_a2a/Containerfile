@@ -5,6 +5,7 @@
 #
 # Run:
 # podman run --rm -it -p 9999:9999 --env A2A_PORT="9999" quay.io/next-gen-ui/a2a:dev
+#  podman run --rm -it -p 9999:9999 --env NGUI_MODEL="llama3.2" --env NGUI_PROVIDER_API_BASE_URL="http://host.containers.internal:11434/v1" --env NGUI_PROVIDER_API_KEY="ollama" quay.io/next-gen-ui/a2a:dev
 FROM registry.access.redhat.com/ubi9/python-312-minimal:9.6
 
 # Set work directory
@@ -27,6 +28,9 @@ RUN pip install \
 RUN chgrp -R root /opt/app-root/src && chmod -R g+rwx /opt/app-root/src
 
 ENV A2A_PORT="9999"
+ENV NGUI_PROVIDER_API_KEY=""
+ENV NGUI_PROVIDER_API_BASE_URL=""
+ENV NGUI_MODEL="gpt-4o"
 
 # Expose default port (change if needed)
 EXPOSE $A2A_PORT
