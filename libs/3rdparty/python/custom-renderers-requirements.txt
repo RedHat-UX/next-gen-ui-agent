@@ -1,1 +1,2 @@
-next_gen_ui_rhds_renderer
+# Disabling dependency on our package that has not yet released with Python 3.14
+#next_gen_ui_rhds_renderer
