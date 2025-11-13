@@ -1,5 +1,5 @@
 [GLOBAL]
-pants_version = "2.24.2"
+pants_version = "2.29.0"
 backend_packages.add = [
   "pants.backend.build_files.fmt.black",  
   "pants.backend.python",
@@ -16,12 +16,12 @@ pants_ignore = [
 ]
 
 [source]
-# The Python source root is the repo root. See https://www.pantsbuild.org/docs/source-roots.
+# The Python source root is the rinterpreter_constraints = ["CPython>=3.12,<3.14"]epo root. See https://www.pantsbuild.org/docs/source-roots.
 root_patterns = ["/libs", "/tests", "/spec"]
 
 [python]
 # Project supported versions.
-interpreter_constraints = ["CPython>=3.12,<3.14"]
+interpreter_constraints = ["CPython>=3.12,<3.15"]
 
 # Enable the "resolves" mechanism, which turns on lockfiles for user code. See
 # https://www.pantsbuild.org/docs/python-third-party-dependencies. This also adds the
@@ -63,4 +63,5 @@ requirements = ["//libs/3rdparty/python:pytest"]
 [flake8]
 install_from_resolve = "flake8"
 requirements = ["//libs/3rdparty/python:flake8"]
+
 

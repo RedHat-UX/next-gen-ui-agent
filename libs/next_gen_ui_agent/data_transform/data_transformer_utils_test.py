@@ -314,44 +314,50 @@ SIMPLE_OBJECT = json.loads(
 
 
 def test_fill_fields_with_data_SIMPLE_OBJECT() -> None:
-    fields: list[
-        DataFieldSimpleValue
-    ] = ComponentDataBaseWithSimpleValueFileds.model_validate(
-        {
-            "id": "1",
-            "component": "one-card",
-            "title": "Toy Story Details",
-            "fields": [
-                {"name": "String", "data_path": "movie.string"},
-                {"name": "Number Int", "data_path": "movie.numberint"},
-                {
-                    "name": "Nested number float",
-                    "data_path": "movie.nested.numberfloat",
-                },
-                {"name": "Boolean", "data_path": "movie.boolean"},
-                {"name": "Date", "data_path": "movie.date"},
-                {"name": "Array of strings", "data_path": "arrayofstrings[*]"},
-                {"name": "Array of strings without [*]", "data_path": "arrayofstrings"},
-                {"name": "Array one string", "data_path": "movie.arrayonestring[*]"},
-                {"name": "Empty array", "data_path": "arrayempty[*]"},
-                {"name": "Null Field", "data_path": "nullfield"},
-                {"name": "Unknown Field", "data_path": "movie.unknownfield"},
-                {
-                    "name": "Unknown Array Field",
-                    "data_path": "movie.nested.unknownarray[*]",
-                },
-                {
-                    "name": "One subfield from array of objects",
-                    "data_path": "arrayofobjects[*].id",
-                },
-                {"name": "Nested object", "data_path": "movie.nested"},
-                {
-                    "name": "Objects from array of objects",
-                    "data_path": "arrayofobjects[*]",
-                },
-            ],
-        }
-    ).fields
+    fields: list[DataFieldSimpleValue] = (
+        ComponentDataBaseWithSimpleValueFileds.model_validate(
+            {
+                "id": "1",
+                "component": "one-card",
+                "title": "Toy Story Details",
+                "fields": [
+                    {"name": "String", "data_path": "movie.string"},
+                    {"name": "Number Int", "data_path": "movie.numberint"},
+                    {
+                        "name": "Nested number float",
+                        "data_path": "movie.nested.numberfloat",
+                    },
+                    {"name": "Boolean", "data_path": "movie.boolean"},
+                    {"name": "Date", "data_path": "movie.date"},
+                    {"name": "Array of strings", "data_path": "arrayofstrings[*]"},
+                    {
+                        "name": "Array of strings without [*]",
+                        "data_path": "arrayofstrings",
+                    },
+                    {
+                        "name": "Array one string",
+                        "data_path": "movie.arrayonestring[*]",
+                    },
+                    {"name": "Empty array", "data_path": "arrayempty[*]"},
+                    {"name": "Null Field", "data_path": "nullfield"},
+                    {"name": "Unknown Field", "data_path": "movie.unknownfield"},
+                    {
+                        "name": "Unknown Array Field",
+                        "data_path": "movie.nested.unknownarray[*]",
+                    },
+                    {
+                        "name": "One subfield from array of objects",
+                        "data_path": "arrayofobjects[*].id",
+                    },
+                    {"name": "Nested object", "data_path": "movie.nested"},
+                    {
+                        "name": "Objects from array of objects",
+                        "data_path": "arrayofobjects[*]",
+                    },
+                ],
+            }
+        ).fields
+    )
 
     fill_fields_with_simple_data(fields, SIMPLE_OBJECT)
 
@@ -459,55 +465,64 @@ ARRAY = json.loads(
 
 
 def test_fill_fields_with_data_ARRAY() -> None:
-    fields: list[
-        DataFieldArrayValue
-    ] = ComponentDataBaseWithArrayValueFileds.model_validate(
-        {
-            "id": "1",
-            "component": "set-of-card",
-            "title": "Toy Story Details",
-            "fields": [
-                {"name": "String", "data_path": "movies[*].string"},
-                {"name": "Number Int", "data_path": "movies[*].numberint"},
-                {
-                    "name": "Nested number float",
-                    "data_path": "movies[*].nested.numberfloat",
-                },
-                {"name": "Boolean", "data_path": "movies[*].boolean"},
-                {"name": "Date", "data_path": "movies[*].date"},
-                {"name": "Array of strings", "data_path": "movies[*].arrayofstrings"},
-                {
-                    "name": "Array of strings with [*]",
-                    "data_path": "movies[*].arrayofstrings[*]",
-                },
-                {"name": "Array one string", "data_path": "movies[*].arrayonestring"},
-                {"name": "Empty array", "data_path": "movies[*].arrayempty"},
-                {"name": "Null Field", "data_path": "movies[*].nullfield"},
-                {
-                    "name": "Null Field in one only",
-                    "data_path": "movies[*].nullfieldinoneonly",
-                },
-                {"name": "Unknown Field", "data_path": "movies[*].unknownfield"},
-                {
-                    "name": "Field in second only",
-                    "data_path": "movies[*].fieldinsecondonly",
-                },
-                {
-                    "name": "Unknown Array Field",
-                    "data_path": "movies[*].nested.unknownarray[*]",
-                },
-                {"name": "Array of objects", "data_path": "movies[*].arrayofobjects"},
-                {
-                    "name": "Array of strings with []",
-                    "data_path": "movies[*].arrayofstrings[*]",
-                },
-                {
-                    "name": "One subfield from array of objects",
-                    "data_path": "movies[*].arrayofobjects[*].id",
-                },
-            ],
-        }
-    ).fields
+    fields: list[DataFieldArrayValue] = (
+        ComponentDataBaseWithArrayValueFileds.model_validate(
+            {
+                "id": "1",
+                "component": "set-of-card",
+                "title": "Toy Story Details",
+                "fields": [
+                    {"name": "String", "data_path": "movies[*].string"},
+                    {"name": "Number Int", "data_path": "movies[*].numberint"},
+                    {
+                        "name": "Nested number float",
+                        "data_path": "movies[*].nested.numberfloat",
+                    },
+                    {"name": "Boolean", "data_path": "movies[*].boolean"},
+                    {"name": "Date", "data_path": "movies[*].date"},
+                    {
+                        "name": "Array of strings",
+                        "data_path": "movies[*].arrayofstrings",
+                    },
+                    {
+                        "name": "Array of strings with [*]",
+                        "data_path": "movies[*].arrayofstrings[*]",
+                    },
+                    {
+                        "name": "Array one string",
+                        "data_path": "movies[*].arrayonestring",
+                    },
+                    {"name": "Empty array", "data_path": "movies[*].arrayempty"},
+                    {"name": "Null Field", "data_path": "movies[*].nullfield"},
+                    {
+                        "name": "Null Field in one only",
+                        "data_path": "movies[*].nullfieldinoneonly",
+                    },
+                    {"name": "Unknown Field", "data_path": "movies[*].unknownfield"},
+                    {
+                        "name": "Field in second only",
+                        "data_path": "movies[*].fieldinsecondonly",
+                    },
+                    {
+                        "name": "Unknown Array Field",
+                        "data_path": "movies[*].nested.unknownarray[*]",
+                    },
+                    {
+                        "name": "Array of objects",
+                        "data_path": "movies[*].arrayofobjects",
+                    },
+                    {
+                        "name": "Array of strings with []",
+                        "data_path": "movies[*].arrayofstrings[*]",
+                    },
+                    {
+                        "name": "One subfield from array of objects",
+                        "data_path": "movies[*].arrayofobjects[*].id",
+                    },
+                ],
+            }
+        ).fields
+    )
 
     fill_fields_with_array_data(fields, ARRAY)
 
@@ -611,49 +626,55 @@ ARRAY_IN_ROOT = json.loads(
 
 
 def test_fill_fields_with_data_ARRAY_IN_ROOT() -> None:
-    fields: list[
-        DataFieldArrayValue
-    ] = ComponentDataBaseWithArrayValueFileds.model_validate(
-        {
-            "id": "1",
-            "component": "set-of-card",
-            "title": "Toy Story Details",
-            "fields": [
-                {"name": "String", "data_path": "[*].stringf"},
-                {"name": "Number Int", "data_path": "$..[*].numberint"},
-                {"name": "Nested number float", "data_path": "[*].nested.numberfloat"},
-                {"name": "Boolean", "data_path": "[*].boolean"},
-                {"name": "Date", "data_path": "[*].date"},
-                {"name": "Array of strings", "data_path": "[*].arrayofstrings"},
-                {
-                    "name": "Array of strings with [*]",
-                    "data_path": "[*].arrayofstrings[*]",
-                },
-                {"name": "Array one string", "data_path": "[*].arrayonestring"},
-                {"name": "Empty array", "data_path": "[*].arrayempty"},
-                {"name": "Null Field", "data_path": "[*].nullfield"},
-                {
-                    "name": "Null Field in one only",
-                    "data_path": "[*].nullfieldinoneonly",
-                },
-                {"name": "Unknown Field", "data_path": "[*].unknownfield"},
-                {"name": "Field in second only", "data_path": "[*].fieldinsecondonly"},
-                {
-                    "name": "Unknown Array Field",
-                    "data_path": "[*].nested.unknownarray[*]",
-                },
-                {"name": "Array of objects", "data_path": "[*].arrayofobjects"},
-                {
-                    "name": "Array of strings with []",
-                    "data_path": "[*].arrayofstrings[*]",
-                },
-                {
-                    "name": "One subfield from array of objects",
-                    "data_path": "[*].arrayofobjects[*].id",
-                },
-            ],
-        }
-    ).fields
+    fields: list[DataFieldArrayValue] = (
+        ComponentDataBaseWithArrayValueFileds.model_validate(
+            {
+                "id": "1",
+                "component": "set-of-card",
+                "title": "Toy Story Details",
+                "fields": [
+                    {"name": "String", "data_path": "[*].stringf"},
+                    {"name": "Number Int", "data_path": "$..[*].numberint"},
+                    {
+                        "name": "Nested number float",
+                        "data_path": "[*].nested.numberfloat",
+                    },
+                    {"name": "Boolean", "data_path": "[*].boolean"},
+                    {"name": "Date", "data_path": "[*].date"},
+                    {"name": "Array of strings", "data_path": "[*].arrayofstrings"},
+                    {
+                        "name": "Array of strings with [*]",
+                        "data_path": "[*].arrayofstrings[*]",
+                    },
+                    {"name": "Array one string", "data_path": "[*].arrayonestring"},
+                    {"name": "Empty array", "data_path": "[*].arrayempty"},
+                    {"name": "Null Field", "data_path": "[*].nullfield"},
+                    {
+                        "name": "Null Field in one only",
+                        "data_path": "[*].nullfieldinoneonly",
+                    },
+                    {"name": "Unknown Field", "data_path": "[*].unknownfield"},
+                    {
+                        "name": "Field in second only",
+                        "data_path": "[*].fieldinsecondonly",
+                    },
+                    {
+                        "name": "Unknown Array Field",
+                        "data_path": "[*].nested.unknownarray[*]",
+                    },
+                    {"name": "Array of objects", "data_path": "[*].arrayofobjects"},
+                    {
+                        "name": "Array of strings with []",
+                        "data_path": "[*].arrayofstrings[*]",
+                    },
+                    {
+                        "name": "One subfield from array of objects",
+                        "data_path": "[*].arrayofobjects[*].id",
+                    },
+                ],
+            }
+        ).fields
+    )
 
     fill_fields_with_array_data(fields, ARRAY_IN_ROOT)
 
@@ -733,44 +754,50 @@ SIMPLE_OBJECT_IN_ARRAY_IN_ROOT = json.loads(
 
 
 def test_fill_fields_with_data_SIMPLE_OBJECT_IN_ARRAY_IN_ROOT() -> None:
-    fields: list[
-        DataFieldSimpleValue
-    ] = ComponentDataBaseWithSimpleValueFileds.model_validate(
-        {
-            "id": "1",
-            "component": "one-card",
-            "title": "Toy Story Details",
-            "fields": [
-                {"name": "String", "data_path": "[0].string"},
-                {
-                    "name": "Number Int",
-                    "data_path": "[*].numberint",
-                },
-                {
-                    "name": "Nested number float",
-                    "data_path": "nested.numberfloat",
-                },
-                {"name": "Boolean", "data_path": "boolean"},
-                {"name": "Date", "data_path": "date"},
-                {"name": "Array of strings", "data_path": "arrayofstrings[*]"},
-                {"name": "Array of strings without [*]", "data_path": "arrayofstrings"},
-                {"name": "Array one string", "data_path": "arrayonestring[*]"},
-                {"name": "Empty array", "data_path": "arrayempty[*]"},
-                {"name": "Null Field", "data_path": "nullfield"},
-                {"name": "Unknown Field", "data_path": "unknownfield"},
-                {"name": "Unknown Array Field", "data_path": "nested.unknownarray[*]"},
-                {
-                    "name": "One subfield from array of objects",
-                    "data_path": "arrayofobjects[*].id",
-                },
-                {"name": "Nested object", "data_path": "nested"},
-                {
-                    "name": "Objects from array of objects",
-                    "data_path": "arrayofobjects[*]",
-                },
-            ],
-        }
-    ).fields
+    fields: list[DataFieldSimpleValue] = (
+        ComponentDataBaseWithSimpleValueFileds.model_validate(
+            {
+                "id": "1",
+                "component": "one-card",
+                "title": "Toy Story Details",
+                "fields": [
+                    {"name": "String", "data_path": "[0].string"},
+                    {
+                        "name": "Number Int",
+                        "data_path": "[*].numberint",
+                    },
+                    {
+                        "name": "Nested number float",
+                        "data_path": "nested.numberfloat",
+                    },
+                    {"name": "Boolean", "data_path": "boolean"},
+                    {"name": "Date", "data_path": "date"},
+                    {"name": "Array of strings", "data_path": "arrayofstrings[*]"},
+                    {
+                        "name": "Array of strings without [*]",
+                        "data_path": "arrayofstrings",
+                    },
+                    {"name": "Array one string", "data_path": "arrayonestring[*]"},
+                    {"name": "Empty array", "data_path": "arrayempty[*]"},
+                    {"name": "Null Field", "data_path": "nullfield"},
+                    {"name": "Unknown Field", "data_path": "unknownfield"},
+                    {
+                        "name": "Unknown Array Field",
+                        "data_path": "nested.unknownarray[*]",
+                    },
+                    {
+                        "name": "One subfield from array of objects",
+                        "data_path": "arrayofobjects[*].id",
+                    },
+                    {"name": "Nested object", "data_path": "nested"},
+                    {
+                        "name": "Objects from array of objects",
+                        "data_path": "arrayofobjects[*]",
+                    },
+                ],
+            }
+        ).fields
+    )
 
     fill_fields_with_simple_data(fields, SIMPLE_OBJECT_IN_ARRAY_IN_ROOT)
 
@@ -815,47 +842,47 @@ def test_fill_fields_with_data_SIMPLE_OBJECT_IN_ARRAY_IN_ROOT() -> None:
 
 def test_find_image_BY_image_url_suffix() -> None:
     # add some non-image url fields and mixed case to test correct selection
-    fields: list[
-        DataFieldSimpleValue
-    ] = ComponentDataBaseWithSimpleValueFileds.model_validate(
-        {
-            "id": "1",
-            "component": "set-of-card",
-            "title": "Toy Story Details",
-            "fields": [
-                {
-                    "name": "String",
-                    "data_path": "movies[*].string",
-                    "data": ["https://image.tmdb.org/"],
-                },
-                {
-                    "name": "tLink",
-                    "data_path": "movies[*].stLink",
-                    "data": ["sdas"],
-                },
-                {
-                    "name": "testLink",
-                    "data_path": "movies[*].stringLink",
-                    "data": ["https://image.tmdb.org/aajpg"],
-                },
-                {
-                    "name": "Image",
-                    "data_path": "movies[*].image",
-                    "data": ["https://image.tmdb.org/test_path.jPg"],
-                },
-                {
-                    "name": "Image URL",
-                    "data_path": "movies[*].imageUrl",
-                    "data": ["https://image.tmdb.org/test_path.svg"],
-                },
-                {
-                    "name": "Image Link",
-                    "data_path": "movies[*].imageLink",
-                    "data": ["https://image.tmdb.org/test_path.png"],
-                },
-            ],
-        }
-    ).fields
+    fields: list[DataFieldSimpleValue] = (
+        ComponentDataBaseWithSimpleValueFileds.model_validate(
+            {
+                "id": "1",
+                "component": "set-of-card",
+                "title": "Toy Story Details",
+                "fields": [
+                    {
+                        "name": "String",
+                        "data_path": "movies[*].string",
+                        "data": ["https://image.tmdb.org/"],
+                    },
+                    {
+                        "name": "tLink",
+                        "data_path": "movies[*].stLink",
+                        "data": ["sdas"],
+                    },
+                    {
+                        "name": "testLink",
+                        "data_path": "movies[*].stringLink",
+                        "data": ["https://image.tmdb.org/aajpg"],
+                    },
+                    {
+                        "name": "Image",
+                        "data_path": "movies[*].image",
+                        "data": ["https://image.tmdb.org/test_path.jPg"],
+                    },
+                    {
+                        "name": "Image URL",
+                        "data_path": "movies[*].imageUrl",
+                        "data": ["https://image.tmdb.org/test_path.svg"],
+                    },
+                    {
+                        "name": "Image Link",
+                        "data_path": "movies[*].imageLink",
+                        "data": ["https://image.tmdb.org/test_path.png"],
+                    },
+                ],
+            }
+        ).fields
+    )
 
     image, field = find_image(fields)
     assert image == "https://image.tmdb.org/test_path.jPg"
@@ -865,32 +892,32 @@ def test_find_image_BY_image_url_suffix() -> None:
 
 def test_find_image_BY_field_name_suffix_link() -> None:
     # add some non-image url fields and mixed case to test correct selection
-    fields: list[
-        DataFieldSimpleValue
-    ] = ComponentDataBaseWithSimpleValueFileds.model_validate(
-        {
-            "id": "1",
-            "component": "set-of-card",
-            "title": "Toy Story Details",
-            "fields": [
-                {
-                    "name": "String",
-                    "data_path": "movies[*].string",
-                    "data": ["https://image.tmdb.org/"],
-                },
-                {
-                    "name": "Test",
-                    "data_path": "movies[*].string_image_LINk",
-                    "data": ["https://image.tmdb.org/aa"],
-                },
-                {
-                    "name": "ImageLink",
-                    "data_path": "movies[*].image",
-                    "data": ["https://image.tmdb.org/test_path.jp"],
-                },
-            ],
-        }
-    ).fields
+    fields: list[DataFieldSimpleValue] = (
+        ComponentDataBaseWithSimpleValueFileds.model_validate(
+            {
+                "id": "1",
+                "component": "set-of-card",
+                "title": "Toy Story Details",
+                "fields": [
+                    {
+                        "name": "String",
+                        "data_path": "movies[*].string",
+                        "data": ["https://image.tmdb.org/"],
+                    },
+                    {
+                        "name": "Test",
+                        "data_path": "movies[*].string_image_LINk",
+                        "data": ["https://image.tmdb.org/aa"],
+                    },
+                    {
+                        "name": "ImageLink",
+                        "data_path": "movies[*].image",
+                        "data": ["https://image.tmdb.org/test_path.jp"],
+                    },
+                ],
+            }
+        ).fields
+    )
 
     image, field = find_image(fields)
     assert image == "https://image.tmdb.org/aa"
@@ -900,32 +927,32 @@ def test_find_image_BY_field_name_suffix_link() -> None:
 
 def test_find_image_BY_field_name_suffix_url() -> None:
     # add some non-image url fields and mixed case to test correct selection
-    fields: list[
-        DataFieldSimpleValue
-    ] = ComponentDataBaseWithSimpleValueFileds.model_validate(
-        {
-            "id": "1",
-            "component": "set-of-card",
-            "title": "Toy Story Details",
-            "fields": [
-                {
-                    "name": "String",
-                    "data_path": "movies[*].string",
-                    "data": ["https://image.tmdb.org/"],
-                },
-                {
-                    "name": "Test",
-                    "data_path": "movies[*].posterUrL",
-                    "data": ["https://image.tmdb.org/aa"],
-                },
-                {
-                    "name": "ImageLink",
-                    "data_path": "movies[*].image",
-                    "data": ["https://image.tmdb.org/test_path.jp"],
-                },
-            ],
-        }
-    ).fields
+    fields: list[DataFieldSimpleValue] = (
+        ComponentDataBaseWithSimpleValueFileds.model_validate(
+            {
+                "id": "1",
+                "component": "set-of-card",
+                "title": "Toy Story Details",
+                "fields": [
+                    {
+                        "name": "String",
+                        "data_path": "movies[*].string",
+                        "data": ["https://image.tmdb.org/"],
+                    },
+                    {
+                        "name": "Test",
+                        "data_path": "movies[*].posterUrL",
+                        "data": ["https://image.tmdb.org/aa"],
+                    },
+                    {
+                        "name": "ImageLink",
+                        "data_path": "movies[*].image",
+                        "data": ["https://image.tmdb.org/test_path.jp"],
+                    },
+                ],
+            }
+        ).fields
+    )
 
     image, field = find_image(fields)
     assert image == "https://image.tmdb.org/aa"

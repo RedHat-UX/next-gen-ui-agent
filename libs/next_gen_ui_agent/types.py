@@ -110,11 +110,11 @@ class AgentConfig(BaseModel):
     If `True`, the agent can also generate unsupported UI components.
     """
 
-    component_selection_strategy: Optional[
-        Literal["one_llm_call", "two_llm_calls"]
-    ] = Field(
-        default=None,
-        description="Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!",
+    component_selection_strategy: Optional[Literal["one_llm_call", "two_llm_calls"]] = (
+        Field(
+            default=None,
+            description="Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!",
+        )
     )
     """
     Component selection strategy to use.

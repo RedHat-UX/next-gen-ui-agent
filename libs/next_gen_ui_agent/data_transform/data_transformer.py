@@ -126,4 +126,4 @@ class DataTransformerBase(ABC, Generic[T]):
                     else:
                         data_len = len(field.data)
 
-        return self._component_data  # type: ignore
+        return self._component_data

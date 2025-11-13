@@ -7,11 +7,6 @@ on:
   # Allow manual trigger (run on-demand when needed - works on any branch!)
   workflow_dispatch:
 
-  # Run on push to github-actions-test-eval branch (for testing)
-  push:
-    branches:
-      - github-actions-test-eval
-
 jobs:
   complete-eval:
     name: Run Complete Evaluation Tests (Movies + K8s)

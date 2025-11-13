@@ -37,5 +37,7 @@ class JsonStrategyFactory(StrategyFactory):
                 return VideoRenderStrategy()
             case AudioPlayerRenderStrategy.COMPONENT_NAME:
                 return AudioPlayerRenderStrategy()
-            case _:  # for unknown component type use hand-build component renderer which simply renders JSON. Might be made pluggable in the future.
+            case (
+                _
+            ):  # for unknown component type use hand-build component renderer which simply renders JSON. Might be made pluggable in the future.
                 return HandBuildComponentRenderStrategy()
