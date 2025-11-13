@@ -6,13 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NGUI-e2e</title>
 
+    <!-- PatternFly v6 design tokens -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@patternfly/patternfly@6.0.0/patternfly.min.css" />
+
     <!-- Import map for web component dependencies -->
     <script type="importmap">
       {
         "imports": {
           "lit": "https://cdn.jsdelivr.net/npm/lit@3.2.1/+esm",
           "lit/": "https://cdn.jsdelivr.net/npm/lit@3.2.1/",
-          "@patternfly/elements/": "https://cdn.jsdelivr.net/npm/@patternfly/elements@3.0.0/"
+          "@patternfly/elements/": "https://cdn.jsdelivr.net/npm/@patternfly/elements@3.0.0/",
+          "@ngui/web/": "/ngui-elements/"
         }
       }
     </script>

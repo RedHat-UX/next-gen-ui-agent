@@ -2,7 +2,8 @@
  * Dynamically loads web components found in HTML string
  *
  * This function parses HTML to find all custom elements with the `ngui-` prefix
- * and dynamically imports only the component modules needed for that HTML.
+ * and dynamically loads only the component modules needed for that HTML.
+ * Uses script tags to bypass Vite and load via browser's native importmap.
  *
  * @param html - HTML string containing custom elements
  * @returns Promise that resolves when all required components are loaded
@@ -27,10 +28,40 @@ export async function loadWebComponents(html: string): Promise<void> {
     }
   });
 
-  // Dynamically import only the components found in this HTML
-  const imports = Array.from(tagNames).map(tagName =>
-    import(`/ngui-elements/${tagName}.js`)
-  );
+  // Load components using script tags to bypass Vite and use importmap
+  const loadPromises = Array.from(tagNames).map((tagName) => {
+    // Check if already defined
+    if (customElements.get(tagName)) {
+      return Promise.resolve();
+    }
 
-  await Promise.all(imports);
+    const modulePath = tagName.replace('ngui-', '');
+
+    return new Promise<void>((resolve, reject) => {
+      const script = document.createElement('script');
+      script.type = 'module';
+
+      switch (tagName) {
+        case 'ngui-card':
+          script.textContent = `import '@ngui/web/ngui-card.js';`;
+          break;
+        case 'ngui-image':
+          script.textContent = `import '@ngui/web/ngui-image.js';`;
+          break;
+        default:
+          reject(new Error(`Unknown web component: ${tagName}`));
+          return;
+      }
+
+      script.onload = () => {
+        // Wait for custom element to be defined
+        customElements.whenDefined(tagName).then(() => resolve());
+      };
+      script.onerror = () => reject(new Error(`Failed to load ${tagName}`));
+
+      document.head.appendChild(script);
+    });
+  });
+
+  await Promise.all(loadPromises);
 }

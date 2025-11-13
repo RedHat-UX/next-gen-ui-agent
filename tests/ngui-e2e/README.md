@@ -7,13 +7,15 @@ This directory contains a complete end-to-end testing application for the Next G
 ```
 ngui-e2e/
 ├── server/           # FastAPI backend with NGUI agent
-└── client/           # React frontend application
+├── client/           # React frontend application
+└── web-components/   # Lit-based web components with PF v6 design tokens
 ```
 
 ## Components
 
 - **`server/`** - FastAPI backend that provides AI-powered UI generation APIs using LangGraph integration
 - **`client/`** - React frontend application that consumes the backend APIs and renders dynamic UI components
+- **`web-components/`** - Framework-agnostic web components built with Lit, implementing PatternFly v6 design system
 
 ## Getting Started
 
@@ -21,6 +23,7 @@ Each subfolder contains its own README with detailed setup, installation, config
 
 - See [`server/README.md`](server/README.md) for backend setup and configuration
 - See [`client/README.md`](client/README.md) for frontend setup and configuration
+- See [`web-components/README.md`](web-components/README.md) for web component development and styling patterns
 
 ## Purpose
 
