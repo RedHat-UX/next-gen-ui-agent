@@ -15,10 +15,11 @@ import { CopyIcon, CodeIcon, CompressIcon, ExpandIcon } from '@patternfly/react-
 interface JsonViewerProps {
   config: any;
   messageId: string;
+  alwaysExpanded?: boolean;
 }
 
-export const JsonViewer: React.FC<JsonViewerProps> = ({ config, messageId }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+export const JsonViewer: React.FC<JsonViewerProps> = ({ config, messageId, alwaysExpanded = false }) => {
+  const [isExpanded, setIsExpanded] = useState(alwaysExpanded);
   const [copied, setCopied] = useState(false);
   
   const jsonString = JSON.stringify(config, null, 2);
@@ -29,7 +30,7 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ config, messageId }) => 
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (!isExpanded) {
+  if (!isExpanded && !alwaysExpanded) {
     return (
       <div className="json-viewer-collapsed">
         <Button
@@ -66,17 +67,19 @@ export const JsonViewer: React.FC<JsonViewerProps> = ({ config, messageId }) => 
                   />
                 </Tooltip>
               </SplitItem>
-              <SplitItem>
-                <Tooltip content="Collapse">
-                  <Button
-                    variant="plain"
-                    icon={<CompressIcon />}
-                    onClick={() => setIsExpanded(false)}
-                    aria-label="Collapse JSON viewer"
-                    className="json-viewer-icon-btn"
-                  />
-                </Tooltip>
-              </SplitItem>
+              {!alwaysExpanded && (
+                <SplitItem>
+                  <Tooltip content="Collapse">
+                    <Button
+                      variant="plain"
+                      icon={<CompressIcon />}
+                      onClick={() => setIsExpanded(false)}
+                      aria-label="Collapse JSON viewer"
+                      className="json-viewer-icon-btn"
+                    />
+                  </Tooltip>
+                </SplitItem>
+              )}
             </Split>
             
             <CodeBlock className="json-viewer-code">

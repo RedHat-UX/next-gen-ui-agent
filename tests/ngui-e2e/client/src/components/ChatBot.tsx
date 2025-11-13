@@ -16,7 +16,7 @@ import DynamicComponent from "./DynamicComponent";
 import { useFetch } from "../hooks/useFetch";
 import { getMockDataByName } from "../mockData";
 import { TestPanel } from "./TestPanel";
-import { JsonViewer } from "./JsonViewer";
+import { DebugSection } from "./DebugSection";
 
 export default function ChatBotPage() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
@@ -38,6 +38,22 @@ export default function ChatBotPage() {
   const [isMockMode, setIsMockMode] = useState(false);
   const [selectedMock, setSelectedMock] = useState<string>('');
   const [customJson, setCustomJson] = useState('');
+  
+  // Model info state
+  const [modelInfo, setModelInfo] = useState<{name: string, baseUrl: string} | undefined>();
+  
+  // Strategy selection state
+  const [selectedStrategy, setSelectedStrategy] = useState<'one-step' | 'two-step'>('one-step');
+  
+  // Fetch model info on mount if in debug mode
+  React.useEffect(() => {
+    if (isDebugMode) {
+      fetch(`${import.meta.env.VITE_API_ENDPOINT.replace('/generate', '')}/model-info`)
+        .then(res => res.json())
+        .then(data => setModelInfo(data))
+        .catch(err => console.error('Failed to fetch model info:', err));
+    }
+  }, [isDebugMode]);
   
   // Resizable panel state
   const [panelWidth, setPanelWidth] = useState(600);
@@ -76,7 +92,7 @@ export default function ChatBotPage() {
         afterMainContent: (
           <>
             <DynamicComponent config={mockConfig} showRawConfig={false} />
-            {isDebugMode && <JsonViewer config={mockConfig} messageId={messageId} />}
+            {isDebugMode && <DebugSection config={mockConfig} messageId={messageId} />}
           </>
         ),
       },
@@ -213,9 +229,18 @@ export default function ChatBotPage() {
 
     const res = await fetchData(import.meta.env.VITE_API_ENDPOINT, {
       method: "POST",
-      body: { prompt: message },
+      body: { 
+        prompt: message,
+        strategy: selectedStrategy,
+      },
     });
     newMessages.pop();
+    
+    // Extract model info from metadata if available
+    if (res?.metadata?.model) {
+      setModelInfo(res.metadata.model);
+    }
+    
     const botMessageId = generateId();
     newMessages.push({
       id: botMessageId,
@@ -227,13 +252,38 @@ export default function ChatBotPage() {
       ...(!res
         ? { content: "Something went wrong!" }
         : res.error
-        ? { content: `Error: ${res.error}${res.details ? ` - ${res.details}` : ''}` }
+        ? {
+            content: `Error: ${res.error}${res.details ? ` - ${res.details}` : ''}`,
+            extraContent: {
+              afterMainContent: (
+                <>
+                  {isDebugMode && (res.metadata?.llmInteractions || res.metadata?.agentMessages) && (
+                    <DebugSection
+                      llmInteractions={res.metadata?.llmInteractions}
+                      agentMessages={res.metadata?.agentMessages}
+                      config={res.response}
+                      messageId={botMessageId}
+                    />
+                  )}
+                </>
+              ),
+            },
+          }
         : {
             extraContent: {
               afterMainContent: (
                 <>
                   <DynamicComponent config={res.response} showRawConfig={false} />
-                  {isDebugMode && <JsonViewer config={res.response} messageId={botMessageId} />}
+                  {isDebugMode && (res.metadata || res.metadata?.llmInteractions || res.metadata?.agentMessages || res.metadata?.dataTransform) && (
+                    <DebugSection
+                      metadata={res.metadata}
+                      llmInteractions={res.metadata?.llmInteractions}
+                      agentMessages={res.metadata?.agentMessages}
+                      dataTransform={res.metadata?.dataTransform}
+                      config={res.response}
+                      messageId={botMessageId}
+                    />
+                  )}
                 </>
               ),
             },
@@ -264,6 +314,9 @@ export default function ChatBotPage() {
             onSendMockDirect={handleSendMockDirect}
             onPromptSelect={handleQuickPromptSelect}
             disabled={loading}
+            modelInfo={modelInfo}
+            selectedStrategy={selectedStrategy}
+            onStrategyChange={setSelectedStrategy}
           />
         </div>
       )}

@@ -15,6 +15,9 @@ from next_gen_ui_agent.input_data_transform.json_input_data_transformer import (
 from next_gen_ui_agent.input_data_transform.noop_input_data_transformer import (
     NoopInputDataTransformer,
 )
+from next_gen_ui_agent.input_data_transform.prometheus_input_data_transformer import (
+    PrometheusInputDataTransformer,
+)
 from next_gen_ui_agent.input_data_transform.yaml_input_data_transformer import (
     YamlInputDataTransformer,
 )
@@ -47,6 +50,7 @@ BUILTIN_INPUT_DATA_TRANSFORMERS: dict[str, InputDataTransformerBase] = {
     CsvTabInputDataTransformer.TRANSFORMER_NAME: CsvTabInputDataTransformer(),
     NoopInputDataTransformer.TRANSFORMER_NAME: NoopInputDataTransformer(),
     FwctableInputDataTransformer.TRANSFORMER_NAME: FwctableInputDataTransformer(),
+    PrometheusInputDataTransformer.TRANSFORMER_NAME: PrometheusInputDataTransformer(),
 }
 
 

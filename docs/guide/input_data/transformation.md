@@ -78,6 +78,20 @@ For [Hand-Build Components](../data_ui_blocks/hand_build_components.md), text is
 
 If LLM processing has to be applied, text is shortened to 1000 characters to save LLM's context and wrapped into JSON object with one field.
 
+### Prometheus transformer
+
+Transformer name: `prometheus`
+
+This transformer converts Prometheus time-series data (from `/api/v1/query_range` with `resultType="matrix"`) into a normalized format suitable for chart visualization. 
+
+It automatically:
+- Extracts meaningful series names from metric labels (pod, instance, job, container, node, __name__)
+- Formats Unix timestamps to readable `HH:MM` format
+- Converts string values to floats
+- Handles multiple time-series in a single result
+
+This transformer is particularly useful for integrating with observability systems and creating monitoring dashboards. See the [detailed Prometheus transformer documentation](prometheus.md) for configuration examples and advanced usage.
+
 ## Writing own transformer
 
 UI Agent core package allows to add new data transformers. [Stevedore framework](https://pypi.org/project/stevedore/) is used, so you only 

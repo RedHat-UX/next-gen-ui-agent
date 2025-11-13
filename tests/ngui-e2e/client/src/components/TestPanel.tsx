@@ -6,10 +6,18 @@ import {
   Tabs,
   Tab,
   TabTitleText,
-  Badge
+  Badge,
+  FormGroup,
+  Radio
 } from '@patternfly/react-core';
 import { MockModeToggle } from './MockModeToggle';
 import { QuickPrompts } from './QuickPrompts';
+import { PrometheusConverter } from './PrometheusConverter';
+
+interface ModelInfo {
+  name: string;
+  baseUrl: string;
+}
 
 interface TestPanelProps {
   // Mock Mode props
@@ -25,6 +33,11 @@ interface TestPanelProps {
   // Quick Prompts props
   onPromptSelect: (prompt: string) => void;
   disabled?: boolean;
+  
+  // Model Info
+  modelInfo?: ModelInfo;
+  selectedStrategy: 'one-step' | 'two-step';
+  onStrategyChange: (strategy: 'one-step' | 'two-step') => void;
 }
 
 export const TestPanel: React.FC<TestPanelProps> = ({
@@ -37,7 +50,10 @@ export const TestPanel: React.FC<TestPanelProps> = ({
   onSendCustomJson,
   onSendMockDirect,
   onPromptSelect,
-  disabled = false
+  disabled = false,
+  modelInfo,
+  selectedStrategy,
+  onStrategyChange
 }) => {
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
 
@@ -112,6 +128,85 @@ export const TestPanel: React.FC<TestPanelProps> = ({
                   onCustomJsonChange={onCustomJsonChange}
                   onSendCustomJson={onSendCustomJson}
                   onSendMockDirect={onSendMockDirect}
+                />
+              </div>
+            </Tab>
+
+            <Tab 
+              eventKey={2} 
+              title={
+                <TabTitleText>
+                  🤖 Model Info
+                </TabTitleText>
+              }
+              aria-label="Model information"
+            >
+              <div className="test-panel-tab-content">
+                {modelInfo ? (
+                  <div className="test-panel-model-info">
+                    <h3 className="test-panel-section-title">
+                      Connected LLM
+                    </h3>
+                    <div className="test-panel-info-list">
+                      <div>
+                        <strong className="test-panel-info-label">Model Name:</strong>
+                        <div className="test-panel-info-value">
+                          {modelInfo.name}
+                        </div>
+                      </div>
+                      <div>
+                        <strong className="test-panel-info-label">Base URL:</strong>
+                        <div className="test-panel-info-value">
+                          {modelInfo.baseUrl}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="test-panel-strategy-section">
+                      <h3 className="test-panel-section-title">
+                        Component Selection Strategy
+                      </h3>
+                      <FormGroup role="radiogroup">
+                        <Radio
+                          name="strategy"
+                          id="strategy-one-step"
+                          label="One-step (faster, single LLM call)"
+                          isChecked={selectedStrategy === 'one-step'}
+                          onChange={() => onStrategyChange('one-step')}
+                        />
+                        <Radio
+                          name="strategy"
+                          id="strategy-two-step"
+                          label="Two-step (more deliberate, two LLM calls)"
+                          isChecked={selectedStrategy === 'two-step'}
+                          onChange={() => onStrategyChange('two-step')}
+                        />
+                      </FormGroup>
+                      <div className="test-panel-strategy-current">
+                        <strong>Current:</strong> {selectedStrategy}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="test-panel-model-info-unavailable">
+                    <p>Model information not available</p>
+                  </div>
+                )}
+              </div>
+            </Tab>
+
+            <Tab 
+              eventKey={3} 
+              title={
+                <TabTitleText>
+                  📊 Prometheus
+                </TabTitleText>
+              }
+              aria-label="Prometheus data converter"
+            >
+              <div className="test-panel-tab-content">
+                <PrometheusConverter
+                  onConvert={(config) => onSendMockDirect(config, 'Prometheus Chart')}
                 />
               </div>
             </Tab>
