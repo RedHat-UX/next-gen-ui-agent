@@ -11,6 +11,6 @@ declare namespace JSX {
   }
 }
 
-declare module "ngui-web-components/elements/index.js" {
+declare module "@rhngui/web/elements/index.js" {
   export class NguiCard extends HTMLElement {}
 }

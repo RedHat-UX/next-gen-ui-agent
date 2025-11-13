@@ -6,7 +6,7 @@ import "@patternfly/react-core/dist/styles/base.css";
 import "@patternfly/chatbot/dist/css/main.css";
 
 // Register NGUI web components
-import "ngui-web-components/elements/index.js";
+import "@rhngui/web/elements/index.js";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

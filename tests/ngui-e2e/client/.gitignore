@@ -12,7 +12,8 @@ dist
 dist-ssr
 *.local
 
-# Generated web components (copied from ../web-components/elements/)
+# Generated web components (built from libs/next_gen_ui_web/ for production)
+# During dev, Vite serves TypeScript sources directly via middleware
 public/ngui-elements/
 
 # Editor directories and files

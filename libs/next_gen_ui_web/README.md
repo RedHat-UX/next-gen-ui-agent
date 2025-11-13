@@ -1,10 +1,12 @@
-# NGUI Web Components
+# NGUI Web Components (`@rhngui/web`)
 
-This directory contains framework-agnostic web components built with [Lit](https://lit.dev/) that implement the Next Gen UI design system using PatternFly v6 design tokens.
+This package contains framework-agnostic web components built with [Lit](https://lit.dev/) that implement the Next Gen UI design system using PatternFly v6 design tokens.
 
 ## Overview
 
 The web components wrap or extend [PatternFly Elements](https://github.com/patternfly/patternfly-elements) (v3.0.0 - which are designed to the PatternFly v4 specification) to provide PatternFly v6 styling while leveraging the high performance engineering of the existing component implementations.
+
+This package is consumed by applications (like the e2e test client) as `@rhngui/web` and can be used in any JavaScript/TypeScript project.
 
 ## Components
 
@@ -21,7 +23,7 @@ npm run build
 The build process:
 1. Compiles TypeScript to JavaScript
 2. Generates Custom Elements Manifest (`custom-elements.json`)
-3. Copies built files to `../client/public/ngui-elements/` for consumption
+3. Copies built files to `../../tests/ngui-e2e/client/public/ngui-elements/` for consumption by the e2e test client
 
 ## Design System
 
@@ -148,22 +150,56 @@ The client's `index.html` defines the import map:
       "lit": "https://cdn.jsdelivr.net/npm/lit@3.2.1/+esm",
       "lit/": "https://cdn.jsdelivr.net/npm/lit@3.2.1/",
       "@patternfly/elements/": "https://cdn.jsdelivr.net/npm/@patternfly/elements@3.0.0/",
-      "@ngui/web/": "/ngui-elements/"
+      "@rhngui/web/": "/ngui-elements/"
     }
   }
 </script>
 ```
 
-The `@ngui/web/` prefix maps to `/ngui-elements/`, which Vite serves from the `public/` directory.
+The `@rhngui/web/` prefix maps to `/ngui-elements/`. During development, Vite's middleware intercepts these requests and serves the TypeScript sources directly. In production, the built JavaScript files are served from the `public/` directory.
 
 ## Development
 
-When making changes to components:
+### Development Workflow
 
-1. Edit source files in `elements/`
-2. Run `npm run build` to compile
-3. Components are automatically copied to `../client/public/ngui-elements/`
-4. Vite dev server will serve the updated files (hard refresh may be needed)
+**Initial Setup:**
+```bash
+cd libs/next_gen_ui_web
+npm install
+```
+
+**Development Mode:**
+
+Vite serves the TypeScript sources directly during development - no build step needed!
+
+```bash
+# Terminal 1: Run e2e test server (if testing backend integration)
+cd tests/ngui-e2e/server
+# <run server command>
+
+# Terminal 2: Run client dev server
+cd tests/ngui-e2e/client
+npm run dev
+```
+
+Edit web component source files in `libs/next_gen_ui_web/elements/` and Vite will automatically recompile and hot reload!
+
+**Production Build:**
+
+Only needed when building for production or testing the actual build output:
+
+```bash
+cd libs/next_gen_ui_web
+npm run build  # Compiles TS, generates manifest, copies to client public/
+```
+
+### Vite Configuration
+
+The e2e client's Vite config includes:
+- **Custom middleware** - Intercepts `/ngui-elements/*.js` requests and rewrites to TypeScript sources during dev
+- **Aliases** - `@rhngui/web/ngui-card.js` → `libs/next_gen_ui_web/elements/ngui-card.ts` (serves TypeScript sources in dev)
+- **optimizeDeps.exclude** - Prevents pre-bundling of `@rhngui/web` to preserve import map resolution at runtime
+- **server.fs.allow** - Allows serving files from the project root to access web component sources
 
 ## Resources
 

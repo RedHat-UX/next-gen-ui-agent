@@ -115,7 +115,7 @@ class WebComponentsTableRenderStrategy(WebComponentsStrategyBase):
 Create a new web component:
 
 ```typescript
-// tests/ngui-e2e/web-components/elements/ngui-table.ts
+// libs/next_gen_ui_web/elements/ngui-table.ts
 import { LitElement, html, css } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 
@@ -140,7 +140,7 @@ export class NguiTable extends LitElement {
 Build and copy to client:
 
 ```bash
-cd tests/ngui-e2e/web-components
+cd libs/next_gen_ui_web
 npm run build  # Compiles TS, generates manifest, copies to client
 ```
 

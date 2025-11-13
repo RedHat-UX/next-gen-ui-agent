@@ -43,10 +43,10 @@ export async function loadWebComponents(html: string): Promise<void> {
 
       switch (tagName) {
         case 'ngui-card':
-          script.textContent = `import '@ngui/web/ngui-card.js';`;
+          script.textContent = `import '@rhngui/web/ngui-card.js';`;
           break;
         case 'ngui-image':
-          script.textContent = `import '@ngui/web/ngui-image.js';`;
+          script.textContent = `import '@rhngui/web/ngui-image.js';`;
           break;
         default:
           reject(new Error(`Unknown web component: ${tagName}`));

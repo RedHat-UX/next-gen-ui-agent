@@ -1,5 +1,5 @@
 {
-  "name": "ngui-web-components",
+  "name": "@rhngui/web",
   "version": "0.1.0",
   "description": "Framework-agnostic web components for Next Gen UI",
   "type": "module",
@@ -26,8 +26,7 @@
   ],
   "scripts": {
     "build": "tsc && cem generate 'elements/**/*.ts' --output custom-elements.json",
-    "postbuild": "mkdir -p ../client/public/ngui-elements && cp elements/*.js elements/*.js.map ../client/public/ngui-elements/ 2>/dev/null || true",
-    "dev": "tsc --watch",
+    "postbuild": "mkdir -p ../../tests/ngui-e2e/client/public/ngui-elements && cp elements/*.js elements/*.js.map ../../tests/ngui-e2e/client/public/ngui-elements/ 2>/dev/null || true",
     "cem": "cem generate 'elements/**/*.ts' --output custom-elements.json"
   },
   "dependencies": {

@@ -4,11 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "copy-wc": "mkdir -p public/ngui-elements && cp ../web-components/elements/*.js ../web-components/elements/*.js.map public/ngui-elements/ 2>/dev/null || true",
-    "predev": "npm run copy-wc",
-    "prebuild": "npm run copy-wc",
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "prebuild": "cd ../../../libs/next_gen_ui_web && npm run build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -17,7 +15,7 @@
     "@patternfly/patternfly": "^6.3.1",
     "@patternfly/react-core": "^6.3.1",
     "@patternfly/react-icons": "^6.3.1",
-    "ngui-web-components": "file:../web-components",
+    "@rhngui/web": "file:../../../libs/next_gen_ui_web",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
