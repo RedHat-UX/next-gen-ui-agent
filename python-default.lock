@@ -20,6 +20,7 @@
 //     "ipdb",
 //     "jinja2",
 //     "jsonpath-ng",
+//     "langchain-anthropic<=0.3.25",
 //     "langchain-core<=0.3.66",
 //     "langchain-openai<=0.3.25",
 //     "langgraph<=0.3.34",
@@ -642,6 +643,38 @@
           "requires_dists": [],
           "requires_python": null,
           "version": "1.1.8"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
+              "hash": "81e73cca55e8924776c8c4418003defe6bf9eaf0cd92beb94c8dbf537b95316f",
+              "url": "https://files.pythonhosted.org/packages/51/05/d9d45edad1aa28330cea09a3b35e1590f7279f91bb5ab5237c70a0884ea3/anthropic-0.72.1-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "a6d1d660e1f4af91dddc732f340786d19acaffa1ae8e69442e56be5fa6539d51",
+              "url": "https://files.pythonhosted.org/packages/dd/f3/feb750a21461090ecf48bbebcaa261cd09003cc1d14e2fa9643ad59edd4d/anthropic-0.72.1.tar.gz"
+            }
+          ],
+          "project_name": "anthropic",
+          "requires_dists": [
+            "aiohttp; extra == \"aiohttp\"",
+            "anyio<5,>=3.5.0",
+            "boto3>=1.28.57; extra == \"bedrock\"",
+            "botocore>=1.31.57; extra == \"bedrock\"",
+            "distro<2,>=1.7.0",
+            "docstring-parser<1,>=0.15",
+            "google-auth[requests]<3,>=2; extra == \"vertex\"",
+            "httpx-aiohttp>=0.1.9; extra == \"aiohttp\"",
+            "httpx<1,>=0.25.0",
+            "jiter<1,>=0.4.0",
+            "pydantic<3,>=1.9.0",
+            "sniffio",
+            "typing-extensions<5,>=4.10"
+          ],
+          "requires_python": ">=3.9",
+          "version": "0.72.1"
         },
         {
           "artifacts": [
@@ -2166,13 +2199,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "26dee51f1b80cebd6d0ca8e74dd8745419761d3bef34163928cbebbdc4749fdc",
-              "url": "https://files.pythonhosted.org/packages/43/09/2aea36ff60d16dd8879bdb2f5b3ee0ba8d08cbbdcdfe870e695ce3784385/execnet-2.1.1-py3-none-any.whl"
+              "hash": "67fba928dd5a544b783f6056f449e5e3931a5c378b128bc18501f7ea79e296ec",
+              "url": "https://files.pythonhosted.org/packages/ab/84/02fc1827e8cdded4aa65baef11296a9bbe595c474f0d6d758af082d849fd/execnet-2.1.2-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "5189b52c6121c24feae288166ab41b32549c7e2348652736540b9e6e7d4e72e3",
-              "url": "https://files.pythonhosted.org/packages/bb/ff/b4c0dc78fbe20c3e59c0c7334de0c27eb4001a2b2017999af398bf730817/execnet-2.1.1.tar.gz"
+              "hash": "63d83bfdd9a23e35b9c6a3261412324f964c2ec8dcd8d3c6916ee9373e0befcd",
+              "url": "https://files.pythonhosted.org/packages/bf/89/780e11f9588d9e7128a3f87788354c7946a9cbb1401ad38a48c4db9a4f07/execnet-2.1.2.tar.gz"
             }
           ],
           "project_name": "execnet",
@@ -2183,7 +2216,7 @@
             "tox; extra == \"testing\""
           ],
           "requires_python": ">=3.8",
-          "version": "2.1.1"
+          "version": "2.1.2"
         },
         {
           "artifacts": [
@@ -2215,13 +2248,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "2c5c7028bc3a58d8f5f09aecd3fd88a000ccc0c5ad627693264181a3c33aa1fc",
-              "url": "https://files.pythonhosted.org/packages/94/fd/2e6f7d706899cc08690c5f6641e2ffbfffe019e8f16ce77104caa5730910/fastapi-0.121.1-py3-none-any.whl"
+              "hash": "f2d80b49a86a846b70cc3a03eb5ea6ad2939298bf6a7fe377aa9cd3dd079d358",
+              "url": "https://files.pythonhosted.org/packages/eb/23/dfb161e91db7c92727db505dc72a384ee79681fe0603f706f9f9f52c2901/fastapi-0.121.2-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "b6dba0538fd15dab6fe4d3e5493c3957d8a9e1e9257f56446b5859af66f32441",
-              "url": "https://files.pythonhosted.org/packages/6b/a4/29e1b861fc9017488ed02ff1052feffa40940cb355ed632a8845df84ce84/fastapi-0.121.1.tar.gz"
+              "hash": "ca8e932b2b823ec1721c641e3669472c855ad9564a2854c9899d904c2848b8b9",
+              "url": "https://files.pythonhosted.org/packages/fb/48/f08f264da34cf160db82c62ffb335e838b1fc16cbcc905f474c7d4c815db/fastapi-0.121.2.tar.gz"
             }
           ],
           "project_name": "fastapi",
@@ -2256,7 +2289,7 @@
             "uvicorn[standard]>=0.12.0; extra == \"standard-no-fastapi-cloud-cli\""
           ],
           "requires_python": ">=3.8",
-          "version": "0.121.1"
+          "version": "0.121.2"
         },
         {
           "artifacts": [
@@ -4388,6 +4421,28 @@
           "artifacts": [
             {
               "algorithm": "sha256",
+              "hash": "f27d646700f27c3131f1accc8c2c238c813ad5d49e53e45458de0afadc7c447d",
+              "url": "https://files.pythonhosted.org/packages/18/1f/263bbb0cf96472d292041cb803355fc0478194d05c7d3184c046dcacc803/langchain_anthropic-0.3.16-py3-none-any.whl"
+            },
+            {
+              "algorithm": "sha256",
+              "hash": "8af6abcf914b5c25f0bec69dc808b58a50595cde48819c450a7af7a2d8c18642",
+              "url": "https://files.pythonhosted.org/packages/24/57/6cff500c4086f8c2d4aa4554450ab99dc6fcfc9f5bb8678624970b7138d9/langchain_anthropic-0.3.16.tar.gz"
+            }
+          ],
+          "project_name": "langchain-anthropic",
+          "requires_dists": [
+            "anthropic<1,>=0.52.0",
+            "langchain-core<1.0.0,>=0.3.66",
+            "pydantic<3.0.0,>=2.7.4"
+          ],
+          "requires_python": ">=3.9",
+          "version": "0.3.16"
+        },
+        {
+          "artifacts": [
+            {
+              "algorithm": "sha256",
               "hash": "65cd6c3659afa4f91de7aa681397a0c53ff9282425c281e53646dd7faf16099e",
               "url": "https://files.pythonhosted.org/packages/c0/c3/8080431fd7567a340d3a42e36c0bb3970a8d00d5e27bf3ca2103b3b55996/langchain_core-0.3.66-py3-none-any.whl"
             },
@@ -6362,13 +6417,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "534511b3ccea2dff419ae06c3b58d7f217c55be7897c8ce5868dfb6b219cf7a0",
-              "url": "https://files.pythonhosted.org/packages/b5/c1/edc9f41b425ca40b26b7c104c5f6841a4537bb2552bfa6ca66e81405bb95/ollama-0.6.0-py3-none-any.whl"
+              "hash": "fc4c984b345735c5486faeee67d8a265214a31cbb828167782dc642ce0a2bf8c",
+              "url": "https://files.pythonhosted.org/packages/47/4f/4a617ee93d8208d2bcf26b2d8b9402ceaed03e3853c754940e2290fed063/ollama-0.6.1-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "da2b2d846b5944cfbcee1ca1e6ee0585f6c9d45a2fe9467cbcd096a37383da2f",
-              "url": "https://files.pythonhosted.org/packages/d6/47/f9ee32467fe92744474a8c72e138113f3b529fc266eea76abfdec9a33f3b/ollama-0.6.0.tar.gz"
+              "hash": "478c67546836430034b415ed64fa890fd3d1ff91781a9d548b3325274e69d7c6",
+              "url": "https://files.pythonhosted.org/packages/9d/5a/652dac4b7affc2b37b95386f8ae78f22808af09d720689e3d7a86b6ed98e/ollama-0.6.1.tar.gz"
             }
           ],
           "project_name": "ollama",
@@ -6377,7 +6432,7 @@
             "pydantic>=2.9"
           ],
           "requires_python": ">=3.8",
-          "version": "0.6.0"
+          "version": "0.6.1"
         },
         {
           "artifacts": [
@@ -8166,39 +8221,39 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "25c9e1963c6734448ea2d308cfa610e692b801304ba0908d7bfa564ac5132995",
-              "url": "https://files.pythonhosted.org/packages/07/d1/0a28c21707807c6aacd5dc9c3704b2aa1effbf37adebd8caeaf68b17a636/protobuf-6.33.0-py3-none-any.whl"
+              "hash": "d595a9fd694fdeb061a62fbe10eb039cc1e444df81ec9bb70c7fc59ebcb1eafa",
+              "url": "https://files.pythonhosted.org/packages/08/b4/46310463b4f6ceef310f8348786f3cff181cea671578e3d9743ba61a459e/protobuf-6.33.1-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "e0697ece353e6239b90ee43a9231318302ad8353c70e6e45499fa52396debf90",
-              "url": "https://files.pythonhosted.org/packages/10/35/16d31e0f92c6d2f0e77c2a3ba93185130ea13053dd16200a57434c882f2b/protobuf-6.33.0-cp39-abi3-manylinux2014_aarch64.whl"
+              "hash": "97f65757e8d09870de6fd973aeddb92f85435607235d20b2dfed93405d00c85b",
+              "url": "https://files.pythonhosted.org/packages/0a/03/a1440979a3f74f16cab3b75b0da1a1a7f922d56a8ddea96092391998edc0/protobuf-6.33.1.tar.gz"
             },
             {
               "algorithm": "sha256",
-              "hash": "140303d5c8d2037730c548f8c7b93b20bb1dc301be280c378b82b8894589c954",
-              "url": "https://files.pythonhosted.org/packages/19/ff/64a6c8f420818bb873713988ca5492cba3a7946be57e027ac63495157d97/protobuf-6.33.0.tar.gz"
+              "hash": "8fd7d5e0eb08cd5b87fd3df49bc193f5cfd778701f47e11d127d0afc6c39f1d1",
+              "url": "https://files.pythonhosted.org/packages/1d/2a/3c5f05a4af06649547027d288747f68525755de692a26a7720dced3652c0/protobuf-6.33.1-cp39-abi3-manylinux2014_x86_64.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "35be49fd3f4fefa4e6e2aacc35e8b837d6703c37a2168a55ac21e9b1bc7559ef",
-              "url": "https://files.pythonhosted.org/packages/21/51/0b1cbad62074439b867b4e04cc09b93f6699d78fd191bed2bbb44562e077/protobuf-6.33.0-cp39-abi3-manylinux2014_x86_64.whl"
+              "hash": "0f4cf01222c0d959c2b399142deb526de420be8236f22c71356e2a544e153c53",
+              "url": "https://files.pythonhosted.org/packages/8e/d0/d796e419e2ec93d2f3fa44888861c3f88f722cde02b7c3488fcc6a166820/protobuf-6.33.1-cp39-abi3-manylinux2014_s390x.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "905b07a65f1a4b72412314082c7dbfae91a9e8b68a0cc1577515f8df58ecf455",
-              "url": "https://files.pythonhosted.org/packages/e1/a9/b6eee662a6951b9c3640e8e452ab3e09f117d99fc10baa32d1581a0d4099/protobuf-6.33.0-cp39-abi3-macosx_10_9_universal2.whl"
+              "hash": "f8adba2e44cde2d7618996b3fc02341f03f5bc3f2748be72dc7b063319276178",
+              "url": "https://files.pythonhosted.org/packages/c2/32/df4a35247923393aa6b887c3b3244a8c941c32a25681775f96e2b418f90e/protobuf-6.33.1-cp39-abi3-manylinux2014_aarch64.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "e0a1715e4f27355afd9570f3ea369735afc853a6c3951a6afe1f80d8569ad298",
-              "url": "https://files.pythonhosted.org/packages/e6/eb/2a981a13e35cda8b75b5585aaffae2eb904f8f351bdd3870769692acbd8a/protobuf-6.33.0-cp39-abi3-manylinux2014_s390x.whl"
+              "hash": "fe34575f2bdde76ac429ec7b570235bf0c788883e70aee90068e9981806f2490",
+              "url": "https://files.pythonhosted.org/packages/cd/93/26213ff72b103ae55bb0d73e7fb91ea570ef407c3ab4fd2f1f27cac16044/protobuf-6.33.1-cp39-abi3-macosx_10_9_universal2.whl"
             }
           ],
           "project_name": "protobuf",
           "requires_dists": [],
           "requires_python": ">=3.9",
-          "version": "6.33.0"
+          "version": "6.33.1"
         },
         {
           "artifacts": [
@@ -13165,6 +13220,7 @@
     "ipdb",
     "jinja2",
     "jsonpath-ng",
+    "langchain-anthropic<=0.3.25",
     "langchain-core<=0.3.66",
     "langchain-openai<=0.3.25",
     "langgraph<=0.3.34",
