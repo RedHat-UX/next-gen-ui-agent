@@ -31,6 +31,14 @@ class WebComponentsOneCardRenderStrategy(OneCardRenderStrategy, WebComponentsStr
     pass
 
 
+class ImageRenderStrategy(RenderStrategyBase):
+    COMPONENT_NAME = "image"
+
+
+class WebComponentsImageRenderStrategy(ImageRenderStrategy, WebComponentsStrategyBase):
+    pass
+
+
 class WebComponentsStrategyFactory(StrategyFactory):
     def get_component_system_name(self) -> str:
         return "web-components"
@@ -42,6 +50,8 @@ class WebComponentsStrategyFactory(StrategyFactory):
         match component.component:
             case WebComponentsOneCardRenderStrategy.COMPONENT_NAME:
                 return WebComponentsOneCardRenderStrategy()
+            case WebComponentsImageRenderStrategy.COMPONENT_NAME:
+                return WebComponentsImageRenderStrategy()
             case _:
                 raise ValueError(
                     f"This component: {component.component} is not supported by Web Components rendering plugin."

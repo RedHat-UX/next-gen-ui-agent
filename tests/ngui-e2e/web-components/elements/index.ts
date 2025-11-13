@@ -8,3 +8,4 @@
  */
 
 export { NguiCard } from './ngui-card.js';
+export { NguiImage } from './ngui-image.js';

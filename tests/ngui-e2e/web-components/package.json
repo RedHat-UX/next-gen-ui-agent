@@ -14,6 +14,10 @@
       "types": "./elements/ngui-card.d.ts",
       "default": "./elements/ngui-card.js"
     },
+    "./ngui-image.js": {
+      "types": "./elements/ngui-image.d.ts",
+      "default": "./elements/ngui-image.js"
+    },
     "./elements/*": "./elements/*"
   },
   "files": [
