@@ -1,13 +1,27 @@
-from abc import ABC, abstractmethod
-from typing import Any, Optional
+from abc import ABC
+from typing import Any, Literal, Optional
+from uuid import uuid4
 
-from next_gen_ui_agent.model import InferenceBase
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired, TypedDict
+
+CONFIG_OPTIONS_DATA_TRANSFORMER = Optional[
+    str
+    | Literal["json"]
+    | Literal["yaml"]
+    | Literal["csv-comma"]
+    | Literal["csv-semicolon"]
+    | Literal["csv-tab"]
+    | Literal["fwctable"]
+]
+""" data_transformer config option possibilities used on multiple levels """
 
 
 class DataField(BaseModel):
     """UI Component Field Metadata."""
+
+    id: str = Field(description="Field ID", default_factory=lambda: uuid4().hex)
+    """Field ID"""
 
     name: str = Field(description="Field name to be shown in the UI")
     """Field name to be shown in the UI."""
@@ -52,9 +66,9 @@ class AgentConfigComponent(BaseModel):
 class AgentConfigDataType(BaseModel):
     """Agent Configuration for the Data Type."""
 
-    data_transformer: Optional[str] = Field(
+    data_transformer: CONFIG_OPTIONS_DATA_TRANSFORMER = Field(
         default=None,
-        description="Data transformer to use to transform the input data of this type.",
+        description="Transformer to use to transform the input data of this type. Available transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs.",
     )
     """
     Data transformer to use to transform the input data of this type.
@@ -71,12 +85,21 @@ class AgentConfigDataType(BaseModel):
 
 # Intentionaly TypeDict because of passing ABC class InferenceBase
 class AgentConfig(BaseModel):
-    """Agent Configuration."""
+    """Next Gen UI Agent Configuration."""
 
     component_system: Optional[str] = Field(
-        default=None, description="Component system to use to render the UI component."
+        default="json",
+        description="Component system to use to render the UI component. Default is `json`. UI renderers have to be installed to use other systems.",
     )
     """Component system to use to render the UI component."""
+
+    data_transformer: CONFIG_OPTIONS_DATA_TRANSFORMER = Field(
+        default="json",
+        description="Transformer used to parse the input data (can be overriden on 'data type' level). Default `json`, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs.",
+    )
+    """
+    Data transformer to use to transform the input data of this type.
+    """
 
     unsupported_components: Optional[bool] = Field(
         default=None,
@@ -87,16 +110,17 @@ class AgentConfig(BaseModel):
     If `True`, the agent can also generate unsupported UI components.
     """
 
-    component_selection_strategy: Optional[str] = Field(
+    component_selection_strategy: Optional[
+        Literal["one_llm_call", "two_llm_calls"]
+    ] = Field(
         default=None,
-        description="Component selection strategy to use. Possible values: default - use the default implementation, one_llm_call - use the one LLM call implementation from component_selection.py, two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py",
+        description="Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!",
     )
     """
     Component selection strategy to use.
     Possible values:
-    - default - use the default implementation
-    - one_llm_call - use the one LLM call implementation from component_selection.py
-    - two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py
+    - `one_llm_call` (default) - use the one LLM call implementation from component_selection.py
+    - `two_llm_calls` - use the two LLM calls implementation from component_selection_twostep.py - experimental!
     """
 
     data_types: Optional[dict[str, AgentConfigDataType]] = Field(
@@ -139,9 +163,16 @@ class InputData(TypedDict):
 
 
 class InputDataInternal(InputData):
-    """Input Data used in internal call of component selection. Contain parsed JSON data."""
+    """Input Data used in internal call of component selection. Contain additional fields necessary for internal processing."""
 
     json_data: NotRequired[Any | None]
+    """
+    Object structure obtained from the `InputData` by the `input data transformation`.
+    """
+    input_data_transformer_name: NotRequired[Any | None]
+    """
+    Name of the input data transformer used to transform the input data string into object structure in the `json_data` field.
+    """
 
 
 class AgentInput(TypedDict):
@@ -153,26 +184,53 @@ class AgentInput(TypedDict):
     """Input data to be processed - one or more can be provided."""
 
 
-class UIComponentMetadata(BaseModel):
-    """UI Component Metadata - output of the component selection and configuration step."""
+class UIBlockComponentMetadata(BaseModel):
+    """UI Component Metadata - part shared between UIBlockConfiguration and UIComponentMetadata."""
 
     id: Optional[str] = None
-    """ID of the data this instance is for."""
+    """ID of the `InputData` this instance is for."""
     title: str
     """Title of the component."""
-    reasonForTheComponentSelection: Optional[str] = None
-    """Reason for the component selection generated by LLM."""
-    confidenceScore: Optional[str] = None
-    """Confidence score of the component selection generated by LLM."""
     component: str
     """Component type."""
     fields: list[DataField]
     """Fields of the component."""
 
+
+class UIComponentMetadata(UIBlockComponentMetadata):
+    """UI Component Metadata - output of the component selection and configuration step."""
+
+    reasonForTheComponentSelection: Optional[str] = None
+    """Reason for the component selection generated by LLM."""
+    confidenceScore: Optional[str] = None
+    """Confidence score of the component selection generated by LLM."""
+    chartType: Optional[str] = None
+    """Chart type for chart components (e.g., 'bar', 'line', 'pie', 'donut', 'mirrored-bar')."""
+    horizontal: Optional[bool] = None
+    """Whether bar chart should be displayed horizontally (true) or vertically (false/None)."""
+
     json_data: Optional[Any] = None
     """
     Object structure from the `InputData` that was used to generate the component configuration.
-    May be altered against original `InputData` by json wrapping!
+    May be altered against original `InputData` by `input data transformation` and/or `JSON Wrapping`!
+    """
+    input_data_transformer_name: Optional[str] = None
+    """
+    Name of the input data transformer used to transform the input data.
+    """
+    json_wrapping_field_name: Optional[str] = None
+    """
+    Name of the field used for `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed.
+    """
+
+    # Debug information for LLM interactions
+    llm_interactions: Optional[list[dict[str, Any]]] = None
+    """
+    List of LLM interactions for debugging. Each interaction contains:
+    - step: 'component_selection' or 'field_selection'
+    - system_prompt: System message sent to LLM
+    - user_prompt: User prompt sent to LLM
+    - raw_response: Raw response from LLM before parsing
     """
 
 
@@ -183,78 +241,70 @@ class UIComponentMetadataHandBuildComponent(UIComponentMetadata):
     """Type of the hand-build component."""
 
 
-class Rendition(BaseModel):
-    """Rendition of the component - output of the UI rendering step."""
+class UIBlockRendering(BaseModel):
+    """UI Block Rendering - output of the UI rendering step."""
 
     id: str
+    """ID of the `InputData` this instance is for."""
     component_system: str
     mime_type: str
     content: str
 
 
-class ComponentSelectionStrategy(ABC):
-    """Abstract base class for LLM-based component selection and configuration strategies."""
+class UIBlockConfiguration(BaseModel):
+    """UI Block configuration"""
 
-    input_data_json_wrapping: bool
-    """
-    If `True`, the agent will wrap the JSON input data into data type field if necessary due to its structure.
-    If `False`, the agent will never wrap the JSON input data into data type field.
-    """
+    data_type: Optional[str] = None
+    "Input data type"
+    input_data_transformer_name: Optional[str] = None
+    "Name of the input data transformer used to transform the input data."
+    json_wrapping_field_name: Optional[str] = None
+    "Name of the field used for `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed."
+    component_metadata: Optional[UIBlockComponentMetadata] = None
+    "Metadata of component"
 
-    def __init__(self, input_data_json_wrapping: bool):
-        self.input_data_json_wrapping = input_data_json_wrapping
 
-    @abstractmethod
-    async def select_components(
-        self, inference: InferenceBase, input: AgentInput
-    ) -> list[UIComponentMetadata]:
+class UIBlock(BaseModel):
+    """UI Block model with all details"""
+
+    id: str
+    """ID of the `InputData` this instance is for."""
+    rendering: Optional[UIBlockRendering] = None
+    "Rendering of UI block"
+    configuration: Optional[UIBlockConfiguration] = None
+    "Configuration of the block"
+
+
+class InputDataTransformerBase(ABC):
+    """Base of the Input Data transformer"""
+
+    def transform_input_data(self, input_data: InputData) -> Any:
         """
-        Select UI components based on input data and user prompt.
-        Args:
-            inference: Inference to use to call LLM by the agent
-            input: Agent input
-            json_data: optional JSON data parsed into python objects to be processed
-        Returns:
-            List of `UIComponentMetadata`
-        """
-        pass
+        Transform the input data into the object tree matching parsed JSON format.
 
-    @abstractmethod
-    async def perform_inference(
-        self,
-        inference: InferenceBase,
-        user_prompt: str,
-        json_data: Any,
-        input_data_id: str,
-    ) -> list[str]:
-        """
-        Perform inference to select UI components and configure them.
-        Multiple LLM calls can be performed and inference results can be returned as a list of strings.
+        Default implementation calls #transform(string) method with content.
 
         Args:
-            inference: Inference to use to call LLM by the agent
-            user_prompt: User prompt to be processed
-            json_data: JSON data parsed into python objects to be processed
-            input_data_id: ID of the input data
-
+            input_data: InputData to transform
         Returns:
-            List of strings with LLM inference outputs
+            Object tree matching parsed JSON using `json.loads()`, so `jsonpath_ng` can be used
+            to access the data, and Pydantic `model_dump_json()` can be used to convert it to JSON string.
+            Root of the structure must be either object (`dict`) or array (`list`).
+        Raises:
+            ValueError: If the input data can't be parsed due to invalid format.
         """
-        pass
+        return self.transform(input_data["data"])
 
-    @abstractmethod
-    def parse_infernce_output(
-        self, inference_output: list[str], input_data_id: str
-    ) -> UIComponentMetadata:
+    def transform(self, input_data: str) -> Any:
         """
-        Parse LLM inference outputs from `perform_inference` and return `UIComponentMetadata`
-        or throw exception if it can't be constructed because of invalid LLM outputs.
-
+        Transform the input data into the object tree matching parsed JSON format.
         Args:
-            inference_output: List of strings with LLM inference outputs
-            input_data_id: ID of the input data
-
+            input_data: Input data string to transform
         Returns:
-            `UIComponentMetadata`
+            Object tree matching parsed JSON using `json.loads()`, so `jsonpath_ng` can be used
+            to access the data, and Pydantic `model_dump_json()` can be used to convert it to JSON string.
+            Root of the structure must be either object (`dict`) or array (`list`).
+        Raises:
+            ValueError: If the input data can't be parsed due to invalid format.
         """
-        pass
+        raise NotImplementedError("Subclasses must implement this method")
