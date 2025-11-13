@@ -21,7 +21,10 @@ DYNAMIC_COMPONENT_NAMES = [
 ]
 """ List of dynamic component names. """
 
+
 components_mapping: dict[str, UIComponentMetadata] = {}
+""" Global variable with components mapping configuration.
+Filled from init_pertype_components_mapping function """
 
 
 def init_pertype_components_mapping(config: AgentConfig | None) -> None:
@@ -50,14 +53,14 @@ def init_pertype_components_mapping(config: AgentConfig | None) -> None:
                             reasonForTheComponentSelection=f"configured for {data_type} in the configuration",
                         )
                     else:
-                        components_mapping[
-                            data_type
-                        ] = UIComponentMetadataHandBuildComponent(
-                            title="",
-                            fields=[],
-                            component="hand-build-component",
-                            component_type=component.component,
-                            reasonForTheComponentSelection=f"configured for {data_type} in the configuration",
+                        components_mapping[data_type] = (
+                            UIComponentMetadataHandBuildComponent(
+                                title="",
+                                fields=[],
+                                component="hand-build-component",
+                                component_type=component.component,
+                                reasonForTheComponentSelection=f"configured for {data_type} in the configuration",
+                            )
                         )
 
 

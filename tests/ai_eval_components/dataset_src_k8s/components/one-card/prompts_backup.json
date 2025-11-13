@@ -1,0 +1,6 @@
+[
+  "Show me backup status",
+  "When was the last etcd snapshot?",
+  "Show me disaster recovery status",
+  "Are backups healthy?"
+]

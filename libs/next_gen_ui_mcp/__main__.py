@@ -42,12 +42,13 @@ from typing import Optional
 from fastmcp import FastMCP
 from next_gen_ui_agent.agent_config import read_config_yaml_file
 from next_gen_ui_agent.types import AgentConfig
+from next_gen_ui_mcp.agent import MCP_ALL_TOOLS
 
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from next_gen_ui_agent.model import InferenceBase, LangChainModelInference  # noqa: E402
-from next_gen_ui_mcp.agent import NextGenUIMCPAgent  # noqa: E402
+from next_gen_ui_mcp import NextGenUIMCPServer  # noqa: E402
 
 logger = logging.getLogger("NextGenUI-MCP-Server")
 
@@ -134,28 +135,34 @@ def create_langchain_inference(
         raise RuntimeError(f"Failed to initialize LangChain model {model}: {e}") from e
 
 
-def create_agent(
+def create_server(
     config: AgentConfig = AgentConfig(component_system="json"),
     inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
-) -> NextGenUIMCPAgent:
-    """Create NextGenUIMCPAgent with optional external inference provider.
+    debug: bool = False,
+    enabled_tools=None,
+    structured_output_enabled=True,
+) -> NextGenUIMCPServer:
+    """Create NextGenUIMCPServer with optional external inference provider.
 
     Args:
         config: AgentConfig to use for the agent
         sampling_max_tokens: Maximum tokens for MCP sampling inference
 
     Returns:
-        Configured NextGenUIMCPAgent
+        Configured NextGenUIMCPServer
     """
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug("NGUI Configuration: %s", config.model_dump())
 
-    return NextGenUIMCPAgent(
+    return NextGenUIMCPServer(
         config=config,
         inference=inference,
         sampling_max_tokens=sampling_max_tokens,
         name="NextGenUI-MCP-Server",
+        debug=debug,
+        enabled_tools=enabled_tools,
+        structured_output_enabled=structured_output_enabled,
     )
 
 
@@ -236,6 +243,23 @@ Examples:
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
     parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
     parser.add_argument(
+        "--tools",
+        action="extend",
+        nargs="+",
+        type=str,
+        help=(
+            "Control which tools should be enabled. "
+            "You can specify multiple values by repeating same parameter "
+            "or passing comma separated value."
+        ),
+    )
+    parser.add_argument(
+        "--structured_output_enabled",
+        choices=["true", "false"],
+        default="true",
+        help="Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.",
+    )
+    parser.add_argument(
         "--component-system",
         choices=["json", "patternfly", "rhds"],
         default="json",
@@ -302,7 +326,17 @@ Examples:
     if args.component_system:
         config.component_system = args.component_system
 
-    logger.info("Starting Next Gen UI MCP Server with %s transport", args.transport)
+    enabled_tools = MCP_ALL_TOOLS
+    if args.tools and args.tools != ["all"]:
+        enabled_tools = args.tools
+
+    logger.info(
+        "Starting Next Gen UI MCP Server with %s transport, debug=%s, tools=%s, structured_output_enabled=%s",
+        args.transport,
+        args.debug,
+        enabled_tools,
+        args.structured_output_enabled,
+    )
 
     # Validate arguments
     if args.provider in ["llamastack", "langchain"] and not args.model:
@@ -335,10 +369,13 @@ Examples:
             raise ValueError(f"Unknown provider: {args.provider}")
 
         # Create the agent
-        agent = create_agent(
+        agent = create_server(
             config=config,
             inference=inference,
             sampling_max_tokens=args.sampling_max_tokens,
+            debug=args.debug,
+            enabled_tools=enabled_tools,
+            structured_output_enabled=args.structured_output_enabled == "true",
         )
 
     except (ImportError, RuntimeError) as e:

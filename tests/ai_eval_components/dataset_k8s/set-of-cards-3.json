@@ -1,0 +1,46 @@
+[
+  {
+    "id": "set-of-cards-000008",
+    "user_prompt": "Which namespaces consume the most resources?",
+    "backend_data": "{\n  \"namespaces\": [\n    {\n      \"name\": \"kube-system\",\n      \"cpu_requests\": \"2.1\",\n      \"cpu_limits\": \"4.0\",\n      \"cpu_usage\": \"1.8\",\n      \"memory_requests\": \"4.2Gi\",\n      \"memory_limits\": \"8.0Gi\",\n      \"memory_usage\": \"3.9Gi\",\n      \"pod_count\": 18,\n      \"cost_per_month\": 245.5\n    },\n    {\n      \"name\": \"openshift-monitoring\",\n      \"cpu_requests\": \"3.5\",\n      \"cpu_limits\": \"6.0\",\n      \"cpu_usage\": \"2.9\",\n      \"memory_requests\": \"8.1Gi\",\n      \"memory_limits\": \"12.0Gi\",\n      \"memory_usage\": \"7.8Gi\",\n      \"pod_count\": 12,\n      \"cost_per_month\": 412.3\n    },\n    {\n      \"name\": \"production-app\",\n      \"cpu_requests\": \"5.2\",\n      \"cpu_limits\": \"10.0\",\n      \"cpu_usage\": \"4.1\",\n      \"memory_requests\": \"12.5Gi\",\n      \"memory_limits\": \"20.0Gi\",\n      \"memory_usage\": \"11.2Gi\",\n      \"pod_count\": 35,\n      \"cost_per_month\": 678.9\n    },\n    {\n      \"name\": \"development\",\n      \"cpu_requests\": \"1.8\",\n      \"cpu_limits\": \"3.0\",\n      \"cpu_usage\": \"0.4\",\n      \"memory_requests\": \"3.2Gi\",\n      \"memory_limits\": \"6.0Gi\",\n      \"memory_usage\": \"1.1Gi\",\n      \"pod_count\": 8,\n      \"cost_per_month\": 89.2,\n      \"waste_percentage\": 78\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/namespaces.json",
+      "prompt_file": "prompts_namespaces.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000009",
+    "user_prompt": "Show me namespace resource usage",
+    "backend_data": "{\n  \"namespaces\": [\n    {\n      \"name\": \"kube-system\",\n      \"cpu_requests\": \"2.1\",\n      \"cpu_limits\": \"4.0\",\n      \"cpu_usage\": \"1.8\",\n      \"memory_requests\": \"4.2Gi\",\n      \"memory_limits\": \"8.0Gi\",\n      \"memory_usage\": \"3.9Gi\",\n      \"pod_count\": 18,\n      \"cost_per_month\": 245.5\n    },\n    {\n      \"name\": \"openshift-monitoring\",\n      \"cpu_requests\": \"3.5\",\n      \"cpu_limits\": \"6.0\",\n      \"cpu_usage\": \"2.9\",\n      \"memory_requests\": \"8.1Gi\",\n      \"memory_limits\": \"12.0Gi\",\n      \"memory_usage\": \"7.8Gi\",\n      \"pod_count\": 12,\n      \"cost_per_month\": 412.3\n    },\n    {\n      \"name\": \"production-app\",\n      \"cpu_requests\": \"5.2\",\n      \"cpu_limits\": \"10.0\",\n      \"cpu_usage\": \"4.1\",\n      \"memory_requests\": \"12.5Gi\",\n      \"memory_limits\": \"20.0Gi\",\n      \"memory_usage\": \"11.2Gi\",\n      \"pod_count\": 35,\n      \"cost_per_month\": 678.9\n    },\n    {\n      \"name\": \"development\",\n      \"cpu_requests\": \"1.8\",\n      \"cpu_limits\": \"3.0\",\n      \"cpu_usage\": \"0.4\",\n      \"memory_requests\": \"3.2Gi\",\n      \"memory_limits\": \"6.0Gi\",\n      \"memory_usage\": \"1.1Gi\",\n      \"pod_count\": 8,\n      \"cost_per_month\": 89.2,\n      \"waste_percentage\": 78\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/namespaces.json",
+      "prompt_file": "prompts_namespaces.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000010",
+    "user_prompt": "How much is production-app namespace using?",
+    "backend_data": "{\n  \"namespaces\": [\n    {\n      \"name\": \"kube-system\",\n      \"cpu_requests\": \"2.1\",\n      \"cpu_limits\": \"4.0\",\n      \"cpu_usage\": \"1.8\",\n      \"memory_requests\": \"4.2Gi\",\n      \"memory_limits\": \"8.0Gi\",\n      \"memory_usage\": \"3.9Gi\",\n      \"pod_count\": 18,\n      \"cost_per_month\": 245.5\n    },\n    {\n      \"name\": \"openshift-monitoring\",\n      \"cpu_requests\": \"3.5\",\n      \"cpu_limits\": \"6.0\",\n      \"cpu_usage\": \"2.9\",\n      \"memory_requests\": \"8.1Gi\",\n      \"memory_limits\": \"12.0Gi\",\n      \"memory_usage\": \"7.8Gi\",\n      \"pod_count\": 12,\n      \"cost_per_month\": 412.3\n    },\n    {\n      \"name\": \"production-app\",\n      \"cpu_requests\": \"5.2\",\n      \"cpu_limits\": \"10.0\",\n      \"cpu_usage\": \"4.1\",\n      \"memory_requests\": \"12.5Gi\",\n      \"memory_limits\": \"20.0Gi\",\n      \"memory_usage\": \"11.2Gi\",\n      \"pod_count\": 35,\n      \"cost_per_month\": 678.9\n    },\n    {\n      \"name\": \"development\",\n      \"cpu_requests\": \"1.8\",\n      \"cpu_limits\": \"3.0\",\n      \"cpu_usage\": \"0.4\",\n      \"memory_requests\": \"3.2Gi\",\n      \"memory_limits\": \"6.0Gi\",\n      \"memory_usage\": \"1.1Gi\",\n      \"pod_count\": 8,\n      \"cost_per_month\": 89.2,\n      \"waste_percentage\": 78\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/namespaces.json",
+      "prompt_file": "prompts_namespaces.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000011",
+    "user_prompt": "Show me kube-system namespace details",
+    "backend_data": "{\n  \"namespaces\": [\n    {\n      \"name\": \"kube-system\",\n      \"cpu_requests\": \"2.1\",\n      \"cpu_limits\": \"4.0\",\n      \"cpu_usage\": \"1.8\",\n      \"memory_requests\": \"4.2Gi\",\n      \"memory_limits\": \"8.0Gi\",\n      \"memory_usage\": \"3.9Gi\",\n      \"pod_count\": 18,\n      \"cost_per_month\": 245.5\n    },\n    {\n      \"name\": \"openshift-monitoring\",\n      \"cpu_requests\": \"3.5\",\n      \"cpu_limits\": \"6.0\",\n      \"cpu_usage\": \"2.9\",\n      \"memory_requests\": \"8.1Gi\",\n      \"memory_limits\": \"12.0Gi\",\n      \"memory_usage\": \"7.8Gi\",\n      \"pod_count\": 12,\n      \"cost_per_month\": 412.3\n    },\n    {\n      \"name\": \"production-app\",\n      \"cpu_requests\": \"5.2\",\n      \"cpu_limits\": \"10.0\",\n      \"cpu_usage\": \"4.1\",\n      \"memory_requests\": \"12.5Gi\",\n      \"memory_limits\": \"20.0Gi\",\n      \"memory_usage\": \"11.2Gi\",\n      \"pod_count\": 35,\n      \"cost_per_month\": 678.9\n    },\n    {\n      \"name\": \"development\",\n      \"cpu_requests\": \"1.8\",\n      \"cpu_limits\": \"3.0\",\n      \"cpu_usage\": \"0.4\",\n      \"memory_requests\": \"3.2Gi\",\n      \"memory_limits\": \"6.0Gi\",\n      \"memory_usage\": \"1.1Gi\",\n      \"pod_count\": 8,\n      \"cost_per_month\": 89.2,\n      \"waste_percentage\": 78\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/namespaces.json",
+      "prompt_file": "prompts_namespaces.json"
+    }
+  }
+]

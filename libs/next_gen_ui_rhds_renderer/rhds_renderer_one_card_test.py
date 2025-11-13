@@ -2,7 +2,7 @@ from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 from next_gen_ui_agent.renderer.one_card_shareable_tests import BaseOneCardRendererTests
 from next_gen_ui_rhds_renderer import RhdsStrategyFactory
-from next_gen_ui_testing.agent_testing import extension_manager_rhds
+from next_gen_ui_testing.agent_testing import extension_manager_for_testing
 from next_gen_ui_testing.data_after_transformation import (
     get_transformed_component,
     get_transformed_component_testing_data,
@@ -20,9 +20,11 @@ class TestOneCardRHDSRendererWithShareableTests(BaseOneCardRendererTests):
 
 def test_renderer_one_card_full() -> None:
     agent = NextGenUIAgent()
-    agent._extension_manager = extension_manager_rhds()
+    agent._extension_manager = extension_manager_for_testing(
+        "rhds", RhdsStrategyFactory()
+    )
     component = get_transformed_component()
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     print(rendition)
     assert (
         rendition
@@ -85,29 +87,35 @@ def test_renderer_one_card_full() -> None:
 
 def test_renderer_one_card_array_boolean() -> None:
     agent = NextGenUIAgent()
-    agent._extension_manager = extension_manager_rhds()
+    agent._extension_manager = extension_manager_for_testing(
+        "rhds", RhdsStrategyFactory()
+    )
     component = get_transformed_component_testing_data()
 
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     assert rendition
     assert "True, False" in rendition
 
 
 def test_renderer_one_card_array_numbers() -> None:
     agent = NextGenUIAgent()
-    agent._extension_manager = extension_manager_rhds()
+    agent._extension_manager = extension_manager_for_testing(
+        "rhds", RhdsStrategyFactory()
+    )
     component = get_transformed_component_testing_data()
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     assert rendition
     assert "1, 2, 3" in rendition
 
 
 def test_renderer_one_card_image() -> None:
     agent = NextGenUIAgent()
-    agent._extension_manager = extension_manager_rhds()
+    agent._extension_manager = extension_manager_for_testing(
+        "rhds", RhdsStrategyFactory()
+    )
     component = get_transformed_component_testing_data()
 
-    rendition = agent.design_system_handler([component], component_system)[0].content
+    rendition = agent.generate_rendering(component, component_system).content
     assert rendition
     assert (
         '<img src="https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg" slot="image" aria-label="Toy Story Details">'

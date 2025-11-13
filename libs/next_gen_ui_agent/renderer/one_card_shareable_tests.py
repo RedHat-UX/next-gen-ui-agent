@@ -11,11 +11,13 @@ SAMPLE_ONE_CARD_DATA = {
     "component": "one-card",
     "fields": [
         {
+            "id": "DUMMY_TITLE_DATA_PATH",
             "name": "DUMMY_TITLE_NAME",
             "data_path": "DUMMY_TITLE_DATA_PATH",
             "data": ["DUMMY_TITLE_VALUE"],
         },
         {
+            "id": "DUMMY_IMAGE_DATA_PATH",
             "name": "DUMMY_IMAGE_NAME",
             "data_path": "DUMMY_IMAGE_DATA_PATH",  # has not to end by url or link
             "data": ["DUMMY_IMAGE_VALUE"],

@@ -1,0 +1,58 @@
+{
+  "$defs": {
+    "InputData": {
+      "description": "Agent Input Data.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "hand_build_component_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "data"
+      ],
+      "title": "InputData",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "user_prompt": {
+      "type": "string"
+    },
+    "input_data": {
+      "items": {
+        "$ref": "#/$defs/InputData"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "user_prompt",
+    "input_data"
+  ],
+  "title": "MCPGenerateUIInput",
+  "type": "object"
+}

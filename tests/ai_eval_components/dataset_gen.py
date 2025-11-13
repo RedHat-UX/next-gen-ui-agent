@@ -1,4 +1,6 @@
+import getopt
 import json
+import sys
 from pathlib import Path
 
 from ai_eval_components.types import (
@@ -13,15 +15,15 @@ BASE_DATASETSRC_PATH = BASE_MODULE_PATH + "dataset_src/"
 BASE_DATASETSRC_SHAREDDATA_PATH = BASE_DATASETSRC_PATH + "backend_data_shared/"
 
 
-def get_components_dirs():
-    components_dir_path = Path.cwd() / (BASE_DATASETSRC_PATH + "/components/")
+def get_components_dirs(src_path):
+    components_dir_path = Path.cwd() / (src_path + "/components/")
     components_dirs = [f for f in components_dir_path.iterdir() if f.is_dir()]
     components_dirs.sort()
     return components_dirs
 
 
-def get_dataset_dir():
-    dataset_dir_path = Path.cwd() / BASE_DATASET_PATH
+def get_dataset_dir(dest_path):
+    dataset_dir_path = Path.cwd() / dest_path
     print(f"Writing dataset into folder: {dataset_dir_path}")
     if not dataset_dir_path.exists():
         dataset_dir_path.mkdir(parents=True)
@@ -75,6 +77,8 @@ def load_backend_data(
 
 def get_component_items_prompt_files(component_dir: Path):
     items_dir_path = component_dir / "items/"
+    if not items_dir_path.exists():
+        return []
     prompt_files = [
         f for f in items_dir_path.iterdir() if f.is_file() and f.match("*.txt")
     ]
@@ -89,11 +93,56 @@ def write_dataset_file(dataset_dir_path, component_name, file_index, dataset):
         json.dump(dataset, f, indent=2, separators=(",", ": "))
 
 
+def print_help():
+    """Print help message for command line arguments."""
+    print("dataset_gen.py [options]")
+    print("\nOptions:")
+    print(
+        "  -s, --src <path>   Source directory (default: tests/ai_eval_components/dataset_src/)"
+    )
+    print(
+        "  -d, --dest <path>  Destination directory (default: tests/ai_eval_components/dataset/)"
+    )
+    print("  -h                 Show this help message")
+
+
+def load_config():
+    """
+    Load configuration from command line arguments.
+
+    Returns:
+        tuple: (src_path, dest_path) - source and destination directory paths
+    """
+    src_path = BASE_MODULE_PATH + "dataset_src/"
+    dest_path = BASE_DATASET_PATH
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hs:d:", ["src=", "dest="])
+    except getopt.GetoptError:
+        print_help()
+        sys.exit(2)
+
+    for opt, arg in opts:
+        if opt == "-h":
+            print_help()
+            sys.exit()
+        elif opt in ("-s", "--src"):
+            src_path = arg
+        elif opt in ("-d", "--dest"):
+            dest_path = arg
+
+    return src_path, dest_path
+
+
 if __name__ == "__main__":
+    src_path, dest_path = load_config()
+
     print("Dataset generation started...")
-    dataset_dir_path = get_dataset_dir()
-    shared_data_dir_path = Path.cwd() / BASE_DATASETSRC_SHAREDDATA_PATH
-    components_dirs = get_components_dirs()
+    print(f"Source directory: {src_path}")
+    print(f"Destination directory: {dest_path}")
+
+    dataset_dir_path = get_dataset_dir(dest_path)
+    shared_data_dir_path = Path.cwd() / (src_path + "backend_data_shared/")
+    components_dirs = get_components_dirs(src_path)
 
     for component_dir in components_dirs:
         component_name = component_dir.name

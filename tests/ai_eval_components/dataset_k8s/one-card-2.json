@@ -1,0 +1,46 @@
+[
+  {
+    "id": "one-card-000002",
+    "user_prompt": "Show me backup status",
+    "backend_data": "{\n  \"backup_status\": {\n    \"etcd_snapshots\": {\n      \"last_successful\": \"2024-10-03T02:30:00Z\",\n      \"frequency\": \"daily\",\n      \"retention_days\": 30,\n      \"storage_location\": \"s3://openshift-backups-prod\",\n      \"size_gb\": 2.3,\n      \"status\": \"healthy\"\n    },\n    \"velero_backups\": {\n      \"last_successful\": \"2024-10-03T01:00:00Z\",\n      \"frequency\": \"daily\",\n      \"retention_days\": 90,\n      \"storage_location\": \"s3://velero-backups-prod\",\n      \"applications_backed_up\": 12,\n      \"status\": \"healthy\"\n    },\n    \"recovery_time_objective\": \"4 hours\",\n    \"recovery_point_objective\": \"1 hour\",\n    \"last_recovery_test\": \"2024-09-15T10:00:00Z\",\n    \"test_result\": \"successful\"\n  }\n}\n",
+    "expected_component": "one-card",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/backup_status.json",
+      "prompt_file": "prompts_backup.json"
+    }
+  },
+  {
+    "id": "one-card-000003",
+    "user_prompt": "When was the last etcd snapshot?",
+    "backend_data": "{\n  \"backup_status\": {\n    \"etcd_snapshots\": {\n      \"last_successful\": \"2024-10-03T02:30:00Z\",\n      \"frequency\": \"daily\",\n      \"retention_days\": 30,\n      \"storage_location\": \"s3://openshift-backups-prod\",\n      \"size_gb\": 2.3,\n      \"status\": \"healthy\"\n    },\n    \"velero_backups\": {\n      \"last_successful\": \"2024-10-03T01:00:00Z\",\n      \"frequency\": \"daily\",\n      \"retention_days\": 90,\n      \"storage_location\": \"s3://velero-backups-prod\",\n      \"applications_backed_up\": 12,\n      \"status\": \"healthy\"\n    },\n    \"recovery_time_objective\": \"4 hours\",\n    \"recovery_point_objective\": \"1 hour\",\n    \"last_recovery_test\": \"2024-09-15T10:00:00Z\",\n    \"test_result\": \"successful\"\n  }\n}\n",
+    "expected_component": "one-card",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/backup_status.json",
+      "prompt_file": "prompts_backup.json"
+    }
+  },
+  {
+    "id": "one-card-000004",
+    "user_prompt": "Show me disaster recovery status",
+    "backend_data": "{\n  \"backup_status\": {\n    \"etcd_snapshots\": {\n      \"last_successful\": \"2024-10-03T02:30:00Z\",\n      \"frequency\": \"daily\",\n      \"retention_days\": 30,\n      \"storage_location\": \"s3://openshift-backups-prod\",\n      \"size_gb\": 2.3,\n      \"status\": \"healthy\"\n    },\n    \"velero_backups\": {\n      \"last_successful\": \"2024-10-03T01:00:00Z\",\n      \"frequency\": \"daily\",\n      \"retention_days\": 90,\n      \"storage_location\": \"s3://velero-backups-prod\",\n      \"applications_backed_up\": 12,\n      \"status\": \"healthy\"\n    },\n    \"recovery_time_objective\": \"4 hours\",\n    \"recovery_point_objective\": \"1 hour\",\n    \"last_recovery_test\": \"2024-09-15T10:00:00Z\",\n    \"test_result\": \"successful\"\n  }\n}\n",
+    "expected_component": "one-card",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/backup_status.json",
+      "prompt_file": "prompts_backup.json"
+    }
+  },
+  {
+    "id": "one-card-000005",
+    "user_prompt": "Are backups healthy?",
+    "backend_data": "{\n  \"backup_status\": {\n    \"etcd_snapshots\": {\n      \"last_successful\": \"2024-10-03T02:30:00Z\",\n      \"frequency\": \"daily\",\n      \"retention_days\": 30,\n      \"storage_location\": \"s3://openshift-backups-prod\",\n      \"size_gb\": 2.3,\n      \"status\": \"healthy\"\n    },\n    \"velero_backups\": {\n      \"last_successful\": \"2024-10-03T01:00:00Z\",\n      \"frequency\": \"daily\",\n      \"retention_days\": 90,\n      \"storage_location\": \"s3://velero-backups-prod\",\n      \"applications_backed_up\": 12,\n      \"status\": \"healthy\"\n    },\n    \"recovery_time_objective\": \"4 hours\",\n    \"recovery_point_objective\": \"1 hour\",\n    \"last_recovery_test\": \"2024-09-15T10:00:00Z\",\n    \"test_result\": \"successful\"\n  }\n}\n",
+    "expected_component": "one-card",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/backup_status.json",
+      "prompt_file": "prompts_backup.json"
+    }
+  }
+]

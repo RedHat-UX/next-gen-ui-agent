@@ -1,0 +1,46 @@
+[
+  {
+    "id": "set-of-cards-000029",
+    "user_prompt": "Show me cost analysis",
+    "backend_data": "{\n  \"cost_efficiency\": [\n    {\n      \"namespace\": \"production-app\",\n      \"monthly_cost\": 1245.67,\n      \"cpu_waste_percentage\": 23,\n      \"memory_waste_percentage\": 31,\n      \"suggested_savings\": 387.45,\n      \"right_sizing_recommendations\": [\n        \"Reduce payment-service memory from 2Gi to 1.2Gi\",\n        \"Reduce user-auth CPU from 1000m to 400m\"\n      ]\n    },\n    {\n      \"namespace\": \"development\",\n      \"monthly_cost\": 456.23,\n      \"cpu_waste_percentage\": 67,\n      \"memory_waste_percentage\": 72,\n      \"suggested_savings\": 312.18,\n      \"right_sizing_recommendations\": [\n        \"Use spot instances for dev workloads\",\n        \"Scale down replicas during off-hours\"\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/cost_efficiency.json",
+      "prompt_file": "prompts_cost.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000030",
+    "user_prompt": "Which namespaces are wasting resources?",
+    "backend_data": "{\n  \"cost_efficiency\": [\n    {\n      \"namespace\": \"production-app\",\n      \"monthly_cost\": 1245.67,\n      \"cpu_waste_percentage\": 23,\n      \"memory_waste_percentage\": 31,\n      \"suggested_savings\": 387.45,\n      \"right_sizing_recommendations\": [\n        \"Reduce payment-service memory from 2Gi to 1.2Gi\",\n        \"Reduce user-auth CPU from 1000m to 400m\"\n      ]\n    },\n    {\n      \"namespace\": \"development\",\n      \"monthly_cost\": 456.23,\n      \"cpu_waste_percentage\": 67,\n      \"memory_waste_percentage\": 72,\n      \"suggested_savings\": 312.18,\n      \"right_sizing_recommendations\": [\n        \"Use spot instances for dev workloads\",\n        \"Scale down replicas during off-hours\"\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/cost_efficiency.json",
+      "prompt_file": "prompts_cost.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000031",
+    "user_prompt": "How much can we save in development?",
+    "backend_data": "{\n  \"cost_efficiency\": [\n    {\n      \"namespace\": \"production-app\",\n      \"monthly_cost\": 1245.67,\n      \"cpu_waste_percentage\": 23,\n      \"memory_waste_percentage\": 31,\n      \"suggested_savings\": 387.45,\n      \"right_sizing_recommendations\": [\n        \"Reduce payment-service memory from 2Gi to 1.2Gi\",\n        \"Reduce user-auth CPU from 1000m to 400m\"\n      ]\n    },\n    {\n      \"namespace\": \"development\",\n      \"monthly_cost\": 456.23,\n      \"cpu_waste_percentage\": 67,\n      \"memory_waste_percentage\": 72,\n      \"suggested_savings\": 312.18,\n      \"right_sizing_recommendations\": [\n        \"Use spot instances for dev workloads\",\n        \"Scale down replicas during off-hours\"\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/cost_efficiency.json",
+      "prompt_file": "prompts_cost.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000032",
+    "user_prompt": "Show me right-sizing recommendations",
+    "backend_data": "{\n  \"cost_efficiency\": [\n    {\n      \"namespace\": \"production-app\",\n      \"monthly_cost\": 1245.67,\n      \"cpu_waste_percentage\": 23,\n      \"memory_waste_percentage\": 31,\n      \"suggested_savings\": 387.45,\n      \"right_sizing_recommendations\": [\n        \"Reduce payment-service memory from 2Gi to 1.2Gi\",\n        \"Reduce user-auth CPU from 1000m to 400m\"\n      ]\n    },\n    {\n      \"namespace\": \"development\",\n      \"monthly_cost\": 456.23,\n      \"cpu_waste_percentage\": 67,\n      \"memory_waste_percentage\": 72,\n      \"suggested_savings\": 312.18,\n      \"right_sizing_recommendations\": [\n        \"Use spot instances for dev workloads\",\n        \"Scale down replicas during off-hours\"\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "set-of-cards",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/cost_efficiency.json",
+      "prompt_file": "prompts_cost.json"
+    }
+  }
+]

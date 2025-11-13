@@ -34,10 +34,13 @@ def test_process() -> None:
     result = OneCardDataTransformer().process(c, data)
     assert result.title == "Toy Story Details"
     assert len(result.fields) == 3
+    assert result.fields[0].id == "title"
     assert result.fields[0].name == "Title"
     assert result.fields[0].data == ["Toy Story"]
+    assert result.fields[1].id == "authors"
     assert result.fields[1].name == "Authors"
     assert result.fields[1].data == ["A1", "A2", "A3"]
+    assert result.fields[2].id == "authors"
     assert result.fields[2].name == "Authors 2"
     assert result.fields[2].data == ["A1", "A2", "A3"]
     assert (

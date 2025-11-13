@@ -1,3 +1,46 @@
+## 0.3.0 (2025-11-07)
+
+### Feat
+
+- **[NGUI-444](https://issues.redhat.com/browse/NGUI-444)**: Added field ID to data_field object, spec schemas updated [24404](https://github.com//RedHat-UX/next-gen-ui-agent/commit/244046472e40af9b2e52d4c7ec40de30c059b915)
+- **[NGUI-451](https://issues.redhat.com/browse/NGUI-451)**: LangGraph Agent updated to new core agent API, error handling improved (#214) [1a332](https://github.com//RedHat-UX/next-gen-ui-agent/commit/1a3327d3baf4a7e20ad7c4e92d975bc2f4bdbe38)
+- **[NGUI-472](https://issues.redhat.com/browse/NGUI-472)**: Marking MCP server as supported and fastmcp version 2.12.5 [75c03](https://github.com//RedHat-UX/next-gen-ui-agent/commit/75c037c66fab6c7f2e97a5fbdcae4f370981bf2b)
+- **[NGUI-453](https://issues.redhat.com/browse/NGUI-453)**: MCP refactoring to use new agent API and improved error handling [4b214](https://github.com//RedHat-UX/next-gen-ui-agent/commit/4b214579604872e4ccfa74c2d3246b146ad9a388)
+- **[NGUI-455](https://issues.redhat.com/browse/NGUI-455)**: ACP Agent - deprecated, new core agent API used to improve error handling (#212) [267c5](https://github.com//RedHat-UX/next-gen-ui-agent/commit/267c56d764410e95d692ba593c75aaa916e9a79e)
+- **[NGUI-452](https://issues.redhat.com/browse/NGUI-452)**: LlamaStack Agent - new core agent API used to improve error handling and parallel processing with immediate result return [9d12b](https://github.com//RedHat-UX/next-gen-ui-agent/commit/9d12b7a330f01b16c7befa27cd91a4b1e2c58b7d)
+- **[NGUI-450](https://issues.redhat.com/browse/NGUI-450)**: core agent API refactoring for better error handling  (#205) [dddc0](https://github.com//RedHat-UX/next-gen-ui-agent/commit/dddc00f583dc40fbbbd27c22a0cdfeac0866614b)
+- **[NGUI-425](https://issues.redhat.com/browse/NGUI-425)**: data refresh - support in the core agent (#204) [4f3a6](https://github.com//RedHat-UX/next-gen-ui-agent/commit/4f3a655bd6ea460331e2cdfebe982b0c3086ac94)
+- **[NGUI-426](https://issues.redhat.com/browse/NGUI-426)**: Return component configuration in MCP tools [7d5ed](https://github.com//RedHat-UX/next-gen-ui-agent/commit/7d5edb36586d72c92149c3dcbcf495c64a876d14)
+- **[NGUI-432](https://issues.redhat.com/browse/NGUI-432)**: Support structured data and LLM handled data in MCP [9638a](https://github.com//RedHat-UX/next-gen-ui-agent/commit/9638aad3acada0b984adc6250384f539a16ae07a)
+- **[NGUI-398](https://issues.redhat.com/browse/NGUI-398)**: Structured result and summary in MCP, documentation (#195) [057ac](https://github.com//RedHat-UX/next-gen-ui-agent/commit/057ac9735a8cd5722fad5c0309b931a4d8efca51)
+- **[NGUI-356](https://issues.redhat.com/browse/NGUI-356)**: Fixed Width Columns Table input data transformer (#194) [5f7e4](https://github.com//RedHat-UX/next-gen-ui-agent/commit/5f7e4ef4129102fd43ac3d8b646f39c8881e629e)
+- **[NGUI-407](https://issues.redhat.com/browse/NGUI-407)**: `noop` input datat transformer (#193) [8c603](https://github.com//RedHat-UX/next-gen-ui-agent/commit/8c603b7db5012aaa0b968b78bc631360b3033ce5)
+- **[NGUI-405](https://issues.redhat.com/browse/NGUI-405)**: added ability to configure default input data transformer (#192) [521bf](https://github.com//RedHat-UX/next-gen-ui-agent/commit/521bf6235568faa9fe8686dda6b82a26ac28df08)
+- **[NGUI-391](https://issues.redhat.com/browse/NGUI-391)**: csv input data transformers (#191) [9abba](https://github.com//RedHat-UX/next-gen-ui-agent/commit/9abbaf12f275eeabc3c945fe18b69bcdd45a86be)
+- **[NGUI-397](https://issues.redhat.com/browse/NGUI-397)**: excluding input_data in MCP tool call (#189) [0c8bf](https://github.com//RedHat-UX/next-gen-ui-agent/commit/0c8bf741904b2612c0d350993c1c048b367b48d6)
+- **[NGUI-394](https://issues.redhat.com/browse/NGUI-394)**: configuration schema improved for "enum" like options (#190) [41211](https://github.com//RedHat-UX/next-gen-ui-agent/commit/412111202f50509effbc5acf34f2fd1596724ee3)
+- **[NGUI-396](https://issues.redhat.com/browse/NGUI-396)**: Migrate MCP from MCP SDK to FastMCP to get extra features, tests improved [93409](https://github.com//RedHat-UX/next-gen-ui-agent/commit/93409c9336dcbc2933b5761b11f5faf3f0eac98f)
+- **[NGUI-364](https://issues.redhat.com/browse/NGUI-364)**: use dynamic component with pre-defined configuration per data type (#183) [ff693](https://github.com//RedHat-UX/next-gen-ui-agent/commit/ff69353ceadd47341111ca4da32dfa874325d39b)
+- **[NGUI-362](https://issues.redhat.com/browse/NGUI-362)**: MCP YAML file config support and support for multiple YAML files [b2cb3](https://github.com//RedHat-UX/next-gen-ui-agent/commit/b2cb3f6159ad9d99f44da3bc194d50870d832002)
+- **[NGUI-377](https://issues.redhat.com/browse/NGUI-377)**: Openshift deployment yaml (#182) [536f3](https://github.com//RedHat-UX/next-gen-ui-agent/commit/536f3fe4bc451ad2d71ef21597df1ea12d7288b4)
+- **[NGUI-330](https://issues.redhat.com/browse/NGUI-330)**: Split ngui-e2e architecture and update deployment strategy (#166) [8ab26](https://github.com//RedHat-UX/next-gen-ui-agent/commit/8ab26afb7a45df9f9c9a46dbdad2e1498c3b6b30)
+- **[NGUI-355](https://issues.redhat.com/browse/NGUI-355)**: input data transformation framework and yaml transformer [79d98](https://github.com//RedHat-UX/next-gen-ui-agent/commit/79d98ab15c091aee6dc029cdaad606a28150ab3f)
+- **[NGUI-374](https://issues.redhat.com/browse/NGUI-374)**: MCP tool description improvements (#180) [09edc](https://github.com//RedHat-UX/next-gen-ui-agent/commit/09edc0a8e1f6f4eb7419e89c0402cfe7ae666d4e)
+- **[NGUI-380](https://issues.redhat.com/browse/NGUI-380)**: table and set-of-cards json spec exported and documented [0e138](https://github.com//RedHat-UX/next-gen-ui-agent/commit/0e13839ede3d3cbb1be9c46d86a12397765991d2)
+- **[NGUI-354](https://issues.redhat.com/browse/NGUI-354)**: wrapping of the json input data with problematic structure for LLM processing [f33d9](https://github.com//RedHat-UX/next-gen-ui-agent/commit/f33d9edfa345bbee8fb55cf67675acc75dcdc9c1)
+
+### Fix
+
+- **[NGUI-475](https://issues.redhat.com/browse/NGUI-475)**: Improved VERSION number generation script. [edc3d](https://github.com//RedHat-UX/next-gen-ui-agent/commit/edc3de3d7a75d07307fc3233f34cad80e98c1ee2)
+- data passing to the data transformation step patched in eval script (#201) [645d7](https://github.com//RedHat-UX/next-gen-ui-agent/commit/645d73ada0101d8b25e987359ad2167b2e3946fa)
+- **[NGUI-395](https://issues.redhat.com/browse/NGUI-395)**: Fix wrapping for not HBC components [00256](https://github.com//RedHat-UX/next-gen-ui-agent/commit/00256374ed2024373cf8e221bc7605ec1020edd4)
+- **[NGUI-387](https://issues.redhat.com/browse/NGUI-387)**: Raise an exception on error in MCP (#179) [b5486](https://github.com//RedHat-UX/next-gen-ui-agent/commit/b5486cbf655466afda10cf4e3df53c90725039e3)
+- **[NGUI-386](https://issues.redhat.com/browse/NGUI-386)**: Improve pytest configuration to fail on unknown marker and fix missing deps (#178) [5fc8f](https://github.com//RedHat-UX/next-gen-ui-agent/commit/5fc8f20a6d9d48e07a96acb84f496b02a1ea0dd4)
+
+### Refactor
+
+- **[NGUI-428](https://issues.redhat.com/browse/NGUI-428)**: spec schema separated from tests [88a1d](https://github.com//RedHat-UX/next-gen-ui-agent/commit/88a1d4318eaff958655e61876bf67ec4fbc081ab)
+
 ## 0.2.2 (2025-09-30)
 
 ### Feat

@@ -1,0 +1,98 @@
+name: Complete Evaluation Tests (Movies + K8s)
+
+permissions:
+  contents: read
+
+on:
+  # Allow manual trigger (run on-demand when needed - works on any branch!)
+  workflow_dispatch:
+
+jobs:
+  complete-eval:
+    name: Run Complete Evaluation Tests (Movies + K8s)
+    runs-on: macos-latest
+    timeout-minutes: 1200
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # Install agent core dependencies
+          pip install -r libs/3rdparty/python/agent-core-requirements.txt
+          # Install langchain dependencies (for OpenAI API support)
+          pip install -r libs/3rdparty/python/langchain-requirements.txt
+          # Install llama-stack with specific version constraint
+          pip install -r libs/3rdparty/python/llama-stack-requirements.txt
+          pip install -c libs/3rdparty/python/llama-stack-client-constraints.txt \
+            -r libs/3rdparty/python/llama-stack-client-requirements.txt
+
+      - name: Install Ollama (for LLM)
+        run: |
+          # Install Ollama on macOS using Homebrew
+          brew install ollama
+          # Start Ollama in background
+          ollama serve &
+          # Wait for Ollama to be ready
+          for i in {1..30}; do
+            if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then
+              echo "Ollama is ready!"
+              break
+            fi
+            echo "Waiting for Ollama to start... ($i/30)"
+            sleep 2
+          done
+          # Pull the model
+          ollama pull llama3.2:3b
+
+      - name: Run evaluation tests (Movies/Subscriptions + K8s)
+        run: |
+          # Create LlamaStack directory (required by eval)
+          mkdir -p ~/.llama/providers.d
+
+          # Run tests (Movies/Subscriptions dataset with all components)
+          echo "=== Running Movies/Subscriptions Tests ==="
+          PYTHONPATH=tests:libs INFERENCE_MODEL=llama3.2:3b \
+            python -m ai_eval_components.eval -c all
+
+          # Run K8s tests (with all components: one-card, set-of-cards, table)
+          echo "=== Running K8s Tests ==="
+          PYTHONPATH=tests:libs INFERENCE_MODEL=llama3.2:3b \
+            python -m ai_eval_components.eval_k8s -c all
+
+      - name: Generate combined HTML report
+        if: always()
+        run: |
+          PYTHONPATH=tests:libs python -m ai_eval_components.generate_report \
+            --datasets dataset,dataset_k8s \
+            --labels "Movies/Subscriptions,Kubernetes" \
+            --error-dirs errors,errors_k8s \
+            --title "Complete Evaluation Report" \
+            --model "llama3.2:3b (Ollama on macOS-latest M1)" \
+            --output tests/ai_eval_components/complete_eval_report.html
+
+      - name: Upload evaluation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: complete-eval-report
+          path: tests/ai_eval_components/complete_eval_report.html
+          retention-days: 30
+
+      - name: Upload error logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evaluation-errors
+          path: |
+            tests/ai_eval_components/errors/
+            tests/ai_eval_components/errors_k8s/
+          retention-days: 7

@@ -1,0 +1,191 @@
+{
+  "$defs": {
+    "DataField": {
+      "description": "UI Component Field Metadata.",
+      "properties": {
+        "id": {
+          "description": "Field ID",
+          "type": "string"
+        },
+        "name": {
+          "description": "Field name to be shown in the UI",
+          "type": "string"
+        },
+        "data_path": {
+          "description": "JSON Path pointing to the input data structure to be used to pickup values to be shown in UI",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "data_path"
+      ],
+      "title": "DataField",
+      "type": "object"
+    },
+    "UIBlock": {
+      "description": "UI Block model with all details",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "rendering": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIBlockRendering"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "configuration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIBlockConfiguration"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "UIBlock",
+      "type": "object"
+    },
+    "UIBlockComponentMetadata": {
+      "description": "UI Component Metadata - part shared between UIBlockConfiguration and UIComponentMetadata.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "title": {
+          "type": "string"
+        },
+        "component": {
+          "type": "string"
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/DataField"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "component",
+        "fields"
+      ],
+      "title": "UIBlockComponentMetadata",
+      "type": "object"
+    },
+    "UIBlockConfiguration": {
+      "description": "UI Block configuration",
+      "properties": {
+        "data_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "input_data_transformer_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "json_wrapping_field_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "component_metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIBlockComponentMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "UIBlockConfiguration",
+      "type": "object"
+    },
+    "UIBlockRendering": {
+      "description": "UI Block Rendering - output of the UI rendering step.",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "component_system": {
+          "type": "string"
+        },
+        "mime_type": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "component_system",
+        "mime_type",
+        "content"
+      ],
+      "title": "UIBlockRendering",
+      "type": "object"
+    }
+  },
+  "description": "MCP Output for Generate UI",
+  "properties": {
+    "blocks": {
+      "items": {
+        "$ref": "#/$defs/UIBlock"
+      },
+      "type": "array"
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "blocks",
+    "summary"
+  ],
+  "title": "MCPGenerateUIOutput",
+  "type": "object"
+}

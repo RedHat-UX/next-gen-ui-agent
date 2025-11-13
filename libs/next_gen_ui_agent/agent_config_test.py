@@ -69,7 +69,8 @@ def test_config_yaml_file(test_dir) -> None:
 
 def test_config_yaml_file_empty_path() -> None:
     config = read_config_yaml_file("")
-    assert config.component_system is None
+    assert config.component_selection_strategy is None
+    assert config.component_system == "json"
 
 
 def test_config_yaml_files(test_dir) -> None:

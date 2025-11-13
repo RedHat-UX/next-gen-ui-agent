@@ -3,7 +3,7 @@
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
 [![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
-[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 [Next Gen UI Agent MCP Server](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/) container image.
 
@@ -39,21 +39,24 @@ oc apply -f deployment.yaml
 ## Configuration
 
 The MCP server container can be configured via environment variables. All configuration options available to the standalone server are supported.
+All env variables are mapped to Next Gen UI MCP server documented in the [MCP Server Guide](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/#server-arguments).
 
 ### Environment Variables Reference
 
-| Environment Variable         | Default Value     | Description                                                     |
-| ---------------------------- | ----------------- | --------------------------------------------------------------- |
-| `MCP_TRANSPORT`              | `streamable-http` | Transport protocol (`stdio`, `sse`, `streamable-http`)          |
-| `MCP_HOST`                   | `0.0.0.0`         | Host to bind to (for HTTP transports)                           |
-| `MCP_PORT`                   | `5000`            | Port to bind to (for HTTP transports)                           |
-| `NGUI_COMPONENT_SYSTEM`      | `json`            | UI Component system (`json`, `rhds`)                            |
-| `NGUI_PROVIDER`              | `langchain`       | Inference provider (`mcp`, `llamastack`, `langchain`)           |
-| `NGUI_MODEL`                 | `gpt-4o`          | Model name (required for other than `mcp` providers)            |
-| `NGUI_PROVIDER_API_BASE_URL` | -                 | Base URL for OpenAI-compatible API (if `langchain` is used)     |
-| `NGUI_PROVIDER_API_KEY`      | -                 | API key for the LLM provider (if `langchain` is used)           |
-| `NGUI_PROVIDER_LLAMA_URL`    | -                 | LlamaStack server URL (if `llamastack` is used)                 |
-| `NGUI_CONFIG_PATH`           | -                 | Path to Next Gen UI YAML configuration files (comma separated). |
+| Environment Variable            | Default Value     | Description                                                     |
+| ------------------------------- | ----------------- | --------------------------------------------------------------- |
+| `MCP_TRANSPORT`                 | `streamable-http` | Transport protocol (`stdio`, `sse`, `streamable-http`)          |
+| `MCP_HOST`                      | `0.0.0.0`         | Host to bind to (for HTTP transports)                           |
+| `MCP_PORT`                      | `5000`            | Port to bind to (for HTTP transports)                           |
+| `MCP_TOOLS`                     | `all`             | List of enabled tools (comma separated)                         |
+| `MCP_STRUCTURED_OUTPUT_ENABLED` | `true`            | Enable or disable structured output                             |
+| `NGUI_COMPONENT_SYSTEM`         | `json`            | UI Component system (`json`, `rhds`)                            |
+| `NGUI_PROVIDER`                 | `langchain`       | Inference provider (`mcp`, `llamastack`, `langchain`)           |
+| `NGUI_MODEL`                    | `gpt-4o`          | Model name (required for other than `mcp` providers)            |
+| `NGUI_PROVIDER_API_BASE_URL`    | -                 | Base URL for OpenAI-compatible API (if `langchain` is used)     |
+| `NGUI_PROVIDER_API_KEY`         | -                 | API key for the LLM provider (if `langchain` is used)           |
+| `NGUI_PROVIDER_LLAMA_URL`       | -                 | LlamaStack server URL (if `llamastack` is used)                 |
+| `NGUI_CONFIG_PATH`              | -                 | Path to Next Gen UI YAML configuration files (comma separated). |
 
 ### Providers
 
@@ -127,6 +130,7 @@ Create a `.env` file:
 MCP_PORT=5000
 MCP_HOST=0.0.0.0
 MCP_TRANSPORT=streamable-http
+MCP_STRUCTURED_OUTPUT_ENABLED="false"
 NGUI_COMPONENT_SYSTEM=json
 NGUI_PROVIDER=langchain
 NGUI_MODEL=gpt-4o

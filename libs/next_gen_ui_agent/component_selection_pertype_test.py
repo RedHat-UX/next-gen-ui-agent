@@ -81,10 +81,10 @@ def test_select_component_per_type_DYNAMIC_COMPONENT_NAME() -> None:
     assert result.component == "one-card"
     assert result.id == "10"
     assert result.title == "One Card Dynamic"
-    assert result.fields == [
-        DataField(name="title", data_path="$..title"),
-        DataField(name="description", data_path="$..description"),
-    ]
+    assert result.fields[0].name == "title"
+    assert result.fields[0].data_path == "$..title"
+    assert result.fields[1].name == "description"
+    assert result.fields[1].data_path == "$..description"
     assert result.json_data == json_data
 
 
@@ -197,10 +197,11 @@ def test_init_pertype_components_mapping_DYNAMIC_COMPONENT() -> None:
     assert isinstance(components_mapping["my.type"], UIComponentMetadata)
     assert components_mapping["my.type"].component == "one-card"
     assert components_mapping["my.type"].title == "One Card Dynamic"
-    assert components_mapping["my.type"].fields == [
-        DataField(name="title", data_path="$..title"),
-        DataField(name="description", data_path="$..description"),
-    ]
+    assert components_mapping["my.type"].fields[0].name == "title"
+    assert components_mapping["my.type"].fields[0].data_path == "$..title"
+    assert components_mapping["my.type"].fields[1].name == "description"
+    assert components_mapping["my.type"].fields[1].data_path == "$..description"
+
     assert (
         components_mapping["my.type"].reasonForTheComponentSelection
         == "configured for my.type in the configuration"

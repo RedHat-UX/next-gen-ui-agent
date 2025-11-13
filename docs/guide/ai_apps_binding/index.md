@@ -7,14 +7,14 @@ Binding UI Agent core functionality into your AI application (AI assistant backe
 * [Llama Stack](llamastack.md)
 * [Llama Stack Embedded Server Inference](llamastack_embedded.md)
 * [LangGraph](langgraph.md)
-* [BeeAI](beeai.md) - Tech Preview
+* [BeeAI](beeai.md)
 
 ## AI Protocol bindings/servers
 
 * [MCP Library](mcp-library.md)
 * [MCP Container](mcp-container.md)
 * A2A - WIP
-* [ACP](acp.md) - Tech Preview
+* [ACP](acp.md)
 
 ## Python Library
 

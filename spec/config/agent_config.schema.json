@@ -10,7 +10,7 @@
         "configuration": {
           "anyOf": [
             {
-              "$ref": "#/$defs/AgentConfigComponentConfiguration"
+              "$ref": "#/$defs/AgentConfigDynamicComponentConfiguration"
             },
             {
               "type": "null"
@@ -26,35 +26,6 @@
       "title": "AgentConfigComponent",
       "type": "object"
     },
-    "AgentConfigComponentConfiguration": {
-      "description": "Agent Configuration - pre-configuration of the one dynamic component for data type.",
-      "properties": {
-        "title": {
-          "description": "Title of the dynamic component to be shown in the UI",
-          "type": "string"
-        },
-        "fields": {
-          "anyOf": [
-            {
-              "items": {
-                "$ref": "#/$defs/DataField"
-              },
-              "type": "array"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null,
-          "description": "Fields of the dynamic component to be shown in the UI"
-        }
-      },
-      "required": [
-        "title"
-      ],
-      "title": "AgentConfigComponentConfiguration",
-      "type": "object"
-    },
     "AgentConfigDataType": {
       "description": "Agent Configuration for the Data Type.",
       "properties": {
@@ -64,11 +35,35 @@
               "type": "string"
             },
             {
+              "const": "json",
+              "type": "string"
+            },
+            {
+              "const": "yaml",
+              "type": "string"
+            },
+            {
+              "const": "csv-comma",
+              "type": "string"
+            },
+            {
+              "const": "csv-semicolon",
+              "type": "string"
+            },
+            {
+              "const": "csv-tab",
+              "type": "string"
+            },
+            {
+              "const": "fwctable",
+              "type": "string"
+            },
+            {
               "type": "null"
             }
           ],
           "default": null,
-          "description": "Data transformer to use to transform the input data of this type."
+          "description": "Transformer to use to transform the input data of this type. Available transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
         },
         "components": {
           "anyOf": [
@@ -89,9 +84,35 @@
       "title": "AgentConfigDataType",
       "type": "object"
     },
+    "AgentConfigDynamicComponentConfiguration": {
+      "description": "Agent Configuration - pre-configuration of the one dynamic component for data type.",
+      "properties": {
+        "title": {
+          "description": "Title of the dynamic component to be shown in the UI",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Fields of the dynamic component to be shown in the UI",
+          "items": {
+            "$ref": "#/$defs/DataField"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "fields"
+      ],
+      "title": "AgentConfigDynamicComponentConfiguration",
+      "type": "object"
+    },
     "DataField": {
       "description": "UI Component Field Metadata.",
       "properties": {
+        "id": {
+          "description": "Field ID",
+          "type": "string"
+        },
         "name": {
           "description": "Field name to be shown in the UI",
           "type": "string"
@@ -109,7 +130,7 @@
       "type": "object"
     }
   },
-  "description": "Agent Configuration.",
+  "description": "Next Gen UI Agent Configuration.",
   "properties": {
     "component_system": {
       "anyOf": [
@@ -120,8 +141,44 @@
           "type": "null"
         }
       ],
-      "default": null,
-      "description": "Component system to use to render the UI component."
+      "default": "json",
+      "description": "Component system to use to render the UI component. Default is `json`. UI renderers have to be installed to use other systems."
+    },
+    "data_transformer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "const": "json",
+          "type": "string"
+        },
+        {
+          "const": "yaml",
+          "type": "string"
+        },
+        {
+          "const": "csv-comma",
+          "type": "string"
+        },
+        {
+          "const": "csv-semicolon",
+          "type": "string"
+        },
+        {
+          "const": "csv-tab",
+          "type": "string"
+        },
+        {
+          "const": "fwctable",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "json",
+      "description": "Transformer used to parse the input data (can be overriden on 'data type' level). Default `json`, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
     },
     "unsupported_components": {
       "anyOf": [
@@ -138,6 +195,10 @@
     "component_selection_strategy": {
       "anyOf": [
         {
+          "enum": [
+            "one_llm_call",
+            "two_llm_calls"
+          ],
           "type": "string"
         },
         {
@@ -145,7 +206,7 @@
         }
       ],
       "default": null,
-      "description": "Component selection strategy to use. Possible values: default - use the default implementation, one_llm_call - use the one LLM call implementation from component_selection.py, two_llm_calls - use the two LLM calls implementation from component_selection_twostep.py"
+      "description": "Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!"
     },
     "data_types": {
       "anyOf": [

@@ -1,5 +1,8 @@
-from next_gen_ui_mcp.agent import NextGenUIMCPAgent
+from next_gen_ui_mcp.agent import NextGenUIMCPServer
+from next_gen_ui_mcp.types import MCPGenerateUIInput, MCPGenerateUIOutput
 
 __all__ = [
-    "NextGenUIMCPAgent",
+    "NextGenUIMCPServer",
+    "MCPGenerateUIInput",
+    "MCPGenerateUIOutput",
 ]

@@ -38,6 +38,7 @@ def test_process() -> None:
     result = TableDataTransformer().process(c, data)
     assert result.title == "Toy Story Details"
     assert len(result.fields) == 3
+    assert result.fields[0].id == "movies-title"
     assert result.fields[0].name == "Title"
     assert result.fields[0].data == ["Toy Story", "Toy Story 2"]
     assert result.fields[1].name == "Authors"

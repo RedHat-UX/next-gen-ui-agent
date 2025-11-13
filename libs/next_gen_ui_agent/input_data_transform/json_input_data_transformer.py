@@ -1,11 +1,15 @@
 import json
-from typing import Any
+from typing import Any, Literal
 
-from next_gen_ui_agent.input_data_transform.types import InputDataTransformerBase
+from next_gen_ui_agent.types import InputDataTransformerBase
 
 
 class JsonInputDataTransformer(InputDataTransformerBase):
     """Input Data transformer from JSON format."""
+
+    TRANSFORMER_NAME = "json"
+
+    TRANSFORMER_NAME_LITERAL = Literal["json"]
 
     def transform(self, input_data: str) -> Any:
         """

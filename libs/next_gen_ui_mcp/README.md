@@ -3,7 +3,7 @@
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
 [![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
-[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Supported-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 This package wraps Next Gen UI Agent in a [Model Context Protocol (MCP)](https://modelcontextprotocol.io) tools using the [official Python MCP SDK](https://modelcontextprotocol.io/docs/sdk).
 
@@ -14,7 +14,7 @@ It's more natural and reliable to invoke this MCP tool directly with the paramet
 ## Provides
 
 * `__main__.py` to run the MCP server as the standalone server
-* `NextGenUIMCPAgent` to embed the UI Agent MCP server into your python code
+* `NextGenUIMCPServer` to embed the UI Agent MCP server into your python code
 
 ## Installation
 
@@ -77,7 +77,11 @@ options:
   --transport {stdio,sse,streamable-http}
                         Transport protocol to use
   --host HOST           Host to bind to
+  --tools TOOLS [TOOLS ...]
+                        Control which tools should be enabled. You can specify multiple values by repeating same parameter or passing comma separated value.
   --port PORT           Port to bind to
+  --structured_output_enabled {true,false}
+                        Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.
   --component-system {json,patternfly,rhds}
                         Component system to use for rendering (default: json)
   --debug               Enable debug logging
@@ -126,14 +130,14 @@ The `--concurrent` parameter is there only to allow calling it while you use `pa
 
 ```python
 result = client.tool_runtime.invoke_tool(
-    tool_name="generate_ui",
+    tool_name="generate_ui_component",
     kwargs=input_data,
 )
 ```
 
 ## Available MCP Tools
 
-### `generate_ui`
+### `generate_ui_multiple_components`
 The main tool that wraps the entire Next Gen UI Agent functionality.
 
 This single tool handles:
@@ -144,12 +148,109 @@ This single tool handles:
 
 **Parameters:**
 
-- `user_prompt` (str): User's prompt which we want to enrich with UI components
-- `input_data` (List[Dict]): List of input data to render within the UI components
+- `user_prompt` (str, required): User's prompt which we want to enrich with UI components
+- `structured_data` (List[Dict], required): List of structured input data. Each object has to have `id`, `data` and `type` field.
+
+You can find the input schema in [spec/mcp/generate_ui_input.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_input.schema.json).
 
 **Returns:**
 
-- List of rendered UI components ready for display
+Object containing:
+
+- UI blocks with rendering and configuration
+- summary
+
+When error occurs during the execution valid ui blocks are rendered. The failing UI Block is mentioned in the summary and don't appear in `blocks` field.
+
+
+By default the result is provided as [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) where structured content contains JSON object and the text content just "human readable summary".
+It's beneficial to send to Agent only text summary for LLM processing and use structured content for UI rendering on client side.
+
+If it's disabled via --structured_output_enabled=false then there is no structured content in the result and the text content contains
+the same content but as serialized JSON string.
+
+For compatibility the JSON object contains the summary as well.
+
+Example:
+
+```json
+{
+  "blocks": [
+    {
+      "id": "e5e2db10-de22-4165-889c-02de2f24c901",
+      "rendering": {
+        "id": "e5e2db10-de22-4165-889c-02de2f24c901",
+        "component_system": "json",
+        "mime_type": "application/json",
+        "content": "{\"component\":\"one-card\",\"image\":\"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\"id\":\"e5e2db10-de22-4165-889c-02de2f24c901\",\"title\":\"Toy Story Movie Details\",\"fields\":[{\"name\":\"Title\",\"data_path\":\"$..movie_detail.title\",\"data\":[\"Toy Story\"]},{\"name\":\"Release Year\",\"data_path\":\"$..movie_detail.year\",\"data\":[1995]},{\"name\":\"IMDB Rating\",\"data_path\":\"$..movie_detail.imdbRating\",\"data\":[8.3]},{\"name\":\"Runtime (min)\",\"data_path\":\"$..movie_detail.runtime\",\"data\":[81]},{\"name\":\"Plot\",\"data_path\":\"$..movie_detail.plot\",\"data\":[\"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\"]}]}"
+      },
+      "configuration": {
+        "data_type": "movie_detail",
+        "input_data_transformer_name": "json",
+        "json_wrapping_field_name": "movie_detail",
+        "component_metadata": {
+          "id": "e5e2db10-de22-4165-889c-02de2f24c901",
+          "title": "Toy Story Movie Details",
+          "component": "one-card",
+          "fields": [
+            {
+              "id": "title",
+              "name": "Title",
+              "data_path": "$..movie_detail.title"
+            },
+            {
+              "id": "year",
+              "name": "Release Year",
+              "data_path": "$..movie_detail.year"
+            },
+            {
+              "id": "imdbRating",
+              "name": "IMDB Rating",
+              "data_path": "$..movie_detail.imdbRating"
+            },
+            {
+              "id": "runtime",
+              "name": "Runtime (min)",
+              "data_path": "$..movie_detail.runtime"
+            },
+            {
+              "id": "plot",
+              "name": "Plot",
+              "data_path": "$..movie_detail.plot"
+            },
+            {
+              "id": "posterUrl",
+              "name": "Poster",
+              "data_path": "$..movie_detail.posterUrl"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "summary": "Components are rendered in UI.\nCount: 1\n1. Title: 'Toy Story Movie Details', type: one-card"
+}
+```
+
+You can find schema for the reponse in [spec/mcp/generate_ui_output.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_output.schema.json).
+
+### `generate_ui_component`
+The tool that wraps the entire Next Gen UI Agent functionality and with decomposed one input object into individual arguments.
+
+Useful for agents which are able to pass one tool cool result to another.
+
+When error occures, whole tool execution fails.
+
+**Parameters:**
+
+- `user_prompt` (str, required): User's prompt which we want to enrich with UI components
+- `data` (str, required): Raw input data to render within the UI components
+- `data_type` (str, required): Data type
+- `data_id` (str, optional): ID of Data. If not present, ID is generated.
+
+**Returns:**
+
+Same result as `generate_ui_multiple_components` tool.
 
 ## Available MCP Resources
 

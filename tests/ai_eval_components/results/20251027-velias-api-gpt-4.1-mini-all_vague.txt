@@ -1,0 +1,97 @@
+Date: 2025-10-27
+Components: all with vague component type check
+LLM: GPT 4.1 mini
+Env: OpenAI API
+
+Note: 
+* generally tends to put lots of fields into UI components
+* for one-card, it selected set-of-cards in one case where object was in root array, which should be rendered the same (depending on UI renderer)
+* confused with our array shortening for set-of-cards/table decision, sometimes it understood it correctly, sometimes not. Prompt might be improved probably.
+
+Evaluations finished:
+Dataset items evalueated: 202
+Agent errors: 1
+Agent warnings: 0
+System errors: 0
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 68,
+    "num_err_agent": 1,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 38,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 21,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 1261,
+  "mean": 3129,
+  "avg": 3129,
+  "perc95": 5230,
+  "max": 9413
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 1403,
+    "mean": 1853,
+    "avg": 1853,
+    "perc95": 2537,
+    "max": 2775
+  },
+  "one-card": {
+    "min": 1381,
+    "mean": 4173,
+    "avg": 4173,
+    "perc95": 6274,
+    "max": 9413
+  },
+  "set-of-cards": {
+    "min": 2118,
+    "mean": 3654,
+    "avg": 3654,
+    "perc95": 5058,
+    "max": 5319
+  },
+  "table": {
+    "min": 2722,
+    "mean": 3616,
+    "avg": 3616,
+    "perc95": 4539,
+    "max": 4598
+  },
+  "video-player": {
+    "min": 1261,
+    "mean": 1698,
+    "avg": 1698,
+    "perc95": 2584,
+    "max": 3072
+  }
+}

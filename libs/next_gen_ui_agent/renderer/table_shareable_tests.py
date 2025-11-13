@@ -11,11 +11,13 @@ SAMPLE_TABLE_DATA = {
     "component": "table",
     "fields": [
         {
+            "id": "DUMMY_SIMPLE_FIELD_DATA_PATH",
             "name": "DUMMY_SIMPLE_FIELD_NAME",
             "data_path": "DUMMY_SIMPLE_FIELD_DATA_PATH",
             "data": ["DUMMY_VALUE_1", "DUMMY_VALUE_2"],
         },
         {
+            "id": "DUMMY_ARRAY_FIELD_DATA_PATH",
             "name": "DUMMY_ARRAY_FIELD_NAME",
             "data_path": "DUMMY_ARRAY_FIELD_DATA_PATH",
             "data": [
@@ -24,6 +26,7 @@ SAMPLE_TABLE_DATA = {
             ],
         },
         {
+            "id": "DUMMY_MIXED_FIELD_DATA_PATH",
             "name": "DUMMY_MIXED_FIELD_NAME",
             "data_path": "DUMMY_MIXED_FIELD_DATA_PATH",
             "data": [

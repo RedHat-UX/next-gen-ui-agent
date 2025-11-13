@@ -7,8 +7,12 @@ metadata:
   namespace: uxe
   description: "An AI agent that helps to generate intelligent UI at runtime."
   annotations:
-    backstage.io/techdocs-ref: dir:./docs/index.md
+    backstage.io/techdocs-ref: dir:.
   tags:
+    - "next-gen-ui"
+    - "next-gen-ui-agent"
+    - "ui"
+    - "ux"
     - "ai"
     - "llm"
     - "llama-stack"

@@ -1,4 +1,35 @@
 #!/bin/sh
 
-VERSION="${VERSION:-$(git describe --tags --dirty --match "[0-9\.]*" || echo 0.0.1)}"
+# Get git describe output
+GIT_DESCRIBE="${VERSION:-$(git describe --tags --dirty --match "[0-9\.]*" 2>/dev/null || echo 0.0.1)}"
+
+VERSION="$GIT_DESCRIBE"
+
+# Convert git describe format to a version compatible with both PEP 440 and Docker tags
+# Format: 0.2.2.dev53 (PEP 440 compliant and Docker-compatible)
+# 0.2.2 → 0.2.2 (release)
+# 0.2.2-53-g2f317b2 → 0.2.2.dev53 (development)
+# 0.2.2-53-g2f317b2-dirty → 0.2.2.dev53 (development, dirty)
+case "$VERSION" in
+    *-[0-9]*-g*)
+        # Development version with commits: 0.2.2-53-g2f317b2[-dirty]
+        BASE_VERSION=$(echo "$VERSION" | cut -d'-' -f1)
+        COMMIT_COUNT=$(echo "$VERSION" | cut -d'-' -f2)
+        COMMIT_HASH=$(echo "$VERSION" | sed 's/.*-g\([a-f0-9]*\).*/\1/')
+        
+        # Use .devN format (PEP 440 compliant and Docker-compatible)
+        # Note: We use .devN format which works for both, but lose hash/dirty info
+        # If you need hash, you'd need separate VERSION/DOCKER_VERSION variables
+        VERSION="${BASE_VERSION}.dev${COMMIT_COUNT}"
+        ;;
+    *-dirty)
+        # Exact tag with dirty: 0.2.2-dirty -> 0.2.2.dev0
+        BASE_VERSION=$(echo "$VERSION" | sed 's/-dirty$//')
+        VERSION="${BASE_VERSION}.dev0"
+        ;;
+    *)
+        # Clean tag: 0.2.2 (already compatible for both)
+        ;;
+esac
+
 export VERSION

@@ -1,0 +1,42 @@
+[
+  {
+    "comment": "K8s: Cluster health and status",
+    "prompts_file": "prompts_cluster.json",
+    "backend_data_files": ["cluster_info.json"]
+  },
+  {
+    "comment": "K8s: Node resource monitoring",
+    "prompts_file": "prompts_nodes.json",
+    "backend_data_files": ["nodes.json"]
+  },
+  {
+    "comment": "K8s: Namespace resource usage",
+    "prompts_file": "prompts_namespaces.json",
+    "backend_data_files": ["namespaces.json"]
+  },
+  {
+    "comment": "K8s: Application troubleshooting",
+    "prompts_file": "prompts_failing_pods.json",
+    "backend_data_files": ["failing_pods.json"]
+  },
+  {
+    "comment": "K8s: Security and access control",
+    "prompts_file": "prompts_rbac.json",
+    "backend_data_files": ["rbac_bindings.json"]
+  },
+  {
+    "comment": "K8s: Storage management",
+    "prompts_file": "prompts_storage.json",
+    "backend_data_files": ["persistent_volumes.json"]
+  },
+  {
+    "comment": "K8s: Networking and connectivity",
+    "prompts_file": "prompts_services.json",
+    "backend_data_files": ["services.json"]
+  },
+  {
+    "comment": "K8s: Cost and efficiency analysis",
+    "prompts_file": "prompts_cost.json",
+    "backend_data_files": ["cost_efficiency.json"]
+  }
+]

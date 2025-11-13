@@ -10,9 +10,17 @@ Support for [Llama Stack](https://github.com/meta-llama/llama-stack) framework.
 ## Provides
 
 * `NextGenUILlamaStackAgent` - takes all tool messages from provided conversation turn steps (Llama Stack Agent API), and process data from them into UI components.
+    * Tool name is used as `InputData.type` for the UI Agent, so [distinct configurations](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/#data_types-dictstr-agentconfigdatatype-optional) 
+      can be applied based on it, like input data transformations, defined UI components (dynamic ot Hand Build) etc.
+    * Two event types can be emitted during the processing:
+        * `success` with output from the UI Agent processing. Payload is array of `UIBlock`.
+        * `error` with error from the UI Agent processing. Payload is `Exception`.
+    * Depending on the agent's `execution_mode`, processing is performed as:
+        * `stream`: Process individual data in parallel, yield each result as an independent event immediatelly as processing completes/fails.
+          So overall number of produced events is the same as number of data pieces. Each `success` event contains exactly one `UIBlock` in the payload array. (default)
+        * `batch`: Process individual data in parallel, yield all results as one event containing results for all the data, 
+          or one `error` event if processing of any data fails.
 * `LlamaStackAgentInference` and `LlamaStackAsyncAgentInference` to use LLM hosted in Llama Stack server (Llama Stack Chat Completion API)
-
-Tool name is used as `InputData.type` for each tool message, so can be used for [Hand Build Component](../../docs/guide/data_ui_blocks/hand_build_components.md) selection based on mapping in UI Agent's configuration.
 
 ## Installation
 
@@ -58,9 +66,9 @@ pass steps from your movies agent to Next Gen UI Agent.
 ```py
 from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 
-# Pass steps to Next Gen UI Agent
+# Pass steps to Next Gen UI Agent for processing. Events with results are emitted.
 ngui_agent = NextGenUILlamaStackAgent(client, INFERENCE_MODEL)
-result = await ngui_agent.turn_from_steps(user_input, steps=response.steps)
+result = await ngui_agent.create_turn(user_input, steps=response.steps)
 ```
 
 ## Links

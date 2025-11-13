@@ -1,0 +1,103 @@
+Date: 2025-10-29
+Components: all with vague component type check
+LLM: GPT 5 mini
+Env: OpenAI API
+
+Note: 
+* generally tends to put lots of fields into UI components
+* sometimes produces JSONPath with braces notation, not dot notation. It led to few errors. Path sanitization must be improved, or system prompt updated to push LLM to produce dot notation
+* generally slow
+* for `image` selected `one-card` in few cases, which may be reasonable
+* for `set-of-cards`
+  * in few cases halucinated fields not present in the data
+  * in few cases selected field from the parent object holding array
+* `table` newer selected, do not understand applied array shortening, promt must be improved
+
+
+Evaluations finished:
+Dataset items evalueated: 204
+Agent errors: 27
+Agent warnings: 0
+System errors: 2
+Dataset errors: 0
+Results by component:
+{
+  "image": {
+    "num_evals": 40,
+    "num_err_agent": 7,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "one-card": {
+    "num_evals": 70,
+    "num_err_agent": 12,
+    "num_err_system": 2,
+    "num_warn_agent": 0
+  },
+  "set-of-cards": {
+    "num_evals": 38,
+    "num_err_agent": 8,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "table": {
+    "num_evals": 21,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  },
+  "video-player": {
+    "num_evals": 35,
+    "num_err_agent": 0,
+    "num_err_system": 0,
+    "num_warn_agent": 0
+  }
+}
+
+Performance stats [ms]:
+{
+  "min": 6330,
+  "mean": 14135,
+  "avg": 14135,
+  "perc95": 24136,
+  "max": 28776
+}
+
+Performance stats per component [ms]:
+{
+  "image": {
+    "min": 6330,
+    "mean": 11631,
+    "avg": 11631,
+    "perc95": 19994,
+    "max": 24650
+  },
+  "one-card": {
+    "min": 8649,
+    "mean": 14888,
+    "avg": 14888,
+    "perc95": 27260,
+    "max": 28776
+  },
+  "set-of-cards": {
+    "min": 10709,
+    "mean": 15626,
+    "avg": 15626,
+    "perc95": 24219,
+    "max": 26280
+  },
+  "table": {
+    "min": 9709,
+    "mean": 14278,
+    "avg": 14278,
+    "perc95": 20738,
+    "max": 20770
+  },
+  "video-player": {
+    "min": 9796,
+    "mean": 13936,
+    "avg": 13936,
+    "perc95": 21341,
+    "max": 22414
+  }
+}

@@ -13,8 +13,8 @@ and rendering itself happens on client side. How are these definitions delivered
 We provide renderers for several UI component systems:
 
 * Server-Side
-    * JSON - implemented in the [UI Agent Core](../ai_apps_binding/pythonlib.md), is used to send UI definitions conforming [defined JSON Schema](../../spec/component.md) into Client-Side renderers.
-    * [RHDS](rhds.md) - [Red Hat Design System](https://ux.redhat.com/) Web Components
+    * JSON - implemented in the [UI Agent Core](../ai_apps_binding/pythonlib.md), default one, produces UI definitions conforming [defined JSON Schema](../../spec/component.md) used eg. in Client-Side renderers.
+    * [RHDS](rhds.md) - produces [Red Hat Design System](https://ux.redhat.com/) Web Components html
 * Client-Side
-    * [PatternFly NPM](patternfly_npm.md) - [PatternFly](https://www.patternfly.org/) React components
+    * [PatternFly NPM](patternfly_npm.md) - produces [PatternFly](https://www.patternfly.org/) React components
 
