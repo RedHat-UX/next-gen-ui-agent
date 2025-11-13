@@ -2,6 +2,11 @@ import logging
 from typing import Any
 
 from next_gen_ui_agent.component_selection_chart_instructions import CHART_INSTRUCTIONS
+from next_gen_ui_agent.component_selection_common import (
+    ONESTEP_PROMPT_RULES,
+    ONESTEP_RESPONSE_EXAMPLES,
+    get_ui_components_description,
+)
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
     trim_to_json,
@@ -10,30 +15,6 @@ from next_gen_ui_agent.component_selection_llm_strategy import (
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 from pydantic_core import from_json
-
-ui_components_description_supported = """
-* one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
-* video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
-* image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
-* chart - component to visualize numeric data as charts. Specify the chart type in "chartType" field: "bar", "line", "pie", "donut", or "mirrored-bar". Use for data comparisons, trends, distributions, and metrics.
-"""
-
-ui_components_description_all = (
-    ui_components_description_supported
-    + """
-* table - component to visualize array of objects with multiple items (typically 3 or more) in a tabular format. Use when user explicitly requests a table, or for data with many items (especially >6), small number of fields, and short values.
-* set-of-cards - component to visualize array of objects with multiple items. Use for data with fewer items (<6), high number of fields, or fields with long values. Also good when visual separation between items is important.
-""".strip()
-)
-
-
-def get_ui_components_description(unsupported_components: bool) -> str:
-    """Get UI components description for system prompt based on the unsupported_components flag."""
-    if unsupported_components:
-        return ui_components_description_all
-    else:
-        return ui_components_description_supported
-
 
 logger = logging.getLogger(__name__)
 
@@ -72,102 +53,17 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             # logger.debug(user_prompt)
             # logger.debug(input_data)
 
-        sys_msg_content = f"""You are helpful and advanced user interface design assistant. Based on the "User query" and JSON formatted "Data", select the best UI component to visualize the "Data" to the user.
+        sys_msg_content = f"""You are a UI design assistant. Select the best component to visualize the Data based on User query.
 
-CRITICAL: If user explicitly requests a component type ("table", "chart", "cards"), USE IT unless data structure prevents it.
+{ONESTEP_PROMPT_RULES}
 
-Generate response in the JSON format only. Select one component only into "component".
-Provide the title for the component in "title".
-Provide reason for the component selection in the "reasonForTheComponentSelection".
-Provide your confidence for the component selection as a percentage in the "confidenceScore".
-Provide list of "fields" to be visualized in the UI component. Select only relevant data fields to be presented in the component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for in User query.
-If the selected UI component requires specific fields mentioned in its description, provide them. Provide "name" for every field.
-For every field provide "data_path" containing JSONPath to get the value from the Data. Do not use any formatting or calculation in the "data_path".
-
-🔴 CRITICAL - JSONPATH: Carefully analyze the actual Data structure. If fields are nested (e.g., items[*].movie.title), you MUST include the full path. Do NOT skip intermediate objects.
-
-Select one from there UI components: {get_ui_components_description(self.unsupported_components)}
+Available components: {get_ui_components_description(self.unsupported_components)}
 
 {CHART_INSTRUCTIONS}
 """
 
-        sys_msg_content += """
-Response example for multi-item data:
-{
-    "title": "Orders",
-    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
-    "confidenceScore": "95%",
-    "component": "table",
-    "fields" : [
-        {"name":"Name","data_path":"orders[*].name"},
-        {"name":"Creation Date","data_path":"orders[*].creationDate"}
-    ]
-}
-
-Response example for one-item data:
-{
-    "title": "Order CA565",
-    "reasonForTheComponentSelection": "One item available in the data",
-    "confidenceScore": "75%",
-    "component": "one-card",
-    "fields" : [
-        {"name":"Name","data_path":"order.name"},
-        {"name":"Creation Date","data_path":"order.creationDate"}
-    ]
-}
-
-Response example for bar chart:
-{
-    "title": "Movie Revenue Comparison",
-    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
-    "confidenceScore": "90%",
-    "component": "chart",
-    "chartType": "bar",
-    "fields" : [
-        {"name":"Movie","data_path":"movies[*].title"},
-        {"name":"Revenue","data_path":"movies[*].revenue"}
-    ]
-}
-
-Response example for horizontal bar chart (explicit request or long labels):
-{
-    "title": "Average Ratings by Director",
-    "reasonForTheComponentSelection": "User explicitly requested a horizontal bar chart to compare directors, and director names exceed 15 characters",
-    "confidenceScore": "95%",
-    "component": "chart",
-    "chartType": "bar",
-    "horizontal": true,
-    "fields" : [
-        {"name":"Director","data_path":"movies[*].director"},
-        {"name":"Rating","data_path":"movies[*].rating"}
-    ]
-}
-
-Response example for mirrored-bar chart (comparing 2 metrics, note nested structure):
-{
-    "title": "Movie ROI and Budget Comparison",
-    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
-    "confidenceScore": "90%",
-    "component": "chart",
-    "chartType": "mirrored-bar",
-    "fields" : [
-        {"name":"Movie","data_path":"get_all_movies[*].movie.title"},
-        {"name":"ROI","data_path":"get_all_movies[*].movie.roi"},
-        {"name":"Budget","data_path":"get_all_movies[*].movie.budget"}
-    ]
-}
-
-Response example for donut chart (user explicitly requested "donut"):
-{
-    "title": "Genre Distribution",
-    "reasonForTheComponentSelection": "User explicitly requested a donut chart for genre distribution",
-    "confidenceScore": "95%",
-    "component": "chart",
-    "chartType": "donut",
-    "fields" : [
-        {"name":"Genre","data_path":"movies[*].genre"}
-    ]
-}"""
+        sys_msg_content += f"""
+{ONESTEP_RESPONSE_EXAMPLES}"""
 
         prompt = f"""=== User query ===
     {user_prompt}
@@ -185,10 +81,10 @@ Response example for donut chart (user explicitly requested "donut"):
 
         # Store LLM interaction for debugging (stored in instance variable, retrieved in parse_infernce_output)
         self._last_llm_interaction = {
-            'step': 'component_selection',
-            'system_prompt': sys_msg_content,
-            'user_prompt': prompt,
-            'raw_response': raw_response
+            "step": "component_selection",
+            "system_prompt": sys_msg_content,
+            "user_prompt": prompt,
+            "raw_response": raw_response,
         }
 
         return [response]
@@ -204,14 +100,14 @@ Response example for donut chart (user explicitly requested "donut"):
             from_json(inference_output[0], allow_partial=True), strict=False
         )
         result.id = input_data_id
-        
+
         # Attach LLM interaction for debugging
-        if hasattr(self, '_last_llm_interaction'):
+        if hasattr(self, "_last_llm_interaction"):
             result.llm_interactions = [self._last_llm_interaction]
-        
+
         # Post-processing: Validate chart type matches reasoning
         validate_and_correct_chart_type(result, logger)
-        
+
         # Log component selection reasoning
         logger.info(
             "[NGUI] Component selection reasoning:\n"
@@ -222,5 +118,5 @@ Response example for donut chart (user explicitly requested "donut"):
             result.reasonForTheComponentSelection,
             result.confidenceScore,
         )
-        
+
         return result

@@ -6,6 +6,12 @@ from next_gen_ui_agent.component_selection_chart_instructions import (
     CHART_FIELD_SELECTION_EXTENSION,
     CHART_INSTRUCTIONS,
 )
+from next_gen_ui_agent.component_selection_common import (
+    TWOSTEP_STEP1_PROMPT_RULES,
+    TWOSTEP_STEP1_RESPONSE_EXAMPLES,
+    TWOSTEP_STEP2_PROMPT_RULES,
+    get_ui_components_description,
+)
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
     trim_to_json,
@@ -16,31 +22,6 @@ from next_gen_ui_agent.types import UIComponentMetadata
 from pydantic_core import from_json
 
 logger = logging.getLogger(__name__)
-
-ui_components_description_supported = """
-* one-card - component to visualize multiple fields from one-item Data. One image can be shown if url is available in the Data. Array of objects can't be shown as a field.
-* video-player - component to play a video from one-item Data. Video like trailer, promo video. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
-* image - component to show one image from one-item Data. Image like poster, cover, picture. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
-* chart - component to visualize numeric Data as charts. Specify the chart type in "chartType" field: "bar", "line", "pie", "donut", or "mirrored-bar". Use for data comparisons, trends, distributions, and metrics.
-"""
-
-ui_components_description_all = (
-    ui_components_description_supported
-    + """
-* table - component to visualize multi-item Data with multiple items (typically 3 or more) in a tabular format. Use when user explicitly requests a table, or for Data with many items (especially >6), small number of fields to be shown, and fields with short values.
-* set-of-cards - component to visualize multi-item Data with multiple items. Use for Data with fewer items (<6), high number of fields to be shown, or fields with long values. Also good when visual separation between items is important.
-""".strip()
-)
-
-# print("ui_components_description_all: " + ui_components_description_all)
-
-
-def get_ui_components_description(unsupported_components: bool) -> str:
-    """Get UI components description for system prompt based on the unsupported_components flag."""
-    if unsupported_components:
-        return ui_components_description_all
-    else:
-        return ui_components_description_supported
 
 
 class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
@@ -83,14 +64,14 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             part, strict=False
         )
         result.id = input_data_id
-        
+
         # Attach LLM interactions for debugging
-        if hasattr(self, '_llm_interactions'):
+        if hasattr(self, "_llm_interactions"):
             result.llm_interactions = self._llm_interactions
-        
+
         # Post-processing: Validate chart type matches reasoning
         validate_and_correct_chart_type(result, logger)
-        
+
         # Log component selection reasoning
         logger.info(
             "[NGUI] Component selection reasoning:\n"
@@ -101,7 +82,7 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             result.reasonForTheComponentSelection,
             result.confidenceScore,
         )
-        
+
         return result
 
     async def perform_inference(
@@ -119,11 +100,13 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             )
 
         data_for_llm = str(json_data)
-        
+
         # Initialize LLM interactions list
         self._llm_interactions = []
 
-        raw_response_1 = await self.inference_step_1(inference, user_prompt, data_for_llm)
+        raw_response_1 = await self.inference_step_1(
+            inference, user_prompt, data_for_llm
+        )
         response_1 = trim_to_json(raw_response_1)
 
         if self.select_component_only:
@@ -139,84 +122,17 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
     async def inference_step_1(self, inference, user_prompt, json_data_for_llm: str):
         """Run Component Selection inference."""
 
-        sys_msg_content = f"""You are helpful and advanced user interface design assistant.
-Based on the "User query" and JSON formatted "Data", select the best UI component to show the "Data" to the user.
+        sys_msg_content = f"""You are a UI design assistant. Select the best component to show the Data based on User query.
 
-CRITICAL: If user explicitly requests a component type ("table", "chart", "cards"), USE IT unless data structure prevents it.
+{TWOSTEP_STEP1_PROMPT_RULES}
 
-Generate response in the JSON format only. Select one UI component only. Put it into "component".
-Provide reason for the UI component selection in the "reasonForTheComponentSelection".
-Provide your confidence for the UI component selection as a percentage in the "confidenceScore".
-Provide title for the UI component in "title".
-
-Select from these UI components: {get_ui_components_description(self.unsupported_components)}
+Available components: {get_ui_components_description(self.unsupported_components)}
 
 {CHART_INSTRUCTIONS}
-
-🔴 CRITICAL - JSONPATH: Carefully analyze the actual Data structure. If fields are nested (e.g., items[*].movie.title), you MUST include the full path. Do NOT skip intermediate objects.
 """
 
-        sys_msg_content += """
-Response example for multi-item data:
-{
-    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
-    "confidenceScore": "95%",
-    "title": "Orders",
-    "component": "table"
-}
-
-Response example for one-item data:
-{
-    "reasonForTheComponentSelection": "One item available in the data. Multiple fields to show based on the User query",
-    "confidenceScore": "95%",
-    "title": "Order CA565",
-    "component": "one-card"
-}
-
-Response example for one-item data and image:
-{
-    "reasonForTheComponentSelection": "User asked to see the magazine cover",
-    "confidenceScore": "75%",
-    "title": "Magazine cover",
-    "component": "image"
-}
-
-Response example for bar chart:
-{
-    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
-    "confidenceScore": "90%",
-    "title": "Movie Revenue Comparison",
-    "component": "chart",
-    "chartType": "bar"
-}
-
-Response example for horizontal bar chart (explicit request or long labels):
-{
-    "reasonForTheComponentSelection": "User explicitly requested a horizontal bar chart to compare directors, and director names exceed 15 characters",
-    "confidenceScore": "95%",
-    "title": "Average Ratings by Director",
-    "component": "chart",
-    "chartType": "bar",
-    "horizontal": true
-}
-
-Response example for mirrored-bar chart (comparing 2 metrics):
-{
-    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
-    "confidenceScore": "90%",
-    "title": "Movie ROI and Budget Comparison",
-    "component": "chart",
-    "chartType": "mirrored-bar"
-}
-
-Response example for donut chart (user explicitly requested "donut"):
-{
-    "reasonForTheComponentSelection": "User explicitly requested a donut chart for genre distribution",
-    "confidenceScore": "95%",
-    "title": "Genre Distribution",
-    "component": "chart",
-    "chartType": "donut"
-}
+        sys_msg_content += f"""
+{TWOSTEP_STEP1_RESPONSE_EXAMPLES}
 """
 
         prompt = f"""=== User query ===
@@ -230,15 +146,17 @@ Response example for donut chart (user explicitly requested "donut"):
 
         response = await inference.call_model(sys_msg_content, prompt)
         logger.debug("Component selection LLM response: %s", response)
-        
+
         # Store step 1 interaction
-        self._llm_interactions.append({
-            'step': 'component_selection',
-            'system_prompt': sys_msg_content,
-            'user_prompt': prompt,
-            'raw_response': response
-        })
-        
+        self._llm_interactions.append(
+            {
+                "step": "component_selection",
+                "system_prompt": sys_msg_content,
+                "user_prompt": prompt,
+                "raw_response": response,
+            }
+        )
+
         return response
 
     async def inference_step_2(
@@ -254,17 +172,9 @@ Response example for donut chart (user explicitly requested "donut"):
 
         """Run Component Configuration inference."""
 
-        sys_msg_content = f"""You are helpful and advanced user interface design assistant.
-Based on the "User query" and JSON formatted "Data", select the best fields to show the "Data" to the user in the UI component {component}.
-Generate JSON array of objects only.
-Provide list of "fields" to be visualized in the UI component.
-Select only relevant "Data" fields to be presented in the UI component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for in "User query".
-Provide reason for the every field selection in the "reason".
-Provide your confidence for the every field selection as a percentage in the "confidenceScore".
-Provide "name" for every field.
-For every field provide "data_path" containing path to get the value from the "Data". Do not use formatting or calculation in the "data_path".
+        sys_msg_content = f"""You are a UI design assistant. Select the best fields to display Data in the {component} component.
 
-🔴 CRITICAL - JSONPATH: Carefully analyze the actual Data structure. If fields are nested (e.g., items[*].movie.title), you MUST include the full path. Do NOT skip intermediate objects.
+{TWOSTEP_STEP2_PROMPT_RULES}
 
 {get_sys_prompt_component_extensions(component)}
 
@@ -283,15 +193,17 @@ For every field provide "data_path" containing path to get the value from the "D
 
         response = await inference.call_model(sys_msg_content, prompt)
         logger.debug("Component configuration LLM response: %s", response)
-        
+
         # Store step 2 interaction
-        self._llm_interactions.append({
-            'step': 'field_selection',
-            'system_prompt': sys_msg_content,
-            'user_prompt': prompt,
-            'raw_response': response
-        })
-        
+        self._llm_interactions.append(
+            {
+                "step": "field_selection",
+                "system_prompt": sys_msg_content,
+                "user_prompt": prompt,
+                "raw_response": response,
+            }
+        )
+
         return response
 
 
