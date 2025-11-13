@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Generated web components (copied from ../web-components/elements/)
+public/ngui-elements/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

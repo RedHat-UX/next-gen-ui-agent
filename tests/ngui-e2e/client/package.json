@@ -4,6 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "copy-wc": "mkdir -p public/ngui-elements && cp ../web-components/elements/*.js ../web-components/elements/*.js.map public/ngui-elements/ 2>/dev/null || true",
+    "predev": "npm run copy-wc",
+    "prebuild": "npm run copy-wc",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
@@ -14,7 +17,7 @@
     "@patternfly/patternfly": "^6.3.1",
     "@patternfly/react-core": "^6.3.1",
     "@patternfly/react-icons": "^6.3.1",
-    "dynamicui": "file:../../../libs_js/next_gen_ui_react/dynamicui-0.0.1.tgz",
+    "ngui-web-components": "file:../web-components",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
