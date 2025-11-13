@@ -3,6 +3,10 @@
     "DataFieldSimpleValue": {
       "description": "Component field description with data containing one value obtained from the input_data to be rendered as a dynamic component of the \"one object\" type.\nThe data value can be simple value or arrays of simple values to be rendered as a one field of the UI component.",
       "properties": {
+        "id": {
+          "description": "Field ID",
+          "type": "string"
+        },
         "name": {
           "description": "Field name",
           "type": "string"

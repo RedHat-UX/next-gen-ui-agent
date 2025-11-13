@@ -1,45 +1,27 @@
-import asyncio
-import json
 import logging
 from typing import Any
 
-from next_gen_ui_agent.array_field_reducer import reduce_arrays
-from next_gen_ui_agent.component_selection_llm_onestep import trim_to_json
-from next_gen_ui_agent.json_data_wrapper import wrap_json_data
-from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import (
-    AgentInput,
-    ComponentSelectionStrategy,
-    InputData,
-    UIComponentMetadata,
+from next_gen_ui_agent.component_selection_chart_instructions import (
+    CHART_FIELD_SELECTION_EXAMPLES,
+    CHART_FIELD_SELECTION_EXTENSION,
+    CHART_INSTRUCTIONS,
 )
+from next_gen_ui_agent.component_selection_common import (
+    TWOSTEP_STEP1_PROMPT_RULES,
+    TWOSTEP_STEP1_RESPONSE_EXAMPLES,
+    TWOSTEP_STEP2_PROMPT_RULES,
+    get_ui_components_description,
+)
+from next_gen_ui_agent.component_selection_llm_strategy import (
+    ComponentSelectionStrategy,
+    trim_to_json,
+    validate_and_correct_chart_type,
+)
+from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.types import UIComponentMetadata
 from pydantic_core import from_json
 
 logger = logging.getLogger(__name__)
-
-ui_components_description_supported = """
-* one-card - component to visualize multiple fields from one-item Data. One image can be shown if url is available in the Data. Array of objects can't be shown as a field.
-* video-player - component to play a video from one-item Data. Video like trailer, promo video. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
-* image - component to show one image from one-item Data. Image like poster, cover, picture. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
-"""
-
-ui_components_description_all = (
-    ui_components_description_supported
-    + """
-* table - component to visualize multi-item Data. Use it for Data with more than 6 items, small number of fields to be shown, and fields with short values.
-* set-of-cards - component to visualize multi-item Data. Use it for Data with less than 6 items, high number of fields to be shown, and fields with long values.
-""".strip()
-)
-
-# print("ui_components_description_all: " + ui_components_description_all)
-
-
-def get_ui_components_description(unsupported_components: bool) -> str:
-    """Get UI components description for system prompt based on the unsupported_components flag."""
-    if unsupported_components:
-        return ui_components_description_all
-    else:
-        return ui_components_description_supported
 
 
 class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
@@ -59,54 +41,9 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             select_component_only: if True, only generate the component, it is not necesary to generate it's configuration
             input_data_json_wrapping: if True, wrap the JSON input data into data type field if necessary due to its structure
         """
+        super().__init__(logger, input_data_json_wrapping)
         self.unsupported_components = unsupported_components
         self.select_component_only = select_component_only
-        self.input_data_json_wrapping = input_data_json_wrapping
-
-    async def select_components(
-        self, inference: InferenceBase, input: AgentInput
-    ) -> list[UIComponentMetadata]:
-        logger.debug("---CALL component_selection---")
-        components = await asyncio.gather(
-            *[
-                self.component_selection_run(inference, input["user_prompt"], data)
-                for data in input["input_data"]
-            ]
-        )
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug(components)
-
-        return components
-
-    async def component_selection_run(
-        self,
-        inference: InferenceBase,
-        user_prompt: str,
-        input_data: InputData,
-    ) -> UIComponentMetadata:
-        """Run Component Selection task."""
-
-        input_data_id = input_data["id"]
-        logger.debug("---CALL component_selection_run--- id: %s", {input_data_id})
-
-        json_data = input_data.get("json_data")
-        if not json_data:
-            json_data = json.loads(input_data["data"])
-
-        if self.input_data_json_wrapping:
-            json_data = wrap_json_data(json_data, input_data.get("type"))
-
-        inference_otput = await self.perform_inference(
-            inference, user_prompt, json_data, input_data_id
-        )
-
-        try:
-            result = self.parse_infernce_output(inference_otput, input_data_id)
-            result.json_data = json_data
-            return result
-        except Exception as e:
-            logger.exception("Cannot decode the json from LLM response")
-            raise e
 
     def parse_infernce_output(
         self, inference_output: list[str], input_data_id: str
@@ -127,6 +64,25 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             part, strict=False
         )
         result.id = input_data_id
+
+        # Attach LLM interactions for debugging
+        if hasattr(self, "_llm_interactions"):
+            result.llm_interactions = self._llm_interactions
+
+        # Post-processing: Validate chart type matches reasoning
+        validate_and_correct_chart_type(result, logger)
+
+        # Log component selection reasoning
+        logger.info(
+            "[NGUI] Component selection reasoning:\n"
+            "  Component: %s\n"
+            "  Reason: %s\n"
+            "  Confidence: %s",
+            result.component,
+            result.reasonForTheComponentSelection,
+            result.confidenceScore,
+        )
+
         return result
 
     async def perform_inference(
@@ -143,67 +99,46 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
                 "---CALL component_selection_inference--- id: %s", {input_data_id}
             )
 
-        # we have to parse JSON data to reduce arrays
-        data = reduce_arrays(json_data, 6)
-        json_data = str(data)
+        data_for_llm = str(json_data)
 
-        response_1 = trim_to_json(
-            await self.inference_step_1(inference, user_prompt, json_data)
+        # Initialize LLM interactions list
+        self._llm_interactions = []
+
+        raw_response_1 = await self.inference_step_1(
+            inference, user_prompt, data_for_llm
         )
+        response_1 = trim_to_json(raw_response_1)
 
         if self.select_component_only:
             return [response_1]
 
-        response_2 = trim_to_json(
-            await self.inference_step_2(inference, response_1, user_prompt, json_data)
+        raw_response_2 = await self.inference_step_2(
+            inference, response_1, user_prompt, data_for_llm
         )
+        response_2 = trim_to_json(raw_response_2)
 
         return [response_1, response_2]
 
-    async def inference_step_1(self, inference, user_prompt, json_data):
+    async def inference_step_1(self, inference, user_prompt, json_data_for_llm: str):
         """Run Component Selection inference."""
 
-        sys_msg_content = f"""You are helpful and advanced user interface design assistant.
-Based on the "User query" and JSON formatted "Data", select the best UI component to show the "Data" to the user.
-Generate response in the JSON format only. Select one UI component only. Put it into "component".
-Provide reason for the UI component selection in the "reasonForTheComponentSelection".
-Provide your confidence for the UI component selection as a percentage in the "confidenceScore".
-Provide title for the UI component in "title".
+        sys_msg_content = f"""You are a UI design assistant. Select the best component to show the Data based on User query.
 
-Select from these UI components: {get_ui_components_description(self.unsupported_components)}
+{TWOSTEP_STEP1_PROMPT_RULES}
 
+Available components: {get_ui_components_description(self.unsupported_components)}
+
+{CHART_INSTRUCTIONS}
 """
 
-        sys_msg_content += """
-Response example for multi-item data:
-{
-    "reasonForTheComponentSelection": "More than 6 items in the data array. Short values to visualize based on the user query",
-    "confidenceScore": "82%",
-    "title": "Orders",
-    "component": "table"
-}
-
-Response example for one-item data:
-{
-    "reasonForTheComponentSelection": "One item available in the data. Multiple fields to show based on the User query",
-    "confidenceScore": "95%",
-    "title": "Order CA565",
-    "component": "one-card"
-}
-
-Response example for one-item data and image:
-{
-    "reasonForTheComponentSelection": "User asked to see the magazine cover",
-    "confidenceScore": "75%",
-    "title": "Magazine cover",
-    "component": "image"
-}
+        sys_msg_content += f"""
+{TWOSTEP_STEP1_RESPONSE_EXAMPLES}
 """
 
         prompt = f"""=== User query ===
 {user_prompt}
 === Data ===
-{json_data}
+{json_data_for_llm}
 """
 
         logger.debug("LLM component selection system message:\n%s", sys_msg_content)
@@ -211,10 +146,25 @@ Response example for one-item data and image:
 
         response = await inference.call_model(sys_msg_content, prompt)
         logger.debug("Component selection LLM response: %s", response)
+
+        # Store step 1 interaction
+        self._llm_interactions.append(
+            {
+                "step": "component_selection",
+                "system_prompt": sys_msg_content,
+                "user_prompt": prompt,
+                "raw_response": response,
+            }
+        )
+
         return response
 
     async def inference_step_2(
-        self, inference, component_selection_response, user_prompt, json_data
+        self,
+        inference,
+        component_selection_response,
+        user_prompt,
+        json_data_for_llm: str,
     ):
         component = from_json(component_selection_response, allow_partial=True)[
             "component"
@@ -222,15 +172,10 @@ Response example for one-item data and image:
 
         """Run Component Configuration inference."""
 
-        sys_msg_content = f"""You are helpful and advanced user interface design assistant.
-Based on the "User query" and JSON formatted "Data", select the best fields to show the "Data" to the user in the UI component {component}.
-Generate JSON array of objects only.
-Provide list of "fields" to be visualized in the UI component.
-Select only relevant "Data" fields to be presented in the UI component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for in "User query".
-Provide reason for the every field selection in the "reason".
-Provide your confidence for the every field selection as a percentage in the "confidenceScore".
-Provide "name" for every field.
-For every field provide "data_path" containing path to get the value from the "Data". Do not use formatting or calculation in the "data_path".
+        sys_msg_content = f"""You are a UI design assistant. Select the best fields to display Data in the {component} component.
+
+{TWOSTEP_STEP2_PROMPT_RULES}
+
 {get_sys_prompt_component_extensions(component)}
 
 {get_sys_prompt_component_examples(component)}
@@ -240,7 +185,7 @@ For every field provide "data_path" containing path to get the value from the "D
 {user_prompt}
 
 === Data ===
-{json_data}
+{json_data_for_llm}
 """
 
         logger.debug("LLM component configuration system message:\n%s", sys_msg_content)
@@ -248,6 +193,17 @@ For every field provide "data_path" containing path to get the value from the "D
 
         response = await inference.call_model(sys_msg_content, prompt)
         logger.debug("Component configuration LLM response: %s", response)
+
+        # Store step 2 interaction
+        self._llm_interactions.append(
+            {
+                "step": "field_selection",
+                "system_prompt": sys_msg_content,
+                "user_prompt": prompt,
+                "raw_response": response,
+            }
+        )
+
         return response
 
 
@@ -266,6 +222,7 @@ SYS_PROMPT_COMPONENT_EXTENSIONS = {
 Do not use the same "data_path" for multiple fields.
 One field can point to the large image shown as the main image in the card UI, if url is available in the "Data".
 Show ID value only if it seems important for the user, like order ID. Do not show ID value if it is not important for the user.""",
+    "chart": CHART_FIELD_SELECTION_EXTENSION,
 }
 
 
@@ -406,4 +363,5 @@ Response example 2:
     }
 ]
 """,
+    "chart": CHART_FIELD_SELECTION_EXAMPLES,
 }
