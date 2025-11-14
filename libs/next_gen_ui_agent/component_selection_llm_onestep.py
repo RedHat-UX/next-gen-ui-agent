@@ -1,36 +1,20 @@
 import logging
 from typing import Any
 
+from next_gen_ui_agent.component_selection_chart_instructions import CHART_INSTRUCTIONS
+from next_gen_ui_agent.component_selection_common import (
+    ONESTEP_PROMPT_RULES,
+    ONESTEP_RESPONSE_EXAMPLES,
+    get_ui_components_description,
+)
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
     trim_to_json,
+    validate_and_correct_chart_type,
 )
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 from pydantic_core import from_json
-
-ui_components_description_supported = """
-* one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
-* video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
-* image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
-"""
-
-ui_components_description_all = (
-    ui_components_description_supported
-    + """
-* table - component to visualize array of objects with more than 6 items and small number of shown fields with short values.
-* set-of-cards - component to visualize array of objects with less than 6 items, or high number of shown fields and fields with long values.
-""".strip()
-)
-
-
-def get_ui_components_description(unsupported_components: bool) -> str:
-    """Get UI components description for system prompt based on the unsupported_components flag."""
-    if unsupported_components:
-        return ui_components_description_all
-    else:
-        return ui_components_description_supported
-
 
 logger = logging.getLogger(__name__)
 
@@ -69,42 +53,17 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             # logger.debug(user_prompt)
             # logger.debug(input_data)
 
-        sys_msg_content = f"""You are helpful and advanced user interface design assistant. Based on the "User query" and JSON formatted "Data", select the best UI component to visualize the "Data" to the user.
-Generate response in the JSON format only. Select one component only into "component".
-Provide the title for the component in "title".
-Provide reason for the component selection in the "reasonForTheComponentSelection".
-Provide your confidence for the component selection as a percentage in the "confidenceScore".
-Provide list of "fields" to be visualized in the UI component. Select only relevant data fields to be presented in the component. Do not bloat presentation. Show all the important info about the data item. Mainly include information the user asks for in User query.
-If the selected UI component requires specific fields mentioned in its description, provide them. Provide "name" for every field.
-For every field provide "data_path" containing JSONPath to get the value from the Data. Do not use any formatting or calculation in the "data_path".
+        sys_msg_content = f"""You are a UI design assistant. Select the best component to visualize the Data based on User query.
 
-Select one from there UI components: {get_ui_components_description(self.unsupported_components)}
-    """
+{ONESTEP_PROMPT_RULES}
 
-        sys_msg_content += """
-Response example for multi-item data:
-{
-    "title": "Orders",
-    "reasonForTheComponentSelection": "More than 6 items in the data",
-    "confidenceScore": "82%",
-    "component": "table",
-    "fields" : [
-        {"name":"Name","data_path":"orders[*].name"},
-        {"name":"Creation Date","data_path":"orders[*].creationDate"}
-    ]
-}
+Available components: {get_ui_components_description(self.unsupported_components)}
 
-Response example for one-item data:
-{
-    "title": "Order CA565",
-    "reasonForTheComponentSelection": "One item available in the data",
-    "confidenceScore": "75%",
-    "component": "one-card",
-    "fields" : [
-        {"name":"Name","data_path":"order.name"},
-        {"name":"Creation Date","data_path":"order.creationDate"}
-    ]
-}"""
+{CHART_INSTRUCTIONS}
+"""
+
+        sys_msg_content += f"""
+{ONESTEP_RESPONSE_EXAMPLES}"""
 
         prompt = f"""=== User query ===
     {user_prompt}
@@ -116,8 +75,17 @@ Response example for one-item data:
         logger.debug("LLM system message:\n%s", sys_msg_content)
         logger.debug("LLM prompt:\n%s", prompt)
 
-        response = trim_to_json(await inference.call_model(sys_msg_content, prompt))
+        raw_response = await inference.call_model(sys_msg_content, prompt)
+        response = trim_to_json(raw_response)
         logger.debug("Component metadata LLM response: %s", response)
+
+        # Store LLM interaction for debugging (stored in instance variable, retrieved in parse_infernce_output)
+        self._last_llm_interaction = {
+            "step": "component_selection",
+            "system_prompt": sys_msg_content,
+            "user_prompt": prompt,
+            "raw_response": raw_response,
+        }
 
         return [response]
 
@@ -132,4 +100,23 @@ Response example for one-item data:
             from_json(inference_output[0], allow_partial=True), strict=False
         )
         result.id = input_data_id
+
+        # Attach LLM interaction for debugging
+        if hasattr(self, "_last_llm_interaction"):
+            result.llm_interactions = [self._last_llm_interaction]
+
+        # Post-processing: Validate chart type matches reasoning
+        validate_and_correct_chart_type(result, logger)
+
+        # Log component selection reasoning
+        logger.info(
+            "[NGUI] Component selection reasoning:\n"
+            "  Component: %s\n"
+            "  Reason: %s\n"
+            "  Confidence: %s",
+            result.component,
+            result.reasonForTheComponentSelection,
+            result.confidenceScore,
+        )
+
         return result
