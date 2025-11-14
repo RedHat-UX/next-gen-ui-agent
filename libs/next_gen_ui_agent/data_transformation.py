@@ -3,6 +3,7 @@ import logging
 from typing import cast
 
 from next_gen_ui_agent.data_transform.audio import AudioPlayerDataTransformer
+from next_gen_ui_agent.data_transform.chart import ChartDataTransformer
 from next_gen_ui_agent.data_transform.data_transformer import DataTransformerBase
 from next_gen_ui_agent.data_transform.hand_build_component import (
     HandBuildComponentDataTransformer,
@@ -24,6 +25,7 @@ COMPONENT_TRANSFORMERS_REGISTRY: dict[str, DataTransformerBase] = {
     AudioPlayerDataTransformer.COMPONENT_NAME: AudioPlayerDataTransformer(),
     TableDataTransformer.COMPONENT_NAME: TableDataTransformer(),
     SetOfCardsDataTransformer.COMPONENT_NAME: SetOfCardsDataTransformer(),
+    ChartDataTransformer.COMPONENT_NAME: ChartDataTransformer(),
     HandBuildComponentDataTransformer.COMPONENT_NAME: HandBuildComponentDataTransformer(),
 }
 
