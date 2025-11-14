@@ -171,3 +171,46 @@ def trim_to_json(text: str) -> str:
         return text[start_index:]
 
     return text[start_index:end_index]
+
+
+def validate_and_correct_chart_type(
+    result: UIComponentMetadata, logger: logging.Logger
+) -> None:
+    """
+    Validate that the chart type in the result matches what's mentioned in the reasoning.
+    If there's a mismatch, auto-correct the chartType and log a warning.
+
+    Args:
+        result: The UIComponentMetadata to validate and potentially correct
+        logger: Logger instance for warnings
+    """
+    if result.component != "chart" or not hasattr(result, "chartType"):
+        return
+
+    reasoning_lower = (result.reasonForTheComponentSelection or "").lower()
+
+    # Map of chart type keywords to expected chartType values
+    # Order matters: check more specific types first (e.g., "mirrored-bar" before "bar")
+    chart_type_checks = [
+        ("mirrored-bar", ["mirrored-bar", "mirrored bar"]),
+        ("donut", ["donut"]),
+        ("pie", ["pie"]),
+        ("line", ["line"]),
+        ("bar", ["bar"]),
+    ]
+
+    # Check for explicit chart type mentions in reasoning
+    detected_type = None
+    for expected_type, keywords in chart_type_checks:
+        if any(keyword in reasoning_lower for keyword in keywords):
+            detected_type = expected_type
+            break
+
+    # If we detected a type in reasoning and it doesn't match the actual chartType, correct it
+    if detected_type and detected_type != result.chartType:
+        logger.warning(
+            "[NGUI] LLM returned chartType='%s' but reasoning mentions '%s'. Auto-correcting.",
+            result.chartType,
+            detected_type,
+        )
+        result.chartType = detected_type
