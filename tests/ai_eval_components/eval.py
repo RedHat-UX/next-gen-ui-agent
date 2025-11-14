@@ -34,6 +34,7 @@ from ai_eval_components.types import (
     DatasetRow,
     DatasetRowAgentEvalResult,
 )
+from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 from next_gen_ui_agent import InputData
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
@@ -62,6 +63,8 @@ from next_gen_ui_agent.json_data_wrapper import wrap_json_data
 from next_gen_ui_agent.model import InferenceBase, LangChainModelInference
 from next_gen_ui_agent.types import UIComponentMetadata
 from next_gen_ui_llama_stack_embedded import init_inference_from_env
+
+from .proxied_claude_inference import ProxiedClaudeInference
 
 # allows to print system error traces to the stderr
 PRINT_SYS_ERR_TRACE = True
@@ -217,7 +220,7 @@ def evaluate_agent_for_dataset_row(
     return DatasetRowAgentEvalResult(llm_response, errors, data)
 
 
-def init_openai_api_inference_from_env(
+def init_direct_api_inference_from_env(
     default_model: str | None = None,
 ) -> InferenceBase | None:
     """
@@ -231,28 +234,51 @@ def init_openai_api_inference_from_env(
     * `MODEL_API_URL` - OpenAI compatible API base URL - optional, if not defined then OpenAI API base URL is used
     * `MODEL_API_KEY` - api key - optional
     * `MODEL_API_TEMPERATURE` - temperature for the LLM - optional
+    * `MODEL_API_PROVIDER` - model API provider to use - optional, currently supported: `openai` (default), `anthropic`, `anthropic-vertexai-proxied`
     """
 
     base_url = os.getenv("MODEL_API_URL")
     temperature = os.getenv("MODEL_API_TEMPERATURE")
 
-    if base_url or os.getenv("MODEL_API_KEY") or temperature:
+    if (
+        base_url
+        or os.getenv("MODEL_API_KEY")
+        or temperature
+        or os.getenv("MODEL_API_PROVIDER")
+    ):
         model = os.getenv("INFERENCE_MODEL", default_model)
         if not model:
             return None
 
+        provider = os.getenv("MODEL_API_PROVIDER", "openai")
+
         print(
-            f"Creating UI Agent with OpenAI API inference model={model} base_url={base_url} temperature={temperature}"
+            f"Creating UI Agent with {provider} API inference model={model} base_url={base_url} temperature={temperature}"
         )
 
-        return LangChainModelInference(
-            model=ChatOpenAI(
+        if provider == "anthropic":
+            model = ChatAnthropic(
                 model=model,
                 base_url=base_url,
                 api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
                 temperature=float(temperature) if temperature else None,
             )
-        )
+        elif provider == "anthropic-vertexai-proxied":
+            return ProxiedClaudeInference(
+                model=model,
+                api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
+                temperature=float(temperature) if temperature else 0,
+                base_url=base_url,  # type: ignore
+            )
+        else:
+            model = ChatOpenAI(
+                model=model,
+                base_url=base_url,
+                api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
+                temperature=float(temperature) if temperature else None,
+            )
+
+        return LangChainModelInference(model=model)
 
     return None
 
@@ -270,7 +296,7 @@ if __name__ == "__main__":
     llm_output_dir_path = get_llm_output_dir(arg_write_llm_output)
     dataset_files = get_dataset_files(arg_dataset_file)
 
-    inference = init_openai_api_inference_from_env(
+    inference = init_direct_api_inference_from_env(
         default_model=INFERENCE_MODEL_DEFAULT
     )
 

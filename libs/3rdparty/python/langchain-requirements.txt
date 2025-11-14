@@ -1,2 +1,3 @@
 langchain-core<=0.3.66
 langchain-openai<=0.3.25
+langchain-anthropic<=0.3.25
