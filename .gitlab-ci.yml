@@ -1,0 +1,81 @@
+# GitLab CI/CD Pipeline for LLM Evaluation Tests
+# This mirrors the GitHub Actions workflow but runs on GitLab
+
+default:
+  tags:
+    - shared-podman
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+    - when: never
+
+variables:
+  PYTHON_VERSION: "3.13"
+  PYTHONPATH: "tests:libs"
+  DEBIAN_FRONTEND: "noninteractive"
+
+stages:
+  - test
+
+complete_eval:
+  stage: test
+  image: ubuntu:latest
+  tags:
+    - shared-podman
+  timeout: 20 hours
+  before_script:
+    - echo "=== Setting up environment ==="
+    - apt-get update
+    - apt-get install -y software-properties-common curl
+    - echo "=== Installing Python 3.13 ==="
+    - add-apt-repository -y ppa:deadsnakes/ppa
+    - apt-get update
+    - apt-get install -y python3.13 python3.13-venv python3.13-dev python3-pip
+    - python3.13 --version
+    - echo "=== Installing Python dependencies ==="
+    - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/agent-core-requirements.txt
+    - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/langchain-requirements.txt
+    - python3.13 -m pip install --break-system-packages -r libs/3rdparty/python/llama-stack-requirements.txt
+    - python3.13 -m pip install --break-system-packages -c libs/3rdparty/python/llama-stack-client-constraints.txt -r libs/3rdparty/python/llama-stack-client-requirements.txt
+    - mkdir -p ~/.llama/providers.d tests/ai_eval_components/errors tests/ai_eval_components/errors_k8s
+    - echo "=== DEBUG - Checking CI/CD Variables ==="
+    - echo "MODEL_API_URL is set to '${MODEL_API_URL}'"
+    - echo "INFERENCE_MODEL is set to '${INFERENCE_MODEL}'"
+    - |
+      if [ -z "$MODEL_API_URL" ] || [ -z "$INFERENCE_MODEL" ] || [ -z "$MODEL_API_KEY" ]; then
+        echo "ERROR: Required CI/CD variables not set!"
+        echo "Please set: MODEL_API_URL, INFERENCE_MODEL, MODEL_API_KEY"
+        exit 1
+      fi
+    - echo "=== Using models.corp API at $MODEL_API_URL ==="
+  script:
+    - echo "=== Running Movies/Subscriptions Tests ==="
+    - >
+      python3.13 -c "import sys; sys.argv.extend(['-c', 'all']);
+      import httpx; o=httpx.AsyncClient.__init__;
+      httpx.AsyncClient.__init__=lambda s,*a,**k: o(s,*a,**{**k,'verify':False});
+      import runpy; runpy.run_module('ai_eval_components.eval', run_name='__main__')"
+    - echo "=== Running Kubernetes Tests ==="
+    - >
+      python3.13 -c "import sys; sys.argv.extend(['-c', 'all']);
+      import httpx; o=httpx.AsyncClient.__init__;
+      httpx.AsyncClient.__init__=lambda s,*a,**k: o(s,*a,**{**k,'verify':False});
+      import runpy; runpy.run_module('ai_eval_components.eval_k8s', run_name='__main__')"
+    - echo "=== Generating Report ==="
+    - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --title "GitLab CI Evaluation Report" --model "${INFERENCE_MODEL}" --output tests/ai_eval_components/gitlab_eval_report.html
+    - echo "=== Completed ==="
+  artifacts:
+    when: always
+    paths:
+      - tests/ai_eval_components/gitlab_eval_report.html
+      - tests/ai_eval_components/errors/
+      - tests/ai_eval_components/errors_k8s/
+      - tests/ai_eval_components/perf_stats.json
+      - tests/ai_eval_components/perf_stats_k8s.json
+    expire_in: 30 days

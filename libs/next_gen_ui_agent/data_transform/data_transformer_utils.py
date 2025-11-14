@@ -138,7 +138,7 @@ def get_data_value_for_path(data_path: str | None, json_data: Any) -> list[Any] 
         for match in find:
             # we have to remove array indices
             match_path = re.sub(r"\[\d+\]", "[]", str(match.full_path))
-            if (not shortest_path) or len(match_path) < len(shortest_path):  # type: ignore
+            if (not shortest_path) or len(match_path) < len(shortest_path):
                 shortest_path = match_path
                 matched_data = []
             if shortest_path == match_path:
