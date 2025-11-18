@@ -14,6 +14,17 @@ import { useRef, useState } from "react";
 
 import DynamicComponent from "./DynamicComponent";
 import { useFetch } from "../hooks/useFetch";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  TextArea,
+  Form,
+  FormGroup,
+} from "@patternfly/react-core";
+import { UploadIcon } from "@patternfly/react-icons";
 
 export default function ChatBotPage() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
@@ -22,6 +33,24 @@ export default function ChatBotPage() {
   const isVisible = true;
   const displayMode = ChatbotDisplayMode.fullscreen;
   const position = "top";
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [finalJson, setFinalJson] = useState("");
+  const [mockJsonData, setMockJsonData] = useState("");
+
+  const handleModalToggle = () => {
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const handleSave = () => {
+    setFinalJson(mockJsonData);
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setMockJsonData("");
+  };
 
   const { loading, fetchData } = useFetch();
 
@@ -57,10 +86,13 @@ export default function ChatBotPage() {
     });
     setMessages(newMessages);
 
-    const res = await fetchData(import.meta.env.VITE_API_ENDPOINT, {
-      method: "POST",
-      body: { prompt: message },
-    });
+    const res = await fetchData(
+      import.meta.env.VITE_API_ENDPOINT + "/generate",
+      {
+        method: "POST",
+        body: { prompt: message, mockJson: finalJson },
+      }
+    );
     newMessages.pop();
     newMessages.push({
       id: generateId(),
@@ -72,10 +104,16 @@ export default function ChatBotPage() {
       ...(!res
         ? { content: "Something went wrong!" }
         : res.error
-        ? { content: `Error: ${res.error}${res.details ? ` - ${res.details}` : ''}` }
+        ? {
+            content: `Error: ${res.error}${
+              res.details ? ` - ${res.details}` : ""
+            }`,
+          }
         : {
             extraContent: {
-              afterMainContent: <DynamicComponent config={res.response} showRawConfig={true} />,
+              afterMainContent: (
+                <DynamicComponent config={res.response} showRawConfig={true} />
+              ),
             },
           }),
     });
@@ -101,30 +139,75 @@ export default function ChatBotPage() {
           the map of messages, so that users are forced to scroll to the bottom.
           If you are using streaming, you will want to take a different approach; 
           see: https://github.com/patternfly/chatbot/issues/201#issuecomment-2400725173 */}
-            {messages && messages.map((message, index) => {
-              if (index === messages.length - 1) {
-                return (
-                  <>
-                    <div ref={scrollToBottomRef}></div>
-                    <Message key={message.id} {...message} />
-                  </>
-                );
-              }
-              return <Message key={message.id} {...message} />;
-            })}
+            {messages &&
+              messages.map((message, index) => {
+                if (index === messages.length - 1) {
+                  return (
+                    <>
+                      <div ref={scrollToBottomRef}></div>
+                      <Message key={message.id} {...message} />
+                    </>
+                  );
+                }
+                return <Message key={message.id} {...message} />;
+              })}
           </MessageBox>
         </ChatbotContent>
         <ChatbotFooter>
-          <MessageBar
-            isAttachmentDisabled
-            isSendButtonDisabled={loading}
-            isCompact
-            onSendMessage={(message: string | number) => handleSend(String(message))}
-          />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              width: "100%",
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <MessageBar
+                hasAttachButton={false}
+                isSendButtonDisabled={loading}
+                isCompact
+                onSendMessage={(message: string | number) =>
+                  handleSend(String(message))
+                }
+              />
+            </div>
+            <div>
+              <Button
+                variant="plain"
+                aria-label="upload mock json"
+                onClick={handleModalToggle}
+                icon={<UploadIcon />}
+              />
+            </div>
+          </div>
           <ChatbotFootnote label="ChatBot uses AI. Check for mistakes." />
         </ChatbotFooter>
       </Chatbot>
-      {/* <DynamicComponent config={mockData} /> */}
+      <Modal isOpen={isModalOpen} onClose={handleCancel} variant="medium">
+        <ModalHeader>Upload Mock JSON Data</ModalHeader>
+        <ModalBody>
+          <Form>
+            <FormGroup label="Mock JSON" fieldId="mock-json-data">
+              <TextArea
+                value={mockJsonData}
+                onChange={(_event, value) => setMockJsonData(value)}
+                id="mock-json-data"
+                rows={15}
+                aria-label="Mock JSON Data"
+              />
+            </FormGroup>
+          </Form>
+        </ModalBody>
+        <ModalFooter>
+          <Button key="save" variant="primary" onClick={handleSave}>
+            Save
+          </Button>
+          <Button key="cancel" variant="link" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
     </>
   );
 }
