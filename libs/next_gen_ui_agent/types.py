@@ -184,7 +184,7 @@ class AgentInput(TypedDict):
     """Input data to be processed - one or more can be provided."""
 
 
-class UIBlockComponentMetadata(BaseModel):
+class UIComponentMetadataBase(BaseModel):
     """UI Component Metadata - part shared between UIBlockConfiguration and UIComponentMetadata."""
 
     id: Optional[str] = None
@@ -193,11 +193,13 @@ class UIBlockComponentMetadata(BaseModel):
     """Title of the component."""
     component: str
     """Component type."""
-    fields: list[DataField]
-    """Fields of the component."""
+    fields: list[DataField] = Field(
+        description="Fields of the component to be shown in the UI.",
+    )
+    """Fields of the component to be shown in the UI."""
 
 
-class UIComponentMetadata(UIBlockComponentMetadata):
+class UIComponentMetadata(UIComponentMetadataBase):
     """UI Component Metadata - output of the component selection and configuration step."""
 
     reasonForTheComponentSelection: Optional[str] = None
@@ -227,14 +229,28 @@ class UIComponentMetadataHandBuildComponent(UIComponentMetadata):
     """Type of the hand-build component."""
 
 
+class UIBlockComponentMetadata(UIComponentMetadataBase):
+    """UI Component Metadata for UIBlockConfiguration."""
+
+    fields_all: Optional[list[DataField]] = Field(
+        default=None,
+        description="All fields available for the component - generated only for `table` and `set-of-cards` components. Can be used to provide user with the ability to select fields to be shown in the UI.",
+    )
+    """All fields available for the component - generated only for `table` and `set-of-cards` components.
+       Can be used to provide user with the ability to select fields to be shown in the UI."""
+
+
 class UIBlockRendering(BaseModel):
     """UI Block Rendering - output of the UI rendering step."""
 
     id: str
     """ID of the `InputData` this instance is for."""
     component_system: str
+    """Component system used to render the UI block."""
     mime_type: str
+    """MIME type of the UI block content."""
     content: str
+    """Content of the UI block serialized into string."""
 
 
 class UIBlockConfiguration(BaseModel):
@@ -247,7 +263,7 @@ class UIBlockConfiguration(BaseModel):
     json_wrapping_field_name: Optional[str] = None
     "Name of the field used for `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed."
     component_metadata: Optional[UIBlockComponentMetadata] = None
-    "Metadata of component"
+    "Metadata of the component"
 
 
 class UIBlock(BaseModel):

@@ -59,7 +59,7 @@
       "type": "object"
     },
     "UIBlockComponentMetadata": {
-      "description": "UI Component Metadata - part shared between UIBlockConfiguration and UIComponentMetadata.",
+      "description": "UI Component Metadata for UIBlockConfiguration.",
       "properties": {
         "id": {
           "anyOf": [
@@ -79,10 +79,26 @@
           "type": "string"
         },
         "fields": {
+          "description": "Fields of the component to be shown in the UI.",
           "items": {
             "$ref": "#/$defs/DataField"
           },
           "type": "array"
+        },
+        "fields_all": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/DataField"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "All fields available for the component - generated only for `table` and `set-of-cards` components. Can be used to provide user with the ability to select fields to be shown in the UI."
         }
       },
       "required": [
