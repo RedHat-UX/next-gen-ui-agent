@@ -121,18 +121,27 @@ def test_generate_all_fields_with_nested_objects():
                 data_path="users[*].name",
             )
         ],
+        # name field must be after address to test that nested object field name is used as a prefix for the field name if duplicit in nested object
         json_data={
             "users": [
                 {
+                    "address": {
+                        "street": "123 Main St",
+                        "zip": "12345",
+                        "name": "John's Address",
+                    },
                     "name": "John",
-                    "address": {"street": "123 Main St", "zip": "12345"},
                     "age": 30,
                     "user_type": ["admin", "user"],
                     "ignored": [{}],
                 },
                 {
+                    "address": {
+                        "street": "456 Oak Ave",
+                        "zip": "67890",
+                        "name": "Jane's Address",
+                    },
                     "name": "Jane",
-                    "address": {"street": "456 Oak Ave", "zip": "67890"},
                     "age": 25,
                     "user_type": [],
                     "ignored": [{}],
@@ -145,7 +154,7 @@ def test_generate_all_fields_with_nested_objects():
 
     assert result is not None
     # Should have: name, age, address.street, address.zip, user_type
-    assert len(result) == 5
+    assert len(result) == 6
 
     field_names = {field.name for field in result}
     assert "Name" in field_names
@@ -153,6 +162,7 @@ def test_generate_all_fields_with_nested_objects():
     assert "Street" in field_names
     assert "Zip" in field_names
     assert "User Type" in field_names
+    assert "Address Name" in field_names
 
     # Check nested paths
     field_paths = {field.data_path for field in result}
@@ -161,6 +171,7 @@ def test_generate_all_fields_with_nested_objects():
     assert "$..users[*].address.street" in field_paths
     assert "$..users[*].address.zip" in field_paths
     assert "$..users[*].user_type" in field_paths
+    assert "$..users[*].address.name" in field_paths
 
 
 def test_generate_all_fields_with_deeply_nested_objects():

@@ -17,7 +17,7 @@ def generate_all_fields(
     If component does not support all fields, return None.
     """
 
-    # TODO generate only if enabled in configuration
+    # TODO generate only if enabled in global or per component type configuration?
 
     if (
         component_metadata.component not in COMPONENTS_WITH_ALL_FIELDS
@@ -45,36 +45,60 @@ def generate_all_fields(
         return None
 
     all_fields: list[DataField] = []
+    all_field_names: list[str] = []
 
-    collect_all_fields_from_input_data(all_fields, obj, base_path)
+    collect_all_fields_from_input_data(all_fields, all_field_names, obj, base_path)
 
     return all_fields
 
 
 def collect_all_fields_from_input_data(
-    all_fields: list[DataField], obj: dict, base_path: str
+    all_fields: list[DataField],
+    all_field_names: list[str],
+    obj: dict,
+    base_path: str,
+    field_name_prefix: str | None = None,
 ):
     """Collect all fields from input data based on base path."""
 
+    nested_objects: list[tuple[str, dict]] = []
+
     for key, value in obj.items():
+        # process nested objects later after all fileds are processed to avoid duplicit field names
         if isinstance(value, dict):
-            collect_all_fields_from_input_data(all_fields, value, base_path + "." + key)
+            nested_objects.append((key, value))
         else:
+            # skip fields containing array of objects as we can't render them in the UI component
             if (
                 isinstance(value, list)
                 and len(value) > 0
                 and isinstance(value[0], dict)
             ):
                 continue
+
             field_id = generate_field_id(base_path + "." + key)
-            # TODO take nesting into account for generated names if the same name already exists in the all_fields list?
+
+            field_name = generate_field_name(key)
+            if field_name in all_field_names and field_name_prefix:
+                field_name = field_name_prefix + " " + field_name
+
             all_fields.append(
                 DataField(
                     id=field_id,
-                    name=generate_field_name(key),
+                    name=field_name,
                     data_path=base_path + "." + key,
                 )
             )
+            all_field_names.append(field_name)
+
+    for nested_object in nested_objects:
+        collect_all_fields_from_input_data(
+            all_fields,
+            all_field_names,
+            nested_object[1],
+            base_path + "." + nested_object[0],
+            generate_field_name(nested_object[0]),
+        )
 
 
 def generate_field_name(key: str) -> str:
