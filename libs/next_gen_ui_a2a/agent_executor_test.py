@@ -82,23 +82,21 @@ async def test_agent_executor_one_message_and_metadata() -> None:
     await executor.execute(context, event_queue)
 
     event = await event_queue.dequeue_event(no_wait=True)
-    if isinstance(event, Message):
-        assert len(event.parts) == 1
-        part_root = event.parts[0].root
-        if isinstance(part_root, TextPart):
-            # print(part_root.text)
-            ui_block = UIBlock.model_validate_json(part_root.text)
-            assert ui_block.configuration is not None
-            assert ui_block.configuration.component_metadata is not None
-            assert "one-card" == ui_block.configuration.component_metadata.component
-            assert ui_block.rendering is not None
-            c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
-            assert "one-card" == c.component
-            assert "Toy Story Details" == c.title
-        else:
-            raise Exception("message part is not TextPart")
-    else:
-        raise Exception("event is not message")
+    assert isinstance(event, Message)
+    assert len(event.parts) == 2
+
+    assert isinstance(event.parts[0].root, TextPart)
+    assert event.parts[0].root.text == "UI generated"
+
+    assert isinstance(event.parts[1].root, DataPart)
+    ui_block = UIBlock.model_validate(event.parts[1].root.data)
+    assert ui_block.configuration is not None
+    assert ui_block.configuration.component_metadata is not None
+    assert "one-card" == ui_block.configuration.component_metadata.component
+    assert ui_block.rendering is not None
+    c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
+    assert "one-card" == c.component
+    assert "Toy Story Details" == c.title
 
 
 @pytest.mark.asyncio
@@ -130,21 +128,18 @@ async def test_agent_executor_two_messages() -> None:
     await executor.execute(context, event_queue)
 
     event = await event_queue.dequeue_event(no_wait=True)
-    if isinstance(event, Message):
-        assert len(event.parts) == 1
-        part_root = event.parts[0].root
-        if isinstance(part_root, TextPart):
-            # print(part_root.text)
-            ui_block = UIBlock.model_validate_json(part_root.text)
-            assert ui_block.configuration is not None
-            assert ui_block.configuration.component_metadata is not None
-            assert "one-card" == ui_block.configuration.component_metadata.component
+    assert isinstance(event, Message)
+    assert len(event.parts) == 2
 
-            assert ui_block.rendering is not None
-            c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
-            assert "one-card" == c.component
-            assert "Toy Story Details" == c.title
-        else:
-            raise Exception("message part is not TextPart")
-    else:
-        raise Exception("event is not message")
+    assert isinstance(event.parts[0].root, TextPart)
+    assert event.parts[0].root.text == "UI generated"
+
+    assert isinstance(event.parts[1].root, DataPart)
+    ui_block = UIBlock.model_validate(event.parts[1].root.data)
+    assert ui_block.configuration is not None
+    assert ui_block.configuration.component_metadata is not None
+    assert "one-card" == ui_block.configuration.component_metadata.component
+    assert ui_block.rendering is not None
+    c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
+    assert "one-card" == c.component
+    assert "Toy Story Details" == c.title

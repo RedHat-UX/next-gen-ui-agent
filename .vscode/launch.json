@@ -35,6 +35,18 @@
             ],
         },
         {
+            "name": "Python Debugger: A2A Server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/libs/next_gen_ui_a2a",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/libs"
+            },
+            "args": [
+            ],
+        },
+        {
             "name": "Python Debugger: distribution-all",
             "type": "debugpy",
             "request": "launch",

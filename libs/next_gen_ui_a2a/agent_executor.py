@@ -1,10 +1,9 @@
 import json
-from uuid import uuid4
+import uuid
 
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
-from a2a.types import DataPart, Message, TextPart
-from a2a.utils import new_agent_text_message
+from a2a.types import DataPart, Message, Part, Role, TextPart
 from next_gen_ui_agent import InputData, NextGenUIAgent
 from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import AgentConfig, UIBlock
@@ -20,19 +19,27 @@ class NextGenUIAgentExecutor(AgentExecutor):
         """Get data from the message parts."""
         input_data_list = []
         user_prompt = ""
+        metadata = message.metadata
 
         for p in message.parts:
-            id = uuid4().hex
+            id = str(uuid.uuid4())
             part_root = p.root
             if not user_prompt and isinstance(part_root, TextPart):
                 user_prompt = part_root.text
-                # Try to get data from metadata.datas
-                if part_root.metadata and part_root.metadata.get("data"):
+                # Try to get data from metadata
+                if not metadata and part_root.metadata:
+                    metadata = part_root.metadata
+
+                if metadata and metadata.get("data"):
+                    if isinstance(metadata.get("data"), str):
+                        data = metadata["data"]
+                    else:
+                        data = json.dumps(metadata["data"])
                     input_data_list.append(
                         InputData(
                             id=id,
-                            data=json.dumps(part_root.metadata["data"]),
-                            type=str(part_root.metadata.get("type")),
+                            data=data,
+                            type=str(metadata.get("type")),
                         )
                     )
 
@@ -58,7 +65,7 @@ class NextGenUIAgentExecutor(AgentExecutor):
         if len(input_data_list) == 0:
             # TODO: Throw a better error or map it to the right params error A2A error
             raise ValueError(
-                "No input data gathered from either metadata of TextPart or DataPart"
+                "No input data gathered from either Message metadata or TextPart metadata or DataPart"
             )
         for input_data in input_data_list:
             # 1. Component selection
@@ -82,14 +89,33 @@ class NextGenUIAgentExecutor(AgentExecutor):
             ui_block = UIBlock(
                 id=rendering.id, rendering=rendering, configuration=block_config
             )
-            text = ui_block.model_dump_json(
-                exclude_unset=True,
-                exclude_defaults=True,
-                exclude_none=True,
-            )
 
             # TODO: Return same Output like MCPGenerateUIOutput !!!
-            await event_queue.enqueue_event(new_agent_text_message(text))
+            summary = "UI generated"
+            message = Message(
+                role=Role.agent,
+                parts=[
+                    Part(
+                        root=TextPart(
+                            text=summary,
+                            # metadata={"structured_data": ui_block},
+                        )
+                    ),
+                    Part(
+                        root=DataPart(
+                            data=ui_block.model_dump(
+                                exclude_unset=True,
+                                exclude_defaults=True,
+                                exclude_none=True,
+                            )
+                        )
+                    ),
+                ],
+                message_id=str(uuid.uuid4()),
+                task_id=None,
+                context_id=None,
+            )
+            await event_queue.enqueue_event(message)
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
         raise Exception("cancel not supported")
