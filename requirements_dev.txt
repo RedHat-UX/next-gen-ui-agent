@@ -1,5 +1,6 @@
-commitizen==4.6.3
-cz_github_jira_conventional
+# Change also commitizen version in .github/workflows/pants.yaml and also the commitizen-action used there!
+commitizen==4.10.0
+cz_github_jira_conventional==3.0.2
 pre-commit
 twine
 mkdocs-material

@@ -99,15 +99,15 @@ jobs:
           cache-dependency-path: |
               requirements_dev.txt
       - id: cz
-        name: Bump
-        uses: commitizen-tools/commitizen-action@master
+        name: Bump # https://github.com/commitizen-tools/commitizen-action/releases/tag/0.26.0
+        uses: commitizen-tools/commitizen-action@0.26.0
         with:
           push: "false"
           commit: "false"
           prerelease: "beta"
           extra_requirements: "cz_github_jira_conventional"
           increment: "PATCH"
-          commitizen_version: "4.6.3"
+          commitizen_version: "4.10.0"
       - name: Print Version
         run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
       - uses: pantsbuild/actions/init-pants@v8
