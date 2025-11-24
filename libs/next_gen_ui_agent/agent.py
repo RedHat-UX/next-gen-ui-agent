@@ -239,6 +239,7 @@ class NextGenUIAgent:
                 field.data_path = sanitize_data_path(field.data_path)  # type: ignore
                 field.id = generate_field_id(field.data_path)
 
+        # TODO generate only if enabled in global or per component type configuration?
         block_component_metadata.fields_all = generate_all_fields(component_metadata)
 
         return UIBlockConfiguration(

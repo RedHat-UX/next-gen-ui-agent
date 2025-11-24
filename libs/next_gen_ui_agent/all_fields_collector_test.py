@@ -288,23 +288,26 @@ def test_generate_field_name_with_hyphen():
     assert generate_field_name("first-name-last-name") == "First Name Last Name"
 
 
+def test_generate_field_name_camel_case():
+    """Test that generate_field_name handles already title-cased words."""
+    assert generate_field_name("FirstName") == "First Name"
+    assert generate_field_name("firstName") == "First Name"
+    assert generate_field_name("firstN3ame") == "First N3ame"
+    assert generate_field_name("UserID") == "User Id"
+
+
 def test_generate_field_name_with_mixed_separators():
     """Test that generate_field_name handles mixed underscore and hyphen separators."""
     assert generate_field_name("user_id-name") == "User Id Name"
     assert generate_field_name("first-name_last") == "First Name Last"
+    assert generate_field_name("first-name_lastName") == "First Name Last Name"
 
 
 def test_generate_field_name_single_word():
     """Test that generate_field_name handles single words."""
-    assert generate_field_name("name") == "Name"
     assert generate_field_name("age") == "Age"
-    assert generate_field_name("title") == "Title"
-
-
-def test_generate_field_name_already_title_case():
-    """Test that generate_field_name handles already title-cased words."""
-    assert generate_field_name("FirstName") == "Firstname"
-    assert generate_field_name("UserID") == "Userid"
+    assert generate_field_name("AGE") == "Age"
+    assert generate_field_name("Age") == "Age"
 
 
 def test_generate_field_name_with_multiple_spaces():
@@ -321,5 +324,6 @@ def test_generate_field_name_empty_string():
 
 def test_generate_field_name_uppercase():
     """Test that generate_field_name converts uppercase to title case."""
+    assert generate_field_name("AGE") == "Age"
     assert generate_field_name("FIRST_NAME") == "First Name"
     assert generate_field_name("USER_ID") == "User Id"
