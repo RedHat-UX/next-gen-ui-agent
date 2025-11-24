@@ -37,6 +37,8 @@ def load_perf_stats(error_dirs, dataset_labels):
     all_perf_stats = {
         "overall": {"min": 0, "mean": 0, "avg": 0, "perc95": 0, "max": 0},
         "by_component": {},  # Format: {(component, dataset_label): stats}
+        "judge_enabled": False,  # Will be set to True if any dataset has judges enabled
+        "judge_model": None,
     }
 
     for i, error_dir in enumerate(error_dirs):
@@ -52,6 +54,11 @@ def load_perf_stats(error_dirs, dataset_labels):
                     for component, component_stats in stats["by_component"].items():
                         key = (component, dataset_label)
                         all_perf_stats["by_component"][key] = component_stats
+
+                # Capture judge info if present
+                if stats.get("judge_enabled", False):
+                    all_perf_stats["judge_enabled"] = True
+                    all_perf_stats["judge_model"] = stats.get("judge_model")
 
     return all_perf_stats
 
@@ -429,7 +436,18 @@ def generate_html_report(results, title="Evaluation Report", model=None):
                     <tr>
                         <td><strong>Components Evaluated</strong></td>
                         <td>{len(results["by_component"])} component(s)</td>
-                    </tr>
+                    </tr>"""
+
+    # Add judge info if judges were enabled
+    if results["perf_stats"].get("judge_enabled", False):
+        judge_model = results["perf_stats"].get("judge_model", "Unknown")
+        html += f"""
+                    <tr>
+                        <td><strong>🤖 LLM Judge Evaluation</strong></td>
+                        <td style="color: #27ae60;">✅ Enabled (Model: {judge_model})</td>
+                    </tr>"""
+
+    html += f"""
                 </tbody>
             </table>
         </div>
@@ -737,5 +755,5 @@ Examples:
 
     output_path = Path(args.output)
     output_path.write_text(html)
-    print(f"✅ Report generated: {output_path}")
+    print(f"Report generated: {output_path}")
     print(f"\nOpen it with: open {output_path}")

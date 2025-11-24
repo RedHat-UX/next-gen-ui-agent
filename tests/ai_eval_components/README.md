@@ -29,6 +29,10 @@ Evaluation code accepts these environment variables:
 - `MODEL_API_TEMPERATURE` - OpenAI/Anthropic compatible API LLM temperature - optional, use `0` if model is capable to run with it
 - `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 - `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
+- `JUDGE_ENABLED` - set to `true` to enable LLM-as-a-Judge evaluation mode (optional)
+- `JUDGE_MODEL` - LLM model name for judge evaluation (required if `JUDGE_ENABLED=true`)
+- `JUDGE_API_URL` - API endpoint for judge model (required if `JUDGE_ENABLED=true`)
+- `JUDGE_API_KEY` - API key for judge model (required if `JUDGE_ENABLED=true`)
 
 If your API uses ssl certificate not signd by commonly trusted CA, you have to configure it for python `httpx` package used by `openai`/`anthropic` provider:
 
@@ -36,11 +40,11 @@ If your API uses ssl certificate not signd by commonly trusted CA, you have to c
 export SSL_CERT_FILE=/path/to/cert/your-CA-cert.pem
 ```
 
-`anthropic-vertexai-proxied` is a custom inference provider created to 
-call [Anthropic models from Google Vertex AI](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-haiku) 
+`anthropic-vertexai-proxied` is a custom inference provider created to
+call [Anthropic models from Google Vertex AI](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-haiku)
 proxied on different URL.
-It calls url constructed as `"{MODEL_API_URL}/models/{INFERENCE_MODEL}:streamRawPredict"`. 
-In case of HTTP error `429`, indicating  API throttling, it retries call after 10s for max 10 times.
+It calls url constructed as `"{MODEL_API_URL}/models/{INFERENCE_MODEL}:streamRawPredict"`.
+In case of HTTP error `429`, indicating API throttling, it retries call after 10s for max 10 times.
 It is stored in [`proxied_claude_inference.py`](proxied_claude_inference.py).
 
 ### Create missing directories if needed
@@ -104,6 +108,10 @@ Each file stored here contains description info like:
 ```
 
 and then results printed by eval script, including performance stats.
+
+## LLM-as-a-Judge Evaluation (Optional)
+
+Enable LLM judge mode by setting `JUDGE_ENABLED=true`. This replaces deterministic checks with two LLM judges that evaluate component selection and field relevance. Requires configuring `JUDGE_MODEL`, `JUDGE_API_URL`, and `JUDGE_API_KEY` environment variables.
 
 ## Evaluation dataset
 

@@ -10,12 +10,24 @@ from ai_eval_components.types import (
     DATASET_FILE_SUFFIX,
     DatasetRow,
     DatasetRowAgentEvalResult,
+    JudgeResult,
 )
 from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
 
 ERR_FILE_SUFFIX = "-errors.txt"
+
+
+def _write_judge_results(f: TextIOWrapper, judge_results: list[JudgeResult]) -> None:
+    """Write LLM judge evaluation results to file."""
+    f.write("\n=== LLM Judge Evaluation (Judge-Only Mode) ===\n")
+    for jr in judge_results:
+        status = "PASS" if jr["passed"] else "FAIL"
+        f.write(f"{jr['judge_name']}: {status} (score: {jr['score']:.2f})\n")
+        f.write(f"  Reasoning: {jr['reasoning']}\n")
+    f.write("\n")
+
 
 eval_stats = {
     "num_evals": 0,
@@ -61,6 +73,11 @@ def report_success(
         if "src" in dsr and "data_file" in dsr["src"]:
             ov = dsr["src"]["data_file"]
             f_out.write(f"\nData file in dataset_src: {ov}")
+
+        # Add judge results if available
+        if eval_result.judge_results:
+            _write_judge_results(f_out, eval_result.judge_results)
+
         f_out.write("\n\n")
         f_out.flush()
 
@@ -92,9 +109,8 @@ def report_err_uiagent(
     dsr: DatasetRow,
     is_progress_dot: bool,
 ):
-    warn = False if "warn_only" not in dsr else dsr["warn_only"]
-
     """Report UI Agent error"""
+    warn = False if "warn_only" not in dsr else dsr["warn_only"]
     eval_stats["num_evals"] += 1
     if warn:
         stats_by_component_add_warn_agent(dsr["expected_component"])
@@ -135,6 +151,12 @@ def report_err_uiagent(
     if "src" in dsr and "data_file" in dsr["src"]:
         ov = dsr["src"]["data_file"]
         f_err.write(f"\nData file in dataset_src: {ov}")
+
+    # Add judge results if available
+    if eval_result.judge_results:
+        f_err.write("\n")
+        _write_judge_results(f_err, eval_result.judge_results)
+
     f_err.write("\n\n")
     f_err.flush()
 
