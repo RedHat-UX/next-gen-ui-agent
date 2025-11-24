@@ -594,8 +594,148 @@ class TestConstructUIBlockConfiguration:
         )
         assert configuration.component_metadata.fields_all is None
 
-    def test_construct_UIBlockConfiguration_with_all_fields(self) -> None:
+    def test_construct_UIBlockConfiguration_with_all_fields_not_enabled(self) -> None:
         agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(
+            id="1", data='[{"title": "Toy Story", "year": 2024}]', type="my_type"
+        )
+        component_metadata = UIComponentMetadata(
+            component="table",
+            id="1",
+            title="Toy Story",
+            fields=[DataField(name="Title", data_path="my_type[*].title")],
+            json_data={"my_type": [{"title": "Toy Story", "year": 2024}]},
+        )
+        configuration = agent.construct_UIBlockConfiguration(
+            input_data, component_metadata
+        )
+        assert configuration.data_type == "my_type"
+        assert configuration.input_data_transformer_name is None
+        assert configuration.json_wrapping_field_name is None
+        assert configuration.component_metadata is not None
+        assert (
+            configuration.component_metadata.component == component_metadata.component
+        )
+        assert configuration.component_metadata.id == component_metadata.id
+        assert configuration.component_metadata.title == component_metadata.title
+
+        assert configuration.component_metadata.fields is not None
+        assert len(configuration.component_metadata.fields) == 1
+        assert configuration.component_metadata.fields[
+            0
+        ].data_path == sanitize_data_path("my_type[*].title")
+        assert configuration.component_metadata.fields[0].id == generate_field_id(
+            configuration.component_metadata.fields[0].data_path
+        )
+
+        assert configuration.component_metadata.fields_all is None
+
+    def test_construct_UIBlockConfiguration_with_all_fields_global_enabled(
+        self,
+    ) -> None:
+        agent = NextGenUIAgent(config=AgentConfig(generate_all_fields=True))
+        input_data = InputData(
+            id="1", data='[{"title": "Toy Story", "year": 2024}]', type="my_type"
+        )
+        component_metadata = UIComponentMetadata(
+            component="table",
+            id="1",
+            title="Toy Story",
+            fields=[DataField(name="Title", data_path="my_type[*].title")],
+            json_data={"my_type": [{"title": "Toy Story", "year": 2024}]},
+        )
+        configuration = agent.construct_UIBlockConfiguration(
+            input_data, component_metadata
+        )
+        assert configuration.data_type == "my_type"
+        assert configuration.input_data_transformer_name is None
+        assert configuration.json_wrapping_field_name is None
+        assert configuration.component_metadata is not None
+        assert (
+            configuration.component_metadata.component == component_metadata.component
+        )
+        assert configuration.component_metadata.id == component_metadata.id
+        assert configuration.component_metadata.title == component_metadata.title
+
+        assert configuration.component_metadata.fields is not None
+        assert len(configuration.component_metadata.fields) == 1
+        assert configuration.component_metadata.fields[
+            0
+        ].data_path == sanitize_data_path("my_type[*].title")
+        assert configuration.component_metadata.fields[0].id == generate_field_id(
+            configuration.component_metadata.fields[0].data_path
+        )
+
+        assert configuration.component_metadata.fields_all is not None
+        assert len(configuration.component_metadata.fields_all) == 2
+        assert configuration.component_metadata.fields_all[0].name == "Title"
+        assert configuration.component_metadata.fields_all[1].name == "Year"
+        assert (
+            configuration.component_metadata.fields_all[0].data_path
+            == "$..my_type[*].title"
+        )
+        assert configuration.component_metadata.fields_all[0].id == generate_field_id(
+            configuration.component_metadata.fields_all[0].data_path
+        )
+        assert (
+            configuration.component_metadata.fields_all[1].data_path
+            == "$..my_type[*].year"
+        )
+        assert configuration.component_metadata.fields_all[1].id == generate_field_id(
+            configuration.component_metadata.fields_all[1].data_path
+        )
+
+    def test_construct_UIBlockConfiguration_with_all_fields_global_enabled_pertype_disabled(
+        self,
+    ) -> None:
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={"my_type": AgentConfigDataType(generate_all_fields=False)}
+            )
+        )
+        input_data = InputData(
+            id="1", data='[{"title": "Toy Story", "year": 2024}]', type="my_type"
+        )
+        component_metadata = UIComponentMetadata(
+            component="table",
+            id="1",
+            title="Toy Story",
+            fields=[DataField(name="Title", data_path="my_type[*].title")],
+            json_data={"my_type": [{"title": "Toy Story", "year": 2024}]},
+        )
+        configuration = agent.construct_UIBlockConfiguration(
+            input_data, component_metadata
+        )
+        assert configuration.data_type == "my_type"
+        assert configuration.input_data_transformer_name is None
+        assert configuration.json_wrapping_field_name is None
+        assert configuration.component_metadata is not None
+        assert (
+            configuration.component_metadata.component == component_metadata.component
+        )
+        assert configuration.component_metadata.id == component_metadata.id
+        assert configuration.component_metadata.title == component_metadata.title
+
+        assert configuration.component_metadata.fields is not None
+        assert len(configuration.component_metadata.fields) == 1
+        assert configuration.component_metadata.fields[
+            0
+        ].data_path == sanitize_data_path("my_type[*].title")
+        assert configuration.component_metadata.fields[0].id == generate_field_id(
+            configuration.component_metadata.fields[0].data_path
+        )
+
+        assert configuration.component_metadata.fields_all is None
+
+    def test_construct_UIBlockConfiguration_with_all_fields_global_disabled_pertype_enabled(
+        self,
+    ) -> None:
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                generate_all_fields=False,
+                data_types={"my_type": AgentConfigDataType(generate_all_fields=True)},
+            )
+        )
         input_data = InputData(
             id="1", data='[{"title": "Toy Story", "year": 2024}]', type="my_type"
         )

@@ -18,3 +18,6 @@ We provide renderers for several UI component systems:
 * Client-Side
     * [PatternFly NPM](patternfly_npm.md) - produces [PatternFly](https://www.patternfly.org/) React components
 
+
+Besides rendering itself, output of the *UI Agent* also contain [structured UI component configuration](../../spec/output.md). It can be
+used for advanced UI features, like live data updates from backend, manual selection of visualized fields etc.

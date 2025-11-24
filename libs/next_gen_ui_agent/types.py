@@ -20,16 +20,19 @@ CONFIG_OPTIONS_DATA_TRANSFORMER = Optional[
 class DataField(BaseModel):
     """UI Component Field Metadata."""
 
-    id: str = Field(description="Field ID", default_factory=lambda: uuid4().hex)
-    """Field ID"""
+    id: str = Field(
+        description="Unique field ID. Can be used in CSS selectors to target the field, eg. to set its style, or during live refresh of the shown data from the backend.",
+        default_factory=lambda: uuid4().hex,
+    )
+    """Unique field ID. Can be used in CSS selectors to target the field, eg. to set its style, or during live refresh of the shown data from the backend."""
 
     name: str = Field(description="Field name to be shown in the UI")
     """Field name to be shown in the UI."""
 
     data_path: str = Field(
-        description="JSON Path pointing to the input data structure to be used to pickup values to be shown in UI"
+        description="JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI."
     )
-    """JSON Path pointing to the input data structure to be used to pickup values to be shown in UI"""
+    """JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI."""
 
 
 class AgentConfigDynamicComponentConfiguration(BaseModel):
@@ -72,6 +75,16 @@ class AgentConfigDataType(BaseModel):
     )
     """
     Data transformer to use to transform the input data of this type.
+    """
+
+    generate_all_fields: Optional[bool] = Field(
+        default=None,
+        description="If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated, if `None` then agent's default setting is used. Supported only for `table` and `set-of-cards` components.",
+    )
+    """
+    If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`.
+    If `False` then all fields aren't generated, if `None` then agent's default setting is used.
+    Supported only for `table` and `set-of-cards` components.
     """
 
     components: Optional[list[AgentConfigComponent]] = Field(
@@ -140,6 +153,16 @@ class AgentConfig(BaseModel):
     If `False`, the agent will never wrap the JSON input data into data type field.
     """
 
+    generate_all_fields: bool = Field(
+        default=False,
+        description="If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated. Can be overriden for individual `data_types`. Supported only for `table` and `set-of-cards` components.",
+    )
+    """
+    If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`.
+    If `False` then all fields aren't generated. Can be overriden for individual `data_types`.
+    Supported only for `table` and `set-of-cards` components.
+    """
+
 
 class InputData(TypedDict):
     """Agent Input Data."""
@@ -187,11 +210,13 @@ class AgentInput(TypedDict):
 class UIComponentMetadataBase(BaseModel):
     """UI Component Metadata - part shared between UIBlockConfiguration and UIComponentMetadata."""
 
-    id: Optional[str] = None
+    id: Optional[str] = Field(
+        default=None, description="ID of the `InputData` this instance is for."
+    )
     """ID of the `InputData` this instance is for."""
-    title: str
+    title: str = Field(description="Title of the component.")
     """Title of the component."""
-    component: str
+    component: str = Field(description="Component type.")
     """Component type."""
     fields: list[DataField] = Field(
         description="Fields of the component to be shown in the UI.",
@@ -234,36 +259,46 @@ class UIBlockComponentMetadata(UIComponentMetadataBase):
 
     fields_all: Optional[list[DataField]] = Field(
         default=None,
-        description="All fields available for the component - generated only for `table` and `set-of-cards` components. Can be used to provide user with the ability to select fields to be shown in the UI.",
+        description="All fields available for the component - generated only for `table` and `set-of-cards` components if enabled in agent's configuration. Can be used to provide user with the ability to manually select fields to be shown in the UI.",
     )
-    """All fields available for the component - generated only for `table` and `set-of-cards` components.
-       Can be used to provide user with the ability to select fields to be shown in the UI."""
+    """All fields available for the component - generated only for `table` and `set-of-cards` components if enabled in agent's configuration.
+       Can be used to provide user with the ability to manually select fields to be shown in the UI."""
 
 
 class UIBlockRendering(BaseModel):
     """UI Block Rendering - output of the UI rendering step."""
 
-    id: str
+    id: str = Field(description="ID of the `InputData` this instance is for.")
     """ID of the `InputData` this instance is for."""
-    component_system: str
+    component_system: str = Field(
+        description="Component system used to render the UI block."
+    )
     """Component system used to render the UI block."""
-    mime_type: str
+    mime_type: str = Field(description="MIME type of the UI block content.")
     """MIME type of the UI block content."""
-    content: str
+    content: str = Field(description="Content of the UI block serialized into string.")
     """Content of the UI block serialized into string."""
 
 
 class UIBlockConfiguration(BaseModel):
     """UI Block configuration"""
 
-    data_type: Optional[str] = None
+    data_type: Optional[str] = Field(default=None, description="Input data type.")
     "Input data type"
-    input_data_transformer_name: Optional[str] = None
+    input_data_transformer_name: Optional[str] = Field(
+        default=None,
+        description="Name of the input data transformer used to transform the input data.",
+    )
     "Name of the input data transformer used to transform the input data."
-    json_wrapping_field_name: Optional[str] = None
-    "Name of the field used for `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed."
-    component_metadata: Optional[UIBlockComponentMetadata] = None
-    "Metadata of the component"
+    json_wrapping_field_name: Optional[str] = Field(
+        default=None,
+        description="Name of the field used for the input data `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed.",
+    )
+    "Name of the field used for the input data `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed."
+    component_metadata: Optional[UIBlockComponentMetadata] = Field(
+        default=None, description="Metadata of the generated UI component."
+    )
+    "Metadata of the generated UI component"
 
 
 class UIBlock(BaseModel):

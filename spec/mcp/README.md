@@ -1,4 +1,4 @@
-# MCP Spec
+# MCP Server Spec
 
 Specifications of the json format (as JSON Schema) of the [Next Gen UI MCP Server](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/).
 Mainly usefull to implement client-side interaction directly with MCP server.
