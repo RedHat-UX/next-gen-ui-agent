@@ -5,6 +5,9 @@ import App from "./App.tsx";
 import "@patternfly/react-core/dist/styles/base.css";
 import "@patternfly/chatbot/dist/css/main.css";
 
+// Register NGUI web components
+import "@rhngui/web/elements/index.js";
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
