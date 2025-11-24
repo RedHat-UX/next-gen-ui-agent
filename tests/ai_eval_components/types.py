@@ -25,20 +25,32 @@ class DatasetRow(TypedDict):
     src: NotRequired[DatasetRowSrc]
 
 
+class JudgeResult(TypedDict):
+    """LLM judge evaluation result"""
+
+    judge_name: str
+    score: float
+    passed: bool
+    reasoning: str
+
+
 class DatasetRowAgentEvalResult:
     errors: list[ComponentDataValidationError]
     llm_output: list[str]
     data: ComponentDataBase | None
+    judge_results: list[JudgeResult] | None
 
     def __init__(
         self,
         llm_output: list[str],
         errors: list[ComponentDataValidationError],
         data: ComponentDataBase | None,
+        judge_results: list[JudgeResult] | None = None,
     ):
         self.llm_output = llm_output
         self.errors = errors
         self.data = data
+        self.judge_results = judge_results
 
 
 class ItemsGenerate(TypedDict):
