@@ -11,6 +11,7 @@ python_tests(
     name="tests",
     dependencies=[
         "libs/3rdparty/python:a2a",
+        "libs/3rdparty/python:pytest",
     ],
 )
 
@@ -35,6 +36,7 @@ python_distribution(
             "Programming Language :: Python :: 3",
             "Programming Language :: Python :: 3.12",
             "Programming Language :: Python :: 3.13",
+            "Programming Language :: Python :: 3.14",
             "License :: OSI Approved :: Apache Software License",
         ],
         url="https://github.com/RedHat-UX/next-gen-ui-agent",
