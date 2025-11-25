@@ -9,6 +9,8 @@ from next_gen_ui_agent.component_selection_common import (
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
+    InferenceResult,
+    LLMInteraction,
     trim_to_json,
     validate_and_correct_chart_type,
 )
@@ -43,7 +45,7 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
-    ) -> list[str]:
+    ) -> InferenceResult:
         """Run Component Selection inference."""
 
         if logger.isEnabledFor(logging.DEBUG):
@@ -79,31 +81,33 @@ Available components: {get_ui_components_description(self.unsupported_components
         response = trim_to_json(raw_response)
         logger.debug("Component metadata LLM response: %s", response)
 
-        # Store LLM interaction for debugging (stored in instance variable, retrieved in parse_infernce_output)
-        self._last_llm_interaction = {
-            "step": "component_selection",
-            "system_prompt": sys_msg_content,
-            "user_prompt": prompt,
-            "raw_response": raw_response,
-        }
-
-        return [response]
+        # Return result with LLM interaction metadata
+        return InferenceResult(
+            outputs=[response],
+            llm_interactions=[
+                LLMInteraction(
+                    step="component_selection",
+                    system_prompt=sys_msg_content,
+                    user_prompt=prompt,
+                    raw_response=raw_response,
+                )
+            ],
+        )
 
     def parse_infernce_output(
-        self, inference_output: list[str], input_data_id: str
+        self, inference_result: InferenceResult, input_data_id: str
     ) -> UIComponentMetadata:
         """Parse inference output and return UIComponentMetadata or throw exception if inference output is invalid."""
 
         # allow values coercing by `strict=False`
         # allow partial json parsing by `allow_partial=True`, validation will fail on missing fields then. See https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
         result: UIComponentMetadata = UIComponentMetadata.model_validate(
-            from_json(inference_output[0], allow_partial=True), strict=False
+            from_json(inference_result["outputs"][0], allow_partial=True), strict=False
         )
         result.id = input_data_id
 
-        # Attach LLM interaction for debugging
-        if hasattr(self, "_last_llm_interaction"):
-            result.llm_interactions = [self._last_llm_interaction]
+        # Attach LLM interactions from result
+        result.llm_interactions = inference_result["llm_interactions"]
 
         # Post-processing: Validate chart type matches reasoning
         validate_and_correct_chart_type(result, logger)

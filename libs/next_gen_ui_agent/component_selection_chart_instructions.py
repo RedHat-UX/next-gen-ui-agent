@@ -2,45 +2,33 @@
 
 CHART_INSTRUCTIONS = """
 CHART TYPES (count ONLY metrics user requests):
-bar: Compare 1 metric across items
-mirrored-bar: Compare 2 metrics side-by-side (e.g., "A and B", "A vs B", different scales)
-line: Time-series, trends over time
-pie/donut: Distribution of 1 categorical field
+chart-bar: Compare 1 metric across items
+chart-mirrored-bar: Compare 2 metrics side-by-side (e.g., "A and B", "A vs B", different scales)
+chart-line: Time-series, trends over time
+chart-pie/chart-donut: Distribution of 1 categorical field
 
 FIELDS BY TYPE:
-bar: [category, metric]
-mirrored-bar: [category, metric1, metric2]
-line: [item_id, time, values] - item_id REQUIRED for multi-series to separate items
-pie/donut: [category] - backend auto-counts, don't add count field
-
-JSONPATH - Follow exact data structure:
-1. Analyze the actual Data structure provided
-2. Follow nesting exactly: if data is `items[*].movie.title`, use that path
-3. Use [*] for arrays: "items[*].genres[*]"
-Valid: "items[*].field" OR "items[*].nested.field" OR "items[*].nested[*].value"
-Invalid: "items[size up to 6][*]" or "['key[size...]]..."
+chart-bar: [category, metric]
+chart-mirrored-bar: [category, metric1, metric2]
+chart-line: [item_id, time, values] - item_id REQUIRED for multi-series to separate items
+chart-pie/chart-donut: [category] - backend auto-counts, don't add count field
 
 RULES:
 - Don't add unrequested metrics
-- Set "horizontal":true if user explicitly requests horizontal/sideways chart
-- Auto-set "horizontal":true if any category labels exceed 15 characters
 - Line charts: ALWAYS include item identifier field FIRST to separate multiple time-series
 
 EXAMPLES:
-Bar (vertical): {"chartType":"bar","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"Score","data_path":"items[*].score"}]}
-Bar (horizontal - explicit): {"chartType":"bar","horizontal":true,"fields":[{"name":"Director","data_path":"items[*].director"},{"name":"Rating","data_path":"items[*].rating"}]}
-Bar (horizontal - long labels): {"chartType":"bar","horizontal":true,"fields":[{"name":"Long Category Name","data_path":"items[*].longName"},{"name":"Value","data_path":"items[*].value"}]}
-Bar (nested): {"chartType":"bar","fields":[{"name":"Item","data_path":"items[*].product.name"},{"name":"Sales","data_path":"items[*].product.sales"}]}
-Mirrored: {"chartType":"mirrored-bar","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"A","data_path":"items[*].a"},{"name":"B","data_path":"items[*].b"}]}
-Line (flattened time-series): {"chartType":"line","fields":[{"name":"Movie","data_path":"items[*].movieTitle"},{"name":"Week","data_path":"items[*].week"},{"name":"Revenue","data_path":"items[*].revenue"}]}
-Line (nested): {"chartType":"line","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"Week","data_path":"items[*].weekly[*].week"},{"name":"Value","data_path":"items[*].weekly[*].value"}]}
-Pie: {"chartType":"pie","fields":[{"name":"Genre","data_path":"items[*].genres[*]"}]}
-Donut: {"chartType":"donut","fields":[{"name":"Category","data_path":"items[*].category"}]}
+Bar (vertical): {"component":"chart-bar","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"Score","data_path":"items[*].score"}]}
+Bar (nested): {"component":"chart-bar","fields":[{"name":"Item","data_path":"items[*].product.name"},{"name":"Sales","data_path":"items[*].product.sales"}]}
+Mirrored: {"component":"chart-mirrored-bar","fields":[{"name":"Item","data_path":"items[*].name"},{"name":"A","data_path":"items[*].a"},{"name":"B","data_path":"items[*].b"}]}
+Line (flattened time-series): {"component":"chart-line","fields":[{"name":"Movie","data_path":"items[*].movieTitle"},{"name":"Week","data_path":"items[*].week"},{"name":"Revenue","data_path":"items[*].revenue"}]}
+Pie: {"component":"chart-pie","fields":[{"name":"Genre","data_path":"items[*].genres"}]}
+Donut: {"component":"chart-donut","fields":[{"name":"Category","data_path":"items[*].category"}]}
 """
 
 # Two-step strategy: field count reference
 CHART_FIELD_SELECTION_EXTENSION = """
-FIELDS: pie/donut=1 [category], bar=2 [category,metric], mirrored-bar=3 [category,metric1,metric2], line=3 [item_id,time,values]
+FIELDS: chart-pie/chart-donut=1 [category], chart-bar=2 [category,metric], chart-mirrored-bar=3 [category,metric1,metric2], chart-line=3 [item_id,time,values]
 Pie/donut: backend counts, use [*] for arrays. Line: item_id FIRST!
 """
 
@@ -50,7 +38,6 @@ Bar (flat): [{"name":"Movie","data_path":"movies[*].title"},{"name":"Revenue","d
 Bar (nested): [{"name":"Movie","data_path":"get_all_movies[*].movie.title"},{"name":"Revenue","data_path":"get_all_movies[*].movie.revenue"}]
 Mirrored (nested): [{"name":"Movie","data_path":"get_all_movies[*].movie.title"},{"name":"ROI","data_path":"get_all_movies[*].movie.roi"},{"name":"Budget","data_path":"get_all_movies[*].movie.budget"}]
 Line (flattened): [{"name":"Movie","data_path":"movies[*].movieTitle"},{"name":"Week","data_path":"movies[*].week"},{"name":"Revenue","data_path":"movies[*].revenue"}]
-Line (nested): [{"name":"Movie","data_path":"movies[*].title"},{"name":"Week","data_path":"movies[*].weekly[*].week"},{"name":"Revenue","data_path":"movies[*].weekly[*].revenue"}]
-Pie: [{"name":"Genre","data_path":"movies[*].genres[*]"}]
+Pie: [{"name":"Genre","data_path":"movies[*].genres"}]
 Donut: [{"name":"Category","data_path":"movies[*].category"}]
 """

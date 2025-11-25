@@ -11,7 +11,11 @@ UI_COMPONENTS_DESCRIPTION_SUPPORTED = """
 * one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
 * video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
 * image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
-* chart - component to visualize numeric data as charts. Specify the chart type in "chartType" field: "bar", "line", "pie", "donut", or "mirrored-bar". Use for data comparisons, trends, distributions, and metrics.
+* chart-bar - component to visualize numeric data as a bar chart. Use for comparing one metric across categories.
+* chart-line - component to visualize numeric data as a line chart. Use for trends over time or continuous data.
+* chart-pie - component to visualize data distribution as a pie chart. Use for showing proportions or percentages.
+* chart-donut - component to visualize data distribution as a donut chart. Use for showing proportions with a central metric.
+* chart-mirrored-bar - component to visualize two metrics side-by-side as mirrored bars. Use for comparing two metrics across categories.
 """.strip()
 
 UI_COMPONENTS_DESCRIPTION_ALL = (
@@ -88,25 +92,10 @@ Response example for bar chart:
     "title": "Movie Revenue Comparison",
     "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
     "confidenceScore": "90%",
-    "component": "chart",
-    "chartType": "bar",
+    "component": "chart-bar",
     "fields" : [
         {{"name":"Movie","data_path":"movies[*].title"}},
         {{"name":"Revenue","data_path":"movies[*].revenue"}}
-    ]
-}
-
-Response example for horizontal bar chart (explicit request or long labels):
-{
-    "title": "Average Ratings by Director",
-    "reasonForTheComponentSelection": "User explicitly requested a horizontal bar chart to compare directors, and director names exceed 15 characters",
-    "confidenceScore": "95%",
-    "component": "chart",
-    "chartType": "bar",
-    "horizontal": true,
-    "fields" : [
-        {{"name":"Director","data_path":"movies[*].director"}},
-        {{"name":"Rating","data_path":"movies[*].rating"}}
     ]
 }
 
@@ -115,24 +104,11 @@ Response example for mirrored-bar chart (comparing 2 metrics, note nested struct
     "title": "Movie ROI and Budget Comparison",
     "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
     "confidenceScore": "90%",
-    "component": "chart",
-    "chartType": "mirrored-bar",
+    "component": "chart-mirrored-bar",
     "fields" : [
         {{"name":"Movie","data_path":"get_all_movies[*].movie.title"}},
         {{"name":"ROI","data_path":"get_all_movies[*].movie.roi"}},
         {{"name":"Budget","data_path":"get_all_movies[*].movie.budget"}}
-    ]
-}
-
-Response example for donut chart (user explicitly requested "donut"):
-{
-    "title": "Genre Distribution",
-    "reasonForTheComponentSelection": "User explicitly requested a donut chart for genre distribution",
-    "confidenceScore": "95%",
-    "component": "chart",
-    "chartType": "donut",
-    "fields" : [
-        {{"name":"Genre","data_path":"movies[*].genre"}}
     ]
 }"""
 
@@ -172,18 +148,7 @@ Response example for bar chart:
     "title": "Movie Revenue Comparison",
     "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
     "confidenceScore": "90%",
-    "component": "chart",
-    "chartType": "bar"
-}
-
-Response example for horizontal bar chart (explicit request or long labels):
-{
-    "title": "Average Ratings by Director",
-    "reasonForTheComponentSelection": "User explicitly requested a horizontal bar chart to compare directors, and director names exceed 15 characters",
-    "confidenceScore": "95%",
-    "component": "chart",
-    "chartType": "bar",
-    "horizontal": true
+    "component": "chart-bar"
 }
 
 Response example for mirrored-bar chart (comparing 2 metrics):
@@ -191,17 +156,7 @@ Response example for mirrored-bar chart (comparing 2 metrics):
     "title": "Movie ROI and Budget Comparison",
     "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
     "confidenceScore": "90%",
-    "component": "chart",
-    "chartType": "mirrored-bar"
-}
-
-Response example for donut chart (user explicitly requested "donut"):
-{
-    "title": "Genre Distribution",
-    "reasonForTheComponentSelection": "User explicitly requested a donut chart for genre distribution",
-    "confidenceScore": "95%",
-    "component": "chart",
-    "chartType": "donut"
+    "component": "chart-mirrored-bar"
 }"""
 
 TWOSTEP_STEP2_PROMPT_RULES = f"""RULES:

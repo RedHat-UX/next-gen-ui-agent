@@ -93,13 +93,19 @@ Example JSON output:
 ### Chart
 [JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/chart.schema.json)
 
-Example JSON output:
+Chart components support multiple visualization types:
+- `chart-bar` - Bar charts for comparing metrics across categories
+- `chart-line` - Line charts for trends over time
+- `chart-pie` - Pie charts for showing proportions
+- `chart-donut` - Donut charts for showing proportions with a central metric
+- `chart-mirrored-bar` - Mirrored bar charts for comparing two metrics side-by-side
+
+Example JSON output (bar chart):
 ```json
 {
-  "component": "chart",
+  "component": "chart-bar",
   "id": "test-id",
   "title": "Sales Data",
-  "chartType": "bar",
   "data": [
     {
       "name": "Q1",

@@ -14,6 +14,8 @@ from next_gen_ui_agent.component_selection_common import (
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
+    InferenceResult,
+    LLMInteraction,
     trim_to_json,
     validate_and_correct_chart_type,
 )
@@ -46,17 +48,19 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         self.select_component_only = select_component_only
 
     def parse_infernce_output(
-        self, inference_output: list[str], input_data_id: str
+        self, inference_result: InferenceResult, input_data_id: str
     ) -> UIComponentMetadata:
         """Parse inference output and return UIComponentMetadata or throw exception if inference output is invalid."""
 
         # allow values coercing by `strict=False`
         # allow partial json parsing by `allow_partial=True`, validation will fail on missing fields then. See https://docs.pydantic.dev/latest/concepts/json/#partial-json-parsing
-        part = from_json(inference_output[0], allow_partial=True)
+        part = from_json(inference_result["outputs"][0], allow_partial=True)
 
         # parse fields if they are available
-        if len(inference_output) > 1:
-            part["fields"] = from_json(inference_output[1], allow_partial=True)
+        if len(inference_result["outputs"]) > 1:
+            part["fields"] = from_json(
+                inference_result["outputs"][1], allow_partial=True
+            )
         else:
             part["fields"] = []
 
@@ -65,9 +69,8 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         )
         result.id = input_data_id
 
-        # Attach LLM interactions for debugging
-        if hasattr(self, "_llm_interactions"):
-            result.llm_interactions = self._llm_interactions
+        # Attach LLM interactions from result
+        result.llm_interactions = inference_result["llm_interactions"]
 
         # Post-processing: Validate chart type matches reasoning
         validate_and_correct_chart_type(result, logger)
@@ -91,7 +94,7 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
-    ) -> list[str]:
+    ) -> InferenceResult:
         """Run Component Selection inference."""
 
         if logger.isEnabledFor(logging.DEBUG):
@@ -102,24 +105,34 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         data_for_llm = str(json_data)
 
         # Initialize LLM interactions list
-        self._llm_interactions = []
+        llm_interactions: list[LLMInteraction] = []
 
         raw_response_1 = await self.inference_step_1(
-            inference, user_prompt, data_for_llm
+            inference, user_prompt, data_for_llm, llm_interactions
         )
         response_1 = trim_to_json(raw_response_1)
 
         if self.select_component_only:
-            return [response_1]
+            return InferenceResult(
+                outputs=[response_1], llm_interactions=llm_interactions
+            )
 
         raw_response_2 = await self.inference_step_2(
-            inference, response_1, user_prompt, data_for_llm
+            inference, response_1, user_prompt, data_for_llm, llm_interactions
         )
         response_2 = trim_to_json(raw_response_2)
 
-        return [response_1, response_2]
+        return InferenceResult(
+            outputs=[response_1, response_2], llm_interactions=llm_interactions
+        )
 
-    async def inference_step_1(self, inference, user_prompt, json_data_for_llm: str):
+    async def inference_step_1(
+        self,
+        inference,
+        user_prompt,
+        json_data_for_llm: str,
+        llm_interactions: list[LLMInteraction],
+    ):
         """Run Component Selection inference."""
 
         sys_msg_content = f"""You are a UI design assistant. Select the best component to show the Data based on User query.
@@ -148,13 +161,13 @@ Available components: {get_ui_components_description(self.unsupported_components
         logger.debug("Component selection LLM response: %s", response)
 
         # Store step 1 interaction
-        self._llm_interactions.append(
-            {
-                "step": "component_selection",
-                "system_prompt": sys_msg_content,
-                "user_prompt": prompt,
-                "raw_response": response,
-            }
+        llm_interactions.append(
+            LLMInteraction(
+                step="component_selection",
+                system_prompt=sys_msg_content,
+                user_prompt=prompt,
+                raw_response=response,
+            )
         )
 
         return response
@@ -165,6 +178,7 @@ Available components: {get_ui_components_description(self.unsupported_components
         component_selection_response,
         user_prompt,
         json_data_for_llm: str,
+        llm_interactions: list[LLMInteraction],
     ):
         component = from_json(component_selection_response, allow_partial=True)[
             "component"
@@ -195,13 +209,13 @@ Available components: {get_ui_components_description(self.unsupported_components
         logger.debug("Component configuration LLM response: %s", response)
 
         # Store step 2 interaction
-        self._llm_interactions.append(
-            {
-                "step": "field_selection",
-                "system_prompt": sys_msg_content,
-                "user_prompt": prompt,
-                "raw_response": response,
-            }
+        llm_interactions.append(
+            LLMInteraction(
+                step="field_selection",
+                system_prompt=sys_msg_content,
+                user_prompt=prompt,
+                raw_response=response,
+            )
         )
 
         return response

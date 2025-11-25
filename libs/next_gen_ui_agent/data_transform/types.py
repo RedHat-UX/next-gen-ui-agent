@@ -110,61 +110,39 @@ class ChartSeries(BaseModel):
 class ComponentDataChartBase(ComponentDataBaseWithTitle):
     """Base Component Data for Chart visualization with common properties."""
 
-    component: Literal["chart"] = "chart"
     data: Optional[list[ChartSeries]] = Field(
         default=None, description="Array of data series for the chart"
-    )
-    width: Optional[Union[int, float]] = Field(
-        default=600, description="Width of the chart in pixels"
-    )
-    height: Optional[Union[int, float]] = Field(
-        default=400, description="Height of the chart in pixels"
-    )
-    themeColor: Optional[str] = Field(
-        default="multi", description="PatternFly chart theme color"
-    )
-    ariaTitle: Optional[str] = Field(
-        default=None, description="Accessibility title for screen readers"
-    )
-    ariaDesc: Optional[str] = Field(
-        default=None, description="Accessibility description for screen readers"
     )
 
 
 class ComponentDataBarChart(ComponentDataChartBase):
     """Component Data for Bar Chart."""
 
-    chartType: Literal["bar"] = "bar"
-    horizontal: Optional[bool] = Field(
-        default=None, description="Whether to display the bar chart horizontally"
-    )
+    component: Literal["chart-bar"] = "chart-bar"
 
 
 class ComponentDataLineChart(ComponentDataChartBase):
     """Component Data for Line Chart."""
 
-    chartType: Literal["line"] = "line"
+    component: Literal["chart-line"] = "chart-line"
 
 
 class ComponentDataPieChart(ComponentDataChartBase):
     """Component Data for Pie Chart."""
 
-    chartType: Literal["pie"] = "pie"
+    component: Literal["chart-pie"] = "chart-pie"
 
 
 class ComponentDataDonutChart(ComponentDataChartBase):
     """Component Data for Donut Chart."""
 
-    chartType: Literal["donut"] = "donut"
-    donutSubTitle: Optional[str] = Field(
-        default="Total", description="Subtitle for donut charts"
-    )
+    component: Literal["chart-donut"] = "chart-donut"
 
 
 class ComponentDataMirroredBarChart(ComponentDataChartBase):
     """Component Data for Mirrored Bar Chart."""
 
-    chartType: Literal["mirrored-bar"] = "mirrored-bar"
+    component: Literal["chart-mirrored-bar"] = "chart-mirrored-bar"
 
 
 # Discriminated union of all chart types
@@ -176,7 +154,7 @@ ComponentDataChart = Annotated[
         ComponentDataDonutChart,
         ComponentDataMirroredBarChart,
     ],
-    Discriminator("chartType"),
+    Discriminator("component"),
 ]
 
 
