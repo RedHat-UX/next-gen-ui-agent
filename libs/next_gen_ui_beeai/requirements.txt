@@ -1,1 +1,1 @@
-beeai-framework<=0.1.46
+beeai-framework<=0.1.68

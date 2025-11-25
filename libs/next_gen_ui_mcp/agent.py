@@ -88,7 +88,11 @@ class NextGenUIMCPServer:
         self.config = config
         self.sampling_max_tokens = sampling_max_tokens
         self.structured_output_enabled = structured_output_enabled
-        self.mcp: FastMCP = FastMCP(name)
+        self.mcp: FastMCP = FastMCP(
+            name,
+            strict_input_validation=True,
+            mask_error_details=False,
+        )
         if enabled_tools:
             for t in enabled_tools:
                 if t not in MCP_ALL_TOOLS:
