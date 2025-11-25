@@ -19,6 +19,7 @@ class NextGenUIAgentExecutor(AgentExecutor):
         """Get data from the message parts."""
         input_data_list = []
         user_prompt = ""
+        # TODO: NGUI-495 stabilize input data selection
         metadata = message.metadata
 
         for p in message.parts:
@@ -90,7 +91,7 @@ class NextGenUIAgentExecutor(AgentExecutor):
                 id=rendering.id, rendering=rendering, configuration=block_config
             )
 
-            # TODO: Return same Output like MCPGenerateUIOutput !!!
+            # TODO: NGUI-495 Return same Output like MCPGenerateUIOutput !!!
             summary = "UI generated"
             message = Message(
                 role=Role.agent,

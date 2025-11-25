@@ -1,4 +1,6 @@
-# Next Gen UI Agent A2A Protocol Integration
+# Next Gen UI Agent A2A Protocol Integration (Dev Preview)
+
+TODO: NGUI-493 Add badges
 
 [A2A Protocol](https://a2a-protocol.org/) provides standard how to communicate with agent
 and provides interoparability by client SDKs in different languages.
@@ -17,6 +19,8 @@ pip install -U next_gen_ui_a2a
 ```
 
 ## Example
+
+TODO: NGUI-493 - Improve documentation. Move code examples to docs. Keep README minimal.
 
 ### Run A2A server with Next Gen UI agent
 
@@ -182,6 +186,8 @@ if __name__ == "__main__":
 
 
 ## Build Container Image
+
+! TODO: NGUI-493 - Move it to README-container.md
 
 Agent can also be built using a container file.
 
