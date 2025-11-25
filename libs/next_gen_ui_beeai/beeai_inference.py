@@ -2,8 +2,7 @@ import logging
 from typing import Any
 
 from beeai_framework.backend import Message, SystemMessage, UserMessage
-from beeai_framework.backend.chat import ChatModel
-from beeai_framework.backend.types import ChatModelOutput, ChatModelParameters
+from beeai_framework.backend.chat import ChatModel, ChatModelOutput, ChatModelParameters
 from next_gen_ui_agent.model import InferenceBase
 
 logger = logging.getLogger(__name__)
@@ -23,4 +22,4 @@ class BeeAIInference(InferenceBase):
         ]
         output: ChatModelOutput = await self.model.create(messages=input_messages)
         response = output.get_text_content()
-        return response
+        return str(response)

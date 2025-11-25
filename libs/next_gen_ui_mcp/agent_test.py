@@ -326,6 +326,7 @@ async def test_generate_ui_component_sampling_inference_bad_return_type() -> Non
             == "Error calling tool 'generate_ui_component': Failed to call model via MCP sampling: Sample Response returned unknown type: image"
         )
 
+
 @pytest.mark.asyncio
 async def test_generate_ui_component_extra_arg(
     external_inference,
@@ -340,7 +341,7 @@ async def test_generate_ui_component_extra_arg(
 
     async with Client(ngui_agent.get_mcp_server()) as client:
         with pytest.raises(Exception) as excinfo:
-            result = await client.call_tool(
+            await client.call_tool(
                 "generate_ui_component",
                 {
                     "user_prompt": "Tell me brief details of Toy Story",
@@ -350,7 +351,10 @@ async def test_generate_ui_component_extra_arg(
                 },
             )
 
-    assert str(excinfo.value) == "1 validation error for call[generate_ui_component]\nsession_id\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value='extra_argument_ignored', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/unexpected_keyword_argument"
+    assert (
+        str(excinfo.value)
+        == "1 validation error for call[generate_ui_component]\nsession_id\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value='extra_argument_ignored', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/unexpected_keyword_argument"
+    )
 
 
 @pytest.mark.asyncio
