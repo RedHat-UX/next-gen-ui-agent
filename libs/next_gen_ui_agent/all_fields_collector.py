@@ -10,6 +10,115 @@ from next_gen_ui_agent.types import DataField, UIComponentMetadata
 COMPONENTS_WITH_ALL_FIELDS = ["table", "set-of-cards"]
 """ List of component names where `generate_all_fields()` function generates all possible fields to be shown in the UI."""
 
+# Set of known words with their preferred casing for field name generation
+KNOWN_WORDS = {
+    "ID",
+    "API",
+    "URL",
+    "HTTP",
+    "HTTPS",
+    "JSON",
+    "XML",
+    "HTML",
+    "CSS",
+    "JS",
+    "UI",
+    "UX",
+    "SQL",
+    "REST",
+    "SOAP",
+    "UUID",
+    "GUID",
+    "IP",
+    "DNS",
+    "SSL",
+    "TLS",
+    "PDF",
+    "CSV",
+    "TSV",
+    "YAML",
+    "JWT",
+    "OAuth",
+    "OIDC",
+    "SSO",
+    "LDAP",
+    "SAML",
+    "GDPR",
+    "HIPAA",
+    "PCI",
+    "ISO",
+    "UTF",
+    "ASCII",
+    "EBCDIC",
+    "CRUD",
+    "RPC",
+    "gRPC",
+    "GraphQL",
+    "AWS",
+    "S3",
+    "EC2",
+    "RDS",
+    "IAM",
+    "VPC",
+    "CDN",
+    "CI",
+    "CD",
+    "DevOps",
+    "K8s",
+    "MongoDB",
+    "PostgreSQL",
+    "MySQL",
+    "NoSQL",
+    "ETL",
+    "BI",
+    "ML",
+    "AI",
+    "NLP",
+    "CV",
+    "DL",
+    "GPU",
+    "CPU",
+    "RAM",
+    "SSD",
+    "HDD",
+    "IO",
+    "I/O",
+    "OS",
+    "OSI",
+    "TCP",
+    "UDP",
+    "FTP",
+    "SFTP",
+    "SSH",
+    "VPN",
+    "WAN",
+    "LAN",
+    "WiFi",
+    "Wi-Fi",
+    "5G",
+    "4G",
+    "LTE",
+    "GSM",
+    "CDMA",
+    "NFC",
+    "RFID",
+    "GPS",
+    "GIS",
+    "SDK",
+    "IDE",
+    "CLI",
+    "GUI",
+    "CMDB",
+    "IMDB",
+    "OSN",
+    "GPT",
+    "DeepSeek",
+    "LLaMA",
+}
+
+# Dictionary mapping lowercase words to their preferred casing for efficient lookup
+_KNOWN_WORDS_MAP = {word.lower(): word for word in KNOWN_WORDS}
+
 
 def generate_all_fields(
     component_metadata: UIComponentMetadata,
@@ -117,22 +226,34 @@ def generate_field_name(key: str) -> str:
 
     Replaces `-` and `_` with spaces to get multiple words, splits camelCase
     into individual words, then converts every word to begin with uppercase
-    letter and continue with lowercase letters.
+    letter and continue with lowercase letters. If a word matches a known word
+    defined in the KNOWN_WORDS set (case insensitive), uses the exact casing
+    from the KNOWN_WORDS set.
 
     Examples:
         first_name -> First Name
         user-id -> User Id
         firstName -> First Name
+        user_id -> User ID
+        api_key -> API Key
     """
     # Split camelCase: insert space between lowercase/digit and uppercase letters
     # This handles cases like: firstName -> first Name, but preserves USER_ID
     key = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", key)
 
-    # Replace - and _ with spaces
+    # Replace - and _ with spaces and split into words
     words = key.replace("-", " ").replace("_", " ").split()
 
-    # Convert each word to title case (first letter uppercase, rest lowercase)
-    title_words = [word.capitalize() for word in words]
+    # Convert each word to title case, using known words if available
+    title_words = []
+    for word in words:
+        word_lower = word.lower()
+        if word_lower in _KNOWN_WORDS_MAP:
+            # Use the exact casing from the known words set
+            title_words.append(_KNOWN_WORDS_MAP[word_lower])
+        else:
+            # Default to capitalize (first letter uppercase, rest lowercase)
+            title_words.append(word.capitalize())
 
     # Join words with spaces
     return " ".join(title_words)

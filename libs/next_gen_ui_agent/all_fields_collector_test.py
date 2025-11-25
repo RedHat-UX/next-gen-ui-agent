@@ -277,13 +277,13 @@ def test_generate_all_fields_with_non_dict_array_items():
 def test_generate_field_name_with_underscore():
     """Test that generate_field_name converts underscore-separated words to title case."""
     assert generate_field_name("first_name") == "First Name"
-    assert generate_field_name("user_id") == "User Id"
+    assert generate_field_name("user_id") == "User ID"
     assert generate_field_name("first_name_last_name") == "First Name Last Name"
 
 
 def test_generate_field_name_with_hyphen():
     """Test that generate_field_name converts hyphen-separated words to title case."""
-    assert generate_field_name("user-id") == "User Id"
+    assert generate_field_name("user-id") == "User ID"
     assert generate_field_name("first-name") == "First Name"
     assert generate_field_name("first-name-last-name") == "First Name Last Name"
 
@@ -293,12 +293,12 @@ def test_generate_field_name_camel_case():
     assert generate_field_name("FirstName") == "First Name"
     assert generate_field_name("firstName") == "First Name"
     assert generate_field_name("firstN3ame") == "First N3ame"
-    assert generate_field_name("UserID") == "User Id"
+    assert generate_field_name("UserID") == "User ID"
 
 
 def test_generate_field_name_with_mixed_separators():
     """Test that generate_field_name handles mixed underscore and hyphen separators."""
-    assert generate_field_name("user_id-name") == "User Id Name"
+    assert generate_field_name("user_id-name") == "User ID Name"
     assert generate_field_name("first-name_last") == "First Name Last"
     assert generate_field_name("first-name_lastName") == "First Name Last Name"
 
@@ -326,4 +326,12 @@ def test_generate_field_name_uppercase():
     """Test that generate_field_name converts uppercase to title case."""
     assert generate_field_name("AGE") == "Age"
     assert generate_field_name("FIRST_NAME") == "First Name"
-    assert generate_field_name("USER_ID") == "User Id"
+    # 'known' words with case defined in the KNOWN_WORDS set
+    assert generate_field_name("USER_ID") == "User ID"
+    assert generate_field_name("API_KEY") == "API Key"
+    assert generate_field_name("HTTP_STATUS") == "HTTP Status"
+    assert generate_field_name("json-data") == "JSON Data"
+    assert generate_field_name("xmlData") == "XML Data"
+    assert generate_field_name("dataXml") == "Data XML"
+    assert generate_field_name("css_class") == "CSS Class"
+    assert generate_field_name("graphqlQuery") == "GraphQL Query"
