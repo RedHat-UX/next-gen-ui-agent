@@ -84,7 +84,6 @@ nav:
       - MCP Server Library: guide/ai_apps_binding/mcp-library.md
       - MCP Server Container: guide/ai_apps_binding/mcp-container.md
       - BeeAI: guide/ai_apps_binding/beeai.md
-      - ACP: guide/ai_apps_binding/acp.md
       - Python Library: guide/ai_apps_binding/pythonlib.md
     - Binding into UI:
       - guide/renderer/index.md

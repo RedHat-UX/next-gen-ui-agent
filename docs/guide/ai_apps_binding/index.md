@@ -14,7 +14,6 @@ Binding UI Agent core functionality into your AI application (AI assistant backe
 * [MCP Library](mcp-library.md)
 * [MCP Container](mcp-container.md)
 * A2A - WIP
-* [ACP](acp.md)
 
 ## Python Library
 
