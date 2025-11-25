@@ -1,13 +1,24 @@
 # Architecture
 
-This guide shows how to use *NextGen UI Agent* in your application.
+This guide shows how to use *NextGen UI Agent* in your AI application, how it plays with other building blocks of it.
+
+## What is *UI Agent*
 
 In short, *UI Agent* takes `User Prompt` and [`Structured Data`](input_data/index.md) relevant to this prompt as an input, 
 and generates UI component to visualize that piece of data to the user. We call it [`Data UI Block`](data_ui_blocks/index.md).
-[AI (LLM) is used](llm.md) in this step to understand the `User Prompt` and [input data structure](./input_data/structure.md), 
-and select the best dynamic UI component and displayed data values.
 
-Stricter configuration can be used when tighter control of UI components applied to the input data is necessary, for 
+UI Agent uses [AI (LLM)](llm.md) in this step to understand the `User Prompt` and [input data structure](./input_data/structure.md),
+and select the best dynamic UI component and displayed data values. 
+As UI component generation is an AI narrow task, small LLMs (3B, 8B, Mini/Flash/Flash-Lite series) are typically able to provide 
+good results for this task, which saves LLM price. They also provide better processing time, which is important for good user experience.
+We provide [LLM evaluation tool](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ai_eval_components) as part of this project, 
+results from some [eval runs are available](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ai_eval_components/results).
+We expect to provide small LLMs finetuned for UI generation task in the future.
+
+*UI Agent* can process structured Input Data in different formats. Extensible [input data transformation framework](./input_data/transformation.md) 
+is used, with OOTB transformers provided for the most common formats like `JSON`, `YAML`, `CSV` and `fixed width columns table`.
+
+Stricter configuration can be defined when tighter control of the UI components applied to the input data is necessary, for
 details see [Component Selection and Configuration docs](./data_ui_blocks/index.md#selection-and-configuration-process).
 
 In the future, this agent will also maintain `UI state` and view layouts to keep UI and flows consistent, handle personalized 
@@ -16,10 +27,12 @@ values formating, and many other features. Stay tuned ;-)
 Example of the generated `Data UI Block`:
 ![Example of the Data UI Block](../img/data_ui_block_card.png "Example of the Data UI Block")
 
-*UI Agent* also suports [*Hand Build Components*](data_ui_blocks/hand_build_components.md) for pieces of data where UI component exists already, or where 
-it is needed to provide special visualization or use features on top of AI generated UI components.
+*UI Agent* also suports [*Hand Build Components*](data_ui_blocks/hand_build_components.md) for pieces of data where UI component exists 
+already, or where it is needed to provide special visualization or use features on top of AI generated UI components.
 
-Your application, called *Controlling assistant*, has to provide other building blocks and their orchestration to implement complete solution.
+## How to use *UI Agent*
+
+Your AI application, called *Controlling assistant*, has to provide other building blocks and their orchestration to implement complete solution.
 
 Example of the *Controlling assistant* architecture:
 ![Example of the Controlling assistant architecture](../img/architecture_assistant_flow.jpg "Example of the Controlling assistant architecture")
@@ -43,8 +56,19 @@ They can be rendered using pluggable GUI component system renderers, and integra
 We provide renderers for several UI component systems, either Server-Side or Client-Side, see [Binding into UI](renderer/index.md).
 
 Output of the *UI Agent* does not contain the `Data UI Block` rendering only, but also [structured UI component configuration](../spec/output.md). 
-It can be used to implement advanced UI features, like live data updates from backend, manual selection of visualized fields etc.
+It can be used to implement advanced UI features, like live data updates from backend, manual selection of visualized table columns etc.
 
-*UI Agent* can be integrated into *Controlling Assistant* developed using multiple AI frameworks or AI protocols, see [Binding into AI application](ai_apps_binding/index.md).
+## How to integrate *UI Agent*
 
-You can also refer ["Choose your framework"](../installation.md).
+*UI Agent* can be integrated into *Controlling Assistant* developed using multiple AI frameworks or AI protocols,
+see [Binding into AI application](ai_apps_binding/index.md). You can also refer ["Choose your framework"](../installation.md) guide.
+
+The first approach how to integrate *UI Agent* into the *Controlling assistant* is to use assistant's LLM to choose and execute the 
+UI Agent. This approach makes sense if you want your assistant to act like `Orchestrator` - to decide about the UI component generation.
+For example to select which backend data loaded during the processing needs to be visualized in UI, or whether UI has to be generated at all.
+This approach cost you more in terms of the main LLM processing price (tokens) and time, but gives you more flexibility.
+
+Alternative approach is to invoke *UI Agent* directly as part of your assistant logic, at the specific moment of the processing flow, 
+after gathering structured backend data for the response.
+This approach is a bit more reliable, helps to reduce main LLM processing price (tokens) and time (you can even generate UI in 
+parallel with *Natural language response* generation), but is a bit less flexible.
