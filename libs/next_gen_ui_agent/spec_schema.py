@@ -22,15 +22,17 @@ from next_gen_ui_agent.data_transform.types import (
     ComponentDataVideo,
 )
 from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
+from next_gen_ui_agent.types import UIBlock
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
 config_subdir = "config"
+output_subdir = "output"
 config_schemas: list[tuple[str, str, type[BaseModel]]] = [
     (config_subdir, "agent_config.schema.json", AgentConfig),
+    (output_subdir, "ui_block.schema.json", UIBlock),
 ]
-
 component_dir = "component"
 component_schemas: list[tuple[str, str, type[BaseModel]]] = [
     (

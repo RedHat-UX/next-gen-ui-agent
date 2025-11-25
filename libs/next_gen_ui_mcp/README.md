@@ -7,9 +7,16 @@ This module is part of the [Next Gen UI Agent project](https://github.com/RedHat
 
 This package wraps Next Gen UI Agent in a [Model Context Protocol (MCP)](https://modelcontextprotocol.io) tools using the [official Python MCP SDK](https://modelcontextprotocol.io/docs/sdk).
 
-Since MCP adoption is so strong these days and there is an apetite to use this protocol also for handling agentic AI, we also deliver UI Agent this way. The most common way of utilising MCP tools is to provide them to LLM to choose and execute with certain parameters. This approach doesn't make too much sense for Next Gen UI Agent, as you want to call it at the specific moment, after gathering structured backend data for response. 
-Also you don't want LLM to try to pass the prompt and JSON content as it may lead to unnecessary errors in the content. 
-It's more natural and reliable to invoke this MCP tool directly with the parameters as part of your main application logic, also saving LLM tokens/price.
+Since MCP adoption is so strong these days and there is an apetite to use this protocol also for handling agentic AI, we also deliver UI Agent this way. 
+
+The most common way of utilising MCP tools is to provide them to LLM to choose and execute with certain parameters. 
+This approach of using Next Gen UI Agent makes sense if you want your AI Orchestrator give a chance to decide about the UI component generation.
+For example to select which backend data loaded during the processing needs to be visualized in UI.
+You have to prompt LLM in a way to pass the correct user prompt and structured backend data content into the UI MCP unaltered, to prevent unexpected UI errors. 
+
+Alternative approach is to invoke this MCP tool directly (or even using another AI framework binding) with the parameters 
+as part of your main application logic at the specific moment of the flow, after gathering structured backend data for response.
+This approach is a bit more reliable, helps to reduce main LLM processing price (tokens) and saves processing time, but is less flexible.
 
 ## Provides
 
@@ -158,10 +165,11 @@ You can find the input schema in [spec/mcp/generate_ui_input.schema.json](https:
 Object containing:
 
 - UI blocks with rendering and configuration
-- summary
+- Textual summary of the UI Blocks generation
 
 When error occurs during the execution valid ui blocks are rendered. The failing UI Block is mentioned in the summary and don't appear in `blocks` field.
 
+Textual summary is usefull to give the calling LLM a chance to "understand" what happened and react accordingly, include info about UI in natural language response etc.
 
 By default the result is provided as [structured content](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content) where structured content contains JSON object and the text content just "human readable summary".
 It's beneficial to send to Agent only text summary for LLM processing and use structured content for UI rendering on client side.
@@ -182,7 +190,7 @@ Example:
         "id": "e5e2db10-de22-4165-889c-02de2f24c901",
         "component_system": "json",
         "mime_type": "application/json",
-        "content": "{\"component\":\"one-card\",\"image\":\"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\"id\":\"e5e2db10-de22-4165-889c-02de2f24c901\",\"title\":\"Toy Story Movie Details\",\"fields\":[{\"name\":\"Title\",\"data_path\":\"$..movie_detail.title\",\"data\":[\"Toy Story\"]},{\"name\":\"Release Year\",\"data_path\":\"$..movie_detail.year\",\"data\":[1995]},{\"name\":\"IMDB Rating\",\"data_path\":\"$..movie_detail.imdbRating\",\"data\":[8.3]},{\"name\":\"Runtime (min)\",\"data_path\":\"$..movie_detail.runtime\",\"data\":[81]},{\"name\":\"Plot\",\"data_path\":\"$..movie_detail.plot\",\"data\":[\"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\"]}]}"
+        "content": "{\"component\":\"one-card\",\"image\":\"https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg\",\"id\":\"e5e2db10-de22-4165-889c-02de2f24c901\",\"title\":\"Toy Story Movie Details\",\"fields\":[{\"id\": \"title\",\"name\":\"Title\",\"data_path\":\"$..movie_detail.title\",\"data\":[\"Toy Story\"]},{\"id\": \"year\",\"name\":\"Release Year\",\"data_path\":\"$..movie_detail.year\",\"data\":[1995]},{\"id\": \"imdbRating\",\"name\":\"IMDB Rating\",\"data_path\":\"$..movie_detail.imdbRating\",\"data\":[8.3]},{\"id\": \"runtime\",\"name\":\"Runtime (min)\",\"data_path\":\"$..movie_detail.runtime\",\"data\":[81]},{\"id\": \"plot\",\"name\":\"Plot\",\"data_path\":\"$..movie_detail.plot\",\"data\":[\"A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.\"]}]}"
       },
       "configuration": {
         "data_type": "movie_detail",

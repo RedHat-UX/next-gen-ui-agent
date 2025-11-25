@@ -23,41 +23,6 @@
       "title": "DataField",
       "type": "object"
     },
-    "UIBlock": {
-      "description": "UI Block model with all details",
-      "properties": {
-        "id": {
-          "type": "string"
-        },
-        "rendering": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/UIBlockRendering"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        },
-        "configuration": {
-          "anyOf": [
-            {
-              "$ref": "#/$defs/UIBlockConfiguration"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "default": null
-        }
-      },
-      "required": [
-        "id"
-      ],
-      "title": "UIBlock",
-      "type": "object"
-    },
     "UIBlockComponentMetadata": {
       "description": "UI Component Metadata for UIBlockConfiguration.",
       "properties": {
@@ -197,22 +162,37 @@
       "type": "object"
     }
   },
-  "description": "MCP Output for Generate UI",
+  "description": "UI Block model with all details",
   "properties": {
-    "blocks": {
-      "items": {
-        "$ref": "#/$defs/UIBlock"
-      },
-      "type": "array"
-    },
-    "summary": {
+    "id": {
       "type": "string"
+    },
+    "rendering": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UIBlockRendering"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "configuration": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UIBlockConfiguration"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     }
   },
   "required": [
-    "blocks",
-    "summary"
+    "id"
   ],
-  "title": "MCPGenerateUIOutput",
+  "title": "UIBlock",
   "type": "object"
 }
