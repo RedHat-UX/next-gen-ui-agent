@@ -68,6 +68,7 @@ class NextGenUIAgentExecutor(AgentExecutor):
             raise ValueError(
                 "No input data gathered from either Message metadata or TextPart metadata or DataPart"
             )
+        # TODO: Parallelize per input data if needed (depends on NGUI-495	Stabilize input/output A2A schemas, sync with MCP)
         for input_data in input_data_list:
             # 1. Component selection
             component_metadata = await self.ngui_agent.select_component(

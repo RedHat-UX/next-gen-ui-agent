@@ -1,11 +1,13 @@
 # Next Gen UI Agent A2A Protocol Integration (Dev Preview)
 
-TODO: NGUI-493 Add badges
+[![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Dev%20Preview-yellow)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 [A2A Protocol](https://a2a-protocol.org/) provides standard how to communicate with agent
 and provides interoparability by client SDKs in different languages.
 
-This package provides resp. helps you build:
+## Provides
+
 1. Standard A2A API to the Next Gen UI agent
 2. HTTP Server to run the A2A API and execute the agent
 3. Docker image
@@ -182,47 +184,4 @@ if __name__ == "__main__":
     import asyncio
 
     asyncio.run(main())
-```
-
-
-## Build Container Image
-
-! TODO: NGUI-493 - Move it to README-container.md
-
-Agent can also be built using a container file.
-
-1. Build project
-
-```sh
-pants package ::
-```
-
-2. Navigate to the directory `libs/next_gen_ui_a2a` directory:
-
-```sh
-cd libs/next_gen_ui_a2a
-```
-
-3. Build the container file
-
-```sh
-export PROJ_DIST_DIR=$(realpath ../../dist)
-podman  build . -v $PROJ_DIST_DIR:/opt/ngui-dist:ro,z -t ngui-a2a-server
-```
-
-> [!Tip]  
-> Podman is a drop-in replacement for `docker` which can also be used in these commands.
-
-3. Run you container
-
-```bash
-podman run --rm -p 9999:9999 \
-    -e INFERENCE_MODEL=llama3.2 \
-    -e OPEN_API_URL=http://host.containers.internal:11434/v1 \
-    ngui-a2a-server
-```
-4. Validate server A2A
-
-```sh
-curl http://localhost:9999/.well-known/agent-card.json
 ```
