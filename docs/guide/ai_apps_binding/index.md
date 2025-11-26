@@ -11,11 +11,12 @@ Binding UI Agent core functionality into your AI application (AI assistant backe
 
 ## AI Protocol bindings/servers
 
-* [MCP Library](mcp-library.md)
-* [MCP Container](mcp-container.md)
-* A2A - WIP
-* [ACP](acp.md)
+* [MCP Server Library](mcp-library.md)
+* [MCP Server Container](mcp-container.md)
+* [A2A Server Library](a2a-library.md)
+* [A2A Server Container](a2a-container.md)
 
 ## Python Library
 
-There is also a [Python library with the core functionality](pythonlib.md) available, to integrate into other AI frameworks and application types.
+There is a [Python library with the UI Agent core functionality](pythonlib.md) available.
+It can be used to integrate into other AI frameworks and application types, in a similar way as existing bindings.
