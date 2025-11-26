@@ -15,7 +15,6 @@ interface ChartConfig {
   component: string;
   id: string;
   title: string;
-  chartType: string;
   data: unknown[];
   [key: string]: unknown;
 }
@@ -28,7 +27,7 @@ export const PrometheusConverter: React.FC<PrometheusConverterProps> = ({ onConv
   const [prometheusData, setPrometheusData] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [title, setTitle] = useState('Prometheus Metrics');
-  const [chartType, setChartType] = useState<'line' | 'bar'>('line');
+  const [chartKind, setChartKind] = useState<'line' | 'bar'>('line');
   const [downsample, setDownsample] = useState('1');
 
   const handleConvert = async () => {
@@ -48,7 +47,7 @@ export const PrometheusConverter: React.FC<PrometheusConverterProps> = ({ onConv
         },
         body: JSON.stringify({
           prometheusData: prometheusData,
-          userPrompt: `Show ${title} as a ${chartType} chart`,
+          userPrompt: `Show ${title} as a ${chartKind} chart`,
           strategy: 'one-step',
           downsample: parseInt(downsample) || 1
         })
@@ -184,10 +183,10 @@ export const PrometheusConverter: React.FC<PrometheusConverterProps> = ({ onConv
           />
         </FormGroup>
 
-        <FormGroup label="Chart Type">
+      <FormGroup label="Chart Type">
           <FormSelect
-            value={chartType}
-            onChange={(_event, value) => setChartType(value as 'line' | 'bar')}
+            value={chartKind}
+            onChange={(_event, value) => setChartKind(value as 'line' | 'bar')}
           >
             <FormSelectOption value="line" label="Line" />
             <FormSelectOption value="bar" label="Bar" />

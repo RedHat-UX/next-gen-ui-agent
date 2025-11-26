@@ -27,7 +27,6 @@ interface DebugSectionProps {
   dataTransform?: {
     transformerName?: string;
     jsonWrappingField?: string;
-    chartType?: string;
     fieldCount?: number;
     fields?: Array<{
       name: string;

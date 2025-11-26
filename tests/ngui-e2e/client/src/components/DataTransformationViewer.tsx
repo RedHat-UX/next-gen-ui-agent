@@ -4,7 +4,6 @@ interface DataTransformationViewerProps {
   dataTransform: {
     transformerName?: string;
     jsonWrappingField?: string;
-    chartType?: string;
     fieldCount?: number;
     fields?: Array<{
       name: string;
@@ -46,18 +45,6 @@ export function DataTransformationViewer({ dataTransform, messageId }: DataTrans
               </span>
             </div>
           )}
-          
-          {dataTransform.chartType && (
-            <div>
-              <strong className="data-transform-label-title">
-                Chart Type:{' '}
-              </strong>
-              <span className="data-transform-label-badge-chart">
-                {dataTransform.chartType}
-              </span>
-            </div>
-          )}
-          
           {dataTransform.fields && dataTransform.fields.length > 0 && (
             <div className="data-transform-fields-section">
               <strong className="data-transform-fields-title">

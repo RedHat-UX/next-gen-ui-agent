@@ -119,7 +119,6 @@ export default function ChatBotPage() {
       // Check if this is a modified version of a selected mock
       const label = selectedMock ? `${selectedMock} (Modified)` : 'Custom JSON';
       handleMockSend(config, label);
-      setCustomJson(''); // Clear after sending
     } catch (e) {
       console.error('Invalid JSON:', e);
     }

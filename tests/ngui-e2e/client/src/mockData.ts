@@ -69,10 +69,9 @@ export const mockComponentData: MockDataItem[] = [
     name: "Chart - Box Office Revenue",
     description: "Bar chart showing box office comparison",
     config: {
-      component: "chart",
+      component: "chart-bar",
       id: "box-office-chart",
       title: "Box Office Revenue Comparison",
-      chartType: "bar",
       data: [
         {
           name: "Revenue (Millions)",
@@ -84,18 +83,16 @@ export const mockComponentData: MockDataItem[] = [
             { x: "Interstellar", y: 677 }
           ]
         }
-      ],
-      themeColor: "blue"
+      ]
     }
   },
   {
     name: "Chart - Weekly Box Office",
     description: "Line chart showing weekly box office trends",
     config: {
-      component: "chart",
+      component: "chart-line",
       id: "weekly-box-office-chart",
       title: "Toy Story - Weekly Box Office",
-      chartType: "line",
       data: [
         {
           name: "Revenue",
@@ -106,18 +103,16 @@ export const mockComponentData: MockDataItem[] = [
             { x: "Week 4", y: 12345678 }
           ]
         }
-      ],
-      themeColor: "green"
+      ]
     }
   },
   {
     name: "Chart - Multi-line Revenue Trends",
     description: "Multi-line chart comparing multiple movies",
     config: {
-      component: "chart",
+      component: "chart-line",
       id: "multi-line-chart",
       title: "Weekly Revenue Comparison",
-      chartType: "line",
       data: [
         {
           name: "Toy Story",
@@ -137,18 +132,16 @@ export const mockComponentData: MockDataItem[] = [
             { x: "Week 4", y: 26088337 }
           ]
         }
-      ],
-      themeColor: "multi"
+      ]
     }
   },
   {
     name: "Chart - Mirrored Bar (ROI vs Budget)",
     description: "Mirrored bar chart comparing two metrics",
     config: {
-      component: "chart",
+      component: "chart-mirrored-bar",
       id: "mirrored-bar-chart",
       title: "ROI vs Budget Comparison",
-      chartType: "mirrored-bar",
       data: [
         {
           name: "ROI",
@@ -177,10 +170,9 @@ export const mockComponentData: MockDataItem[] = [
     name: "Chart - Pie (Genre Distribution)",
     description: "Pie chart showing genre popularity",
     config: {
-      component: "chart",
+      component: "chart-pie",
       id: "genre-pie-chart",
       title: "Movies by Genre",
-      chartType: "pie",
       data: [
         {
           name: "Genres",
@@ -199,10 +191,9 @@ export const mockComponentData: MockDataItem[] = [
     name: "Chart - Donut (Rating Distribution)",
     description: "Donut chart showing rating categories",
     config: {
-      component: "chart",
+      component: "chart-donut",
       id: "rating-donut-chart",
       title: "Movies by Rating Category",
-      chartType: "donut",
       data: [
         {
           name: "Ratings",
@@ -214,18 +205,16 @@ export const mockComponentData: MockDataItem[] = [
             { x: "Below Average (<6)", y: 5 }
           ]
         }
-      ],
-      donutSubTitle: "Total Movies"
+      ]
     }
   },
   {
     name: "Chart - Line (Box Office Trends)",
     description: "Line chart showing daily box office performance",
     config: {
-      component: "chart",
+      component: "chart-line",
       id: "box-office-line-chart",
       title: "Daily Box Office - Opening Week",
-      chartType: "line",
       data: [
         {
           name: "The Dark Knight",
@@ -251,18 +240,16 @@ export const mockComponentData: MockDataItem[] = [
             { x: "Thu", y: 11234567 }
           ]
         }
-      ],
-      themeColor: "multi"
+      ]
     }
   },
   {
     name: "Chart - Mirrored Bar (Revenue vs Profit)",
     description: "Mirrored bar comparing revenue and profit",
     config: {
-      component: "chart",
+      component: "chart-mirrored-bar",
       id: "revenue-profit-mirrored",
       title: "Revenue vs Profit Analysis",
-      chartType: "mirrored-bar",
       data: [
         {
           name: "Total Revenue (Millions)",
@@ -291,10 +278,9 @@ export const mockComponentData: MockDataItem[] = [
     name: "Chart - Bar (Director Comparison)",
     description: "Bar chart comparing directors by average rating",
     config: {
-      component: "chart",
+      component: "chart-bar",
       id: "director-bar-chart",
       title: "Average Rating by Director",
-      chartType: "bar",
       data: [
         {
           name: "Average Rating",
@@ -306,19 +292,16 @@ export const mockComponentData: MockDataItem[] = [
             { x: "Ridley Scott", y: 8.1 }
           ]
         }
-      ],
-      themeColor: "blue",
-      horizontal: true
+      ]
     }
   },
   {
-    name: "Chart - Horizontal Bar (Long Movie Titles)",
-    description: "Horizontal bar chart with long movie titles",
+    name: "Chart - Long Movie Titles",
+    description: "Bar chart with long movie titles",
     config: {
-      component: "chart",
-      id: "long-titles-horizontal",
+      component: "chart-bar",
+      id: "long-titles-chart",
       title: "Top Revenue by Movie Title",
-      chartType: "bar",
       data: [
         {
           name: "Revenue (Millions)",
@@ -330,19 +313,16 @@ export const mockComponentData: MockDataItem[] = [
             { x: "The Dark Knight Rises", y: 1081.0 }
           ]
         }
-      ],
-      themeColor: "green",
-      horizontal: true
+      ]
     }
   },
   {
     name: "Chart - Line (Rating Trends Over Time)",
     description: "Line chart showing rating trends by release year",
     config: {
-      component: "chart",
+      component: "chart-line",
       id: "rating-trend-line",
       title: "Average Movie Ratings by Year",
-      chartType: "line",
       data: [
         {
           name: "Average IMDB Rating",
@@ -355,18 +335,16 @@ export const mockComponentData: MockDataItem[] = [
             { x: "2020", y: 8.2 }
           ]
         }
-      ],
-      themeColor: "green"
+      ]
     }
   },
   {
     name: "Chart - Mirrored Bar (Opening vs Total)",
     description: "Mirrored bar comparing opening weekend to total revenue",
     config: {
-      component: "chart",
+      component: "chart-mirrored-bar",
       id: "opening-total-mirrored",
       title: "Opening Weekend vs Total Revenue",
-      chartType: "mirrored-bar",
       data: [
         {
           name: "Opening Weekend (Millions)",

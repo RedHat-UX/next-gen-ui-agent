@@ -526,9 +526,9 @@ async def generate_response(request: GenerateRequest):
                 for msg in messages:
                     msg_dict = {
                         "type": type(msg).__name__,
-                        "content": str(msg.content)
-                        if hasattr(msg, "content")
-                        else str(msg),
+                        "content": (
+                            str(msg.content) if hasattr(msg, "content") else str(msg)
+                        ),
                     }
                     # Add additional attributes for specific message types
                     if hasattr(msg, "tool_calls") and msg.tool_calls:
@@ -731,24 +731,22 @@ async def generate_response(request: GenerateRequest):
                     hasattr(first_component, "input_data_transformer_name")
                     and first_component.input_data_transformer_name
                 ):
-                    data_transform[
-                        "transformerName"
-                    ] = first_component.input_data_transformer_name
+                    data_transform["transformerName"] = (
+                        first_component.input_data_transformer_name
+                    )
                 if (
                     hasattr(first_component, "json_wrapping_field_name")
                     and first_component.json_wrapping_field_name
                 ):
-                    data_transform[
-                        "jsonWrappingField"
-                    ] = first_component.json_wrapping_field_name
+                    data_transform["jsonWrappingField"] = (
+                        first_component.json_wrapping_field_name
+                    )
                 if hasattr(first_component, "fields") and first_component.fields:
                     data_transform["fieldCount"] = len(first_component.fields)
                     data_transform["fields"] = [
                         {"name": field.name, "dataPath": field.data_path}
                         for field in first_component.fields
                     ]
-                if hasattr(first_component, "chartType") and first_component.chartType:
-                    data_transform["chartType"] = first_component.chartType
                 if data_transform:
                     metadata["dataTransform"] = data_transform
 
