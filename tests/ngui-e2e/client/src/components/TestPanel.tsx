@@ -11,8 +11,6 @@ import {
   Radio,
   TextArea,
   TextInput,
-  Checkbox,
-  Button,
   FormSelect,
   FormSelectOption
 } from '@patternfly/react-core';
@@ -253,47 +251,77 @@ export const TestPanel: React.FC<TestPanelProps> = ({
                 <p className="test-panel-inline-description">
                   Attach custom JSON data to your next live request. When populated, the backend skips the movies agent and feeds this dataset directly to the renderer.
                 </p>
-                <FormGroup label="Load predefined dataset" fieldId="inline-dataset-select">
-                  <FormSelect
-                    id="inline-dataset-select"
-                    value={selectedDatasetId}
-                    onChange={(_event, value) => handleDatasetChange(value)}
-                  >
-                    <FormSelectOption key="none" value="" label="None (manual input)" />
-                    {INLINE_DATASETS.map((dataset) => (
-                      <FormSelectOption
-                        key={dataset.id}
-                        value={dataset.id}
-                        label={dataset.label}
+
+                {/* Predefined Datasets Section */}
+                <div className="inline-dataset-section">
+                  <div className="inline-dataset-group">
+                    <h4 className="inline-dataset-group-title">
+                      <span className="inline-dataset-group-icon">📦</span>
+                      Load Predefined Dataset
+                    </h4>
+                    <FormGroup label="Select dataset" fieldId="inline-dataset-select">
+                      <FormSelect
+                        id="inline-dataset-select"
+                        value={selectedDatasetId}
+                        onChange={(_event, value) => handleDatasetChange(value)}
+                      >
+                        <FormSelectOption key="none" value="" label="None (manual input)" />
+                        {INLINE_DATASETS.map((dataset) => (
+                          <FormSelectOption
+                            key={dataset.id}
+                            value={dataset.id}
+                            label={dataset.label}
+                          />
+                        ))}
+                      </FormSelect>
+                      {selectedDatasetId && (
+                        <p className="test-panel-inline-description small">
+                          {INLINE_DATASETS.find((d) => d.id === selectedDatasetId)?.description}
+                        </p>
+                      )}
+                    </FormGroup>
+                  </div>
+                </div>
+
+                {/* Custom Dataset Section */}
+                <div className="inline-dataset-section">
+                  <div className="inline-dataset-group">
+                    <h4 className="inline-dataset-group-title">
+                      <span className="inline-dataset-group-icon">✏️</span>
+                      Custom Dataset
+                    </h4>
+                    
+                    <FormGroup label="Dataset type (optional)" fieldId="inline-dataset-type">
+                      <TextInput
+                        id="inline-dataset-type"
+                        value={inlineDatasetType}
+                        onChange={(_, value) => onInlineDatasetTypeChange(value)}
+                        placeholder="e.g. lightrail.costs, infra.metrics"
                       />
-                    ))}
-                  </FormSelect>
-                  {selectedDatasetId && (
-                    <p className="test-panel-inline-description small">
-                      {INLINE_DATASETS.find((d) => d.id === selectedDatasetId)?.description}
-                    </p>
-                  )}
-                </FormGroup>
-                <FormGroup label="Dataset type (optional)" fieldId="inline-dataset-type">
-                  <TextInput
-                    id="inline-dataset-type"
-                    value={inlineDatasetType}
-                    onChange={(_, value) => onInlineDatasetTypeChange(value)}
-                    placeholder="e.g. movies.detail, cost.analysis"
-                  />
-                </FormGroup>
-                <FormGroup label="Dataset JSON" fieldId="inline-dataset-json">
-                  <TextArea
-                    id="inline-dataset-json"
-                    value={inlineDataset}
-                    onChange={(_, value) => onInlineDatasetChange(value)}
-                    placeholder='[{ "name": "Service A", "value": 42 }]'
-                    rows={8}
-                  />
-                </FormGroup>
+                      <p className="inline-dataset-help-text">
+                        Identifier for data transformer selection (e.g., use "get_prometheus_metrics" for Prometheus data)
+                      </p>
+                    </FormGroup>
+                    
+                    <FormGroup label="Dataset JSON" fieldId="inline-dataset-json">
+                      <TextArea
+                        id="inline-dataset-json"
+                        value={inlineDataset}
+                        onChange={(_, value) => onInlineDatasetChange(value)}
+                        placeholder='[{ "name": "Service A", "value": 42 }]'
+                        rows={10}
+                      />
+                      <p className="inline-dataset-help-text">
+                        Paste JSON array or object. Supports standard JSON, Prometheus format, and more.
+                      </p>
+                    </FormGroup>
+                  </div>
+                </div>
+
+                {/* Hint Box */}
                 <div className="test-panel-inline-hint">
                   <p>
-                    Paste or load JSON above. Leave blank to use the standard movies dataset.
+                    💡 <strong>Tip:</strong> Leave blank to use the standard movies dataset, or paste custom JSON to test with your own data.
                   </p>
                 </div>
               </div>
