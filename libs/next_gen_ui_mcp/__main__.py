@@ -37,102 +37,23 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
 
 from fastmcp import FastMCP
 from next_gen_ui_agent.agent_config import read_config_yaml_file
+from next_gen_ui_agent.inference.inference_builder import (
+    add_inference_comandline_args,
+    create_inference_from_arguments,
+)
 from next_gen_ui_agent.types import AgentConfig
 from next_gen_ui_mcp.agent import MCP_ALL_TOOLS
 
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from next_gen_ui_agent.model import InferenceBase, LangChainModelInference  # noqa: E402
+from next_gen_ui_agent.inference.inference_base import InferenceBase  # noqa: E402
 from next_gen_ui_mcp import NextGenUIMCPServer  # noqa: E402
 
 logger = logging.getLogger("NextGenUI-MCP-Server")
-
-
-def create_llamastack_inference(model: str, llama_url: str) -> InferenceBase:
-    """Create LlamaStack inference provider with dynamic import.
-
-    Args:
-        model: Model name to use
-        llama_url: URL of the LlamaStack server
-
-    Returns:
-        LlamaStack inference instance
-
-    Raises:
-        ImportError: If llama-stack-client is not installed
-        RuntimeError: If connection to LlamaStack fails
-    """
-    try:
-        from llama_stack_client import LlamaStackClient  # pants: no-infer-dep
-        from next_gen_ui_llama_stack.llama_stack_inference import (
-            LlamaStackAgentInference,  # pants: no-infer-dep
-        )
-    except ImportError as e:
-        raise ImportError(
-            "LlamaStack dependencies not found. Install with: "
-            "pip install llama-stack-client==0.2.20"
-        ) from e
-
-    try:
-        client = LlamaStackClient(base_url=llama_url)
-        return LlamaStackAgentInference(client, model)
-    except Exception as e:
-        raise RuntimeError(
-            f"Failed to connect to LlamaStack at {llama_url}: {e}"
-        ) from e
-
-
-def create_langchain_inference(
-    model: str,
-    base_url: Optional[str] = None,
-    api_key: Optional[str] = None,
-    temperature: float = 0.0,
-) -> InferenceBase:
-    """Create LangChain inference provider with ChatOpenAI.
-
-    Args:
-        model: Model name to use (e.g., 'gpt-4', 'gpt-3.5-turbo', 'llama3.2')
-        base_url: Optional base URL for custom OpenAI-compatible endpoints
-        api_key: Optional API key (uses OPENAI_API_KEY env var if not provided)
-        temperature: Temperature for the model (default: 0.0 for deterministic responses)
-
-    Returns:
-        LangChain inference instance
-
-    Raises:
-        ImportError: If langchain-openai is not installed
-        RuntimeError: If model initialization fails
-    """
-    try:
-        from langchain_openai import ChatOpenAI  # pants: no-infer-dep
-    except ImportError as e:
-        raise ImportError(
-            "LangChain OpenAI dependencies not found. Install with: "
-            "pip install langchain-openai"
-        ) from e
-
-    try:
-        llm_settings = {
-            "model": model,
-            "temperature": temperature,
-            "disable_streaming": True,
-        }
-
-        # Add optional parameters if provided
-        if base_url:
-            llm_settings["base_url"] = base_url
-        if api_key:
-            llm_settings["api_key"] = api_key
-
-        llm = ChatOpenAI(**llm_settings)  # type: ignore
-        return LangChainModelInference(llm)
-    except Exception as e:
-        raise RuntimeError(f"Failed to initialize LangChain model {model}: {e}") from e
 
 
 def create_server(
@@ -221,6 +142,7 @@ Examples:
         """,
     )
 
+    # UI Agent configuration arguments
     parser.add_argument(
         "--config-path",
         action="extend",
@@ -232,8 +154,14 @@ Examples:
             "or passing comma separated value."
         ),
     )
+    parser.add_argument(
+        "--component-system",
+        choices=["json", "patternfly", "rhds"],
+        default="json",
+        help="Component system to use for rendering (default: json)",
+    )
 
-    # Transport arguments
+    # MCP Server specific arguments
     parser.add_argument(
         "--transport",
         choices=["stdio", "sse", "streamable-http"],
@@ -259,47 +187,9 @@ Examples:
         default="true",
         help="Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.",
     )
-    parser.add_argument(
-        "--component-system",
-        choices=["json", "patternfly", "rhds"],
-        default="json",
-        help="Component system to use for rendering (default: json)",
-    )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
-    # Inference provider arguments
-    parser.add_argument(
-        "--provider",
-        choices=["mcp", "llamastack", "langchain"],
-        default="mcp",
-        help="Inference provider to use (default: mcp - uses MCP sampling)",
-    )
-    parser.add_argument(
-        "--model", help="Model name to use (required for llamastack and langchain)"
-    )
-
-    # LlamaStack specific arguments
-    parser.add_argument(
-        "--llama-url",
-        default="http://localhost:5001",
-        help="LlamaStack server URL (default: http://localhost:5001)",
-    )
-
-    # LangChain specific arguments
-    parser.add_argument(
-        "--base-url",
-        help="Base URL for OpenAI-compatible API (e.g., http://localhost:11434/v1 for Ollama)",
-    )
-    parser.add_argument(
-        "--api-key",
-        help="API key for the LLM provider (uses OPENAI_API_KEY env var if not provided)",
-    )
-    parser.add_argument(
-        "--temperature",
-        type=float,
-        default=0.0,
-        help="Temperature for LangChain model (default: 0.0 for deterministic responses)",
-    )
+    add_inference_comandline_args(parser, default_provider="mcp")
 
     # MCP sampling specific arguments
     parser.add_argument(
@@ -338,35 +228,14 @@ Examples:
         args.structured_output_enabled,
     )
 
-    # Validate arguments
-    if args.provider in ["llamastack", "langchain"] and not args.model:
-        parser.error(f"--model is required when using {args.provider} provider")
-
     # Create inference provider
-    inference = None
     try:
+        inference = None
         if args.provider == "mcp":
             logger.info("Using MCP sampling - will leverage client's LLM capabilities")
-            # inference remains None for MCP sampling
-        elif args.provider == "llamastack":
-            logger.info(
-                "Using LlamaStack inference with model %s at %s",
-                args.model,
-                args.llama_url,
-            )
-            inference = create_llamastack_inference(args.model, args.llama_url)
-        elif args.provider == "langchain":
-            logger.info("Using LangChain inference with model %s", args.model)
-            if args.base_url:
-                logger.info("Using custom base URL: %s", args.base_url)
-            inference = create_langchain_inference(
-                model=args.model,
-                base_url=args.base_url,
-                api_key=args.api_key,
-                temperature=args.temperature,
-            )
+            inference = None  # inference remains None for MCP sampling
         else:
-            raise ValueError(f"Unknown provider: {args.provider}")
+            inference = create_inference_from_arguments(parser, args, logger)
 
         # Create the agent
         agent = create_server(

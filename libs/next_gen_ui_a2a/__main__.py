@@ -8,7 +8,7 @@ from a2a.server.tasks import InMemoryTaskStore  # pants: no-infer-dep
 from langchain_openai import ChatOpenAI  # pants: no-infer-dep
 from next_gen_ui_a2a.agent_card import card
 from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
-from next_gen_ui_agent.model import LangChainModelInference
+from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.types import AgentConfig
 
 if __name__ == "__main__":
