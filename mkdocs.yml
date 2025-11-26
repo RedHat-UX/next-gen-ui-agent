@@ -78,13 +78,16 @@ nav:
       - guide/configuration.md
     - Binding into AI application: 
       - guide/ai_apps_binding/index.md
+      - Python Library: guide/ai_apps_binding/pythonlib.md
       - Llama Stack: guide/ai_apps_binding/llamastack.md
       - Llama Stack Embedded Server: guide/ai_apps_binding/llamastack_embedded.md
       - LangGraph: guide/ai_apps_binding/langgraph.md
       - MCP Server Library: guide/ai_apps_binding/mcp-library.md
       - MCP Server Container: guide/ai_apps_binding/mcp-container.md
+      - A2A Server Library: guide/ai_apps_binding/a2a-library.md
+      - A2A Server Container: guide/ai_apps_binding/a2a-container.md
       - BeeAI: guide/ai_apps_binding/beeai.md
-      - Python Library: guide/ai_apps_binding/pythonlib.md
+      
     - Binding into UI:
       - guide/renderer/index.md
       - Server-Side renderer:
