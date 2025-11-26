@@ -70,6 +70,7 @@ nav:
         - guide/input_data/index.md
         - Structures: guide/input_data/structure.md
         - Transformation: guide/input_data/transformation.md
+        - Prometheus Transformer: guide/input_data/prometheus.md
       - guide/llm.md
       - Data UI Blocks:
         - guide/data_ui_blocks/index.md

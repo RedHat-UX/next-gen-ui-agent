@@ -13,7 +13,7 @@ React frontend application for the NGUI end-to-end testing application. Demonstr
 * Dynamic UI component rendering using NGUI components
 * ChatBot interface for AI interaction
 * Vite-based development environment
-* Integration with NGUI `dynamicui` package
+* Integration with NGUI `@rhngui/patternfly-react-renderer` package
 * Error boundary handling for robust UI
 
 ## Installation
@@ -22,17 +22,13 @@ React frontend application for the NGUI end-to-end testing application. Demonstr
 
 1. **Node.js** (version 18 or higher)
 2. **npm** or **yarn** package manager
-3. **`dynamicui` package** - Available locally for development
 
 ### Install Dependencies
 
 ```bash
 cd tests/ngui-e2e/client
 npm install
-npm link dynamicui
 ```
-
-**Note**: The `dynamicui` package will be available via npm in the future. For now, it's available locally for development purposes.
 
 ## Configuration
 
@@ -65,6 +61,28 @@ npm run build
 
 Built files will be available in the `dist/` directory.
 
+## Debug Mode
+
+Debug mode provides additional developer tools and testing capabilities for working with the NGUI agent.
+
+### Enabling Debug Mode
+
+Add the `?debug=true` URL parameter to enable debug mode:
+
+```
+http://localhost:5173/?debug=true
+```
+
+### Debug Mode Features
+
+When debug mode is enabled, you get access to:
+
+- **Test Panel**: A resizable left sidebar with testing tools
+- **Mock Mode**: Test UI components with predefined mock data without connecting to the backend
+- **Quick Prompts**: Pre-configured prompts for rapid testing
+- **JSON Viewer**: "View component JSON" button to inspect the raw component configuration
+- **Custom JSON**: Ability to send custom JSON configurations directly to test specific scenarios
+
 ## Application Structure
 
 ```
@@ -90,9 +108,9 @@ src/
 
 ### Common Issues
 
-**1. Module Not Found: "dynamicui"**
-- **Cause**: The `dynamicui` package is not built or linked properly
-- **Solution**: Build the package from `libs_js/next_gen_ui_react/` and run `npm link dynamicui`
+**1. Module Not Found: "@rhngui/patternfly-react-renderer"**
+- **Cause**: The package is not installed or linked properly
+- **Solution**: Run `npm install`. For local development with linked packages, see [DEVELOPMENT.md](./DEVELOPMENT.md)
 
 **2. API Connection Errors**
 - **Cause**: Backend server is not running or not accessible
@@ -126,7 +144,8 @@ curl -I http://localhost:8000/docs
 - **React** - UI framework
 - **Vite** - Build tool and dev server
 - **TypeScript** - Type safety
-- **dynamicui** - NGUI React components package
+- **@rhngui/patternfly-react-renderer** - NGUI React components package
+- **@patternfly/chatbot** - PatternFly ChatBot components
 
 ## Links
 
