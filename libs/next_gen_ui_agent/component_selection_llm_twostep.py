@@ -69,8 +69,10 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         )
         result.id = input_data_id
 
-        # Attach LLM interactions from result
-        result.llm_interactions = inference_result["llm_interactions"]
+        # Attach LLM interactions from result (convert TypedDict instances to plain dicts for Pydantic)
+        result.llm_interactions = [
+            dict(li) for li in inference_result["llm_interactions"]
+        ]
 
         # Post-processing: Validate chart type matches reasoning
         validate_and_correct_chart_type(result, logger)
