@@ -78,31 +78,30 @@ python -m next_gen_ui_mcp -h
 Next Gen UI MCP Server with Sampling or External LLM Providers
 
 options:
-  -h, --help            show this help message and exit
+  -h, --help            show this help message and exit.
   --config-path CONFIG_PATH [CONFIG_PATH ...]
                         Path to configuration YAML file. You can specify multiple config files by repeating same parameter or passing comma separated value.
   --transport {stdio,sse,streamable-http}
-                        Transport protocol to use
-  --host HOST           Host to bind to
+                        Transport protocol to use.
+  --host HOST           Host to bind to.
   --tools TOOLS [TOOLS ...]
                         Control which tools should be enabled. You can specify multiple values by repeating same parameter or passing comma separated value.
-  --port PORT           Port to bind to
+  --port PORT           Port to bind to.
   --structured_output_enabled {true,false}
                         Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.
   --component-system {json,patternfly,rhds}
-                        Component system to use for rendering (default: json)
-  --debug               Enable debug logging
+                        Component system to use for rendering (default: json).
+  --debug               Enable debug logging.
   --provider {mcp,llamastack,langchain}
-                        Inference provider to use (default: mcp - uses MCP sampling)
-  --model MODEL         Model name to use (required for llamastack and langchain)
-  --llama-url LLAMA_URL
-                        LlamaStack server URL (default: http://localhost:5001)
-  --base-url BASE_URL   Base URL for OpenAI-compatible API (e.g., http://localhost:11434/v1 for Ollama)
-  --api-key API_KEY     API key for the LLM provider (uses OPENAI_API_KEY env var if not provided)
+                        Inference provider to use (default: `mcp` - uses MCP sampling).
+  --model MODEL         Model name to use. Required for `openai`, `llamastack`.
+  --base-url BASE_URL   
+                        Base URL of the API endpoint. For `openai` defaults to OpenAI API, use eg. `http://localhost:11434/v1` for Ollama. For `llamastack` defaults to `http://localhost:5001`.
+  --api-key API_KEY     API key for the LLM provider (`openai` also uses OPENAI_API_KEY env var if not provided). Used by `openai`, `llamastack`.
   --temperature TEMPERATURE
-                        Temperature for LangChain model (default: 0.0 for deterministic responses)
+                        Temperature for model inference (default to `0.0` for deterministic responses). Used by `openai`.
   --sampling-max-tokens SAMPLING_MAX_TOKENS
-                        Maximum tokens for MCP sampling inference (default: 2048)
+                        Maximum tokens for `mcp` inference provider (default: 2048).
 ```
 
 ### Running Server locally from Git Repo
