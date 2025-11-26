@@ -17,10 +17,11 @@ from typing_extensions import override
 logger = logging.getLogger(__name__)
 
 
-class BarChartDataTransformer(ChartDataTransformerBase):
+class BarChartDataTransformer(ChartDataTransformerBase[ComponentDataBarChart]):
     """Data transformer for bar charts (chart-bar)."""
 
     COMPONENT_NAME = "chart-bar"
+    _component_data: ComponentDataBarChart
 
     def __init__(self):
         self._component_data = ComponentDataBarChart.model_construct(data=[])
@@ -69,7 +70,7 @@ class BarChartDataTransformer(ChartDataTransformerBase):
         errors: list[ComponentDataValidationError],
     ) -> ComponentDataBarChart:
         """Validate the bar chart data."""
-        ret = super().validate(component, data, errors)
+        super().validate(component, data, errors)
 
         # Validate that we have at least one series with data
         if not self._component_data.data or len(self._component_data.data) == 0:
@@ -79,13 +80,14 @@ class BarChartDataTransformer(ChartDataTransformerBase):
                 )
             )
 
-        # Validate component type is set correctly
-        if self._component_data.component != "chart-bar":
+        # Validate component type is set correctly (defensive check)
+        component_value = getattr(self._component_data, "component", None)
+        if component_value != "chart-bar":
             errors.append(
                 ComponentDataValidationError(
                     "chart.invalidComponent",
-                    f"Expected component 'chart-bar', got '{self._component_data.component}'",
+                    f"Expected component 'chart-bar', got '{component_value}'",
                 )
             )
 
-        return ret
+        return self._component_data

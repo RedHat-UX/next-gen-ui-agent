@@ -20,10 +20,11 @@ from typing_extensions import override
 logger = logging.getLogger(__name__)
 
 
-class PieChartDataTransformer(ChartDataTransformerBase):
+class PieChartDataTransformer(ChartDataTransformerBase[ComponentDataPieChart]):
     """Data transformer for pie charts (chart-pie)."""
 
     COMPONENT_NAME = "chart-pie"
+    _component_data: ComponentDataPieChart
 
     def __init__(self):
         self._component_data = ComponentDataPieChart.model_construct(data=[])
@@ -91,7 +92,7 @@ class PieChartDataTransformer(ChartDataTransformerBase):
         errors: list[ComponentDataValidationError],
     ) -> ComponentDataPieChart:
         """Validate the pie chart data."""
-        ret = super().validate(component, data, errors)
+        super().validate(component, data, errors)
 
         # Validate that we have at least one series with data
         if not self._component_data.data or len(self._component_data.data) == 0:
@@ -101,13 +102,14 @@ class PieChartDataTransformer(ChartDataTransformerBase):
                 )
             )
 
-        # Validate component type is set correctly
-        if self._component_data.component != "chart-pie":
+        # Validate component type is set correctly (defensive check)
+        component_value = getattr(self._component_data, "component", None)
+        if component_value != "chart-pie":
             errors.append(
                 ComponentDataValidationError(
                     "chart.invalidComponent",
-                    f"Expected component 'chart-pie', got '{self._component_data.component}'",
+                    f"Expected component 'chart-pie', got '{component_value}'",
                 )
             )
 
-        return ret
+        return self._component_data

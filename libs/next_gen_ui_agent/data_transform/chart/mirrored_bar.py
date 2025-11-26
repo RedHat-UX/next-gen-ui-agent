@@ -17,10 +17,13 @@ from typing_extensions import override
 logger = logging.getLogger(__name__)
 
 
-class MirroredBarChartDataTransformer(ChartDataTransformerBase):
+class MirroredBarChartDataTransformer(
+    ChartDataTransformerBase[ComponentDataMirroredBarChart]
+):
     """Data transformer for mirrored bar charts (chart-mirrored-bar)."""
 
     COMPONENT_NAME = "chart-mirrored-bar"
+    _component_data: ComponentDataMirroredBarChart
 
     def __init__(self):
         self._component_data = ComponentDataMirroredBarChart.model_construct(data=[])
@@ -80,7 +83,7 @@ class MirroredBarChartDataTransformer(ChartDataTransformerBase):
         errors: list[ComponentDataValidationError],
     ) -> ComponentDataMirroredBarChart:
         """Validate the mirrored bar chart data."""
-        ret = super().validate(component, data, errors)
+        super().validate(component, data, errors)
 
         # Validate that we have exactly 2 series
         if not self._component_data.data or len(self._component_data.data) != 2:
@@ -91,13 +94,14 @@ class MirroredBarChartDataTransformer(ChartDataTransformerBase):
                 )
             )
 
-        # Validate component type is set correctly
-        if self._component_data.component != "chart-mirrored-bar":
+        # Validate component type is set correctly (defensive check)
+        component_value = getattr(self._component_data, "component", None)
+        if component_value != "chart-mirrored-bar":
             errors.append(
                 ComponentDataValidationError(
                     "chart.invalidComponent",
-                    f"Expected component 'chart-mirrored-bar', got '{self._component_data.component}'",
+                    f"Expected component 'chart-mirrored-bar', got '{component_value}'",
                 )
             )
 
-        return ret
+        return self._component_data

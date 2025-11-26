@@ -5,6 +5,9 @@ from next_gen_ui_agent.data_transform.chart import (
     MirroredBarChartDataTransformer,
     PieChartDataTransformer,
 )
+from next_gen_ui_agent.data_transform.validation.types import (
+    ComponentDataValidationError,
+)
 from next_gen_ui_agent.types import InputData, UIComponentMetadata
 
 
@@ -40,6 +43,7 @@ def test_process_chart_with_two_fields() -> None:
     result = BarChartDataTransformer().process(c, data)
     assert result.title == "Movie Ratings"
     assert result.component == "chart-bar"
+    assert result.data is not None
     assert len(result.data) == 1  # One series (Rating)
     assert result.data[0].name == "Rating"
     assert len(result.data[0].data) == 3
@@ -76,6 +80,7 @@ def test_process_chart_with_multiple_series() -> None:
     result = MirroredBarChartDataTransformer().process(c, data)
     assert result.title == "Movie Revenue vs Budget"
     assert result.component == "chart-mirrored-bar"
+    assert result.data is not None
     assert len(result.data) == 2  # Two series (Revenue and Budget)
     assert result.data[0].name == "Revenue"
     assert result.data[1].name == "Budget"
@@ -114,6 +119,7 @@ def test_process_pie_chart_with_single_field() -> None:
     result = PieChartDataTransformer().process(c, data)
     assert result.title == "Genre Distribution"
     assert result.component == "chart-pie"
+    assert result.data is not None
     assert len(result.data) == 1
     assert result.data[0].name == "Genre"
     assert len(result.data[0].data) == 3  # 3 unique genres
@@ -150,6 +156,7 @@ def test_process_donut_chart_with_array_flattening() -> None:
     result = DonutChartDataTransformer().process(c, data)
     assert result.title == "All Genres"
     assert result.component == "chart-donut"
+    assert result.data is not None
     assert len(result.data) == 1
     # Action should appear 2 times
     action_point = next(p for p in result.data[0].data if p.x == "Action")
@@ -184,6 +191,7 @@ def test_process_line_chart_with_time_series() -> None:
     result = LineChartDataTransformer().process(c, data)
     assert result.component == "chart-line"
     assert result.title == "Sales Trends"
+    assert result.data is not None
     assert len(result.data) == 3  # Three series (Sales, Profit, Expenses)
     assert result.data[0].name == "Sales"
     assert result.data[1].name == "Profit"
@@ -217,7 +225,7 @@ def test_validate_OK() -> None:
             ]
         }""",
     )
-    errors = []
+    errors: list[ComponentDataValidationError] = []
     result = BarChartDataTransformer().validate(c, data, errors)
     assert len(errors) == 0
     assert result.component == "chart-bar"
@@ -240,7 +248,7 @@ def test_validate_no_data() -> None:
         id="test_chart_7",
         data="""{"data": []}""",
     )
-    errors = []
+    errors: list[ComponentDataValidationError] = []
     BarChartDataTransformer().validate(c, data, errors)
     assert len(errors) >= 1
     # Should have chart.noData error
@@ -264,7 +272,7 @@ def test_validate_invalid_data_path() -> None:
         id="test_chart_8",
         data="""{"data": [{"x": "A", "y": 10}]}""",
     )
-    errors = []
+    errors: list[ComponentDataValidationError] = []
     BarChartDataTransformer().validate(c, data, errors)
     # Should have validation errors for invalid paths
     assert len(errors) >= 1
@@ -295,6 +303,7 @@ def test_handle_none_values() -> None:
     )
     result = BarChartDataTransformer().process(c, data)
     # Should skip the null value
+    assert result.data is not None
     assert len(result.data[0].data) == 2
     assert result.data[0].data[0].y == 10
     assert result.data[0].data[1].y == 30

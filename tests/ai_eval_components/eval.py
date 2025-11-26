@@ -214,7 +214,7 @@ def evaluate_agent_for_dataset_row(
 
             # TODO NGUI-116 LLM-as-a-judge AI check to evaluate if fields are relevant to the user prompt and data
 
-    return DatasetRowAgentEvalResult(llm_response, errors, data)
+    return DatasetRowAgentEvalResult(llm_response["outputs"], errors, data)
 
 
 def init_openai_api_inference_from_env(

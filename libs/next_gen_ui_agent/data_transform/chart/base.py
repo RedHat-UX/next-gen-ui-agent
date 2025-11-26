@@ -2,7 +2,7 @@
 
 import logging
 from abc import abstractmethod
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from next_gen_ui_agent.data_transform import data_transformer_utils
 from next_gen_ui_agent.data_transform.data_transformer import DataTransformerBase
@@ -17,8 +17,10 @@ from typing_extensions import override
 
 logger = logging.getLogger(__name__)
 
+TChart = TypeVar("TChart", bound=ComponentDataChart)
 
-class ChartDataTransformerBase(DataTransformerBase[ComponentDataChart]):
+
+class ChartDataTransformerBase(DataTransformerBase[TChart], Generic[TChart]):
     """Base class for all chart transformers with shared utility methods."""
 
     @override

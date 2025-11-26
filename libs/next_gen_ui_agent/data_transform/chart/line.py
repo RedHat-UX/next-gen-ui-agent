@@ -19,10 +19,11 @@ from typing_extensions import override
 logger = logging.getLogger(__name__)
 
 
-class LineChartDataTransformer(ChartDataTransformerBase):
+class LineChartDataTransformer(ChartDataTransformerBase[ComponentDataLineChart]):
     """Data transformer for line charts (chart-line)."""
 
     COMPONENT_NAME = "chart-line"
+    _component_data: ComponentDataLineChart
 
     def __init__(self):
         self._component_data = ComponentDataLineChart.model_construct(data=[])
@@ -155,7 +156,7 @@ class LineChartDataTransformer(ChartDataTransformerBase):
         errors: list[ComponentDataValidationError],
     ) -> ComponentDataLineChart:
         """Validate the line chart data."""
-        ret = super().validate(component, data, errors)
+        super().validate(component, data, errors)
 
         # Validate that we have at least one series with data
         if not self._component_data.data or len(self._component_data.data) == 0:
@@ -165,13 +166,14 @@ class LineChartDataTransformer(ChartDataTransformerBase):
                 )
             )
 
-        # Validate component type is set correctly
-        if self._component_data.component != "chart-line":
+        # Validate component type is set correctly (defensive check)
+        component_value = getattr(self._component_data, "component", None)
+        if component_value != "chart-line":
             errors.append(
                 ComponentDataValidationError(
                     "chart.invalidComponent",
-                    f"Expected component 'chart-line', got '{self._component_data.component}'",
+                    f"Expected component 'chart-line', got '{component_value}'",
                 )
             )
 
-        return ret
+        return self._component_data

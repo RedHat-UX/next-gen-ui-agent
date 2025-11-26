@@ -20,10 +20,11 @@ from typing_extensions import override
 logger = logging.getLogger(__name__)
 
 
-class DonutChartDataTransformer(ChartDataTransformerBase):
+class DonutChartDataTransformer(ChartDataTransformerBase[ComponentDataDonutChart]):
     """Data transformer for donut charts (chart-donut)."""
 
     COMPONENT_NAME = "chart-donut"
+    _component_data: ComponentDataDonutChart
 
     def __init__(self):
         self._component_data = ComponentDataDonutChart.model_construct(data=[])
@@ -91,7 +92,7 @@ class DonutChartDataTransformer(ChartDataTransformerBase):
         errors: list[ComponentDataValidationError],
     ) -> ComponentDataDonutChart:
         """Validate the donut chart data."""
-        ret = super().validate(component, data, errors)
+        super().validate(component, data, errors)
 
         # Validate that we have at least one series with data
         if not self._component_data.data or len(self._component_data.data) == 0:
@@ -101,13 +102,14 @@ class DonutChartDataTransformer(ChartDataTransformerBase):
                 )
             )
 
-        # Validate component type is set correctly
-        if self._component_data.component != "chart-donut":
+        # Validate component type is set correctly (defensive check)
+        component_value = getattr(self._component_data, "component", None)
+        if component_value != "chart-donut":
             errors.append(
                 ComponentDataValidationError(
                     "chart.invalidComponent",
-                    f"Expected component 'chart-donut', got '{self._component_data.component}'",
+                    f"Expected component 'chart-donut', got '{component_value}'",
                 )
             )
 
-        return ret
+        return self._component_data
