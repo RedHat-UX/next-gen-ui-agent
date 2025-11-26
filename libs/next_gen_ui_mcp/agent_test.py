@@ -247,6 +247,32 @@ async def test_generate_ui_multiple_components_external_inference_no_structured_
 
 
 @pytest.mark.asyncio
+async def test_generate_ui_multiple_components_session_id(
+    external_inference,
+) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        inference=external_inference,
+    )
+
+    movies_data = find_movie("Toy Story")
+    input_data: List[InputData] = [
+        {"id": "external_test_id", "data": json.dumps(movies_data, default=str)}
+    ]
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        result = await client.call_tool(
+            "generate_ui_multiple_components",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "structured_data": input_data,
+                "session_id": "extra_argument_ignored",
+            },
+        )
+    assert result is not None
+
+
+@pytest.mark.asyncio
 async def test_generate_ui_component(
     external_inference,
 ) -> None:
@@ -328,33 +354,27 @@ async def test_generate_ui_component_sampling_inference_bad_return_type() -> Non
 
 
 @pytest.mark.asyncio
-async def test_generate_ui_component_extra_arg(
+async def test_generate_ui_component_session_id(
     external_inference,
 ) -> None:
     ngui_agent = NextGenUIMCPServer(
         config=AgentConfig(component_system="json"),
-        name="TestAgentExternal",
         inference=external_inference,
     )
 
     movies_data = find_movie("Toy Story")
 
     async with Client(ngui_agent.get_mcp_server()) as client:
-        with pytest.raises(Exception) as excinfo:
-            await client.call_tool(
-                "generate_ui_component",
-                {
-                    "user_prompt": "Tell me brief details of Toy Story",
-                    "data": json.dumps(movies_data, default=str),
-                    "data_type": "data_type_ignored",
-                    "session_id": "extra_argument_ignored",
-                },
-            )
-
-    assert (
-        str(excinfo.value)
-        == "1 validation error for call[generate_ui_component]\nsession_id\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value='extra_argument_ignored', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/unexpected_keyword_argument"
-    )
+        result = await client.call_tool(
+            "generate_ui_component",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "data": json.dumps(movies_data, default=str),
+                "data_type": "data_type_ignored",
+                "session_id": "extra_argument_ignored",
+            },
+        )
+    assert result is not None
 
 
 @pytest.mark.asyncio

@@ -157,6 +157,7 @@ This single tool handles:
 
 - `user_prompt` (str, required): User's prompt which we want to enrich with UI components
 - `structured_data` (List[Dict], required): List of structured input data. Each object has to have `id`, `data` and `type` field.
+- `session_id` (str, optional): Session ID. Not used, present just for compatibility purposes.
 
 You can find the input schema in [spec/mcp/generate_ui_input.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/mcp/generate_ui_input.schema.json).
 
@@ -255,6 +256,7 @@ When error occures, whole tool execution fails.
 - `data` (str, required): Raw input data to render within the UI components
 - `data_type` (str, required): Data type
 - `data_id` (str, optional): ID of Data. If not present, ID is generated.
+- `session_id` (str, optional): Session ID. Not used, present just for compatibility purposes.
 
 **Returns:**
 
