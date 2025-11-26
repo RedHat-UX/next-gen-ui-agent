@@ -44,6 +44,10 @@ export default function ChatBotPage() {
   
   // Strategy selection state
   const [selectedStrategy, setSelectedStrategy] = useState<'one-step' | 'two-step'>('one-step');
+
+  // Inline dataset (live mode) state
+  const [inlineDataset, setInlineDataset] = useState('');
+  const [inlineDatasetType, setInlineDatasetType] = useState('');
   
   // Fetch model info on mount if in debug mode
   React.useEffect(() => {
@@ -231,6 +235,12 @@ export default function ChatBotPage() {
       body: { 
         prompt: message,
         strategy: selectedStrategy,
+        ...(inlineDataset.trim()
+          ? {
+              data: inlineDataset,
+              data_type: inlineDatasetType.trim() || undefined,
+            }
+          : {}),
       },
     });
     newMessages.pop();
@@ -316,6 +326,10 @@ export default function ChatBotPage() {
             modelInfo={modelInfo}
             selectedStrategy={selectedStrategy}
             onStrategyChange={setSelectedStrategy}
+            inlineDataset={inlineDataset}
+            onInlineDatasetChange={setInlineDataset}
+            inlineDatasetType={inlineDatasetType}
+            onInlineDatasetTypeChange={setInlineDatasetType}
           />
         </div>
       )}

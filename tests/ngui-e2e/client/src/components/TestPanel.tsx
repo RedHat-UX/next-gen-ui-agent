@@ -8,11 +8,18 @@ import {
   TabTitleText,
   Badge,
   FormGroup,
-  Radio
+  Radio,
+  TextArea,
+  TextInput,
+  Checkbox,
+  Button,
+  FormSelect,
+  FormSelectOption
 } from '@patternfly/react-core';
 import { MockModeToggle } from './MockModeToggle';
 import { QuickPrompts } from './QuickPrompts';
 import { PrometheusConverter } from './PrometheusConverter';
+import { INLINE_DATASETS } from '../data/inlineDatasets';
 
 interface ModelInfo {
   name: string;
@@ -38,6 +45,10 @@ interface TestPanelProps {
   modelInfo?: ModelInfo;
   selectedStrategy: 'one-step' | 'two-step';
   onStrategyChange: (strategy: 'one-step' | 'two-step') => void;
+  inlineDataset: string;
+  onInlineDatasetChange: (value: string) => void;
+  inlineDatasetType: string;
+  onInlineDatasetTypeChange: (value: string) => void;
 }
 
 export const TestPanel: React.FC<TestPanelProps> = ({
@@ -53,9 +64,28 @@ export const TestPanel: React.FC<TestPanelProps> = ({
   disabled = false,
   modelInfo,
   selectedStrategy,
-  onStrategyChange
+  onStrategyChange,
+  inlineDataset,
+  onInlineDatasetChange,
+  inlineDatasetType,
+  onInlineDatasetTypeChange,
 }) => {
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
+  const [selectedDatasetId, setSelectedDatasetId] = useState<string>('');
+
+  const handleDatasetChange = (value: string) => {
+    setSelectedDatasetId(value);
+    if (!value) {
+      onInlineDatasetChange('');
+      onInlineDatasetTypeChange('');
+      return;
+    }
+    const dataset = INLINE_DATASETS.find((d) => d.id === value);
+    if (dataset) {
+      onInlineDatasetChange(JSON.stringify(dataset.payload, null, 2));
+      onInlineDatasetTypeChange(dataset.dataType ?? '');
+    }
+  };
 
   const handleTabClick = (
     _event: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -208,6 +238,64 @@ export const TestPanel: React.FC<TestPanelProps> = ({
                 <PrometheusConverter
                   onConvert={(config) => onSendMockDirect(config, 'Prometheus Chart')}
                 />
+              </div>
+            </Tab>
+            <Tab 
+              eventKey={4} 
+              title={
+                <TabTitleText>
+                  🗂️ Inline Dataset
+                </TabTitleText>
+              }
+              aria-label="Inline dataset attachment"
+            >
+              <div className="test-panel-tab-content inline-dataset-tab">
+                <p className="test-panel-inline-description">
+                  Attach custom JSON data to your next live request. When populated, the backend skips the movies agent and feeds this dataset directly to the renderer.
+                </p>
+                <FormGroup label="Load predefined dataset" fieldId="inline-dataset-select">
+                  <FormSelect
+                    id="inline-dataset-select"
+                    value={selectedDatasetId}
+                    onChange={(_event, value) => handleDatasetChange(value)}
+                  >
+                    <FormSelectOption key="none" value="" label="None (manual input)" />
+                    {INLINE_DATASETS.map((dataset) => (
+                      <FormSelectOption
+                        key={dataset.id}
+                        value={dataset.id}
+                        label={dataset.label}
+                      />
+                    ))}
+                  </FormSelect>
+                  {selectedDatasetId && (
+                    <p className="test-panel-inline-description small">
+                      {INLINE_DATASETS.find((d) => d.id === selectedDatasetId)?.description}
+                    </p>
+                  )}
+                </FormGroup>
+                <FormGroup label="Dataset type (optional)" fieldId="inline-dataset-type">
+                  <TextInput
+                    id="inline-dataset-type"
+                    value={inlineDatasetType}
+                    onChange={(_, value) => onInlineDatasetTypeChange(value)}
+                    placeholder="e.g. movies.detail, cost.analysis"
+                  />
+                </FormGroup>
+                <FormGroup label="Dataset JSON" fieldId="inline-dataset-json">
+                  <TextArea
+                    id="inline-dataset-json"
+                    value={inlineDataset}
+                    onChange={(_, value) => onInlineDatasetChange(value)}
+                    placeholder='[{ "name": "Service A", "value": 42 }]'
+                    rows={8}
+                  />
+                </FormGroup>
+                <div className="test-panel-inline-hint">
+                  <p>
+                    Paste or load JSON above. Leave blank to use the standard movies dataset.
+                  </p>
+                </div>
               </div>
             </Tab>
             </Tabs>

@@ -4,6 +4,8 @@ interface DataTransformationViewerProps {
   dataTransform: {
     transformerName?: string;
     jsonWrappingField?: string;
+    inlineSource?: string;
+    inlineRecordCount?: number;
     fieldCount?: number;
     fields?: Array<{
       name: string;
@@ -43,6 +45,21 @@ export function DataTransformationViewer({ dataTransform, messageId }: DataTrans
               <span className="data-transform-label-badge-wrapping">
                 {dataTransform.jsonWrappingField}
               </span>
+            </div>
+          )}
+          {dataTransform.inlineSource && (
+            <div>
+              <strong className="data-transform-label-title">
+                Inline Dataset:{' '}
+              </strong>
+              <span className="data-transform-label-badge">
+                {dataTransform.inlineSource}
+              </span>
+              {typeof dataTransform.inlineRecordCount === 'number' && (
+                <span className="data-transform-inline-note">
+                  {` (${dataTransform.inlineRecordCount} records)`}
+                </span>
+              )}
             </div>
           )}
           {dataTransform.fields && dataTransform.fields.length > 0 && (
