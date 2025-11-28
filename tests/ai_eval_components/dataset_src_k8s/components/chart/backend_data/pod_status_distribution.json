@@ -1,0 +1,18 @@
+[
+  {
+    "status": "Running",
+    "count": 42
+  },
+  {
+    "status": "Pending",
+    "count": 5
+  },
+  {
+    "status": "Failed",
+    "count": 3
+  },
+  {
+    "status": "Succeeded",
+    "count": 12
+  }
+]

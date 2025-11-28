@@ -1,0 +1,6 @@
+[
+  "Compare pod count across namespaces",
+  "Show namespace resource usage",
+  "Which namespaces have the most pods?",
+  "Display pod distribution by namespace"
+]

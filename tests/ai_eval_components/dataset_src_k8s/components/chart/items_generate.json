@@ -1,0 +1,62 @@
+[
+  {
+    "prompts_file": "prompts_chart_bar.json",
+    "backend_data_files": ["pod_metrics.json"],
+    "comment": "Bar chart - pod CPU/memory comparison"
+  },
+  {
+    "prompts_file": "prompts_chart_mirrored.json",
+    "backend_data_files": ["pod_metrics.json"],
+    "comment": "Mirrored bar chart - CPU vs Memory for pods"
+  },
+  {
+    "prompts_file": "prompts_chart_line.json",
+    "backend_data_files": ["cpu_usage_timeseries.json"],
+    "comment": "Line chart - CPU usage trends over time"
+  },
+  {
+    "prompts_file": "prompts_chart_pie.json",
+    "backend_data_files": ["pod_status_distribution.json"],
+    "comment": "Pie/Donut chart - pod status distribution"
+  },
+  {
+    "prompts_file": "prompts_chart_restarts.json",
+    "backend_data_files": ["pod_restarts_trend.json"],
+    "comment": "Line chart - pod restart trends over time"
+  },
+  {
+    "prompts_file": "prompts_chart_namespace.json",
+    "backend_data_files": ["namespace_pod_count.json"],
+    "comment": "Bar chart - namespace pod count comparison"
+  },
+  {
+    "prompts_file": "prompts_chart_pod_age.json",
+    "backend_data_files": ["pod_age_distribution.json"],
+    "comment": "Pie/Donut chart - pod age distribution"
+  },
+  {
+    "prompts_file": "prompts_chart_node_capacity.json",
+    "backend_data_files": ["node_capacity.json"],
+    "comment": "Mirrored bar chart - node CPU/memory used vs capacity"
+  },
+  {
+    "prompts_file": "prompts_chart_prometheus_cpu.json",
+    "backend_data_files": ["prometheus_node_cpu_timeseries.json"],
+    "comment": "Line chart - Prometheus node CPU utilization time series"
+  },
+  {
+    "prompts_file": "prompts_chart_prometheus_memory.json",
+    "backend_data_files": ["prometheus_memory_usage.json"],
+    "comment": "Bar chart - Prometheus node memory availability"
+  },
+  {
+    "prompts_file": "prompts_chart_prometheus_restarts.json",
+    "backend_data_files": ["prometheus_container_restarts.json"],
+    "comment": "Bar chart - Prometheus container restart counts"
+  },
+  {
+    "prompts_file": "prompts_chart_prometheus_status.json",
+    "backend_data_files": ["prometheus_pod_status_count.json"],
+    "comment": "Pie/Donut chart - Prometheus pod status distribution"
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "namespace": "production",
+    "podCount": 42,
+    "cpuLimit": 16000,
+    "memoryLimit": 65536
+  },
+  {
+    "namespace": "staging",
+    "podCount": 18,
+    "cpuLimit": 8000,
+    "memoryLimit": 32768
+  },
+  {
+    "namespace": "development",
+    "podCount": 12,
+    "cpuLimit": 4000,
+    "memoryLimit": 16384
+  },
+  {
+    "namespace": "system",
+    "podCount": 8,
+    "cpuLimit": 2000,
+    "memoryLimit": 8192
+  },
+  {
+    "namespace": "monitoring",
+    "podCount": 6,
+    "cpuLimit": 2000,
+    "memoryLimit": 8192
+  }
+]

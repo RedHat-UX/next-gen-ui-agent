@@ -1,0 +1,58 @@
+[
+  {
+    "podName": "frontend-app-7d9c8",
+    "namespace": "production",
+    "cpuUsage": 850,
+    "memoryUsage": 2048,
+    "restarts": 0,
+    "status": "Running"
+  },
+  {
+    "podName": "backend-api-5f6b2",
+    "namespace": "production",
+    "cpuUsage": 1200,
+    "memoryUsage": 4096,
+    "restarts": 2,
+    "status": "Running"
+  },
+  {
+    "podName": "database-primary-3a1d4",
+    "namespace": "production",
+    "cpuUsage": 2100,
+    "memoryUsage": 8192,
+    "restarts": 0,
+    "status": "Running"
+  },
+  {
+    "podName": "redis-cache-9e2c7",
+    "namespace": "production",
+    "cpuUsage": 450,
+    "memoryUsage": 1024,
+    "restarts": 1,
+    "status": "Running"
+  },
+  {
+    "podName": "worker-queue-4k8j3",
+    "namespace": "production",
+    "cpuUsage": 1800,
+    "memoryUsage": 3072,
+    "restarts": 0,
+    "status": "Running"
+  },
+  {
+    "podName": "monitoring-agent-2w9s5",
+    "namespace": "system",
+    "cpuUsage": 320,
+    "memoryUsage": 512,
+    "restarts": 5,
+    "status": "Running"
+  },
+  {
+    "podName": "ingress-controller-8h3n1",
+    "namespace": "system",
+    "cpuUsage": 680,
+    "memoryUsage": 1536,
+    "restarts": 0,
+    "status": "Running"
+  }
+]

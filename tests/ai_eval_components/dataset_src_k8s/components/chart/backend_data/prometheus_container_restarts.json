@@ -1,0 +1,68 @@
+{
+  "result": [
+    {
+      "metric": {
+        "__name__": "kube_pod_container_status_restarts_total",
+        "container": "docs-preview-app",
+        "namespace": "docs-preview",
+        "pod": "docs-preview-app-612-f6bc5697"
+      },
+      "value": [1763034271, "0"]
+    },
+    {
+      "metric": {
+        "__name__": "kube_pod_container_status_restarts_total",
+        "container": "backend-api",
+        "namespace": "production",
+        "pod": "backend-api-664-f997db454"
+      },
+      "value": [1763034271, "2"]
+    },
+    {
+      "metric": {
+        "__name__": "kube_pod_container_status_restarts_total",
+        "container": "monitoring-agent",
+        "namespace": "system",
+        "pod": "monitoring-agent-669-85f74986b4"
+      },
+      "value": [1763034271, "5"]
+    },
+    {
+      "metric": {
+        "__name__": "kube_pod_container_status_restarts_total",
+        "container": "cache-redis",
+        "namespace": "production",
+        "pod": "cache-redis-729-6cb7cf4dc4"
+      },
+      "value": [1763034271, "1"]
+    },
+    {
+      "metric": {
+        "__name__": "kube_pod_container_status_restarts_total",
+        "container": "worker-queue",
+        "namespace": "production",
+        "pod": "worker-queue-731-c5f85cfdb"
+      },
+      "value": [1763034271, "0"]
+    },
+    {
+      "metric": {
+        "__name__": "kube_pod_container_status_restarts_total",
+        "container": "frontend-app",
+        "namespace": "production",
+        "pod": "frontend-app-747-656797d6f"
+      },
+      "value": [1763034271, "0"]
+    },
+    {
+      "metric": {
+        "__name__": "kube_pod_container_status_restarts_total",
+        "container": "ingress-controller",
+        "namespace": "system",
+        "pod": "ingress-controller-716-7d9546c699"
+      },
+      "value": [1763034271, "0"]
+    }
+  ],
+  "resultType": "vector"
+}
