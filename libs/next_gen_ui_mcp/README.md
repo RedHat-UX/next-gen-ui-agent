@@ -39,14 +39,11 @@ Depending on your use case you may need additional packages for inference provid
   # Run with MCP sampling (default - leverages client's LLM)
   python -m next_gen_ui_mcp
 
-  # Run with LlamaStack inference
-  python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --base-url http://localhost:5001
-
   # Run with OpenAI inference
   python -m next_gen_ui_mcp --provider openai --model gpt-3.5-turbo
 
   # Run with OpenAI compatible API of Ollama (local)
-  python -m next_gen_ui_mcp --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
+  python -m next_gen_ui_mcp --provider openai --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
 
   # Run with MCP sampling and custom max tokens
   python -m next_gen_ui_mcp --sampling-max-tokens 4096
@@ -64,7 +61,8 @@ Depending on your use case you may need additional packages for inference provid
   python -m next_gen_ui_mcp --transport sse --component-system rhds --port 8000
 ```
 
-As the above examples show you can choose to configure `llamastack` or `openai` provider. You have to add the necessary dependencies to your python environment to do so, otherwise the application will complain about them missing
+As the above examples show you can choose to configure `mcp` sampling, `openai` or `anthropic-vertexai` inference provider. You have to add the necessary dependencies to your python environment to do so, otherwise the application will complain about them missing.
+See detailed documentation later.
 
 Similarly pluggable component systems such as `rhds` also require certain imports, `next_gen_ui_rhds_renderer` in this particular case.
 
@@ -92,16 +90,16 @@ options:
   --component-system {json,patternfly,rhds}
                         Component system to use for rendering (default: json).
   --debug               Enable debug logging.
-  --provider {mcp,llamastack,langchain}
-                        Inference provider to use (default: `mcp` - uses MCP sampling).
-  --model MODEL         Model name to use. Required for `openai`, `llamastack`.
+  --provider {mcp,openai,anthropic-vertexai}
+                        Inference provider to use (defaults to `mcp` - uses MCP sampling).
+  --model MODEL         Model name to use. Required for `openai`, `anthropic-vertexai`.
   --base-url BASE_URL   
-                        Base URL of the API endpoint. For `openai` defaults to OpenAI API, use eg. `http://localhost:11434/v1` for Ollama. For `llamastack` defaults to `http://localhost:5001`.
-  --api-key API_KEY     API key for the LLM provider (`openai` also uses OPENAI_API_KEY env var if not provided). Used by `openai`, `llamastack`.
+                        Base URL of the API endpoint. For `openai` defaults to OpenAI API, use eg. `http://localhost:11434/v1` for Ollama. Required for `anthropic-vertexai`.
+  --api-key API_KEY     API key for the LLM provider (`openai` also uses OPENAI_API_KEY env var if not provided). Used by `openai`, `anthropic-vertexai`.
   --temperature TEMPERATURE
-                        Temperature for model inference (default to `0.0` for deterministic responses). Used by `openai`.
+                        Temperature for model inference, float value (defaults to `0.0` for deterministic responses). Used by `openai`, `anthropic-vertexai`.
   --sampling-max-tokens SAMPLING_MAX_TOKENS
-                        Maximum tokens for `mcp` inference provider (default: 2048).
+                        Maximum LLM generated tokens, integer value. Used by `mcp` (defaults to `2048`) and `anthropic-vertexai` (defaults to `4096`).
 ```
 
 ### Running Server locally from Git Repo

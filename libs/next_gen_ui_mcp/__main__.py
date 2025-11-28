@@ -43,6 +43,7 @@ from next_gen_ui_agent.agent_config import read_config_yaml_file
 from next_gen_ui_agent.inference.inference_builder import (
     add_inference_comandline_args,
     create_inference_from_arguments,
+    get_sampling_max_tokens_configuration,
 )
 from next_gen_ui_agent.types import AgentConfig
 from next_gen_ui_mcp.agent import MCP_ALL_TOOLS
@@ -196,14 +197,6 @@ Examples:
         parser, default_provider=PROVIDER_MCP, additional_providers=[PROVIDER_MCP]
     )
 
-    # MCP sampling specific arguments
-    parser.add_argument(
-        "--sampling-max-tokens",
-        type=int,
-        default=2048,
-        help="Maximum tokens for MCP sampling inference (default: 2048)",
-    )
-
     args = parser.parse_args()
 
     # Configure logging
@@ -248,7 +241,7 @@ Examples:
         agent = create_server(
             config=config,
             inference=inference,
-            sampling_max_tokens=args.sampling_max_tokens,
+            sampling_max_tokens=get_sampling_max_tokens_configuration(args, 2048),
             debug=args.debug,
             enabled_tools=enabled_tools,
             structured_output_enabled=args.structured_output_enabled == "true",

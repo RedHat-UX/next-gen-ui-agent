@@ -51,10 +51,10 @@ All env variables are mapped to Next Gen UI MCP server documented in the [MCP Se
 | `MCP_TOOLS`                     | `all`             | List of enabled tools (comma separated)                                   |
 | `MCP_STRUCTURED_OUTPUT_ENABLED` | `true`            | Enable or disable structured output                                       |
 | `NGUI_COMPONENT_SYSTEM`         | `json`            | UI Component system (`json`, `rhds`)                                      |
-| `NGUI_PROVIDER`                 | `openai`          | Inference provider (`mcp`, `llamastack`, `openai`)                        |
-| `NGUI_MODEL`                    | `gpt-4o`          | Model name (required for other than `mcp` providers)                      |
-| `NGUI_PROVIDER_API_BASE_URL`    | -                 | Base URL for API, provider specific defaults (for `openai`, `llamastack`) |
-| `NGUI_PROVIDER_API_KEY`         | -                 | API key for the LLM provider (for `openai`, `llamastack`)                 |
+| `NGUI_PROVIDER`                 | `mcp`             | Inference provider (`mcp`, `openai`, `anthropic-vertexai`)                        |
+| `NGUI_MODEL`                    |                   | Model name (required for other than `mcp` providers)                      |
+| `NGUI_PROVIDER_API_BASE_URL`    | -                 | Base URL for API, provider specific defaults (for `openai`, `anthropic-vertexai`) |
+| `NGUI_PROVIDER_API_KEY`         | -                 | API key for the LLM provider (for `openai`, `anthropic-vertexai`)                 |
 | `NGUI_CONFIG_PATH`              | -                 | Path to [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) (comma separated). |
 
 
@@ -67,32 +67,47 @@ Select the LLM inference provider to use for UI components generation.
 #### Provider **`mcp`** 
 
 Uses [Model Context Protocol sampling](https://modelcontextprotocol.io/specification/2025-06-18/client/sampling) to leverage the client's LLM capabilities. 
-No additional configuration required as it uses the connected MCP client's model, but MCP client has to support this feature!
+No additional configuration required as it uses the connected MCP client's model, only few optional options are available. 
+
+**MCP client has to support Sampling feature and its optional options!**
+
+Requires:
+
+- `NGUI_PROVIDER_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `2048`).
 
 #### Provider **`openai`**:
 
 Uses [LangChain OpenAI inference provider](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides), 
-so can be used with any OpenAI compatible APIs, eg. OpenAI API itself, or [Ollama](https://ollama.com/) running on localhost.
+so can be used with any OpenAI compatible APIs, eg. OpenAI API itself, or [Ollama](https://ollama.com/) for localhost inference, or [Llama Stack server v0.3.0+](https://llamastack.github.io/docs/api/create-chat-completions).
 
 Requires:
 
-- `NGUI_MODEL`: Model name (e.g., `gpt-4o`, `llama3.2`)
-- `NGUI_PROVIDER_API_KEY`: API key for the provider
-- `NGUI_PROVIDER_API_BASE_URL` (optional): Custom base URL for OpenAI-compatible APIs like Ollama. OpenAI API by default.
+- `NGUI_MODEL`: Model name (e.g., `gpt-4o`, `llama3.2`).
+- `NGUI_PROVIDER_API_KEY`: API key for the provider.
+- `NGUI_PROVIDER_API_BASE_URL` (optional): Custom base URL for OpenAI-compatible APIs like Ollama or Llama Stack. OpenAI API by default.
+- `NGUI_PROVIDER_API_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
 
-Examples:
+Base URL examples:
 
 - OpenAI: `https://api.openai.com/v1` (default)
-- Ollama: `http://host.containers.internal:11434/v1`
+- Ollama at localhost: `http://host.containers.internal:11434/v1`
+- Llama Stack server at localhost port `5001`: `http://host.containers.internal:5001/v1`
 
-#### Provider **`llamastack`**:
+#### Provider **`anthropic-vertexai`**:
 
-Uses [Remote LlamaStack server inference provider](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/llamastack/#provides).
+Uses [Anthropic/Claude models from proxied Google Vertex AI API endpoint](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides).
+
+Called API url is constructed as `{BASE_URL}/models/{MODEL}:streamRawPredict`. 
+API key is sent as `Bearer` token in `Authorization` http request header.
 
 Requires:
 
-  - `NGUI_MODEL`: Model name available on the LlamaStack server
-  - `NGUI_PROVIDER_API_BASE_URL`: URL of the LlamaStack server, defaults to `http://localhost:5001`
+  - `NGUI_MODEL`: Model name.
+  - `NGUI_PROVIDER_API_BASE_URL`: Base URL of the API.
+  - `NGUI_PROVIDER_API_KEY`: API key for the provider.
+  - `NGUI_PROVIDER_API_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
+  - `NGUI_PROVIDER_ANTHROPIC_VERSION` (optional): Anthropic version to use in API call (defaults to `vertex-2023-10-16`).
+  - `NGUI_PROVIDER_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `4096`).
 
 
 ### Usage Examples

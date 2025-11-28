@@ -10,42 +10,9 @@ from typing import Optional
 
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
-
-
-def create_llamastack_inference(
-    model: str, llama_url: str, api_key: Optional[str] = None
-) -> InferenceBase:
-    """Create Remote LlamaStack server inference provider with dynamic import.
-
-    Args:
-        model: Model name to use
-        llama_url: URL of the LlamaStack server
-        api_key: API key for the LlamaStack server
-    Returns:
-        LlamaStack inference instance
-
-    Raises:
-        ImportError: If llama-stack-client is not installed
-        RuntimeError: If connection to LlamaStack fails
-    """
-    try:
-        from llama_stack_client import LlamaStackClient  # pants: no-infer-dep
-        from next_gen_ui_llama_stack.llama_stack_inference import (
-            LlamaStackAgentInference,  # pants: no-infer-dep
-        )
-    except ImportError as e:
-        raise ImportError(
-            "LlamaStack Client dependencies not found. Install version from https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/3rdparty/python/llama-stack-client-constraints.txt: "
-            "pip install llama-stack-client==x.y.z"
-        ) from e
-
-    try:
-        client = LlamaStackClient(base_url=llama_url, api_key=api_key)
-        return LlamaStackAgentInference(client, model)
-    except Exception as e:
-        raise RuntimeError(
-            f"Failed to connect to remote LlamaStack server at {llama_url}: {e}"
-        ) from e
+from next_gen_ui_agent.inference.proxied_anthropic_vertexai_inference import (
+    ProxiedAnthropicVertexAIInference,
+)
 
 
 def create_langchain_openai_inference(
@@ -118,31 +85,65 @@ def add_inference_comandline_args(
 
     parser.add_argument(
         "--provider",
-        choices=["llamastack", "openai"] + additional_providers,
+        choices=["openai", "anthropic-vertexai"] + additional_providers,
         help=f"Inference provider to use (default: {default_provider}). Env variable NGUI_PROVIDER can be used.",
     )
 
     parser.add_argument(
         "--model",
-        help="Model name to use. Required for `openai`, `llamastack`. Env variable NGUI_MODEL can be used.",
+        help="Model name to use. Required for `openai`, `anthropic-vertexai`. Env variable NGUI_MODEL can be used.",
     )
 
     parser.add_argument(
         "--base-url",
-        help="URL of the API endpoint. Env variable NGUI_PROVIDER_API_BASE_URL can be used. For `openai` defaults to OpenAI API, use eg. `http://localhost:11434/v1` for Ollama. For `llamastack` defaults to `http://localhost:5001`.",
+        help="URL of the API endpoint. Env variable NGUI_PROVIDER_API_BASE_URL can be used. For `openai` defaults to OpenAI API, use eg. `http://localhost:11434/v1` for Ollama. Required for `anthropic-vertexai`",
     )
 
     parser.add_argument(
         "--api-key",
-        help="API key for the LLM provider. Env variable NGUI_PROVIDER_API_KEY can be used (`openai` also uses OPENAI_API_KEY env var if not provided). Used by `openai`, `llamastack`.",
+        help="API key for the LLM provider. Env variable NGUI_PROVIDER_API_KEY can be used (`openai` also uses OPENAI_API_KEY env var if not provided). Used by `openai`, `anthropic-vertexai`.",
     )
 
     parser.add_argument(
         "--temperature",
         type=float,
         default=0.0,
-        help="Temperature for model inference (default to `0.0` for deterministic responses). Env variable NGUI_PROVIDER_API_TEMPERATURE can be used. Used by `openai`.",
+        help="Temperature for model inference (defaults to `0.0` for deterministic responses). Env variable NGUI_PROVIDER_API_TEMPERATURE can be used. Used by `openai`, `anthropic-vertexai`.",
     )
+
+    parser.add_argument(
+        "--anthropic-version",
+        help="Anthropic version to use in API call (defaults to `vertex-2023-10-16`). Env variable NGUI_PROVIDER_ANTHROPIC_VERSION can be used. Used by `anthropic-vertexai`.",
+    )
+
+    # MCP sampling specific arguments
+    parser.add_argument(
+        "--sampling-max-tokens",
+        type=int,
+        help="Maximum LLM generated tokens. Usage and default value differs per provider and model, see documentation. Env variable NGUI_SAMPLING_MAX_TOKENS can be used.",
+    )
+
+
+def get_sampling_max_tokens_configuration(
+    args: argparse.Namespace, default_max_tokens: int
+) -> int:
+    """
+    Get maximum tokens produced by LLM configuration from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments to construct inference provider from
+        default_max_tokens: Default maximum tokens to use if not provided in commandline argument nor environment variable
+
+    Returns:
+        Maximum tokens produced by LLM
+    """
+    max_tokens_env = os.getenv("NGUI_PROVIDER_SAMPLING_MAX_TOKENS")
+    max_tokens = args.sampling_max_tokens
+    if not max_tokens and max_tokens_env and max_tokens_env.strip() != "":
+        max_tokens = int(max_tokens_env)
+    if not max_tokens:
+        max_tokens = default_max_tokens
+    return max_tokens  # type: ignore
 
 
 def create_inference_from_arguments(
@@ -190,7 +191,7 @@ def create_inference_from_arguments(
         model = os.getenv("NGUI_MODEL")
 
     # Validate arguments
-    if args.provider in ["llamastack", "openai"] and not model:
+    if args.provider in ["anthropic-vertexai", "openai"] and not model:
         parser.error(
             f"--model argument or NGUI_MODEL environment variable is required when using {args.provider} provider."
         )
@@ -198,6 +199,11 @@ def create_inference_from_arguments(
     base_url = args.base_url
     if not base_url or base_url.strip() == "":
         base_url = os.getenv("NGUI_PROVIDER_API_BASE_URL")
+
+    if provider == "anthropic-vertexai" and not base_url:
+        parser.error(
+            f"--base-url argument or NGUI_PROVIDER_API_BASE_URL environment variable is required when using {args.provider} provider."
+        )
 
     api_key = args.api_key
     if not api_key or api_key.strip() == "":
@@ -209,15 +215,25 @@ def create_inference_from_arguments(
         temperature = float(temperature_env)
 
     # create provider specific inference instance
-    if provider == "llamastack":
-        if not base_url or base_url.strip() == "":
-            base_url = "http://localhost:5001"
+    if provider == "anthropic-vertexai":
+        anthropic_version = args.anthropic_version
+        if not anthropic_version or anthropic_version.strip() == "":
+            anthropic_version = os.getenv("NGUI_PROVIDER_ANTHROPIC_VERSION")
+        if not anthropic_version or anthropic_version.strip() == "":
+            anthropic_version = "vertex-2023-10-16"
         logger.info(
-            "Using LlamaStack inference with model %s at url %s",
+            "Using Anthropic Vertex AI inference with model %s at url %s",
             model,
             base_url,
         )
-        return create_llamastack_inference(model, base_url, api_key)
+        return ProxiedAnthropicVertexAIInference(
+            model=model,
+            api_key=api_key,
+            temperature=temperature,
+            base_url=base_url,
+            anthropic_version=anthropic_version,
+            max_tokens=get_sampling_max_tokens_configuration(args, 4096),
+        )
     elif provider == "openai":
         logger.info("Using OpenAI inference with model %s", model)
         if base_url:
