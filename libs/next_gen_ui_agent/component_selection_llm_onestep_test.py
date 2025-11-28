@@ -5,12 +5,12 @@ from langchain_core.language_models import FakeMessagesListChatModel
 from next_gen_ui_agent.component_selection_llm_strategy import (
     MAX_STRING_DATA_LENGTH_FOR_LLM,
 )
+from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.json_data_wrapper import wrap_string_as_json
 from next_gen_ui_agent.types import InputDataInternal
 from pytest import fail
 
 from .component_selection_llm_onestep import OnestepLLMCallComponentSelectionStrategy
-from .model import LangChainModelInference
 
 movies_data = """[
 {

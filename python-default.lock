@@ -10,6 +10,7 @@
 //   ],
 //   "generated_with_requirements": [
 //     "a2a-sdk==0.3.11",
+//     "aiohttp",
 //     "aiosqlite",
 //     "ansicolors==1.1.8",
 //     "beeai-framework<=0.1.68",
@@ -4820,13 +4821,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "b9e514611d4e1570e33595d33ccb1fe6eda9f96c5f961095a138651f746c1ef5",
-              "url": "https://files.pythonhosted.org/packages/80/1a/0c84f7096d41d64425d29db549c8d6fe075f925a5f2022e8087d01d862c2/langsmith-0.4.47-py3-none-any.whl"
+              "hash": "95f84edcd8e74ed658e4a3eb7355b530f35cb08a9a8865dbfde6740e4b18323c",
+              "url": "https://files.pythonhosted.org/packages/31/79/59ecf7dceafd655ed20270a0f595d9e8e13895231cebcfbff9b6eec51fc4/langsmith-0.4.49-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "6a576405696ee97147ccb96c9ae5c9437430500a5d118bd447ec2d1f8cf26de1",
-              "url": "https://files.pythonhosted.org/packages/ec/dd/d69922b79fb692b9736206574e5ba69b6354080cf1cc9796449d9fe61f9a/langsmith-0.4.47.tar.gz"
+              "hash": "4a16ef6f3a9b20c5471884991a12ff37d81f2c13a50660cfe27fa79a7ca2c1b0",
+              "url": "https://files.pythonhosted.org/packages/2d/69/85ae805ecbc1300d486136329b3cb1702483c0afdaf81da95947dd83884a/langsmith-0.4.49.tar.gz"
             }
           ],
           "project_name": "langsmith",
@@ -4850,7 +4851,7 @@
             "zstandard>=0.23.0"
           ],
           "requires_python": ">=3.10",
-          "version": "0.4.47"
+          "version": "0.4.49"
         },
         {
           "artifacts": [
@@ -8454,13 +8455,13 @@
           "artifacts": [
             {
               "algorithm": "sha256",
-              "hash": "92d3d202a745d46f9be6df459ac5a064fdaa3c1c4cd8adcfa332ccf3c05f871e",
-              "url": "https://files.pythonhosted.org/packages/82/2f/e68750da9b04856e2a7ec56fc6f034a5a79775e9b9a81882252789873798/pydantic-2.12.4-py3-none-any.whl"
+              "hash": "e561593fccf61e8a20fc46dfc2dfe075b8be7d0188df33f221ad1f0139180f9d",
+              "url": "https://files.pythonhosted.org/packages/5a/87/b70ad306ebb6f9b585f114d0ac2137d792b48be34d732d60e597c2f8465a/pydantic-2.12.5-py3-none-any.whl"
             },
             {
               "algorithm": "sha256",
-              "hash": "0f8cb9555000a4b5b617f66bfd2566264c4984b27589d3b845685983e8ea85ac",
-              "url": "https://files.pythonhosted.org/packages/96/ad/a17bc283d7d81837c061c49e3eaa27a45991759a1b7eae1031921c6bd924/pydantic-2.12.4.tar.gz"
+              "hash": "4d351024c75c0f085a9febbb665ce8c0c6ec5d30e903bdb6394b7ede26aebb49",
+              "url": "https://files.pythonhosted.org/packages/69/44/36f1a6e523abc58ae5f928898e4aca2e0ea509b5aa6f6f392a5d882be928/pydantic-2.12.5.tar.gz"
             }
           ],
           "project_name": "pydantic",
@@ -8473,7 +8474,7 @@
             "tzdata; (python_version >= \"3.9\" and platform_system == \"Windows\") and extra == \"timezone\""
           ],
           "requires_python": ">=3.9",
-          "version": "2.12.4"
+          "version": "2.12.5"
         },
         {
           "artifacts": [
@@ -12121,6 +12122,7 @@
   "prefer_older_binary": false,
   "requirements": [
     "a2a-sdk==0.3.11",
+    "aiohttp",
     "aiosqlite",
     "ansicolors==1.1.8",
     "beeai-framework<=0.1.68",

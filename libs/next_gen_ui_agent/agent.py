@@ -24,13 +24,13 @@ from next_gen_ui_agent.data_transform.data_transformer_utils import (
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transformation import generate_component_data
 from next_gen_ui_agent.design_system_handler import render_component
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.input_data_transform.input_data_transform import (
     init_input_data_transformers,
     perform_input_data_transformation,
     perform_input_data_transformation_with_transformer_name,
 )
 from next_gen_ui_agent.json_data_wrapper import wrap_data
-from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.renderer.base_renderer import (
     PLUGGABLE_RENDERERS_NAMESPACE,
     StrategyFactory,

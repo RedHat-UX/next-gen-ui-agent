@@ -4,9 +4,8 @@ import uuid
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
 from a2a.types import DataPart, Message, Part, Role, TextPart
-from next_gen_ui_agent import InputData, NextGenUIAgent
-from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import AgentConfig, UIBlock
+from next_gen_ui_agent import AgentConfig, InputData, NextGenUIAgent, UIBlock
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 
 
 class NextGenUIAgentExecutor(AgentExecutor):

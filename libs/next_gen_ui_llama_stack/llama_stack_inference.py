@@ -9,7 +9,7 @@ from llama_stack_client.types.shared.sampling_params import (
     SamplingParams,
     StrategyGreedySamplingStrategy,
 )
-from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 
 logger = logging.getLogger(__name__)
 

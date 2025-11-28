@@ -6,7 +6,7 @@ from llama_stack.core.library_client import (  # type: ignore[import-untyped]
     AsyncLlamaStackAsLibraryClient,
 )
 from llama_stack_client import LlamaStackClient
-from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_llama_stack.llama_stack_inference import (
     LlamaStackAgentInference,
     LlamaStackAsyncAgentInference,

@@ -4,14 +4,22 @@ from next_gen_ui_agent.types import (
     AgentInput,
     DataField,
     InputData,
+    UIBlock,
+    UIBlockComponentMetadata,
+    UIBlockConfiguration,
+    UIBlockRendering,
     UIComponentMetadata,
 )
 
 __all__ = [
     "NextGenUIAgent",
+    "AgentConfig",
     "AgentInput",
     "DataField",
     "InputData",
     "UIComponentMetadata",
-    "AgentConfig",
+    "UIBlock",
+    "UIBlockRendering",
+    "UIBlockConfiguration",
+    "UIBlockComponentMetadata",
 ]
