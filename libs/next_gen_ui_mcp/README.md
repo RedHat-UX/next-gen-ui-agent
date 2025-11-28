@@ -40,12 +40,12 @@ Depending on your use case you may need additional packages for inference provid
   python -m next_gen_ui_mcp
 
   # Run with LlamaStack inference
-  python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
+  python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --base-url http://localhost:5001
 
-  # Run with LangChain OpenAI inference
-  python -m next_gen_ui_mcp --provider langchain --model gpt-3.5-turbo
+  # Run with OpenAI inference
+  python -m next_gen_ui_mcp --provider openai --model gpt-3.5-turbo
 
-  # Run with LangChain via Ollama (local)
+  # Run with OpenAI compatible API of Ollama (local)
   python -m next_gen_ui_mcp --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
 
   # Run with MCP sampling and custom max tokens
@@ -64,7 +64,7 @@ Depending on your use case you may need additional packages for inference provid
   python -m next_gen_ui_mcp --transport sse --component-system rhds --port 8000
 ```
 
-As the above examples show you can choose to configure `llamastack` or `langchain` provided. You have to add the necessary dependencies to your python environment to do so, otherwise the application will complain about them missing
+As the above examples show you can choose to configure `llamastack` or `openai` provider. You have to add the necessary dependencies to your python environment to do so, otherwise the application will complain about them missing
 
 Similarly pluggable component systems such as `rhds` also require certain imports, `next_gen_ui_rhds_renderer` in this particular case.
 

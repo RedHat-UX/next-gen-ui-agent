@@ -6,7 +6,8 @@ from next_gen_ui_agent.inference.inference_base import InferenceBase
 
 class ProxiedAnthropicVertexAIInference(InferenceBase):
     """
-    Custom inference implementation for calling Claude models from Google Vertex AI using a proxied Anthropic Vertex AI API endpoint.
+    Custom inference implementation for calling Claude models from Google Vertex AI
+    using a proxied Anthropic Vertex AI API endpoint.
 
     This implementation makes HTTP requests to a proxy service that forwards
     requests to Claude models from Google Vertex AI using the Anthropic Vertex API format.
@@ -17,7 +18,7 @@ class ProxiedAnthropicVertexAIInference(InferenceBase):
         base_url: str,
         model: str,
         api_key: str,
-        temperature: float = 0,
+        temperature: float = 0.0,
         anthropic_version: str = "vertex-2023-10-16",
         max_tokens: int = 4096,
     ):

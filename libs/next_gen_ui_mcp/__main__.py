@@ -103,6 +103,9 @@ def add_health_routes(mcp: FastMCP):
     logger.info("Health checks available under /liveness and /readiness.")
 
 
+PROVIDER_MCP = "mcp"
+
+
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -117,13 +120,13 @@ Examples:
   python -m next_gen_ui_mcp -c ngui_config.yaml
 
   # Run with LlamaStack inference
-  python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --llama-url http://localhost:5001
+  python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --base-url http://localhost:5001
 
-  # Run with LangChain OpenAI inference
-  python -m next_gen_ui_mcp --provider langchain --model gpt-3.5-turbo
+  # Run with OpenAI inference
+  python -m next_gen_ui_mcp --provider openai --model gpt-3.5-turbo
 
-  # Run with LangChain via Ollama (local)
-  python -m next_gen_ui_mcp --provider langchain --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
+  # Run with OpenAI API of Ollama (local)
+  python -m next_gen_ui_mcp --provider openai --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
 
   # Run with MCP sampling and custom max tokens
   python -m next_gen_ui_mcp --sampling-max-tokens 4096
@@ -189,7 +192,9 @@ Examples:
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
-    add_inference_comandline_args(parser, default_provider="mcp")
+    add_inference_comandline_args(
+        parser, default_provider=PROVIDER_MCP, additional_providers=[PROVIDER_MCP]
+    )
 
     # MCP sampling specific arguments
     parser.add_argument(
@@ -235,7 +240,9 @@ Examples:
             logger.info("Using MCP sampling - will leverage client's LLM capabilities")
             inference = None  # inference remains None for MCP sampling
         else:
-            inference = create_inference_from_arguments(parser, args, logger)
+            inference = create_inference_from_arguments(
+                parser, args, PROVIDER_MCP, logger
+            )
 
         # Create the agent
         agent = create_server(

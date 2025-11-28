@@ -5,6 +5,7 @@ Used by all AI protocol servers.
 
 import argparse
 import logging
+import os
 from typing import Optional
 
 from next_gen_ui_agent.inference.inference_base import InferenceBase
@@ -105,7 +106,7 @@ def add_inference_comandline_args(
 
     Args:
         parser: ArgumentParser instance to add arguments to.
-        default_provider: Default inference provider to use, mandatory. Can be any of common providers or additional one.
+        default_provider: Default inference provider to use in help message, mandatory. Can be any of common providers or additional one.
         additional_providers: Additional server specific inference providers to use (default: []). Set of common providers is always used.
 
     Raises:
@@ -118,45 +119,55 @@ def add_inference_comandline_args(
     parser.add_argument(
         "--provider",
         choices=["llamastack", "openai"] + additional_providers,
-        default=default_provider,
-        help=f"Inference provider to use (default: {default_provider}).",
+        help=f"Inference provider to use (default: {default_provider}). Env variable NGUI_PROVIDER can be used.",
     )
 
     parser.add_argument(
-        "--model", help="Model name to use. Required for `openai`, `llamastack`."
+        "--model",
+        help="Model name to use. Required for `openai`, `llamastack`. Env variable NGUI_MODEL can be used.",
     )
 
     parser.add_argument(
         "--base-url",
-        help="URL of the API endpoint. For `openai` defaults to OpenAI API, use eg. `http://localhost:11434/v1` for Ollama. For `llamastack` defaults to `http://localhost:5001`.",
+        help="URL of the API endpoint. Env variable NGUI_PROVIDER_API_BASE_URL can be used. For `openai` defaults to OpenAI API, use eg. `http://localhost:11434/v1` for Ollama. For `llamastack` defaults to `http://localhost:5001`.",
     )
 
     parser.add_argument(
         "--api-key",
-        help="API key for the LLM provider (`openai` also uses OPENAI_API_KEY env var if not provided). Used by `openai`, `llamastack`.",
+        help="API key for the LLM provider. Env variable NGUI_PROVIDER_API_KEY can be used (`openai` also uses OPENAI_API_KEY env var if not provided). Used by `openai`, `llamastack`.",
     )
 
     parser.add_argument(
         "--temperature",
         type=float,
         default=0.0,
-        help="Temperature for model inference (default to `0.0` for deterministic responses). Used by `openai`.",
+        help="Temperature for model inference (default to `0.0` for deterministic responses). Env variable NGUI_PROVIDER_API_TEMPERATURE can be used. Used by `openai`.",
     )
 
 
 def create_inference_from_arguments(
-    parser: argparse.ArgumentParser, args: argparse.Namespace, logger: logging.Logger
+    parser: argparse.ArgumentParser,
+    args: argparse.Namespace,
+    default_provider: str,
+    logger: logging.Logger,
 ) -> InferenceBase:
     """
-    Create inference provider from parsed commandline arguments. Available arguments are defined in add_inference_comandline_args() function.
+    Create inference provider from parsed commandline arguments or environment variables.
+    Available arguments are defined in add_inference_comandline_args() function.
+    Environment variables are prefixed with NGUI_PROVIDER_.
+    Arguments have higher priority than environment variables.
 
     Args:
         parser: ArgumentParser instance to use for error reporting
         args: parsed commandline arguments to construct inference provider from
+        default_provider: Default inference provider to use if not provided in commandline argument nor environment variable.
         logger: Logger to use for logging
 
     Returns:
         Inference provider instance
+
+    Exits program with error if required arguments/environment variables
+    are not provided (`parser.error()` is called).
 
     Raises:
         ValueError: If unknown inference provider is requested
@@ -164,30 +175,58 @@ def create_inference_from_arguments(
         RuntimeError: If initialization of the inference provider fails etc
     """
 
+    provider = args.provider
+    if not provider or provider.strip() == "":
+        provider = os.getenv("NGUI_PROVIDER")
+    if not provider or provider.strip() == "":
+        provider = default_provider
+    if not provider or provider.strip() == "":
+        parser.error(
+            "--provider argument or NGUI_PROVIDER environment variable is required."
+        )
+
+    model = args.model
+    if not model or model.strip() == "":
+        model = os.getenv("NGUI_MODEL")
+
     # Validate arguments
-    if args.provider in ["llamastack", "openai"] and not args.model:
-        parser.error(f"--model is required when using {args.provider} provider")
+    if args.provider in ["llamastack", "openai"] and not model:
+        parser.error(
+            f"--model argument or NGUI_MODEL environment variable is required when using {args.provider} provider."
+        )
+
+    base_url = args.base_url
+    if not base_url or base_url.strip() == "":
+        base_url = os.getenv("NGUI_PROVIDER_API_BASE_URL")
+
+    api_key = args.api_key
+    if not api_key or api_key.strip() == "":
+        api_key = os.getenv("NGUI_PROVIDER_API_KEY")
+
+    temperature = args.temperature
+    temperature_env = os.getenv("NGUI_PROVIDER_API_TEMPERATURE")
+    if not temperature and temperature_env:
+        temperature = float(temperature_env)
 
     # create provider specific inference instance
-    if args.provider == "llamastack":
-        base_url = args.base_url
+    if provider == "llamastack":
         if not base_url or base_url.strip() == "":
             base_url = "http://localhost:5001"
         logger.info(
             "Using LlamaStack inference with model %s at url %s",
-            args.model,
+            model,
             base_url,
         )
-        return create_llamastack_inference(args.model, base_url, args.api_key)
-    elif args.provider == "openai":
-        logger.info("Using LangChain OpenAI inference with model %s", args.model)
-        if args.base_url:
-            logger.info("Using custom OpenAI API base URL: %s", args.base_url)
+        return create_llamastack_inference(model, base_url, api_key)
+    elif provider == "openai":
+        logger.info("Using OpenAI inference with model %s", model)
+        if base_url:
+            logger.info("Using custom OpenAI API base URL: %s", base_url)
         return create_langchain_openai_inference(
-            model=args.model,
-            base_url=args.base_url,
-            api_key=args.api_key,
-            temperature=args.temperature,
+            model=model,
+            base_url=base_url,
+            api_key=api_key,
+            temperature=temperature,
         )
     else:
-        raise ValueError(f"Unknown Inference provider: {args.provider}")
+        raise ValueError(f"Unknown Inference provider: {provider}")

@@ -57,7 +57,6 @@ All env variables are mapped to Next Gen UI MCP server documented in the [MCP Se
 | `NGUI_PROVIDER_API_KEY`         | -                 | API key for the LLM provider (for `openai`, `llamastack`)                 |
 | `NGUI_CONFIG_PATH`              | -                 | Path to [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) (comma separated). |
 
-For details see [MCP Server Arguments documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/#server-arguments).
 
 ### Providers
 
