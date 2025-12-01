@@ -7,14 +7,14 @@ This module contains Dataset and code to generate the dataset and to run the UI 
 
 ## Setup Evaluation Environment
 
-Evaluation code requires LlamaStack server or OpenAI API compatible LLM serving.
+Evaluation code requires LlamaStack server or one of common AI provider API compatible LLM serving.
 
 Embedded LlamaStack is used by default, with configuration from `tests/ai_eval_components/llamastack-ollama.yaml`. It expects localhost [`ollama` (at port `11434`)](https://ollama.com/) running, hosting LLM model.
 Other config file may be used thanks to `LLAMA_STACK_CONFIG_FILE`.
 
 Remote/external LlamaStack can be also used if configured using either `http://{LLAMA_STACK_HOST}:{LLAMA_STACK_PORT}` pair, or `LLAMA_STACK_URL`. How to run external LlamaStack on localhost see [LLAMASTACK_DEV.md](../../LLAMASTACK_DEV.md).
 
-If any of `MODEL_API_xy` env variable is set, then OpenAI API compatible LLM serving is used.
+If any of `MODEL_API_xy` env variable is set, then OpenAI/Antrropic API compatible LLM serving is used through [LangChain model](https://docs.langchain.com/oss/python/langchain/models#initialize-a-model).
 
 Evaluation code accepts these environment variables:
 
@@ -23,11 +23,25 @@ Evaluation code accepts these environment variables:
 - `LLAMA_STACK_PORT` - remote/external LlamaStack server port, defaults to `5001`
 - `LLAMA_STACK_URL` - remote/external LlamaStack server url. Allows to define whole url instead of use `LLAMA_STACK_HOST` and `LLAMA_STACK_PORT`.
 - `LLAMA_STACK_CONFIG_FILE` - path of the embedded LlamaStack config file. Defaults to `tests/ai_eval_components/llamastack-ollama.yaml`.
-- `MODEL_API_URL` - OpenAI compatible API base URL - optional, if not defined then OpenAI API base URL is used
-- `MODEL_API_KEY` - OpenAI compatible API api_key - optional
-- `MODEL_API_TEMPERATURE` - OpenAI compatible API LLM temperature - optional, use `0` if model is capable to run with it
+- `MODEL_API_PROVIDER` - model API provider to use - optional, currently supported: `openai` (default), `anthropic`, `anthropic-vertexai-proxied`
+- `MODEL_API_URL` - OpenAI/Anthropic compatible API base URL - optional, if not defined then default main URL of the API of given provider is used
+- `MODEL_API_KEY` - OpenAI/Anthropic compatible API api_key - optional
+- `MODEL_API_TEMPERATURE` - OpenAI/Anthropic compatible API LLM temperature - optional, use `0` if model is capable to run with it
 - `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 - `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
+
+If your API uses ssl certificate not signd by commonly trusted CA, you have to configure it for python `httpx` package used by `openai`/`anthropic` provider:
+
+```sh
+export SSL_CERT_FILE=/path/to/cert/your-CA-cert.pem
+```
+
+`anthropic-vertexai-proxied` is a custom inference provider created to 
+call [Anthropic models from Google Vertex AI](https://console.cloud.google.com/vertex-ai/publishers/anthropic/model-garden/claude-3-5-haiku) 
+proxied on different URL.
+It calls url constructed as `"{MODEL_API_URL}/models/{INFERENCE_MODEL}:streamRawPredict"`. 
+In case of HTTP error `429`, indicating  API throttling, it retries call after 10s for max 10 times.
+It is stored in [`proxied_claude_inference.py`](proxied_claude_inference.py).
 
 ### Create missing directories if needed
 

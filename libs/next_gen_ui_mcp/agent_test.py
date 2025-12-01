@@ -247,6 +247,32 @@ async def test_generate_ui_multiple_components_external_inference_no_structured_
 
 
 @pytest.mark.asyncio
+async def test_generate_ui_multiple_components_session_id(
+    external_inference,
+) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        inference=external_inference,
+    )
+
+    movies_data = find_movie("Toy Story")
+    input_data: List[InputData] = [
+        {"id": "external_test_id", "data": json.dumps(movies_data, default=str)}
+    ]
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        result = await client.call_tool(
+            "generate_ui_multiple_components",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "structured_data": input_data,
+                "session_id": "extra_argument_ignored",
+            },
+        )
+    assert result is not None
+
+
+@pytest.mark.asyncio
 async def test_generate_ui_component(
     external_inference,
 ) -> None:
@@ -325,6 +351,30 @@ async def test_generate_ui_component_sampling_inference_bad_return_type() -> Non
             str(excinfo.value)
             == "Error calling tool 'generate_ui_component': Failed to call model via MCP sampling: Sample Response returned unknown type: image"
         )
+
+
+@pytest.mark.asyncio
+async def test_generate_ui_component_session_id(
+    external_inference,
+) -> None:
+    ngui_agent = NextGenUIMCPServer(
+        config=AgentConfig(component_system="json"),
+        inference=external_inference,
+    )
+
+    movies_data = find_movie("Toy Story")
+
+    async with Client(ngui_agent.get_mcp_server()) as client:
+        result = await client.call_tool(
+            "generate_ui_component",
+            {
+                "user_prompt": "Tell me brief details of Toy Story",
+                "data": json.dumps(movies_data, default=str),
+                "data_type": "data_type_ignored",
+                "session_id": "extra_argument_ignored",
+            },
+        )
+    assert result is not None
 
 
 @pytest.mark.asyncio

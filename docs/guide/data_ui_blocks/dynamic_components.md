@@ -73,6 +73,9 @@ Value can be simple text or number etc. List (array) of values is supported as w
 
 Layout for this set of cards has to be provided by frontend application.
 
+If enabled in the *UI Agent* configuration, [agent's output can contain list of all fields available in the input data](../../spec/output.md), so you can 
+provide user with the ability to manually select what is shown after this UI component is generated.
+
 ### Table
 
 [![Status](https://img.shields.io/badge/Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
@@ -85,3 +88,6 @@ Table is UI block that displays:
   * Table with AI selected Columns with AI generated names, and rows of values gathered from agent's input data.
 
 Individual cell value can be simple text or number etc. List (array) of values is supported as well.
+
+If enabled in the *UI Agent* configuration, [agent's output can contain list of all fields available in the input data](../../spec/output.md), so you can 
+provide user with the ability to manually select which columns are shown after this UI component is generated.

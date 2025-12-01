@@ -3,6 +3,7 @@ import os
 from typing import Optional
 
 from next_gen_ui_agent.agent_config import parse_config_yaml
+from next_gen_ui_agent.all_fields_collector import generate_all_fields
 from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
 )
@@ -39,6 +40,7 @@ from next_gen_ui_agent.types import (
     AgentConfig,
     InputData,
     InputDataInternal,
+    UIBlockComponentMetadata,
     UIBlockConfiguration,
     UIBlockRendering,
     UIComponentMetadata,
@@ -227,14 +229,32 @@ class NextGenUIAgent:
         It should be returned from AI framework/protocol binding so *Controlling Assistant* can send it back later when it needs to refresh component for the new data.
         """
 
+        block_component_metadata = UIBlockComponentMetadata(
+            **component_metadata.model_dump(),
+        )
+
         # put sanitized data paths to the UIBlockConfiguration
-        if component_metadata.fields:
-            for field in component_metadata.fields:
+        if block_component_metadata.fields:
+            for field in block_component_metadata.fields:
                 field.data_path = sanitize_data_path(field.data_path)  # type: ignore
                 field.id = generate_field_id(field.data_path)
 
+        data_type = input_data.get("type")
+        generate_for_data_type = (
+            data_type
+            and self.config.data_types
+            and self.config.data_types.get(data_type)
+            and self.config.data_types.get(data_type).generate_all_fields  # type: ignore
+        )
+        if (
+            self.config.generate_all_fields and generate_for_data_type is not False
+        ) or generate_for_data_type is True:
+            block_component_metadata.fields_all = generate_all_fields(
+                component_metadata
+            )
+
         return UIBlockConfiguration(
-            component_metadata=component_metadata,
+            component_metadata=block_component_metadata,
             data_type=input_data.get("type"),
             input_data_transformer_name=component_metadata.input_data_transformer_name,
             json_wrapping_field_name=component_metadata.json_wrapping_field_name,

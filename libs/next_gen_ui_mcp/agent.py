@@ -88,7 +88,11 @@ class NextGenUIMCPServer:
         self.config = config
         self.sampling_max_tokens = sampling_max_tokens
         self.structured_output_enabled = structured_output_enabled
-        self.mcp: FastMCP = FastMCP(name)
+        self.mcp: FastMCP = FastMCP(
+            name,
+            strict_input_validation=True,
+            mask_error_details=False,
+        )
         if enabled_tools:
             for t in enabled_tools:
                 if t not in MCP_ALL_TOOLS:
@@ -114,6 +118,8 @@ class NextGenUIMCPServer:
                 "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
             ),
             enabled="generate_ui_component" in self.enabled_tools,
+            # exclude session_id so LLM does not see it
+            exclude_args=["session_id"],
         )
         async def generate_ui_component(
             ctx: Context,
@@ -142,11 +148,14 @@ class NextGenUIMCPServer:
                     description="ID of tool call used for 'data' argument. Exact COPY of tool name. Do not change anything! NEVER generate this."
                 ),
             ] = None,
+            # session_id should be sent as part of metadata. However some frameworks do not support that yet and send it as argument, e.g. Llama-stack
+            session_id: Annotated[str | None, Field(description="Session ID")] = None,
         ) -> ToolResult:
             if not data_id:
                 data_id = str(uuid.uuid4())
 
             await ctx.info("Starting UI generation...")
+            logger.debug("generate_ui_component invoked with session_id=%s", session_id)
             try:
                 input_data = InputData(data=data, type=data_type, id=data_id)
                 inference = await self.get_ngui_inference(ctx)
@@ -188,7 +197,12 @@ class NextGenUIMCPServer:
                     description="Structured Input Data. Array of objects with 'id', 'data' and 'type' keys. NEVER generate this."
                 ),
             ] = None,
+            # session_id should be sent as part of metadata. However some frameworks do not support that yet and send it as argument, e.g. Llama-stack
+            session_id: Annotated[str | None, Field(description="Session ID")] = None,
         ) -> ToolResult:
+            logger.debug(
+                "generate_ui_multiple_components invoked with session_id=%s", session_id
+            )
             if not structured_data or len(structured_data) == 0:
                 # TODO: Do analysis of input_data and check if data field contains data or not
                 raise ValueError(

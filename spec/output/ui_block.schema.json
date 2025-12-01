@@ -1,0 +1,198 @@
+{
+  "$defs": {
+    "DataField": {
+      "description": "UI Component Field Metadata.",
+      "properties": {
+        "id": {
+          "description": "Unique field ID. Can be used in CSS selectors to target the field, eg. to set its style, or during live refresh of the shown data from the backend.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Field name to be shown in the UI",
+          "type": "string"
+        },
+        "data_path": {
+          "description": "JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "data_path"
+      ],
+      "title": "DataField",
+      "type": "object"
+    },
+    "UIBlockComponentMetadata": {
+      "description": "UI Component Metadata for UIBlockConfiguration.",
+      "properties": {
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "ID of the `InputData` this instance is for."
+        },
+        "title": {
+          "description": "Title of the component.",
+          "type": "string"
+        },
+        "component": {
+          "description": "Component type.",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Fields of the component to be shown in the UI.",
+          "items": {
+            "$ref": "#/$defs/DataField"
+          },
+          "type": "array"
+        },
+        "fields_all": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/DataField"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "All fields available for the component - generated only for `table` and `set-of-cards` components if enabled in agent's configuration. Can be used to provide user with the ability to manually select fields to be shown in the UI."
+        }
+      },
+      "required": [
+        "title",
+        "component",
+        "fields"
+      ],
+      "title": "UIBlockComponentMetadata",
+      "type": "object"
+    },
+    "UIBlockConfiguration": {
+      "description": "UI Block configuration",
+      "properties": {
+        "data_type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Input data type."
+        },
+        "input_data_transformer_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name of the input data transformer used to transform the input data."
+        },
+        "json_wrapping_field_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Name of the field used for the input data `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed."
+        },
+        "component_metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/UIBlockComponentMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Metadata of the generated UI component."
+        }
+      },
+      "title": "UIBlockConfiguration",
+      "type": "object"
+    },
+    "UIBlockRendering": {
+      "description": "UI Block Rendering - output of the UI rendering step.",
+      "properties": {
+        "id": {
+          "description": "ID of the `InputData` this instance is for.",
+          "type": "string"
+        },
+        "component_system": {
+          "description": "Component system used to render the UI block.",
+          "type": "string"
+        },
+        "mime_type": {
+          "description": "MIME type of the UI block content.",
+          "type": "string"
+        },
+        "content": {
+          "description": "Content of the UI block serialized into string.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "component_system",
+        "mime_type",
+        "content"
+      ],
+      "title": "UIBlockRendering",
+      "type": "object"
+    }
+  },
+  "description": "UI Block model with all details",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "rendering": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UIBlockRendering"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "configuration": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UIBlockConfiguration"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "id"
+  ],
+  "title": "UIBlock",
+  "type": "object"
+}
