@@ -24,7 +24,7 @@ This module contains UI Agent Core functionality and frameworks.
     * `InferenceBase` inference interface used by UI Agent
     * `LangChainModelInference` inference implementation using LangChain `chat_models`
     * `ProxiedAnthropicVertexAIInference`  inference implementation to call Anthropic/Claude models from proxied Google Vertex AI API endpoint
-    * reusable inference provider builder from commandline arguments, used by all AI protocol servers
+    * reusable inference provider builder from commandline arguments/env variables, used by all AI protocol servers
 
 ## Installation
 

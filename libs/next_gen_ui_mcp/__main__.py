@@ -40,6 +40,7 @@ from pathlib import Path
 
 from fastmcp import FastMCP
 from next_gen_ui_agent.agent_config import read_config_yaml_file
+from next_gen_ui_agent.argparse_env_default_action import EnvDefault
 from next_gen_ui_agent.inference.inference_builder import (
     add_inference_comandline_args,
     create_inference_from_arguments,
@@ -121,7 +122,7 @@ Examples:
   python -m next_gen_ui_mcp -c ngui_config.yaml
 
   # Run with LlamaStack inference
-  python -m next_gen_ui_mcp --provider llamastack --model llama3.2-3b --base-url http://localhost:5001
+  python -m next_gen_ui_mcp --provider openai --model llama3.2-3b --base-url http://localhost:5001/v1
 
   # Run with OpenAI inference
   python -m next_gen_ui_mcp --provider openai --model gpt-3.5-turbo
@@ -160,7 +161,7 @@ Examples:
     )
     parser.add_argument(
         "--component-system",
-        choices=["json", "patternfly", "rhds"],
+        choices=["json", "rhds"],
         default="json",
         help="Component system to use for rendering (default: json)",
     )
@@ -170,26 +171,48 @@ Examples:
         "--transport",
         choices=["stdio", "sse", "streamable-http"],
         default="stdio",
+        required=True,
         help="Transport protocol to use",
+        action=EnvDefault,
+        envvar="MCP_TRANSPORT",
     )
-    parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
-    parser.add_argument("--port", type=int, default=8000, help="Port to bind to")
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        required=True,
+        help="Host to bind to",
+        action=EnvDefault,
+        envvar="MCP_HOST",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        required=True,
+        help="Port to bind to",
+        action=EnvDefault,
+        envvar="MCP_PORT",
+    )
+
     parser.add_argument(
         "--tools",
-        action="extend",
+        action=[EnvDefault, "extend"],
         nargs="+",
         type=str,
         help=(
             "Control which tools should be enabled. "
             "You can specify multiple values by repeating same parameter "
-            "or passing comma separated value."
+            "or passing comma separated value. Value `all` means all tools are enabled, but you can simply omit this argument to enable all tools."
         ),
+        envvar="MCP_TOOLS",
     )
     parser.add_argument(
         "--structured_output_enabled",
         choices=["true", "false"],
         default="true",
         help="Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.",
+        action=EnvDefault,
+        envvar="MCP_STRUCTURED_OUTPUT_ENABLED",
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
@@ -218,9 +241,11 @@ Examples:
     if args.tools and args.tools != ["all"]:
         enabled_tools = args.tools
 
+    transport: str = args.transport
+
     logger.info(
         "Starting Next Gen UI MCP Server with %s transport, debug=%s, tools=%s, structured_output_enabled=%s",
-        args.transport,
+        transport,
         args.debug,
         enabled_tools,
         args.structured_output_enabled,
@@ -233,9 +258,7 @@ Examples:
             logger.info("Using MCP sampling - will leverage client's LLM capabilities")
             inference = None  # inference remains None for MCP sampling
         else:
-            inference = create_inference_from_arguments(
-                parser, args, PROVIDER_MCP, logger
-            )
+            inference = create_inference_from_arguments(parser, args, logger)
 
         # Create the agent
         agent = create_server(
@@ -253,17 +276,23 @@ Examples:
 
     # Run the server
     try:
-        if args.transport == "stdio":
+        if transport == "stdio":
             logger.info("Server running on stdio - connect with MCP clients")
             agent.run(transport="stdio")
-        elif args.transport == "sse":
+        elif transport == "sse":
             add_health_routes(agent.get_mcp_server())
             logger.info("Starting server on http://%s:%s/sse", args.host, args.port)
             agent.run(transport="sse", host=args.host, port=args.port)
-        elif args.transport == "streamable-http":
+        elif transport == "streamable-http":
             add_health_routes(agent.get_mcp_server())
             logger.info("Starting server on http://%s:%s/mcp", args.host, args.port)
             agent.run(transport="streamable-http", host=args.host, port=args.port)
+        else:
+            logger.error(
+                "Invalid transport: %s. Use one of the following: stdio, sse, streamable-http",
+                transport,
+            )
+            sys.exit(1)
     except KeyboardInterrupt:
         logger.info("Server stopped by user")
     except Exception as e:

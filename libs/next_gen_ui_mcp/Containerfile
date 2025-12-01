@@ -39,13 +39,18 @@ RUN pip install *.whl \
 # Allow non-root user to access the everything in app-root
 RUN chgrp -R root /opt/app-root/src && chmod -R g+rwx /opt/app-root/src
 
+# env variables supported by the MCP server
 ENV MCP_TRANSPORT="streamable-http"
 ENV MCP_HOST="0.0.0.0"
 ENV MCP_PORT="5000"
-ENV MCP_TOOLS="all"
+ENV MCP_TOOLS=""
 ENV MCP_STRUCTURED_OUTPUT_ENABLED="true"
-ENV NGUI_COMPONENT_SYSTEM="json"
-ENV NGUI_CONFIG_PATH="-"
+ENV NGUI_COMPONENT_SYSTEM=""
+ENV NGUI_PROVIDER="openai"
+ENV NGUI_PROVIDER_API_KEY=""
+ENV NGUI_PROVIDER_API_BASE_URL=""
+ENV NGUI_MODEL="gpt-4o"
+ENV NGUI_CONFIG_PATH=""
 
 # Expose default port (change if needed)
 EXPOSE $MCP_PORT
@@ -55,5 +60,4 @@ USER 1001
 # Run the MCP
 # TODO: Support natively env variables in the next_gen_ui_mcp module
 CMD python -m next_gen_ui_mcp --config-path $NGUI_CONFIG_PATH \
-    --structured_output_enabled "$MCP_STRUCTURED_OUTPUT_ENABLED" --tools "$MCP_TOOLS"\
-    --host "$MCP_HOST" --port "$MCP_PORT" --transport "$MCP_TRANSPORT" --component-system "$NGUI_COMPONENT_SYSTEM"
+    --component-system "$NGUI_COMPONENT_SYSTEM"

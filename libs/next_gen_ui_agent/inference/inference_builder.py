@@ -8,6 +8,7 @@ import logging
 import os
 from typing import Optional
 
+from next_gen_ui_agent.argparse_env_default_action import EnvDefault
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.inference.proxied_anthropic_vertexai_inference import (
@@ -87,33 +88,52 @@ def add_inference_comandline_args(
         "--provider",
         choices=["openai", "anthropic-vertexai"] + additional_providers,
         help=f"Inference provider to use (default: {default_provider}). Env variable NGUI_PROVIDER can be used.",
+        default=default_provider,
+        required=True,
+        action=EnvDefault,
+        envvar="NGUI_PROVIDER",
     )
 
     parser.add_argument(
         "--model",
         help="Model name to use. Required for `openai`, `anthropic-vertexai`. Env variable NGUI_MODEL can be used.",
+        action=EnvDefault,
+        envvar="NGUI_MODEL",
+        required=False,
     )
 
     parser.add_argument(
         "--base-url",
         help="URL of the API endpoint. Env variable NGUI_PROVIDER_API_BASE_URL can be used. For `openai` defaults to OpenAI API, use eg. `http://localhost:11434/v1` for Ollama. Required for `anthropic-vertexai`",
+        action=EnvDefault,
+        envvar="NGUI_PROVIDER_API_BASE_URL",
+        required=False,
     )
 
     parser.add_argument(
         "--api-key",
         help="API key for the LLM provider. Env variable NGUI_PROVIDER_API_KEY can be used (`openai` also uses OPENAI_API_KEY env var if not provided). Used by `openai`, `anthropic-vertexai`.",
+        action=EnvDefault,
+        envvar="NGUI_PROVIDER_API_KEY",
+        required=False,
     )
 
     parser.add_argument(
         "--temperature",
         type=float,
         default=0.0,
-        help="Temperature for model inference (defaults to `0.0` for deterministic responses). Env variable NGUI_PROVIDER_API_TEMPERATURE can be used. Used by `openai`, `anthropic-vertexai`.",
+        help="Temperature for model inference (defaults to `0.0` for deterministic responses). Env variable NGUI_PROVIDER_TEMPERATURE can be used. Used by `openai`, `anthropic-vertexai`.",
+        action=EnvDefault,
+        envvar="NGUI_PROVIDER_TEMPERATURE",
+        required=False,
     )
 
     parser.add_argument(
         "--anthropic-version",
         help="Anthropic version to use in API call (defaults to `vertex-2023-10-16`). Env variable NGUI_PROVIDER_ANTHROPIC_VERSION can be used. Used by `anthropic-vertexai`.",
+        action=EnvDefault,
+        envvar="NGUI_PROVIDER_ANTHROPIC_VERSION",
+        required=False,
     )
 
     # MCP sampling specific arguments
@@ -121,6 +141,9 @@ def add_inference_comandline_args(
         "--sampling-max-tokens",
         type=int,
         help="Maximum LLM generated tokens. Usage and default value differs per provider and model, see documentation. Env variable NGUI_SAMPLING_MAX_TOKENS can be used.",
+        action=EnvDefault,
+        envvar="NGUI_SAMPLING_MAX_TOKENS",
+        required=False,
     )
 
 
@@ -149,7 +172,6 @@ def get_sampling_max_tokens_configuration(
 def create_inference_from_arguments(
     parser: argparse.ArgumentParser,
     args: argparse.Namespace,
-    default_provider: str,
     logger: logging.Logger,
 ) -> InferenceBase:
     """
@@ -177,42 +199,24 @@ def create_inference_from_arguments(
     """
 
     provider = args.provider
-    if not provider or provider.strip() == "":
-        provider = os.getenv("NGUI_PROVIDER")
-    if not provider or provider.strip() == "":
-        provider = default_provider
-    if not provider or provider.strip() == "":
-        parser.error(
-            "--provider argument or NGUI_PROVIDER environment variable is required."
-        )
 
     model = args.model
-    if not model or model.strip() == "":
-        model = os.getenv("NGUI_MODEL")
-
-    # Validate arguments
-    if args.provider in ["anthropic-vertexai", "openai"] and not model:
+    if args.provider in ["anthropic-vertexai", "openai"] and (
+        not model or model.strip() == ""
+    ):
         parser.error(
             f"--model argument or NGUI_MODEL environment variable is required when using {args.provider} provider."
         )
 
     base_url = args.base_url
-    if not base_url or base_url.strip() == "":
-        base_url = os.getenv("NGUI_PROVIDER_API_BASE_URL")
-
     if provider == "anthropic-vertexai" and not base_url:
         parser.error(
             f"--base-url argument or NGUI_PROVIDER_API_BASE_URL environment variable is required when using {args.provider} provider."
         )
 
     api_key = args.api_key
-    if not api_key or api_key.strip() == "":
-        api_key = os.getenv("NGUI_PROVIDER_API_KEY")
 
     temperature = args.temperature
-    temperature_env = os.getenv("NGUI_PROVIDER_API_TEMPERATURE")
-    if not temperature and temperature_env:
-        temperature = float(temperature_env)
 
     # create provider specific inference instance
     if provider == "anthropic-vertexai":
