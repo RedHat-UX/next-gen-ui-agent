@@ -2,8 +2,8 @@ import argparse
 import os
 
 """
-Helper class for configuration arguments loading from environment variables if not definrd in the commandline arguments.
-Argparse action to set a default value from an environment variable if not defined in the commandline arguments.
+Helper classes for configuration arguments loading from environment variables if not defined in the commandline arguments.
+Argparse actions to take a default value from an environment variable if not defined in the commandline arguments.
 
 Example how to use:
 
@@ -47,8 +47,8 @@ class EnvDefault(argparse.Action):
 
 class EnvDefaultExtend(argparse.Action):
     """
-    Argparse action that combines EnvDefault and `extend behavior of arparse.
-    Sets a default value from an environment variable if not defined in commandline arguments,
+    Argparse action that combines EnvDefault and `extend` behavior of argparse.
+    Gets a default value from an environment variable if not defined in commandline arguments,
     and extends the list when the argument is provided multiple times.
 
     New `envvar` argument is the name of the environment variable to use as default.

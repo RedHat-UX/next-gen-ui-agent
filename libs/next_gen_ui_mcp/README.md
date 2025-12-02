@@ -112,7 +112,7 @@ No additional configuration required as it uses the connected MCP client's model
 
 Requires:
 
-- `NGUI_PROVIDER_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `2048`).
+- `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `2048`).
 
 #### Provider **`openai`**:
 
@@ -132,7 +132,7 @@ Requires:
 - `NGUI_MODEL`: Model name (e.g., `gpt-4o`, `llama3.2`).
 - `NGUI_PROVIDER_API_KEY`: API key for the provider.
 - `NGUI_PROVIDER_API_BASE_URL` (optional): Custom base URL for OpenAI-compatible APIs like Ollama or Llama Stack. OpenAI API by default.
-- `NGUI_PROVIDER_API_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
+- `NGUI_PROVIDER_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
 
 Base URL examples:
 
@@ -152,9 +152,9 @@ Requires:
   - `NGUI_MODEL`: Model name.
   - `NGUI_PROVIDER_API_BASE_URL`: Base URL of the API.
   - `NGUI_PROVIDER_API_KEY`: API key for the provider.
-  - `NGUI_PROVIDER_API_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
+  - `NGUI_PROVIDER_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
   - `NGUI_PROVIDER_ANTHROPIC_VERSION` (optional): Anthropic version to use in API call (defaults to `vertex-2023-10-16`).
-  - `NGUI_PROVIDER_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `4096`).
+  - `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `4096`).
 
 ### Running Server locally from Git Repo
 

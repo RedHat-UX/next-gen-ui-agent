@@ -22,7 +22,7 @@ podman pull quay.io/next-gen-ui/a2a
 podman run --rm -p 9999:9999 \
     -e INFERENCE_MODEL=llama3.2 \
     -e OPEN_API_URL=http://host.containers.internal:11434/v1 \
-    quay.io/next-gen-ui/a2a:dev
+    quay.io/next-gen-ui/a2a
 ```
 
 ## Configuration
@@ -38,8 +38,8 @@ Dependencien necessary for `openai` inference provider are installed in the imag
 
 | Environment Variable | Default Value     | Description                                                |
 | ---------------------| ----------------- | -----------------------------------------------------------|
-| `MCP_HOST`           | `0.0.0.0`         | Host to bind to (for HTTP transports)                      |
-| `MCP_PORT`           | `9999`            | Port to bind to (for HTTP transports)                      |
+| `A2A_HOST`           | `0.0.0.0`         | Host to bind to (for HTTP transports)                      |
+| `A2A_PORT`           | `9999`            | Port to bind to (for HTTP transports)                      |
 | `NGUI_MODEL`         | `gpt-4o`          | Model name                                                 |
 
 ### Usage Examples
@@ -48,7 +48,7 @@ Dependencien necessary for `openai` inference provider are installed in the imag
 
 ```bash
 podman run --rm -it -p 5000:5000 \
-    --env MCP_PORT="5000" \
+    --env A2A_PORT="5000" \
     --env NGUI_PROVIDER="openai" \
     --env NGUI_MODEL="llama3.2" \
     --env NGUI_PROVIDER_API_BASE_URL="http://host.containers.internal:11434/v1" \

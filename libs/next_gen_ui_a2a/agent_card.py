@@ -15,7 +15,7 @@ card = AgentCard(
     name="Next Gen UI Agent",
     description="Generates UI component based on structured input data and user prompt",
     url="http://localhost:9999/",
-    version="1.0.0",
+    version="1.0.0",  # TODO take from version of next_gen_ui_a2a package?
     default_input_modes=["text"],
     default_output_modes=["text"],
     capabilities=AgentCapabilities(streaming=True),
