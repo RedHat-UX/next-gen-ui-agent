@@ -113,6 +113,7 @@ PROVIDER_MCP = "mcp"
 
 def main():
     """Main entry point."""
+
     parser = argparse.ArgumentParser(
         description="Next Gen UI MCP Server with Sampling or External LLM Providers",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -142,7 +143,7 @@ Examples:
   # Run with streamable-http transport
   python -m next_gen_ui_mcp --transport streamable-http --host 127.0.0.1 --port 8000
 
-  # Run with patternfly component system
+  # Run with rhds component system
   python -m next_gen_ui_mcp --component-system rhds
 
   # Run with rhds component system via SSE transport
@@ -195,6 +196,7 @@ Examples:
             "or passing comma separated value. Value `all` means all tools are enabled, but you can simply omit this argument to enable all tools."
         ),
         envvar="MCP_TOOLS",
+        required=False,
     )
     parser.add_argument(
         "--structured_output_enabled",
@@ -224,8 +226,10 @@ Examples:
     transport: str = args.transport
 
     logger.info(
-        "Starting Next Gen UI MCP Server with %s transport, debug=%s, tools=%s, structured_output_enabled=%s",
+        "Starting Next Gen UI MCP Server with %s transport at host %s and port %s, debug=%s, tools=%s, structured_output_enabled=%s",
         transport,
+        args.host,
+        args.port,
         args.debug,
         enabled_tools,
         args.structured_output_enabled,

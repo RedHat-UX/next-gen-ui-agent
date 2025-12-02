@@ -64,6 +64,10 @@ def create_langchain_openai_inference(
         raise RuntimeError(f"Failed to initialize LangChain model {model}: {e}") from e
 
 
+PROVIDER_OPENAI = "openai"
+PROVIDER_ANTHROPIC_VERTEXAI = "anthropic-vertexai"
+
+
 def add_inference_comandline_args(
     parser: argparse.ArgumentParser,
     default_provider: str,
@@ -133,6 +137,7 @@ def add_inference_comandline_args(
         help="Anthropic version to use in API call (defaults to `vertex-2023-10-16`). Env variable NGUI_PROVIDER_ANTHROPIC_VERSION can be used. Used by `anthropic-vertexai`.",
         action=EnvDefault,
         envvar="NGUI_PROVIDER_ANTHROPIC_VERSION",
+        default="vertex-2023-10-16",
         required=False,
     )
 
@@ -221,13 +226,13 @@ def create_inference_from_arguments(
     # create provider specific inference instance
     if provider == "anthropic-vertexai":
         anthropic_version = args.anthropic_version
-        if not anthropic_version or anthropic_version.strip() == "":
-            anthropic_version = os.getenv("NGUI_PROVIDER_ANTHROPIC_VERSION")
-        if not anthropic_version or anthropic_version.strip() == "":
-            anthropic_version = "vertex-2023-10-16"
+        max_tokens = get_sampling_max_tokens_configuration(args, 4096)
         logger.info(
-            "Using Anthropic Vertex AI inference with model %s at url %s",
+            "Using Anthropic Vertex AI inference with model %s, anthropic version %s, temperature %s, max tokens %s, at base URL: %s.",
             model,
+            anthropic_version,
+            temperature,
+            max_tokens,
             base_url,
         )
         return ProxiedAnthropicVertexAIInference(
@@ -236,10 +241,12 @@ def create_inference_from_arguments(
             temperature=temperature,
             base_url=base_url,
             anthropic_version=anthropic_version,
-            max_tokens=get_sampling_max_tokens_configuration(args, 4096),
+            max_tokens=max_tokens,
         )
     elif provider == "openai":
-        logger.info("Using OpenAI inference with model %s", model)
+        logger.info(
+            "Using OpenAI inference with model %s, temperature %s", model, temperature
+        )
         if base_url:
             logger.info("Using custom OpenAI API base URL: %s", base_url)
         return create_langchain_openai_inference(

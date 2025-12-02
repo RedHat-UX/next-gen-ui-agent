@@ -1,4 +1,4 @@
-# Next Gen UI MCP Server Library
+# Next Gen UI MCP Server
 
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
@@ -33,7 +33,7 @@ Depending on your use case you may need additional packages for inference provid
 
 ## Usage
 
-### Running the standalone server examples
+### Running the standalone server
 
 To get help how to run the server and pass the arguments run it with `-h` parameter:
 
@@ -97,7 +97,7 @@ Server can be configured using commandline arguments, or environment variables. 
 | `--temperature`               | `NGUI_PROVIDER_TEMPERATURE`       | -             | Temperature for model inference, float value (defaults to `0.0` for deterministic responses). Used by `openai`, `anthropic-vertexai`. |
 | `--sampling-max-tokens`       | `NGUI_SAMPLING_MAX_TOKENS`        | -             | Maximum LLM generated tokens, integer value. Used by `mcp` (defaults to `2048`) and `anthropic-vertexai` (defaults to `4096`).        |
 | `--anthropic-version`         | `NGUI_PROVIDER_ANTHROPIC_VERSION` | -             | Anthropic version value used in the API call (defaults to `vertex-2023-10-16`). Used by `anthropic-vertexai`.                         |
-| `--debug`                     | -                                 | -             | Enable debug logging.                                                                                                                 |
+| `--debug`                     | -                                 |               | Enable debug logging.                                                                                                                 |
 
 ### LLM Inference Providers
 

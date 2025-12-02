@@ -39,11 +39,9 @@ oc apply -f deployment.yaml
 ## Configuration
 
 The MCP server container can be configured via environment variables. 
-For available env variables and their meaning see [MCP Server Guide](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/#server-arguments).
+For available env variables and their meaning see [MCP Server Guide](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/#configuration-reference).
 
 Dependencien necessary for `openai` inference provider are installed in the image.
-
-`rhds` renderer is not installed in this image, create sub-image with it if required.
 
 **Default values are changed for some configurations in the image!**
 
@@ -53,13 +51,12 @@ Dependencien necessary for `openai` inference provider are installed in the imag
 | `MCP_HOST`           | `0.0.0.0`         | Host to bind to (for HTTP transports)                      |
 | `MCP_PORT`           | `5000`            | Port to bind to (for HTTP transports)                      |
 | `NGUI_PROVIDER`      | `openai`          | Inference provider (`mcp`, `openai`, `anthropic-vertexai`) |
+| `NGUI_MODEL`         | `gpt-4o`          | Model name                                                 |
 
 
 ### Usage Examples
 
 #### Basic Usage with Ollama (Local LLM)
-
-Use `http://host.containers.internal:11434/v1` url to reffer system the immage is running in:
 
 ```bash
 podman run --rm -it -p 5000:5000 \
@@ -72,6 +69,7 @@ podman run --rm -it -p 5000:5000 \
 ```
 
 #### OpenAI API Configuration
+
 ```bash
 podman run --rm -it -p 5000:5000 \
     --env NGUI_PROVIDER="openai" \
@@ -80,7 +78,8 @@ podman run --rm -it -p 5000:5000 \
     quay.io/next-gen-ui/mcp
 ```
 
-#### Remote LlamaStack Server Provider
+#### Remote LlamaStack Server
+
 ```bash
 podman run --rm -it -p 5000:5000 \
     --env NGUI_PROVIDER="openai" \
@@ -90,7 +89,9 @@ podman run --rm -it -p 5000:5000 \
 ```
 
 #### Configuration Using Environment File
+
 Create a `.env` file:
+
 ```bash
 # .env file
 MCP_PORT=5000
