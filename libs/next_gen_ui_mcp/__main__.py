@@ -39,8 +39,11 @@ import sys
 from pathlib import Path
 
 from fastmcp import FastMCP
-from next_gen_ui_agent.agent_config import read_config_yaml_file
-from next_gen_ui_agent.argparse_env_default_action import EnvDefault
+from next_gen_ui_agent.agent_config import (
+    add_agent_config_comandline_args,
+    read_agent_config_dict_from_arguments,
+)
+from next_gen_ui_agent.argparse_env_default_action import EnvDefault, EnvDefaultExtend
 from next_gen_ui_agent.inference.inference_builder import (
     add_inference_comandline_args,
     create_inference_from_arguments,
@@ -147,23 +150,10 @@ Examples:
         """,
     )
 
-    # UI Agent configuration arguments
-    parser.add_argument(
-        "--config-path",
-        action="extend",
-        nargs="+",
-        type=str,
-        help=(
-            "Path to configuration YAML file. "
-            "You can specify multiple config files by repeating same parameter "
-            "or passing comma separated value."
-        ),
-    )
-    parser.add_argument(
-        "--component-system",
-        choices=["json", "rhds"],
-        default="json",
-        help="Component system to use for rendering (default: json)",
+    add_agent_config_comandline_args(parser)
+
+    add_inference_comandline_args(
+        parser, default_provider=PROVIDER_MCP, additional_providers=[PROVIDER_MCP]
     )
 
     # MCP Server specific arguments
@@ -196,7 +186,7 @@ Examples:
 
     parser.add_argument(
         "--tools",
-        action=[EnvDefault, "extend"],
+        action=EnvDefaultExtend,
         nargs="+",
         type=str,
         help=(
@@ -216,10 +206,6 @@ Examples:
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
-    add_inference_comandline_args(
-        parser, default_provider=PROVIDER_MCP, additional_providers=[PROVIDER_MCP]
-    )
-
     args = parser.parse_args()
 
     # Configure logging
@@ -228,14 +214,8 @@ Examples:
         level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
-    config = AgentConfig()
-    if args.config_path and args.config_path != ["-"]:
-        logger.info("Loading Next Gen UI Config from paths %s", args.config_path)
-        for cp in args.config_path:
-            config = read_config_yaml_file(cp)
-
-    if args.component_system:
-        config.component_system = args.component_system
+    config_dict = read_agent_config_dict_from_arguments(args, logger)
+    config = AgentConfig(**config_dict)
 
     enabled_tools = MCP_ALL_TOOLS
     if args.tools and args.tools != ["all"]:

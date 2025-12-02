@@ -58,6 +58,4 @@ EXPOSE $MCP_PORT
 USER 1001
 
 # Run the MCP
-# TODO: Support natively env variables in the next_gen_ui_mcp module
-CMD python -m next_gen_ui_mcp --config-path $NGUI_CONFIG_PATH \
-    --component-system "$NGUI_COMPONENT_SYSTEM"
+CMD python -m next_gen_ui_mcp

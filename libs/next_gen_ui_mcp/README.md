@@ -83,7 +83,7 @@ Server can be configured using commandline arguments, or environment variables. 
 
 | Commandline Argument          | Environment Variable              | Default Value | Description                                                                                                                           |
 | ----------------------------- | --------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `--config-path`               | `NGUI_CONFIG_PATH`                | -             | Path to [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) (comma separated). |
+| `--config-path`               | `NGUI_CONFIG_PATH`                | -             | Path to [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) (to merge more yaml files, multiple commandline args can be used/comma separated in env variable). |
 | `--component-system`          | `NGUI_COMPONENT_SYSTEM`           | `json`        | UI Component system (`json`, `rhds`). Overrides value from YAML config file if used.                                                  |
 | `--transport`                 | `MCP_TRANSPORT`                   | `stdio`       | Transport protocol for MCP (`stdio`, `sse`, `streamable-http`).                                                                       |
 | `--host`                      | `MCP_HOST`                        | `127.0.0.1`   | Host to bind to (for `sse` and `streamable-http` transports).                                                                         |
