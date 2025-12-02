@@ -114,7 +114,7 @@ Requires:
 
 - `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `2048`).
 
-#### Provider **`openai`**:
+#### Provider **`openai`**
 
 Uses [LangChain OpenAI inference provider](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides), 
 so can be used with any OpenAI compatible APIs, eg. OpenAI API itself,
@@ -140,7 +140,7 @@ Base URL examples:
 - Ollama at localhost: `http://localhost:11434/v1`
 - Llama Stack server at localhost port `5001` called from MCP server running in image: `http://host.containers.internal:5001/v1`
 
-#### Provider **`anthropic-vertexai`**:
+#### Provider **`anthropic-vertexai`**
 
 Uses [Anthropic/Claude models from proxied Google Vertex AI API endpoint](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides).
 
@@ -171,7 +171,7 @@ If you are running this from inside of our [NextGenUI Agent GitHub repo](https:/
   PYTHONPATH=./libs python libs/next_gen_ui_mcp -h
 ```
 
-### Testing with MCP Client:
+### Testing with MCP Client
 
 As part of the GitHub repository we also provide [an example client](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/next_gen_ui_mcp/mcp_client_example.py). This example client implementation uses MCP SDK client libraries and ollama for MCP sampling inference provision.
 

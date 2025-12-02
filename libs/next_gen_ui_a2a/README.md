@@ -1,5 +1,7 @@
 # Next Gen UI A2A Server
 
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
+
 [![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
 [![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
@@ -60,7 +62,7 @@ Server can be configured using commandline arguments, or environment variables. 
 
 The Next Gen UI A2A server supports multiple inference providers, controlled by the `--provider` commandline argument / `NGUI_PROVIDER` environment variable:
 
-#### Provider **`openai`**:
+#### Provider **`openai`**
 
 Uses [LangChain OpenAI inference provider](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides), 
 so can be used with any OpenAI compatible APIs, eg. OpenAI API itself,
@@ -86,7 +88,7 @@ Base URL examples:
 - Ollama at localhost: `http://localhost:11434/v1`
 - Llama Stack server at localhost port `5001` called from MCP server running in image: `http://host.containers.internal:5001/v1`
 
-#### Provider **`anthropic-vertexai`**:
+#### Provider **`anthropic-vertexai`**
 
 Uses [Anthropic/Claude models from proxied Google Vertex AI API endpoint](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides).
 
