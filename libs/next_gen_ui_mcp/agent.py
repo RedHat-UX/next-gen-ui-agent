@@ -8,7 +8,7 @@ from fastmcp.tools.tool import ToolResult
 from mcp import types
 from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
-from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import (
     AgentConfig,
     InputData,

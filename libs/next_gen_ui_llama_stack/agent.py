@@ -8,10 +8,10 @@ from next_gen_ui_agent import (
     AgentConfig,
     InputData,
     NextGenUIAgent,
+    UIBlock,
     UIComponentMetadata,
 )
-from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.types import UIBlock
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_llama_stack.llama_stack_inference import (
     LlamaStackAgentInference,
     LlamaStackAsyncAgentInference,

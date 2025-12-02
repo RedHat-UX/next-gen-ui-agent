@@ -25,7 +25,7 @@
             },
             "args": [
                 "--debug",
-                "--provider", "langchain",
+                "--provider", "openai",
                 "--model", "gpt-4o-mini",
                 "--port", "9200",
                 "--transport", "streamable-http",
@@ -41,9 +41,12 @@
             "program": "${workspaceFolder}/libs/next_gen_ui_a2a",
             "console": "integratedTerminal",
             "env": {
-                "PYTHONPATH": "${workspaceFolder}/libs"
+                "PYTHONPATH": "${workspaceFolder}/libs",
             },
             "args": [
+                "--debug",
+                "--model", "gpt-4o-mini",
+                // "--config-path", "${workspaceFolder}/../ngui_openshift_a2a_config.yaml"
             ],
         },
         {

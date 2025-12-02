@@ -849,8 +849,3 @@ class TestGenerateRendering:
 
         r = from_json(result.content)
         assert r["component"] == "one-card"
-
-    def test_renderers(self) -> None:
-        agent = NextGenUIAgent()
-        assert len(agent.renderers) > 0
-        assert agent.renderers.index("json") == 0

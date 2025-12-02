@@ -1,16 +1,15 @@
-# Next Gen UI Agent A2A Protocol Integration (Dev Preview)
+# Next Gen UI A2A Server
 
 [![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
-[![Module Status](https://img.shields.io/badge/Module%20Status-Dev%20Preview-yellow)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 [A2A Protocol](https://a2a-protocol.org/) provides standard how to communicate with agent
 and provides interoparability by client SDKs in different languages.
 
 ## Provides
 
-1. Standard A2A API to the Next Gen UI agent
-2. HTTP Server to run the A2A API and execute the agent
-3. Docker image
+* `__main__.py` to run the MCP server as the standalone server
+* `NextGenUIAgentExecutor` - standard A2A API to the Next Gen UI agent
 
 To interact with agent via A2A protocol use any A2A client implemntation.
 
@@ -20,48 +19,104 @@ To interact with agent via A2A protocol use any A2A client implemntation.
 pip install -U next_gen_ui_a2a
 ```
 
-## Example
+To run the server using `__main__.py`, you also have to install http framework, eg:
 
-TODO: NGUI-493 - Improve documentation. Move code examples to docs. Keep README minimal.
-
-### Run A2A server with Next Gen UI agent
-
-```py
-import uvicorn 
-from a2a.server.apps import A2AStarletteApplication
-from a2a.server.request_handlers import DefaultRequestHandler 
-from a2a.server.tasks import InMemoryTaskStore 
-from langchain_openai import ChatOpenAI 
-
-from next_gen_ui_a2a.agent_card import card
-from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
-from next_gen_ui_agent.model import LangChainModelInference
-from next_gen_ui_agent.types import AgentConfig
-
-if not os.environ.get("OPENAI_API_KEY"):
-    os.environ["OPENAI_API_KEY"] = "ollama"
-model = os.getenv("INFERENCE_MODEL", "llama3.2")
-base_url = os.getenv("OPEN_API_URL", "http://localhost:11434/v1")
-
-# Create Chat API used by next_gen_ui agent
-llm = ChatOpenAI(model=model, base_url=base_url)
-inference = LangChainModelInference(llm)
-config = AgentConfig(inference=inference)
-
-request_handler = DefaultRequestHandler(
-    agent_executor=NextGenUIAgentExecutor(config),
-    task_store=InMemoryTaskStore(),
-)
-
-server = A2AStarletteApplication(
-    agent_card=card,
-    http_handler=request_handler,
-)
-
-uvicorn.run(server.build(), host="0.0.0.0", port=9999)
+```sh
+pip install a2a-sdk[http-server] uvicorn
 ```
 
-### Run A2A client
+Depending on your use case you may need additional packages for inference provider or design component renderers. More about this in the next sections.
+
+## Usage
+
+### Running the standalone server
+
+To get help how to run the server and pass the arguments run it with `-h` parameter:
+
+```sh
+python -m next_gen_ui_a2a -h
+
+```
+### Configuration Reference
+
+Server can be configured using commandline arguments, or environment variables. CLI has precedence over env variable.
+
+| Commandline Argument          | Environment Variable              | Default Value | Description                                                                                                                           |
+| ----------------------------- | --------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `--config-path`               | `NGUI_CONFIG_PATH`                | -             | Path to [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) (to merge more yaml files, multiple commandline args can be used/comma separated in env variable). |
+| `--component-system`          | `NGUI_COMPONENT_SYSTEM`           | `json`        | UI Component system (`json` + any installed). Overrides value from YAML config file if used.                                          |
+| `--host`                      | `A2A_HOST`                        | `127.0.0.1`   | Host to bind to.                                                                                                                      |
+| `--port`                      | `A2A_PORT`                        | `8000`        | Port to bind to.                                                                                                                      |
+| `--provider`                  | `NGUI_PROVIDER`                   | `openai`      | LLM inference provider (`openai`, `anthropic-vertexai`), for details see below.                                                       |
+| `--model`                     | `NGUI_MODEL`                      | -             | Model name. Required for `openai`, `anthropic-vertexai`.                                                                              |
+| `--base-url`                  | `NGUI_PROVIDER_API_BASE_URL`      | -             | Base URL for API, provider specific defaults. Used by `openai`, `anthropic-vertexai`.                                                 |
+| `--api-key`                   | `NGUI_PROVIDER_API_KEY`           | -             | API key for the LLM provider. Used by `openai`, `anthropic-vertexai`.                                                                 |
+| `--temperature`               | `NGUI_PROVIDER_TEMPERATURE`       | -             | Temperature for model inference, float value (defaults to `0.0` for deterministic responses). Used by `openai`, `anthropic-vertexai`. |
+| `--sampling-max-tokens`       | `NGUI_SAMPLING_MAX_TOKENS`        | -             | Maximum LLM generated tokens, integer value. Used by `anthropic-vertexai` (defaults to `4096`).                                       |
+| `--anthropic-version`         | `NGUI_PROVIDER_ANTHROPIC_VERSION` | -             | Anthropic version value used in the API call (defaults to `vertex-2023-10-16`). Used by `anthropic-vertexai`.                         |
+| `--debug`                     | -                                 |               | Enable debug logging.                                                                                                                 |
+
+### LLM Inference Providers
+
+The Next Gen UI A2A server supports multiple inference providers, controlled by the `--provider` commandline argument / `NGUI_PROVIDER` environment variable:
+
+#### Provider **`openai`**:
+
+Uses [LangChain OpenAI inference provider](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides), 
+so can be used with any OpenAI compatible APIs, eg. OpenAI API itself,
+or [Ollama](https://ollama.com/) for localhost inference,
+or [Llama Stack server v0.3.0+](https://llamastack.github.io/docs/api/create-chat-completions).
+
+Requires additional package to be installed:
+
+```sh
+"pip install langchain-openai"
+```
+
+Requires:
+
+- `NGUI_MODEL`: Model name (e.g., `gpt-4o`, `llama3.2`).
+- `NGUI_PROVIDER_API_KEY`: API key for the provider.
+- `NGUI_PROVIDER_API_BASE_URL` (optional): Custom base URL for OpenAI-compatible APIs like Ollama or Llama Stack. OpenAI API by default.
+- `NGUI_PROVIDER_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
+
+Base URL examples:
+
+- OpenAI: `https://api.openai.com/v1` (default)
+- Ollama at localhost: `http://localhost:11434/v1`
+- Llama Stack server at localhost port `5001` called from MCP server running in image: `http://host.containers.internal:5001/v1`
+
+#### Provider **`anthropic-vertexai`**:
+
+Uses [Anthropic/Claude models from proxied Google Vertex AI API endpoint](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides).
+
+Called API url is constructed as `{BASE_URL}/models/{MODEL}:streamRawPredict`. 
+API key is sent as `Bearer` token in `Authorization` http request header.
+
+Requires:
+
+  - `NGUI_MODEL`: Model name.
+  - `NGUI_PROVIDER_API_BASE_URL`: Base URL of the API.
+  - `NGUI_PROVIDER_API_KEY`: API key for the provider.
+  - `NGUI_PROVIDER_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
+  - `NGUI_PROVIDER_ANTHROPIC_VERSION` (optional): Anthropic version to use in API call (defaults to `vertex-2023-10-16`).
+  - `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `4096`).
+
+### Running Server locally from Git Repo
+
+If you are running this from inside of our [NextGenUI Agent GitHub repo](https://github.com/RedHat-UX/next-gen-ui-agent) then our `pants` repository manager can help you satisfy all dependencies. 
+In such case you can run the commands in the following way:
+
+```bash
+  # Run directly
+  PYTHONPATH=./libs python libs/next_gen_ui_a2a -h
+```
+
+Run with real config arguments or env variables.
+
+### Example A2A client
+
+Example A2A client to call Next Gen UI A2A server
 
 ```py
 import logging
@@ -185,3 +240,8 @@ if __name__ == "__main__":
 
     asyncio.run(main())
 ```
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/a2a-library/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_a2a)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
