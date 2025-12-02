@@ -7,8 +7,6 @@ from next_gen_ui_agent.data_transform.types import (
 )
 from typing_extensions import override
 
-PLUGGABLE_RENDERERS_NAMESPACE = "next_gen_ui.agent.renderer_factory"
-
 
 class RenderStrategyBase(ABC):
     """UI Renderer Base."""

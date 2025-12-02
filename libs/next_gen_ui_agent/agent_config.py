@@ -3,6 +3,7 @@ import logging
 
 import yaml  # type: ignore[import-untyped]
 from next_gen_ui_agent.argparse_env_default_action import EnvDefault, EnvDefaultExtend
+from next_gen_ui_agent.design_system_handler import get_component_system_names
 from next_gen_ui_agent.types import AgentConfig
 
 
@@ -89,7 +90,7 @@ def add_agent_config_comandline_args(
     )
     parser.add_argument(
         "--component-system",
-        choices=["json", "rhds"],
+        choices=get_component_system_names(),
         help="Component system to use for rendering (default: yaml config file > `json`)",
         action=EnvDefault,
         envvar="NGUI_COMPONENT_SYSTEM",

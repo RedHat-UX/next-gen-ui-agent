@@ -1,3 +1,4 @@
+from next_gen_ui_agent import design_system_handler
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 from next_gen_ui_agent.renderer.image_shareable_tests import BaseImageRendererTests
@@ -17,7 +18,7 @@ class TestImageRHDSRendererWithShareableTests(BaseImageRendererTests):
 
 def test_renderer_image_full() -> None:
     agent = NextGenUIAgent()
-    agent._extension_manager = extension_manager_for_testing(
+    design_system_handler.EXTENSION_MANAGER = extension_manager_for_testing(
         "rhds", RhdsStrategyFactory()
     )
     component = get_transformed_component("image")

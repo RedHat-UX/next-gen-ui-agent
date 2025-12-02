@@ -43,6 +43,8 @@ For available env variables and their meaning see [MCP Server Guide](https://red
 
 Dependencien necessary for `openai` inference provider are installed in the image.
 
+`json` and `rhds` renderers are installed. Create child image to install additional ones.
+
 **Default values are changed for some configurations in the image!**
 
 | Environment Variable | Default Value     | Description                                                |
