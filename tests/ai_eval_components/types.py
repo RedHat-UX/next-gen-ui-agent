@@ -29,6 +29,7 @@ class JudgeResult(TypedDict):
     """LLM judge evaluation result"""
 
     judge_name: str
+    category: str
     score: float
     passed: bool
     reasoning: str

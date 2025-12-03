@@ -63,7 +63,10 @@ def print_perf_stats():
 
 
 def save_perf_stats_to_file(
-    output_file: str, judge_enabled: bool = False, judge_model: str = None
+    output_file: str,
+    judge_enabled: bool = False,
+    judge_model: str | None = None,
+    agent_model: str | None = None,
 ):
     """Save performance stats to JSON file for report generation"""
     stats_data = {
@@ -71,6 +74,7 @@ def save_perf_stats_to_file(
         "by_component": get_perf_stat_for_components(),
         "judge_enabled": judge_enabled,
         "judge_model": judge_model,
+        "agent_model": agent_model,
     }
     with open(output_file, "w") as f:
         json.dump(stats_data, f, indent=2)

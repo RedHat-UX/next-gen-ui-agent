@@ -29,10 +29,9 @@ Evaluation code accepts these environment variables:
 - `MODEL_API_TEMPERATURE` - OpenAI/Anthropic compatible API LLM temperature - optional, use `0` if model is capable to run with it
 - `DATASET_DIR` - directory with the dataset used for evaluations. Defaults to the `dataset` subdirectory in this project.
 - `ERRORS_DIR` - directory where detailed error info files are written. Defaults to `errors` subdirectory in this project.
-- `JUDGE_ENABLED` - set to `true` to enable LLM-as-a-Judge evaluation mode (optional)
-- `JUDGE_MODEL` - LLM model name for judge evaluation (required if `JUDGE_ENABLED=true`)
-- `JUDGE_API_URL` - API endpoint for judge model (required if `JUDGE_ENABLED=true`)
-- `JUDGE_API_KEY` - API key for judge model (required if `JUDGE_ENABLED=true`)
+- `JUDGE_MODEL` - LLM model name for judge evaluation (required if `-j` flag is used)
+- `JUDGE_API_URL` - API endpoint for judge model (required if `-j` flag is used)
+- `JUDGE_API_KEY` - API key for judge model (required if `-j` flag is used)
 
 If your API uses ssl certificate not signd by commonly trusted CA, you have to configure it for python `httpx` package used by `openai`/`anthropic` provider:
 
@@ -67,11 +66,25 @@ You can use these commandline argument:
 - `-w` to write Agent ouputs (LLM and Component data) with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
 - `-s` evaluate only selected component type, not it's configuration - usefull for component selection development/tuning
 - `-v` to enable vague component type check, allowing `table` and `set-of-cards` components to be interchanged
+- `-j` to enable LLM-as-a-Judge evaluation (requires `JUDGE_MODEL`, `JUDGE_API_URL`, `JUDGE_API_KEY` env vars)
 - `-h` to get help
 
 ```sh
 pants run tests/ai_eval_components/eval.py -- -c one-card
 ```
+
+### LLM-as-a-Judge Evaluation
+
+Judge evaluation mode (`-j` flag) uses LLM to semantically evaluate if component choice and field selections are appropriate for the user's request.
+
+```sh
+export JUDGE_MODEL="Llama-3.3-70B-Instruct-FP8-dynamic"
+export JUDGE_API_URL="https://..."
+export JUDGE_API_KEY="..."
+python -m ai_eval_components.eval -c all -j
+```
+
+Judges output predefined categories for consistency: `perfectly_relevant` (1.0), `relevant_with_supporting_detail` (0.85), `partially_relevant` (0.5), `irrelevant` (0.2) for field relevance; `perfect_choice` (1.0), `good_choice` (0.85), `reasonable_choice` (0.65), `wrong_choice` (0.3) for component choice.
 
 If no `-c` nor `-f` argument is used, evaluation runs only for fully implemented/supported UI components.
 If args are used, evaluation script automatically switches UI Agent to the mode with all UI components if necessary,
@@ -108,10 +121,6 @@ Each file stored here contains description info like:
 ```
 
 and then results printed by eval script, including performance stats.
-
-## LLM-as-a-Judge Evaluation (Optional)
-
-Enable LLM judge mode by setting `JUDGE_ENABLED=true`. This replaces deterministic checks with two LLM judges that evaluate component selection and field relevance. Requires configuring `JUDGE_MODEL`, `JUDGE_API_URL`, and `JUDGE_API_KEY` environment variables.
 
 ## Evaluation dataset
 

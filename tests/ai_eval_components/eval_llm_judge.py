@@ -4,11 +4,25 @@ import asyncio
 import json
 
 from ai_eval_components.types import JudgeResult
-from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 
 # Default model for judges (can be overridden by JUDGE_MODEL env var)
 JUDGE_MODEL_DEFAULT = "granite3.3:2b"
+# Category-to-score mappings for consistent evaluation
+FIELD_RELEVANCE_CATEGORIES = {
+    "perfectly_relevant": 1.0,
+    "relevant_with_supporting_detail": 0.85,
+    "partially_relevant": 0.5,
+    "irrelevant": 0.2,
+}
+
+COMPONENT_CHOICE_CATEGORIES = {
+    "perfect_choice": 1.0,
+    "good_choice": 0.85,
+    "reasonable_choice": 0.65,
+    "wrong_choice": 0.3,
+}
 
 
 def _truncate_backend_data(backend_data: dict, max_length: int = 1000) -> str:
@@ -24,6 +38,7 @@ async def run_judge(
     prompt: str,
     inference: InferenceBase,
     threshold: float,
+    category_mapping: dict[str, float],
 ) -> JudgeResult:
     """
     Common judge execution logic.
@@ -33,6 +48,7 @@ async def run_judge(
     * prompt - prompt to send to judge LLM
     * inference - inference instance for judge
     * threshold - minimum score to pass (0.0-1.0)
+    * category_mapping - dict mapping category names to scores
 
     Returns JudgeResult dict.
     """
@@ -41,16 +57,25 @@ async def run_judge(
             "You are a helpful AI judge evaluating UI component selections.", prompt
         )
         result = json.loads(response)
+
+        # Map category to score
+        category = result["category"]
+        score = category_mapping.get(
+            category, 0.5
+        )  # Default to 0.5 if unknown category
+
         return {
             "judge_name": judge_name,
-            "score": float(result["score"]),
-            "passed": float(result["score"]) >= threshold,
+            "category": category,
+            "score": score,
+            "passed": score >= threshold,
             "reasoning": result["reason"],
         }
     except Exception as e:
         # If judge fails, return neutral result
         return {
             "judge_name": judge_name,
+            "category": "unknown",
             "score": 0.5,
             "passed": False,
             "reasoning": f"Judge error: {str(e)}",
@@ -111,16 +136,24 @@ Kubernetes:
 Subscriptions:
 - "subscription end date" + one-card -> Name + Description BUT NO EndDate = BAD
 
-Score how well these fields answer the user's question on a scale of 0.0 to 1.0:
-- 1.0 = perfectly relevant fields that directly answer the question
-- 0.7-0.9 = fields are relevant with appropriate supporting details
-- 0.4-0.6 = fields partially relevant but missing key data
-- 0.0-0.3 = fields don't address user request or completely irrelevant
+Evaluate and select ONE category that best describes the field selection:
+
+Categories (choose exactly one):
+- "perfectly_relevant" - All fields directly answer the question with no missing data
+- "relevant_with_supporting_detail" - Fields are relevant with appropriate supporting details
+- "partially_relevant" - Fields partially address the request but missing key data
+- "irrelevant" - Fields don't address user request or completely irrelevant
 
 Reply ONLY with valid JSON in this exact format:
-{{"score": 0.85, "reason": "brief explanation of your scoring"}}"""
+{{"category": "relevant_with_supporting_detail", "reason": "brief explanation of your evaluation"}}"""
 
-    return await run_judge("field_relevance", prompt, inference, 0.7)
+    return await run_judge(
+        "field_relevance",
+        prompt,
+        inference,
+        0.7,
+        FIELD_RELEVANCE_CATEGORIES,  # Pass category mapping
+    )
 
 
 async def judge_component_choice(
@@ -174,16 +207,24 @@ Subscriptions:
 - "All active subscriptions" -> set-of-cards = GOOD | table = GOOD
 - "Subscription details" -> one-card = GOOD
 
-Score how appropriate this component choice is on a scale of 0.0 to 1.0:
-- 1.0 = perfect component choice
-- 0.8-0.9 = good choice, clearly appropriate
-- 0.5-0.7 = reasonable but not ideal
-- 0.0-0.4 = wrong component type
+Evaluate and select ONE category that best describes the component choice:
+
+Categories (choose exactly one):
+- "perfect_choice" - Perfect component type for this use case
+- "good_choice" - Good choice, clearly appropriate
+- "reasonable_choice" - Reasonable but not ideal choice
+- "wrong_choice" - Wrong component type for this use case
 
 Reply ONLY with valid JSON in this exact format:
-{{"score": 0.90, "reason": "brief explanation of your scoring"}}"""
+{{"category": "good_choice", "reason": "brief explanation of your evaluation"}}"""
 
-    return await run_judge("component_choice", prompt, inference, 0.8)
+    return await run_judge(
+        "component_choice",
+        prompt,
+        inference,
+        0.8,
+        COMPONENT_CHOICE_CATEGORIES,  # Pass category mapping
+    )
 
 
 async def run_llm_judges(

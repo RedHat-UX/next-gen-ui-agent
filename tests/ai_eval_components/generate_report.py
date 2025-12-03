@@ -39,6 +39,7 @@ def load_perf_stats(error_dirs, dataset_labels):
         "by_component": {},  # Format: {(component, dataset_label): stats}
         "judge_enabled": False,  # Will be set to True if any dataset has judges enabled
         "judge_model": None,
+        "agent_model": None,
     }
 
     for i, error_dir in enumerate(error_dirs):
@@ -59,6 +60,10 @@ def load_perf_stats(error_dirs, dataset_labels):
                 if stats.get("judge_enabled", False):
                     all_perf_stats["judge_enabled"] = True
                     all_perf_stats["judge_model"] = stats.get("judge_model")
+
+                # Capture agent model
+                if stats.get("agent_model"):
+                    all_perf_stats["agent_model"] = stats.get("agent_model")
 
     return all_perf_stats
 
@@ -438,13 +443,25 @@ def generate_html_report(results, title="Evaluation Report", model=None):
                         <td>{len(results["by_component"])} component(s)</td>
                     </tr>"""
 
+    # Add model info
+    agent_model = results["perf_stats"].get("agent_model", model or "Unknown")
+    html += f"""
+                    <tr>
+                        <td><strong>🔧 Agent Model</strong></td>
+                        <td>{agent_model}</td>
+                    </tr>"""
+
     # Add judge info if judges were enabled
     if results["perf_stats"].get("judge_enabled", False):
         judge_model = results["perf_stats"].get("judge_model", "Unknown")
         html += f"""
                     <tr>
-                        <td><strong>🤖 LLM Judge Evaluation</strong></td>
-                        <td style="color: #27ae60;">✅ Enabled (Model: {judge_model})</td>
+                        <td><strong>🤖 Judge Model</strong></td>
+                        <td>{judge_model}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Judge Evaluation</strong></td>
+                        <td style="color: #27ae60;">✅ Enabled</td>
                     </tr>"""
 
     html += f"""

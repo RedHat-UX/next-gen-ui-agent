@@ -21,10 +21,12 @@ ERR_FILE_SUFFIX = "-errors.txt"
 
 def _write_judge_results(f: TextIOWrapper, judge_results: list[JudgeResult]) -> None:
     """Write LLM judge evaluation results to file."""
-    f.write("\n=== LLM Judge Evaluation (Judge-Only Mode) ===\n")
+    f.write("\n=== LLM Judge Evaluation ===\n")
     for jr in judge_results:
         status = "PASS" if jr["passed"] else "FAIL"
-        f.write(f"{jr['judge_name']}: {status} (score: {jr['score']:.2f})\n")
+        f.write(f"{jr['judge_name']}: {status}\n")
+        f.write(f"  Category: {jr['category']}\n")
+        f.write(f"  Score: {jr['score']:.2f}\n")
         f.write(f"  Reasoning: {jr['reasoning']}\n")
     f.write("\n")
 
