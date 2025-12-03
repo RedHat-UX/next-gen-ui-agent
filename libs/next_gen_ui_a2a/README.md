@@ -68,6 +68,7 @@ Server can be configured using commandline arguments, or environment variables. 
 | `--sampling-max-tokens`       | `NGUI_SAMPLING_MAX_TOKENS`        | -             | Maximum LLM generated tokens, integer value. Used by `anthropic-vertexai` (defaults to `4096`).                                       |
 | `--anthropic-version`         | `NGUI_PROVIDER_ANTHROPIC_VERSION` | -             | Anthropic version value used in the API call (defaults to `vertex-2023-10-16`). Used by `anthropic-vertexai`.                         |
 | `--debug`                     | -                                 |               | Enable debug logging.                                                                                                                 |
+|                               | `NGUI_A2A_VERSION`                | `<release>`   | Version returned in the [A2A Agent Card](https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/#agent-card), defaults to the installed A2A server module release version |
 
 ### LLM Inference Providers
 

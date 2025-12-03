@@ -28,23 +28,26 @@ class TestGetPackageVersion:
     """Tests for _get_package_version function."""
 
     def test_get_package_version_when_installed(self) -> None:
-        """Test that version is retrieved when package is installed."""
+        """Test that version is retrieved from the module when package is installed and env variable is empty."""
+        with patch.dict(os.environ, {"NGUI_A2A_VERSION": " "}):
+            with patch(
+                "next_gen_ui_a2a.agent_card.get_package_version"
+            ) as mock_version:
+                mock_version.return_value = "2.3.4"
+                result = _get_package_version()
+                assert result == "2.3.4"
+                mock_version.assert_called_once_with("next_gen_ui_a2a")
+
+    def test_get_package_version_env_var(self) -> None:
+        """Test that version is retrieved from environment variable when provided with precedence over module version."""
         with patch("next_gen_ui_a2a.agent_card.get_package_version") as mock_version:
             mock_version.return_value = "2.3.4"
-            result = _get_package_version()
-            assert result == "2.3.4"
-            mock_version.assert_called_once_with("next_gen_ui_a2a")
-
-    def test_get_package_version_fallback_to_env_var(self) -> None:
-        """Test that version falls back to environment variable when package is not installed."""
-        with patch("next_gen_ui_a2a.agent_card.get_package_version") as mock_version:
-            mock_version.side_effect = Exception("Package not found")
-            with patch.dict(os.environ, {"VERSION": "3.0.0"}):
+            with patch.dict(os.environ, {"NGUI_A2A_VERSION": "3.0.0"}):
                 result = _get_package_version()
                 assert result == "3.0.0"
 
     def test_get_package_version_fallback_to_default(self) -> None:
-        """Test that version falls back to default when package is not installed and no env var."""
+        """Test that version falls back to default when package is not installed and no env var is provided."""
         with patch("next_gen_ui_a2a.agent_card.get_package_version") as mock_version:
             mock_version.side_effect = Exception("Package not found")
             with patch.dict(os.environ, {}, clear=True):

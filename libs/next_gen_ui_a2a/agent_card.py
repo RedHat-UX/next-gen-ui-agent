@@ -1,3 +1,4 @@
+import os
 from importlib.metadata import version as get_package_version
 
 from a2a.types import AgentCapabilities, AgentCard, AgentSkill
@@ -24,14 +25,15 @@ DEFAULT_SKILL_GENERATE_UI_COMPONENTS_EXAMPLES = [
 
 def _get_package_version() -> str:
     """Get the version of next_gen_ui_a2a package."""
+
+    env_version = os.environ.get("NGUI_A2A_VERSION")
+    if env_version and env_version.strip() != "":
+        return env_version
+
     try:
         return get_package_version("next_gen_ui_a2a")
     except Exception:
-        # Fallback if package is not installed (e.g., running from source)
-        # Try to get from environment variable or use default
-        import os
-
-        return os.environ.get("VERSION", DEFAULT_PACKAGE_VERSION)
+        return DEFAULT_PACKAGE_VERSION
 
 
 def _get_skill_generate_ui_components(agent_config: A2AAgentConfig) -> AgentSkill:
