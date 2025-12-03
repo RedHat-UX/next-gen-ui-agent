@@ -144,7 +144,7 @@ Categories (choose exactly one):
 - "partially_relevant" - Fields partially address the request but missing key data
 - "irrelevant" - Fields don't address user request or completely irrelevant
 
-Reply ONLY with valid JSON in this exact format:
+Reply ONLY with valid JSON in this exact format (no markdown, no code blocks, just raw JSON):
 {{"category": "relevant_with_supporting_detail", "reason": "brief explanation of your evaluation"}}"""
 
     return await run_judge(
@@ -215,7 +215,7 @@ Categories (choose exactly one):
 - "reasonable_choice" - Reasonable but not ideal choice
 - "wrong_choice" - Wrong component type for this use case
 
-Reply ONLY with valid JSON in this exact format:
+Reply ONLY with valid JSON in this exact format (no markdown, no code blocks, just raw JSON):
 {{"category": "good_choice", "reason": "brief explanation of your evaluation"}}"""
 
     return await run_judge(
