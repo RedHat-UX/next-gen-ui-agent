@@ -5,23 +5,27 @@ This module is part of the [Next Gen UI Agent project](https://github.com/RedHat
 [![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
 [![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-[A2A Protocol](https://a2a-protocol.org/) provides standard how to communicate with agent
-and provides interoparability by client SDKs in different languages.
+[A2A Protocol](https://a2a-protocol.org/) provides standard how to communicate with AI agents
+and provides interoparability by client SDKs in different languages. 
+Use any A2A client implemntation to interact with the UI agent via A2A protocol.
+For details see [expected inputs and returned outputs](#agent-inputs-and-outputs).
 
 ## Provides
 
-* `__main__.py` to run the MCP server as the standalone server
-* `NextGenUIAgentExecutor` - standard A2A API to the Next Gen UI agent
+* `NextGenUIAgentExecutor` - standard [A2A SDK AgentExecutor implementation](https://github.com/a2aproject/a2a-python) to expose the Next Gen UI Agent functionality
+* `__main__.py` to run standalone A2A server
 
-To interact with agent via A2A protocol use any A2A client implemntation.
 
 ## Installation
+
+**Note:** alternatively, you can use [container image](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/a2a-container/) to easily install and run the server.
+
 
 ```sh
 pip install -U next_gen_ui_a2a
 ```
 
-To run the server using `__main__.py`, you also have to install http framework, eg:
+To run the standalone server using `__main__.py`, you also have to install http framework, eg:
 
 ```sh
 pip install a2a-sdk[http-server] uvicorn
@@ -39,13 +43,20 @@ To get help how to run the server and pass the arguments run it with `-h` parame
 python -m next_gen_ui_a2a -h
 
 ```
+You can choose `openai` or `anthropic-vertexai` inference provider.
+You have to add the necessary dependencies to your python environment to do so, otherwise the application will complain about them missing.
+See detailed documentation below.
+
+Similarly pluggable component systems such as `rhds` also require certain imports, `next_gen_ui_rhds_renderer` in this particular case. 
+`json` renderrer is installed by default.
+
 ### Configuration Reference
 
 Server can be configured using commandline arguments, or environment variables. CLI has precedence over env variable.
 
 | Commandline Argument          | Environment Variable              | Default Value | Description                                                                                                                           |
 | ----------------------------- | --------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `--config-path`               | `NGUI_CONFIG_PATH`                | -             | Path to [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) (to merge more yaml files, multiple commandline args can be used/comma separated in env variable). |
+| `--config-path`               | `NGUI_CONFIG_PATH`                | -             | Path to [YAML configuration files](#yaml-configuration) (to merge more yaml files, multiple commandline args can be used/comma separated in env variable). |
 | `--component-system`          | `NGUI_COMPONENT_SYSTEM`           | `json`        | UI Component system (`json` + any installed). Overrides value from YAML config file if used.                                          |
 | `--host`                      | `A2A_HOST`                        | `127.0.0.1`   | Host to bind to.                                                                                                                      |
 | `--port`                      | `A2A_PORT`                        | `8000`        | Port to bind to.                                                                                                                      |
@@ -57,6 +68,7 @@ Server can be configured using commandline arguments, or environment variables. 
 | `--sampling-max-tokens`       | `NGUI_SAMPLING_MAX_TOKENS`        | -             | Maximum LLM generated tokens, integer value. Used by `anthropic-vertexai` (defaults to `4096`).                                       |
 | `--anthropic-version`         | `NGUI_PROVIDER_ANTHROPIC_VERSION` | -             | Anthropic version value used in the API call (defaults to `vertex-2023-10-16`). Used by `anthropic-vertexai`.                         |
 | `--debug`                     | -                                 |               | Enable debug logging.                                                                                                                 |
+|                               | `NGUI_A2A_VERSION`                | `<release>`   | Version returned in the [A2A Agent Card](https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/#agent-card), defaults to the installed A2A server module release version |
 
 ### LLM Inference Providers
 
@@ -104,144 +116,54 @@ Requires:
   - `NGUI_PROVIDER_ANTHROPIC_VERSION` (optional): Anthropic version to use in API call (defaults to `vertex-2023-10-16`).
   - `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `4096`).
 
+### YAML configuration
+
+Common [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) can be used to configure UI Agent functionality.
+
+Configuration file extension is available to provide ability to fine-tune details in 
+the [A2A Agent Card and Skills](https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/) 
+to get better performance in your A2A system.
+For details [see `a2a` field in the Schema Definition](https://redhat-ux.github.io/next-gen-ui-agent/spec/a2a/#agent-configuration).
+
+Examle of the a2a yaml configuration extension:
+
+```yaml
+a2a:
+  agent_card:
+    name: UI component agent
+    description: This agent processes user prompt nd related structured data to generate the best UI component to visualize them
+  skills:
+    generate_ui_components:
+      name: Generate UI components to visualize data
+      tags:
+      - ui
+      - frontend
+
+# other UI Agent configurations
+
+```
+
 ### Running Server locally from Git Repo
 
 If you are running this from inside of our [NextGenUI Agent GitHub repo](https://github.com/RedHat-UX/next-gen-ui-agent) then our `pants` repository manager can help you satisfy all dependencies. 
 In such case you can run the commands in the following way:
 
 ```bash
-  # Run directly
-  PYTHONPATH=./libs python libs/next_gen_ui_a2a -h
+# Run directly
+PYTHONPATH=./libs python libs/next_gen_ui_a2a -h
 ```
 
-Run with real config arguments or env variables.
+Run it with real config arguments or env variables.
 
 ### Example A2A client
 
-Example A2A client to call Next Gen UI A2A server
+See [A2A client example code](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/next_gen_ui_a2a/readme_example.py).
 
-```py
-import logging
-from uuid import uuid4
+## Agent inputs and outputs
 
-import httpx
-from a2a.client import A2ACardResolver, A2AClient
-from a2a.types import (  # SendStreamingMessageRequest,
-    AgentCard,
-    Message,
-    MessageSendParams,
-    Part,
-    Role,
-    SendMessageRequest,
-    TextPart,
-)
-from a2a.utils.constants import AGENT_CARD_WELL_KNOWN_PATH
+**TODO** define expected agent input and structure of the output
 
 
-async def main() -> None:
-    # Configure logging to show INFO level messages
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)  # Get a logger instance
-
-    base_url = "http://localhost:9999"
-
-    async with httpx.AsyncClient(timeout=120) as httpx_client:
-        # Initialize A2ACardResolver
-        resolver = A2ACardResolver(
-            httpx_client=httpx_client,
-            base_url=base_url,
-            # agent_card_path uses default, extended_agent_card_path also uses default
-        )
-
-        # Fetch Public Agent Card and Initialize Client
-        final_agent_card_to_use: AgentCard | None = None
-
-        try:
-            logger.info(
-                f"Attempting to fetch public agent card from: {base_url}{AGENT_CARD_WELL_KNOWN_PATH}"
-            )
-            _public_card = (
-                await resolver.get_agent_card()
-            )  # Fetches from default public path
-            logger.info("Successfully fetched public agent card:")
-            logger.info(_public_card.model_dump_json(indent=2, exclude_none=True))
-            final_agent_card_to_use = _public_card
-            logger.info(
-                "\nUsing PUBLIC agent card for client initialization (default)."
-            )
-
-        except Exception as e:
-            logger.exception("Critical error fetching public agent card")
-            raise RuntimeError(
-                "Failed to fetch the public agent card. Cannot continue."
-            ) from e
-
-        client = A2AClient(
-            httpx_client=httpx_client,
-            agent_card=final_agent_card_to_use,
-        )
-        logger.info("A2AClient initialized.")
-
-        movies_data = {
-            "movie": {
-                "languages": ["English"],
-                "year": 1995,
-                "imdbId": "0114709",
-                "runtime": 81,
-                "imdbRating": 8.3,
-                "movieId": "1",
-                "countries": ["USA"],
-                "imdbVotes": 591836,
-                "title": "Toy Story",
-                "url": "https://themoviedb.org/movie/862",
-                "revenue": 373554033,
-                "tmdbId": "862",
-                "plot": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
-                "posterUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
-                "released": "2022-11-02",
-                "trailerUrl": "https://www.youtube.com/watch?v=v-PjgYDrg70",
-                "budget": 30000000,
-            },
-            "actors": ["Jim Varney", "Tim Allen", "Tom Hanks", "Don Rickles"],
-        }
-
-        message = Message(
-            role=Role.user,
-            parts=[
-                Part(
-                    root=TextPart(
-                        text="Tell me details about Toy Story",
-                        metadata={
-                            "data": movies_data,
-                            "type": "search_movie",
-                        },
-                    )
-                ),
-                # Part(root=DataPart(data=movies_data)),
-            ],
-            message_id=str(uuid4()),
-        )
-        request = SendMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(message=message)
-        )
-
-        response = await client.send_message(request)
-        logger.info("Execution finished.")
-        print(response.model_dump(mode="json", exclude_none=True))
-
-        # streaming_request = SendStreamingMessageRequest(
-        #     id=str(uuid4()), params=MessageSendParams(message=message)
-        # )
-        # stream_response = client.send_message_streaming(streaming_request)
-        # async for chunk in stream_response:
-        #     print(chunk.model_dump(mode="json", exclude_none=True))
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(main())
-```
 ## Links
 
 * [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/a2a-library/)

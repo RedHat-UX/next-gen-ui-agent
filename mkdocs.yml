@@ -103,6 +103,7 @@ nav:
     - spec/config.md
     - spec/output.md
     - spec/mcp.md
+    - spec/a2a.md
     - Changelog:
       - changelog/index.md
       - changelog/release_notes.md

@@ -25,6 +25,8 @@ This approach is a bit more reliable, helps to reduce main LLM processing price 
 
 ## Installation
 
+**Note:** alternatively, you can use [container image](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-container/) to easily install and run the server.
+
 ```sh
 pip install -U next_gen_ui_mcp
 ```
