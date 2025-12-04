@@ -1,0 +1,353 @@
+{
+  "$defs": {
+    "AgentConfigComponent": {
+      "description": "Agent Configuration - one component config for data type.",
+      "properties": {
+        "component": {
+          "description": "Component name. Can be name of existing dynamic component supported by the UI Agent, or name for hand-build component.",
+          "type": "string"
+        },
+        "configuration": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AgentConfigDynamicComponentConfiguration"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional pre-configuration of the dynamic component to be used."
+        }
+      },
+      "required": [
+        "component"
+      ],
+      "title": "AgentConfigComponent",
+      "type": "object"
+    },
+    "AgentConfigDataType": {
+      "description": "Agent Configuration for the Data Type.",
+      "properties": {
+        "data_transformer": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "const": "json",
+              "type": "string"
+            },
+            {
+              "const": "yaml",
+              "type": "string"
+            },
+            {
+              "const": "csv-comma",
+              "type": "string"
+            },
+            {
+              "const": "csv-semicolon",
+              "type": "string"
+            },
+            {
+              "const": "csv-tab",
+              "type": "string"
+            },
+            {
+              "const": "fwctable",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Transformer to use to transform the input data of this type. Available transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
+        },
+        "generate_all_fields": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated, if `None` then agent's default setting is used. Supported only for `table` and `set-of-cards` components."
+        },
+        "components": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/AgentConfigComponent"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "List of components to select from for the input data of this type."
+        }
+      },
+      "title": "AgentConfigDataType",
+      "type": "object"
+    },
+    "AgentConfigDynamicComponentConfiguration": {
+      "description": "Agent Configuration - pre-configuration of the one dynamic component for data type.",
+      "properties": {
+        "title": {
+          "description": "Title of the dynamic component to be shown in the UI",
+          "type": "string"
+        },
+        "fields": {
+          "description": "Fields of the dynamic component to be shown in the UI",
+          "items": {
+            "$ref": "#/$defs/DataField"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "fields"
+      ],
+      "title": "AgentConfigDynamicComponentConfiguration",
+      "type": "object"
+    },
+    "DataField": {
+      "description": "UI Component Field Metadata.",
+      "properties": {
+        "id": {
+          "description": "Unique field ID. Can be used in CSS selectors to target the field, eg. to set its style, or during live refresh of the shown data from the backend.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Field name to be shown in the UI",
+          "type": "string"
+        },
+        "data_path": {
+          "description": "JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "data_path"
+      ],
+      "title": "DataField",
+      "type": "object"
+    },
+    "MCPAgentToolConfig": {
+      "description": "Information to override default values in the MCP Agent tool.",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Description of the MCP tool."
+        },
+        "argument_descriptions": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Dictionary mapping argument names to their descriptions. Overrides default argument descriptions."
+        }
+      },
+      "title": "MCPAgentToolConfig",
+      "type": "object"
+    },
+    "MCPAgentToolsConfig": {
+      "description": "Tools info to override default values in the MCP Agent.",
+      "properties": {
+        "generate_ui_component": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MCPAgentToolConfig"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "`generate_ui_components` tool info to override default values in the MCP Agent."
+        },
+        "generate_ui_multiple_components": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MCPAgentToolConfig"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "`generate_ui_multiple_components` tool info to override default values in the MCP Agent."
+        }
+      },
+      "title": "MCPAgentToolsConfig",
+      "type": "object"
+    },
+    "MCPConfig": {
+      "properties": {
+        "tools": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MCPAgentToolsConfig"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Tools info to override default values in the MCP Agent."
+        }
+      },
+      "title": "MCPConfig",
+      "type": "object"
+    }
+  },
+  "description": "MCP Agent Configuration.",
+  "properties": {
+    "component_system": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "json",
+      "description": "Component system to use to render the UI component. Default is `json`. UI renderers have to be installed to use other systems."
+    },
+    "data_transformer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "const": "json",
+          "type": "string"
+        },
+        {
+          "const": "yaml",
+          "type": "string"
+        },
+        {
+          "const": "csv-comma",
+          "type": "string"
+        },
+        {
+          "const": "csv-semicolon",
+          "type": "string"
+        },
+        {
+          "const": "csv-tab",
+          "type": "string"
+        },
+        {
+          "const": "fwctable",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": "json",
+      "description": "Transformer used to parse the input data (can be overriden on 'data type' level). Default `json`, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
+    },
+    "unsupported_components": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "If `False` (default), the agent can generate only fully supported UI components. If `True`, the agent can also generate unsupported UI components."
+    },
+    "component_selection_strategy": {
+      "anyOf": [
+        {
+          "enum": [
+            "one_llm_call",
+            "two_llm_calls"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!"
+    },
+    "data_types": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "$ref": "#/$defs/AgentConfigDataType"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Mapping from `InputData.type` to UI component - currently only one dynamic component with pre-configuration, or hand-build component (aka HBC) can be defined here. Will be extended in the future."
+    },
+    "input_data_json_wrapping": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure. If `False`, the agent will never wrap the JSON input data into data type field."
+    },
+    "generate_all_fields": {
+      "default": false,
+      "description": "If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated. Can be overriden for individual `data_types`. Supported only for `table` and `set-of-cards` components.",
+      "type": "boolean"
+    },
+    "mcp": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/MCPConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "MCP related configuration."
+    }
+  },
+  "title": "MCPAgentConfig",
+  "type": "object"
+}
