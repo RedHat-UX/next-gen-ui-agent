@@ -1,21 +1,14 @@
 """Pie chart data transformer."""
 
 import logging
-from collections import Counter
 from typing import Any
 
 from next_gen_ui_agent.data_transform.chart.base import ChartDataTransformerBase
 from next_gen_ui_agent.data_transform.types import (
-    ChartDataPoint,
-    ChartSeries,
     ComponentDataPieChart,
     DataFieldArrayValue,
 )
-from next_gen_ui_agent.data_transform.validation.types import (
-    ComponentDataValidationError,
-)
-from next_gen_ui_agent.types import InputData, UIComponentMetadata
-from typing_extensions import override
+from next_gen_ui_agent.types import UIComponentMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -50,66 +43,3 @@ class PieChartDataTransformer(ChartDataTransformerBase[ComponentDataPieChart]):
             return
 
         self._build_frequency_series(fields[0])
-
-    def _build_frequency_series(self, field: DataFieldArrayValue) -> None:
-        """Build a frequency chart by counting occurrences."""
-        if not field.data:
-            logger.warning("No data in field for pie chart")
-            return
-
-        # Flatten and collect all categories
-        categories = []
-        for item in field.data:
-            if item is None:
-                continue
-            # If item is a list, flatten it
-            if isinstance(item, list):
-                categories.extend([str(x) for x in item if x is not None])
-            else:
-                categories.append(str(item))
-
-        if not categories:
-            logger.warning("No categories found for pie chart")
-            return
-
-        # Count occurrences
-        category_counts = Counter(categories)
-        logger.debug("Category counts: %s", dict(category_counts))
-
-        # Create data points from counts
-        data_points = []
-        for category, count in category_counts.items():
-            data_points.append(ChartDataPoint(x=category, y=float(count)))
-
-        self._component_data.data = [ChartSeries(name=field.name, data=data_points)]
-        logger.debug("Created pie chart with %d categories", len(data_points))
-
-    @override
-    def validate(
-        self,
-        component: UIComponentMetadata,
-        data: InputData,
-        errors: list[ComponentDataValidationError],
-    ) -> ComponentDataPieChart:
-        """Validate the pie chart data."""
-        super().validate(component, data, errors)
-
-        # Validate that we have at least one series with data
-        if not self._component_data.data or len(self._component_data.data) == 0:
-            errors.append(
-                ComponentDataValidationError(
-                    "chart.noData", "Pie chart requires at least one data series"
-                )
-            )
-
-        # Validate component type is set correctly (defensive check)
-        component_value = getattr(self._component_data, "component", None)
-        if component_value != "chart-pie":
-            errors.append(
-                ComponentDataValidationError(
-                    "chart.invalidComponent",
-                    f"Expected component 'chart-pie', got '{component_value}'",
-                )
-            )
-
-        return self._component_data

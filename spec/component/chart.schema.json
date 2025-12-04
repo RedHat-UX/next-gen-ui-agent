@@ -21,17 +21,30 @@
               "type": "string"
             },
             {
+              "type": "integer"
+            },
+            {
               "type": "number"
             }
           ],
           "description": "X-axis value (label for the data point)"
         },
         "y": {
-          "description": "Y-axis value (numeric value)",
-          "type": "number"
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "Y-axis value (numeric value)"
         }
       },
-      "required": ["x", "y"],
+      "required": [
+        "x",
+        "y"
+      ],
       "title": "ChartDataPoint",
       "type": "object"
     },
@@ -50,16 +63,25 @@
           "type": "array"
         }
       },
-      "required": ["name", "data"],
+      "required": [
+        "name",
+        "data"
+      ],
       "title": "ChartSeries",
       "type": "object"
     }
   },
-  "description": "Component Data for Chart visualization.",
+  "description": "Schema model for chart components with all valid component types.",
   "properties": {
     "component": {
-      "enum": ["chart-bar", "chart-line", "chart-pie", "chart-donut", "chart-mirrored-bar"],
       "description": "Type of chart component",
+      "enum": [
+        "chart-bar",
+        "chart-line",
+        "chart-pie",
+        "chart-donut",
+        "chart-mirrored-bar"
+      ],
       "type": "string"
     },
     "id": {
@@ -67,8 +89,8 @@
       "type": "string"
     },
     "title": {
-      "type": "string",
-      "description": "title of the chart"
+      "description": "title of the component",
+      "type": "string"
     },
     "data": {
       "anyOf": [
@@ -86,8 +108,11 @@
       "description": "Array of data series for the chart"
     }
   },
-  "required": ["component", "id", "title"],
-  "title": "ComponentDataChart",
+  "required": [
+    "component",
+    "id",
+    "title"
+  ],
+  "title": "ComponentDataChartSchema",
   "type": "object"
 }
-

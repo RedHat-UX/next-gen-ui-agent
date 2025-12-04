@@ -11,7 +11,7 @@ from next_gen_ui_agent.data_transform.types import (
 from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
-from next_gen_ui_agent.types import InputData, UIComponentMetadata
+from next_gen_ui_agent.types import UIComponentMetadata
 from typing_extensions import override
 
 logger = logging.getLogger(__name__)
@@ -76,16 +76,8 @@ class MirroredBarChartDataTransformer(
         self._component_data.data = series_list
 
     @override
-    def validate(
-        self,
-        component: UIComponentMetadata,
-        data: InputData,
-        errors: list[ComponentDataValidationError],
-    ) -> ComponentDataMirroredBarChart:
-        """Validate the mirrored bar chart data."""
-        super().validate(component, data, errors)
-
-        # Validate that we have exactly 2 series
+    def _validate_data_series(self, errors: list[ComponentDataValidationError]) -> None:
+        """Validate that the mirrored bar chart has exactly 2 series."""
         if not self._component_data.data or len(self._component_data.data) != 2:
             errors.append(
                 ComponentDataValidationError(
@@ -93,15 +85,3 @@ class MirroredBarChartDataTransformer(
                     f"Mirrored bar chart requires exactly 2 data series, got {len(self._component_data.data) if self._component_data.data else 0}",
                 )
             )
-
-        # Validate component type is set correctly (defensive check)
-        component_value = getattr(self._component_data, "component", None)
-        if component_value != "chart-mirrored-bar":
-            errors.append(
-                ComponentDataValidationError(
-                    "chart.invalidComponent",
-                    f"Expected component 'chart-mirrored-bar', got '{component_value}'",
-                )
-            )
-
-        return self._component_data

@@ -2,7 +2,7 @@ import itertools
 import json
 import logging
 import os
-from typing import Any
+from typing import Any, Literal
 
 from next_gen_ui_agent import AgentConfig
 from next_gen_ui_agent.data_transform.hand_build_component import (
@@ -14,6 +14,7 @@ from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
 from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.types import (
+    ComponentDataChartBase,
     ComponentDataHandBuildComponent,
     ComponentDataImage,
     ComponentDataOneCard,
@@ -22,7 +23,19 @@ from next_gen_ui_agent.data_transform.types import (
     ComponentDataVideo,
 )
 from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+
+# Chart types for schema generation
+CHART_COMPONENT_TYPES = Literal[
+    "chart-bar", "chart-line", "chart-pie", "chart-donut", "chart-mirrored-bar"
+]
+
+
+class ComponentDataChartSchema(ComponentDataChartBase):
+    """Schema model for chart components with all valid component types."""
+
+    component: CHART_COMPONENT_TYPES = Field(description="Type of chart component")
+
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +75,11 @@ component_schemas: list[tuple[str, str, type[BaseModel]]] = [
         component_dir,
         f"{HandBuildComponentDataTransformer.COMPONENT_NAME}.schema.json",
         ComponentDataHandBuildComponent,
+    ),
+    (
+        component_dir,
+        "chart.schema.json",
+        ComponentDataChartSchema,
     ),
 ]
 

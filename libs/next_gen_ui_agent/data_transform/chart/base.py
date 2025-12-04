@@ -2,6 +2,7 @@
 
 import logging
 from abc import abstractmethod
+from collections import Counter
 from typing import Any, Generic, TypeVar
 
 from next_gen_ui_agent.data_transform import data_transformer_utils
@@ -12,7 +13,10 @@ from next_gen_ui_agent.data_transform.types import (
     ComponentDataChart,
     DataFieldArrayValue,
 )
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.data_transform.validation.types import (
+    ComponentDataValidationError,
+)
+from next_gen_ui_agent.types import InputData, UIComponentMetadata
 from typing_extensions import override
 
 logger = logging.getLogger(__name__)
@@ -48,15 +52,16 @@ class ChartDataTransformerBase(DataTransformerBase[TChart], Generic[TChart]):
         )
 
         logger.debug("Extracted %d fields", len(fields))
-        for i, field in enumerate(fields):
-            data_length = len(field.data) if field.data else 0
-            logger.debug(
-                "  Field %d: %s, data_path=%s, data_length=%d",
-                i,
-                field.name,
-                field.data_path,
-                data_length,
-            )
+        if logger.isEnabledFor(logging.DEBUG):
+            for i, field in enumerate(fields):
+                data_length = len(field.data) if field.data else 0
+                logger.debug(
+                    "  Field %d: %s, data_path=%s, data_length=%d",
+                    i,
+                    field.name,
+                    field.data_path,
+                    data_length,
+                )
 
         # Build chart data (implemented by subclasses)
         self._build_chart_data(fields, json_data, component)
@@ -157,3 +162,90 @@ class ChartDataTransformerBase(DataTransformerBase[TChart], Generic[TChart]):
                 pass
 
         return None
+
+    def _build_frequency_series(self, field: DataFieldArrayValue) -> None:
+        """
+        Build a frequency chart by counting occurrences.
+
+        Used by pie and donut charts to count category occurrences.
+
+        Args:
+            field: Field containing category data to count
+        """
+        if not field.data:
+            logger.warning("No data in field for %s", self.COMPONENT_NAME)
+            return
+
+        # Flatten and collect all categories
+        categories = []
+        for item in field.data:
+            if item is None:
+                continue
+            # If item is a list, flatten it
+            if isinstance(item, list):
+                categories.extend([str(x) for x in item if x is not None])
+            else:
+                categories.append(str(item))
+
+        if not categories:
+            logger.warning("No categories found for %s", self.COMPONENT_NAME)
+            return
+
+        # Count occurrences
+        category_counts = Counter(categories)
+        logger.debug("Category counts: %s", dict(category_counts))
+
+        # Create data points from counts
+        data_points = []
+        for category, count in category_counts.items():
+            data_points.append(ChartDataPoint(x=category, y=float(count)))
+
+        self._component_data.data = [ChartSeries(name=field.name, data=data_points)]
+        logger.debug(
+            "Created %s with %d categories", self.COMPONENT_NAME, len(data_points)
+        )
+
+    # ===== Validation Methods =====
+
+    @override
+    def validate(
+        self,
+        component: UIComponentMetadata,
+        data: InputData,
+        errors: list[ComponentDataValidationError],
+    ) -> TChart:
+        """
+        Validate the chart data.
+
+        Subclasses can override _validate_data_series for custom series validation.
+        """
+        super().validate(component, data, errors)
+
+        # Validate data series (can be overridden by subclasses)
+        self._validate_data_series(errors)
+
+        # Validate component type is set correctly (defensive check)
+        component_value = getattr(self._component_data, "component", None)
+        if component_value != self.COMPONENT_NAME:
+            errors.append(
+                ComponentDataValidationError(
+                    "chart.invalidComponent",
+                    f"Expected component '{self.COMPONENT_NAME}', got '{component_value}'",
+                )
+            )
+
+        return self._component_data
+
+    def _validate_data_series(self, errors: list[ComponentDataValidationError]) -> None:
+        """
+        Validate that the chart has valid data series.
+
+        Override in subclasses for custom validation (e.g., mirrored bar requires exactly 2).
+        """
+        if not self._component_data.data or len(self._component_data.data) == 0:
+            errors.append(
+                ComponentDataValidationError(
+                    "chart.noData",
+                    f"{self.COMPONENT_NAME} requires at least one data series",
+                )
+            )

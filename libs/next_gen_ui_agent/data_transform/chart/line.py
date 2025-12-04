@@ -10,11 +10,7 @@ from next_gen_ui_agent.data_transform.types import (
     ComponentDataLineChart,
     DataFieldArrayValue,
 )
-from next_gen_ui_agent.data_transform.validation.types import (
-    ComponentDataValidationError,
-)
-from next_gen_ui_agent.types import InputData, UIComponentMetadata
-from typing_extensions import override
+from next_gen_ui_agent.types import UIComponentMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -147,33 +143,3 @@ class LineChartDataTransformer(ChartDataTransformerBase[ComponentDataLineChart])
 
         self._component_data.data = series_list
         logger.debug("Created %d series for multi-series line chart", len(series_list))
-
-    @override
-    def validate(
-        self,
-        component: UIComponentMetadata,
-        data: InputData,
-        errors: list[ComponentDataValidationError],
-    ) -> ComponentDataLineChart:
-        """Validate the line chart data."""
-        super().validate(component, data, errors)
-
-        # Validate that we have at least one series with data
-        if not self._component_data.data or len(self._component_data.data) == 0:
-            errors.append(
-                ComponentDataValidationError(
-                    "chart.noData", "Line chart requires at least one data series"
-                )
-            )
-
-        # Validate component type is set correctly (defensive check)
-        component_value = getattr(self._component_data, "component", None)
-        if component_value != "chart-line":
-            errors.append(
-                ComponentDataValidationError(
-                    "chart.invalidComponent",
-                    f"Expected component 'chart-line', got '{component_value}'",
-                )
-            )
-
-        return self._component_data

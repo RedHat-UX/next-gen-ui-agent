@@ -8,11 +8,7 @@ from next_gen_ui_agent.data_transform.types import (
     ComponentDataBarChart,
     DataFieldArrayValue,
 )
-from next_gen_ui_agent.data_transform.validation.types import (
-    ComponentDataValidationError,
-)
-from next_gen_ui_agent.types import InputData, UIComponentMetadata
-from typing_extensions import override
+from next_gen_ui_agent.types import UIComponentMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -61,33 +57,3 @@ class BarChartDataTransformer(ChartDataTransformerBase[ComponentDataBarChart]):
                 series_list.append(series)
 
         self._component_data.data = series_list
-
-    @override
-    def validate(
-        self,
-        component: UIComponentMetadata,
-        data: InputData,
-        errors: list[ComponentDataValidationError],
-    ) -> ComponentDataBarChart:
-        """Validate the bar chart data."""
-        super().validate(component, data, errors)
-
-        # Validate that we have at least one series with data
-        if not self._component_data.data or len(self._component_data.data) == 0:
-            errors.append(
-                ComponentDataValidationError(
-                    "chart.noData", "Bar chart requires at least one data series"
-                )
-            )
-
-        # Validate component type is set correctly (defensive check)
-        component_value = getattr(self._component_data, "component", None)
-        if component_value != "chart-bar":
-            errors.append(
-                ComponentDataValidationError(
-                    "chart.invalidComponent",
-                    f"Expected component 'chart-bar', got '{component_value}'",
-                )
-            )
-
-        return self._component_data
