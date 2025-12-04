@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from typing import Any, TypedDict
 
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data, wrap_string_as_json
-from next_gen_ui_agent.model import InferenceBase
 from next_gen_ui_agent.types import InputDataInternal, UIComponentMetadata
 
 

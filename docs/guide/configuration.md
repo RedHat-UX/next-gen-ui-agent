@@ -10,6 +10,7 @@ The Next Gen UI Agent can be configured in two ways: `programmatically` using Py
 
 [UI Component system](renderer/index.md) for rendering (default: `"json"`)
 
+
 ### `data_transformer` [`str`, optional] 
 
 Optional name of the [Input Data Transformer](input_data/transformation.md) used by the UI Agent. 
@@ -20,6 +21,7 @@ Can be overriden [per data type](#data_transformer-str-optional_1). Defaults to 
 
 Whether to allow unsupported/Tech Preview [Dynamic UI components](data_ui_blocks/dynamic_components.md) to be selected by LLM (default: `False`)
 
+
 ### `component_selection_strategy` [`str`, optional]
 
 Strategy for LLM powered component selection and configuration step:
@@ -27,9 +29,18 @@ Strategy for LLM powered component selection and configuration step:
 - `one_llm_call`: Uses single LLM call for component selection and configuration - default
 - `two_llm_calls`: Uses two LLM calls - first selects component type, second configures it - *experimental feature!*
 
+
 ### `input_data_json_wrapping` [`bool`, optional]
 
 Whether to perform [automatic `InputData` JSON wrapping](input_data/structure.md#automatic-json-wrapping) if JSON structure is not good for LLM processing (default: `True`)
+
+
+### `generate_all_fields` [`bool`, optional]
+
+If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`. 
+It can be used in UI component to give user a chance to manually select/update which fields are shown.
+If `False` then all fields aren't generated. Can be overriden for individual `data_types`. (default: `False`)
+
 
 ### `data_types` [`dict[str, AgentConfigDataType]`, optional]
 
@@ -43,6 +54,13 @@ Key is `InputData.type` to configure, value is configuration object for that dat
 #### `data_transformer` [`str`, optional] 
 
 Optional name of the [Input Data Transformer](input_data/transformation.md) to be used for this data type instead of [Agent's default one](#data_transformer-str-optional).
+
+#### `generate_all_fields` [`bool`, optional]
+
+If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`. 
+It can be used in UI component to give user a chance to manually select/update which fields are shown.
+If `False` then all fields aren't generated, if not defined then [agent's default setting](#generate_all_fields-bool-optional) is used.
+All fields are supported only for `table` and `set-of-cards` components.
 
 
 #### `components` [`list[AgentConfigComponent]`, optional]

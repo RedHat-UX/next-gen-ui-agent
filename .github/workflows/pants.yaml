@@ -99,15 +99,15 @@ jobs:
           cache-dependency-path: |
               requirements_dev.txt
       - id: cz
-        name: Bump
-        uses: commitizen-tools/commitizen-action@master
+        name: Bump # https://github.com/commitizen-tools/commitizen-action/releases/tag/0.26.0
+        uses: commitizen-tools/commitizen-action@0.26.0
         with:
           push: "false"
           commit: "false"
           prerelease: "beta"
           extra_requirements: "cz_github_jira_conventional"
           increment: "PATCH"
-          commitizen_version: "4.6.3"
+          commitizen_version: "4.10.0"
       - name: Print Version
         run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
       - uses: pantsbuild/actions/init-pants@v8
@@ -131,11 +131,18 @@ jobs:
         with:
           name: distribution
           path: dist/
-      - name: Push image to quay.io
-        id: push-to-quay
+      - name: Push MCP image to quay.io
+        id: push-mcp-to-quay
         uses: redhat-actions/push-to-registry@v2
         with:
             tags: quay.io/next-gen-ui/mcp:dev
+            username: ${{ secrets.QUAY_USERNAME }}
+            password: ${{ secrets.QUAY_TOKEN }}
+      - name: Push A2A image to quay.io
+        id: push-a2a-to-quay
+        uses: redhat-actions/push-to-registry@v2
+        with:
+            tags: quay.io/next-gen-ui/a2a:dev
             username: ${{ secrets.QUAY_USERNAME }}
             password: ${{ secrets.QUAY_TOKEN }}
     #   - name: push README to quay.io

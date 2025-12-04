@@ -25,13 +25,28 @@
             },
             "args": [
                 "--debug",
-                "--provider", "langchain",
+                "--provider", "openai",
                 "--model", "gpt-4o-mini",
                 "--port", "9200",
                 "--transport", "streamable-http",
                 // "--tools", "generate_ui_component",
                 // "--structured_output_enabled", "false",
                 // "--config-path", "${workspaceFolder}/../ngui_openshift_mcp_config.yaml"
+            ],
+        },
+        {
+            "name": "Python Debugger: A2A Server",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/libs/next_gen_ui_a2a",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/libs",
+            },
+            "args": [
+                "--debug",
+                "--model", "gpt-4o-mini",
+                // "--config-path", "${workspaceFolder}/../ngui_openshift_a2a_config.yaml"
             ],
         },
         {

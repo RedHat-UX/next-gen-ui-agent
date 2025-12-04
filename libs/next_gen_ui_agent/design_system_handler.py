@@ -2,9 +2,36 @@ import logging
 
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.renderer.base_renderer import RendererContext, StrategyFactory
+from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.types import UIBlockRendering
+from stevedore import ExtensionManager
 
 logger = logging.getLogger(__name__)
+
+PLUGGABLE_RENDERERS_NAMESPACE = "next_gen_ui.agent.renderer_factory"
+
+EXTENSION_MANAGER = ExtensionManager(
+    namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
+)
+
+
+def get_component_system_factory(component_system: str) -> StrategyFactory:
+    """Get the factory for the given component system name."""
+
+    if component_system == "json":
+        return JsonStrategyFactory()
+    elif component_system not in EXTENSION_MANAGER.names():
+        raise ValueError(
+            f"UI component system '{component_system}' is not found. "
+            + "Make sure you install appropriate dependency."
+        )
+    else:
+        return EXTENSION_MANAGER[component_system].obj  # type: ignore
+
+
+def get_component_system_names() -> list[str]:
+    """Get the list of all supported/installed component system names."""
+    return ["json"] + EXTENSION_MANAGER.names()  # type: ignore
 
 
 def render_component(

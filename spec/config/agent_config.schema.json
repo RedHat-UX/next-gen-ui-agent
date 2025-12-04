@@ -65,6 +65,18 @@
           "default": null,
           "description": "Transformer to use to transform the input data of this type. Available transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
         },
+        "generate_all_fields": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated, if `None` then agent's default setting is used. Supported only for `table` and `set-of-cards` components."
+        },
         "components": {
           "anyOf": [
             {
@@ -110,7 +122,7 @@
       "description": "UI Component Field Metadata.",
       "properties": {
         "id": {
-          "description": "Field ID",
+          "description": "Unique field ID. Can be used in CSS selectors to target the field, eg. to set its style, or during live refresh of the shown data from the backend.",
           "type": "string"
         },
         "name": {
@@ -118,7 +130,7 @@
           "type": "string"
         },
         "data_path": {
-          "description": "JSON Path pointing to the input data structure to be used to pickup values to be shown in UI",
+          "description": "JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI.",
           "type": "string"
         }
       },
@@ -234,6 +246,11 @@
       ],
       "default": null,
       "description": "If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure. If `False`, the agent will never wrap the JSON input data into data type field."
+    },
+    "generate_all_fields": {
+      "default": false,
+      "description": "If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated. Can be overriden for individual `data_types`. Supported only for `table` and `set-of-cards` components.",
+      "type": "boolean"
     }
   },
   "title": "AgentConfig",

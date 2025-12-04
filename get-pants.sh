@@ -209,7 +209,7 @@ ARCH="$(calculate_arch)"
 URL="https://github.com/pantsbuild/scie-pants/releases/${version}/scie-pants-${OS}-${ARCH}"
 dest="${bin_dir}/${base_name}"
 
-log "Downloading and installing the pants launcher ..."
+log "Downloading and installing the pants launcher from ${URL}..."
 install_from_url "${URL}" "${dest}"
 green "Installed the pants launcher from ${URL} to ${dest}"
 if ! command -v "${base_name}" > /dev/null; then
