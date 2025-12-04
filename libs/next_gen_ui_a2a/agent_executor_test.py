@@ -8,7 +8,7 @@ from langchain_core.language_models import FakeMessagesListChatModel
 from langchain_core.messages import AIMessage
 from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
 from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
-from next_gen_ui_agent.model import LangChainModelInference
+from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.types import AgentConfig, UIBlock
 
 USER_PROMPT = "Tell me brief details of Toy Story"

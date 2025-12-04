@@ -1,15 +1,16 @@
 import asyncio
 
 import aiohttp
-from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 
 
-class ProxiedClaudeInference(InferenceBase):
+class ProxiedAnthropicVertexAIInference(InferenceBase):
     """
-    Custom inference implementation for calling a proxied Claude API endpoint.
+    Custom inference implementation for calling Claude models from Google Vertex AI
+    using a proxied Anthropic Vertex AI API endpoint.
 
     This implementation makes HTTP requests to a proxy service that forwards
-    requests to Claude models using the Anthropic Vertex API format.
+    requests to Claude models from Google Vertex AI using the Anthropic Vertex API format.
     """
 
     def __init__(
@@ -17,12 +18,12 @@ class ProxiedClaudeInference(InferenceBase):
         base_url: str,
         model: str,
         api_key: str,
-        temperature: float = 0,
+        temperature: float = 0.0,
         anthropic_version: str = "vertex-2023-10-16",
         max_tokens: int = 4096,
     ):
         """
-        Initialize the ProxiedClaudeInference.
+        Initialize the ProxiedAnthropicVertexAIInference.
 
         Final url to call is constructed as `"{base_url}/models/{model}:streamRawPredict"`.
 
@@ -44,7 +45,7 @@ class ProxiedClaudeInference(InferenceBase):
 
     async def call_model(self, system_msg: str, prompt: str) -> str:
         """
-        Call the proxied Claude API with the given system message and prompt.
+        Call the proxied Anthropic Vertex AI API with the given system message and prompt.
 
         Args:
             system_msg: System message to set the context for the model

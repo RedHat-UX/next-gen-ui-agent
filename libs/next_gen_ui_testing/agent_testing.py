@@ -1,7 +1,5 @@
-from next_gen_ui_agent.renderer.base_renderer import (
-    PLUGGABLE_RENDERERS_NAMESPACE,
-    StrategyFactory,
-)
+from next_gen_ui_agent.design_system_handler import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 from stevedore.extension import Extension, ExtensionManager
 
 

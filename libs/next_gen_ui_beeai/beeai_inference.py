@@ -9,7 +9,7 @@ from beeai_framework.backend import (
     SystemMessage,
     UserMessage,
 )
-from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 
 logger = logging.getLogger(__name__)
 

@@ -10,19 +10,21 @@ This module contains UI Agent Core functionality and frameworks.
 ## Provides
 
 * `NextGenUIAgent` providing agent configuration and methods for individual processing steps
-* Produced *UI Data Blocks*:
+* `NextGenUIAgent` produced *UI Data Blocks*
     * [LLM selected and configured dynamic components](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)
         * Supported: `one-card`, `image`, `video-player`
         * Tech-Preview: `set-of-cards`, `table`
     * [Hand Build Components](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/hand_build_components/)
-    * Extensible framework for "data transformation" step
+    * Extensible framework for "data transformation" step per dynamic component
 * Plugable ["UI renderer"](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/implementing_serverside/) framework for UI components rendering
     * Default `json` renderer used to send definitions to client-side renderers
-* Abstraction of the [LLM inference](https://redhat-ux.github.io/next-gen-ui-agent/guide/llm/)
-    * `InferenceBase` interface used by UI Agent
-    * `LangChainModelInference` implementation using LangChain `chat_models`.
 * Pluggable and configurable ["Input Data Transformation"](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/transformation/) framework
     * Provided transformers: `json`, `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`, `fwctable`, `noop`
+* Abstraction of the [LLM inference](https://redhat-ux.github.io/next-gen-ui-agent/guide/llm/)
+    * `InferenceBase` inference interface used by UI Agent
+    * `LangChainModelInference` inference implementation using LangChain `chat_models`
+    * `ProxiedAnthropicVertexAIInference`  inference implementation to call Anthropic/Claude models from proxied Google Vertex AI API endpoint
+    * reusable inference provider builder from commandline arguments/env variables, used by all AI protocol servers
 
 ## Installation
 

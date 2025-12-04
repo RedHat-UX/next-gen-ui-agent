@@ -23,19 +23,18 @@ from next_gen_ui_agent.data_transform.data_transformer_utils import (
 )
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transformation import generate_component_data
-from next_gen_ui_agent.design_system_handler import render_component
+from next_gen_ui_agent.design_system_handler import (
+    get_component_system_factory,
+    get_component_system_names,
+    render_component,
+)
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.input_data_transform.input_data_transform import (
     init_input_data_transformers,
     perform_input_data_transformation,
     perform_input_data_transformation_with_transformer_name,
 )
 from next_gen_ui_agent.json_data_wrapper import wrap_data
-from next_gen_ui_agent.model import InferenceBase
-from next_gen_ui_agent.renderer.base_renderer import (
-    PLUGGABLE_RENDERERS_NAMESPACE,
-    StrategyFactory,
-)
-from next_gen_ui_agent.renderer.json.json_renderer import JsonStrategyFactory
 from next_gen_ui_agent.types import (
     AgentConfig,
     InputData,
@@ -45,7 +44,6 @@ from next_gen_ui_agent.types import (
     UIBlockRendering,
     UIComponentMetadata,
 )
-from stevedore import ExtensionManager
 
 logger = logging.getLogger(__name__)
 
@@ -63,9 +61,6 @@ class NextGenUIAgent:
 
         * `config` - agent config either `AgentConfig` or string with YAML configuraiton.
         """
-        self._extension_manager = ExtensionManager(
-            namespace=PLUGGABLE_RENDERERS_NAMESPACE, invoke_on_load=True
-        )
         if isinstance(config, str):
             self.config = parse_config_yaml(config)
         else:
@@ -73,8 +68,10 @@ class NextGenUIAgent:
 
         self.inference = inference
 
+        renderers = get_component_system_names()
+        logger.info("Registered renderers: %s", renderers)
         if self.config.component_system and self.config.component_system != "json":
-            if self.config.component_system not in self._extension_manager.names():
+            if self.config.component_system not in renderers:
                 raise ValueError(
                     f"Configured component system '{self.config.component_system}' is not found. "
                     + "Make sure you install appropriate dependency."
@@ -120,14 +117,6 @@ class NextGenUIAgent:
             raise ValueError(
                 f"Unknown component_selection_strategy in config: {strategy_name}"
             )
-
-    def __setattr__(self, name, value):
-        if name == "_extension_manager":
-            super().__setattr__(name, value)
-            self.renderers = ["json"] + self._extension_manager.names()
-            logger.info("Registered renderers: %s", self.renderers)
-        else:
-            super().__setattr__(name, value)
 
     async def select_component(
         self,
@@ -206,18 +195,9 @@ class NextGenUIAgent:
         if not component_system:
             raise Exception("Component system not defined")
 
-        factory: StrategyFactory
-        if component_system == "json":
-            factory = JsonStrategyFactory()
-        elif component_system not in self._extension_manager.names():
-            raise ValueError(
-                f"UI component system '{component_system}' is not found. "
-                + "Make sure you install appropriate dependency."
-            )
-        else:
-            factory = self._extension_manager[component_system].obj
-
-        return render_component(component, factory)
+        return render_component(
+            component, get_component_system_factory(component_system)
+        )
 
     def construct_UIBlockConfiguration(
         self, input_data: InputData, component_metadata: UIComponentMetadata

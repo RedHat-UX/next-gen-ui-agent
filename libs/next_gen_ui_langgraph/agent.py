@@ -10,7 +10,8 @@ from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.types import Command
 from next_gen_ui_agent import InputData, NextGenUIAgent, UIComponentMetadata
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
-from next_gen_ui_agent.model import InferenceBase, LangChainModelInference
+from next_gen_ui_agent.inference.inference_base import InferenceBase
+from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.types import AgentConfig, UIBlock, UIBlockRendering
 from typing_extensions import TypedDict
 

@@ -36,7 +36,6 @@ from ai_eval_components.types import (
 )
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
-from next_gen_ui_agent import InputData
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
@@ -59,12 +58,14 @@ from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
 from next_gen_ui_agent.data_transformation import get_data_transformer
+from next_gen_ui_agent.inference.inference_base import InferenceBase
+from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
+from next_gen_ui_agent.inference.proxied_anthropic_vertexai_inference import (
+    ProxiedAnthropicVertexAIInference,
+)
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data
-from next_gen_ui_agent.model import InferenceBase, LangChainModelInference
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.types import InputData, UIComponentMetadata
 from next_gen_ui_llama_stack_embedded import init_inference_from_env
-
-from .proxied_claude_inference import ProxiedClaudeInference
 
 # allows to print system error traces to the stderr
 PRINT_SYS_ERR_TRACE = True
@@ -266,7 +267,7 @@ def init_direct_api_inference_from_env(
                 temperature=float(temperature) if temperature else None,
             )
         elif provider == "anthropic-vertexai-proxied":
-            return ProxiedClaudeInference(
+            return ProxiedAnthropicVertexAIInference(
                 model=model,
                 api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
                 temperature=float(temperature) if temperature else 0,

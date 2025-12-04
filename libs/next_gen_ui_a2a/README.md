@@ -1,187 +1,171 @@
-# Next Gen UI Agent A2A Protocol Integration (Dev Preview)
+# Next Gen UI A2A Server
+
+This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent).
 
 [![Module Category](https://img.shields.io/badge/Module%20Category-AI%20Protocol-red)](https://github.com/RedHat-UX/next-gen-ui-agent)
-[![Module Status](https://img.shields.io/badge/Module%20Status-Dev%20Preview-yellow)](https://github.com/RedHat-UX/next-gen-ui-agent)
+[![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-[A2A Protocol](https://a2a-protocol.org/) provides standard how to communicate with agent
-and provides interoparability by client SDKs in different languages.
+[A2A Protocol](https://a2a-protocol.org/) provides standard how to communicate with AI agents
+and provides interoparability by client SDKs in different languages. 
+Use any A2A client implemntation to interact with the UI agent via A2A protocol.
+For details see [expected inputs and returned outputs](#agent-inputs-and-outputs).
 
 ## Provides
 
-1. Standard A2A API to the Next Gen UI agent
-2. HTTP Server to run the A2A API and execute the agent
-3. Docker image
+* `NextGenUIAgentExecutor` - standard [A2A SDK AgentExecutor implementation](https://github.com/a2aproject/a2a-python) to expose the Next Gen UI Agent functionality
+* `__main__.py` to run standalone A2A server
 
-To interact with agent via A2A protocol use any A2A client implemntation.
 
 ## Installation
+
+**Note:** alternatively, you can use [container image](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/a2a-container/) to easily install and run the server.
+
 
 ```sh
 pip install -U next_gen_ui_a2a
 ```
 
-## Example
+To run the standalone server using `__main__.py`, you also have to install http framework, eg:
 
-TODO: NGUI-493 - Improve documentation. Move code examples to docs. Keep README minimal.
-
-### Run A2A server with Next Gen UI agent
-
-```py
-import uvicorn 
-from a2a.server.apps import A2AStarletteApplication
-from a2a.server.request_handlers import DefaultRequestHandler 
-from a2a.server.tasks import InMemoryTaskStore 
-from langchain_openai import ChatOpenAI 
-
-from next_gen_ui_a2a.agent_card import card
-from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
-from next_gen_ui_agent.model import LangChainModelInference
-from next_gen_ui_agent.types import AgentConfig
-
-if not os.environ.get("OPENAI_API_KEY"):
-    os.environ["OPENAI_API_KEY"] = "ollama"
-model = os.getenv("INFERENCE_MODEL", "llama3.2")
-base_url = os.getenv("OPEN_API_URL", "http://localhost:11434/v1")
-
-# Create Chat API used by next_gen_ui agent
-llm = ChatOpenAI(model=model, base_url=base_url)
-inference = LangChainModelInference(llm)
-config = AgentConfig(inference=inference)
-
-request_handler = DefaultRequestHandler(
-    agent_executor=NextGenUIAgentExecutor(config),
-    task_store=InMemoryTaskStore(),
-)
-
-server = A2AStarletteApplication(
-    agent_card=card,
-    http_handler=request_handler,
-)
-
-uvicorn.run(server.build(), host="0.0.0.0", port=9999)
+```sh
+pip install a2a-sdk[http-server] uvicorn
 ```
 
-### Run A2A client
+Depending on your use case you may need additional packages for inference provider or design component renderers. More about this in the next sections.
 
-```py
-import logging
-from uuid import uuid4
+## Usage
 
-import httpx
-from a2a.client import A2ACardResolver, A2AClient
-from a2a.types import (  # SendStreamingMessageRequest,
-    AgentCard,
-    Message,
-    MessageSendParams,
-    Part,
-    Role,
-    SendMessageRequest,
-    TextPart,
-)
-from a2a.utils.constants import AGENT_CARD_WELL_KNOWN_PATH
+### Running the standalone server
 
+To get help how to run the server and pass the arguments run it with `-h` parameter:
 
-async def main() -> None:
-    # Configure logging to show INFO level messages
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)  # Get a logger instance
+```sh
+python -m next_gen_ui_a2a -h
 
-    base_url = "http://localhost:9999"
-
-    async with httpx.AsyncClient(timeout=120) as httpx_client:
-        # Initialize A2ACardResolver
-        resolver = A2ACardResolver(
-            httpx_client=httpx_client,
-            base_url=base_url,
-            # agent_card_path uses default, extended_agent_card_path also uses default
-        )
-
-        # Fetch Public Agent Card and Initialize Client
-        final_agent_card_to_use: AgentCard | None = None
-
-        try:
-            logger.info(
-                f"Attempting to fetch public agent card from: {base_url}{AGENT_CARD_WELL_KNOWN_PATH}"
-            )
-            _public_card = (
-                await resolver.get_agent_card()
-            )  # Fetches from default public path
-            logger.info("Successfully fetched public agent card:")
-            logger.info(_public_card.model_dump_json(indent=2, exclude_none=True))
-            final_agent_card_to_use = _public_card
-            logger.info(
-                "\nUsing PUBLIC agent card for client initialization (default)."
-            )
-
-        except Exception as e:
-            logger.exception("Critical error fetching public agent card")
-            raise RuntimeError(
-                "Failed to fetch the public agent card. Cannot continue."
-            ) from e
-
-        client = A2AClient(
-            httpx_client=httpx_client,
-            agent_card=final_agent_card_to_use,
-        )
-        logger.info("A2AClient initialized.")
-
-        movies_data = {
-            "movie": {
-                "languages": ["English"],
-                "year": 1995,
-                "imdbId": "0114709",
-                "runtime": 81,
-                "imdbRating": 8.3,
-                "movieId": "1",
-                "countries": ["USA"],
-                "imdbVotes": 591836,
-                "title": "Toy Story",
-                "url": "https://themoviedb.org/movie/862",
-                "revenue": 373554033,
-                "tmdbId": "862",
-                "plot": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
-                "posterUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
-                "released": "2022-11-02",
-                "trailerUrl": "https://www.youtube.com/watch?v=v-PjgYDrg70",
-                "budget": 30000000,
-            },
-            "actors": ["Jim Varney", "Tim Allen", "Tom Hanks", "Don Rickles"],
-        }
-
-        message = Message(
-            role=Role.user,
-            parts=[
-                Part(
-                    root=TextPart(
-                        text="Tell me details about Toy Story",
-                        metadata={
-                            "data": movies_data,
-                            "type": "search_movie",
-                        },
-                    )
-                ),
-                # Part(root=DataPart(data=movies_data)),
-            ],
-            message_id=str(uuid4()),
-        )
-        request = SendMessageRequest(
-            id=str(uuid4()), params=MessageSendParams(message=message)
-        )
-
-        response = await client.send_message(request)
-        logger.info("Execution finished.")
-        print(response.model_dump(mode="json", exclude_none=True))
-
-        # streaming_request = SendStreamingMessageRequest(
-        #     id=str(uuid4()), params=MessageSendParams(message=message)
-        # )
-        # stream_response = client.send_message_streaming(streaming_request)
-        # async for chunk in stream_response:
-        #     print(chunk.model_dump(mode="json", exclude_none=True))
-
-
-if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(main())
 ```
+You can choose `openai` or `anthropic-vertexai` inference provider.
+You have to add the necessary dependencies to your python environment to do so, otherwise the application will complain about them missing.
+See detailed documentation below.
+
+Similarly pluggable component systems such as `rhds` also require certain imports, `next_gen_ui_rhds_renderer` in this particular case. 
+`json` renderrer is installed by default.
+
+### Configuration Reference
+
+Server can be configured using commandline arguments, or environment variables. CLI has precedence over env variable.
+
+| Commandline Argument          | Environment Variable              | Default Value | Description                                                                                                                           |
+| ----------------------------- | --------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `--config-path`               | `NGUI_CONFIG_PATH`                | -             | Path to [YAML configuration files](#yaml-configuration) (to merge more yaml files, multiple commandline args can be used/comma separated in env variable). |
+| `--component-system`          | `NGUI_COMPONENT_SYSTEM`           | `json`        | UI Component system (`json` + any installed). Overrides value from YAML config file if used.                                          |
+| `--host`                      | `A2A_HOST`                        | `127.0.0.1`   | Host to bind to.                                                                                                                      |
+| `--port`                      | `A2A_PORT`                        | `8000`        | Port to bind to.                                                                                                                      |
+| `--provider`                  | `NGUI_PROVIDER`                   | `openai`      | LLM inference provider (`openai`, `anthropic-vertexai`), for details see below.                                                       |
+| `--model`                     | `NGUI_MODEL`                      | -             | Model name. Required for `openai`, `anthropic-vertexai`.                                                                              |
+| `--base-url`                  | `NGUI_PROVIDER_API_BASE_URL`      | -             | Base URL for API, provider specific defaults. Used by `openai`, `anthropic-vertexai`.                                                 |
+| `--api-key`                   | `NGUI_PROVIDER_API_KEY`           | -             | API key for the LLM provider. Used by `openai`, `anthropic-vertexai`.                                                                 |
+| `--temperature`               | `NGUI_PROVIDER_TEMPERATURE`       | -             | Temperature for model inference, float value (defaults to `0.0` for deterministic responses). Used by `openai`, `anthropic-vertexai`. |
+| `--sampling-max-tokens`       | `NGUI_SAMPLING_MAX_TOKENS`        | -             | Maximum LLM generated tokens, integer value. Used by `anthropic-vertexai` (defaults to `4096`).                                       |
+| `--anthropic-version`         | `NGUI_PROVIDER_ANTHROPIC_VERSION` | -             | Anthropic version value used in the API call (defaults to `vertex-2023-10-16`). Used by `anthropic-vertexai`.                         |
+| `--debug`                     | -                                 |               | Enable debug logging.                                                                                                                 |
+|                               | `NGUI_A2A_VERSION`                | `<release>`   | Version returned in the [A2A Agent Card](https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/#agent-card), defaults to the installed A2A server module release version |
+
+### LLM Inference Providers
+
+The Next Gen UI A2A server supports multiple inference providers, controlled by the `--provider` commandline argument / `NGUI_PROVIDER` environment variable:
+
+#### Provider **`openai`**
+
+Uses [LangChain OpenAI inference provider](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides), 
+so can be used with any OpenAI compatible APIs, eg. OpenAI API itself,
+or [Ollama](https://ollama.com/) for localhost inference,
+or [Llama Stack server v0.3.0+](https://llamastack.github.io/docs/api/create-chat-completions).
+
+Requires additional package to be installed:
+
+```sh
+"pip install langchain-openai"
+```
+
+Requires:
+
+- `NGUI_MODEL`: Model name (e.g., `gpt-4o`, `llama3.2`).
+- `NGUI_PROVIDER_API_KEY`: API key for the provider.
+- `NGUI_PROVIDER_API_BASE_URL` (optional): Custom base URL for OpenAI-compatible APIs like Ollama or Llama Stack. OpenAI API by default.
+- `NGUI_PROVIDER_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
+
+Base URL examples:
+
+- OpenAI: `https://api.openai.com/v1` (default)
+- Ollama at localhost: `http://localhost:11434/v1`
+- Llama Stack server at localhost port `5001` called from MCP server running in image: `http://host.containers.internal:5001/v1`
+
+#### Provider **`anthropic-vertexai`**
+
+Uses [Anthropic/Claude models from proxied Google Vertex AI API endpoint](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/pythonlib/#provides).
+
+Called API url is constructed as `{BASE_URL}/models/{MODEL}:streamRawPredict`. 
+API key is sent as `Bearer` token in `Authorization` http request header.
+
+Requires:
+
+  - `NGUI_MODEL`: Model name.
+  - `NGUI_PROVIDER_API_BASE_URL`: Base URL of the API.
+  - `NGUI_PROVIDER_API_KEY`: API key for the provider.
+  - `NGUI_PROVIDER_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
+  - `NGUI_PROVIDER_ANTHROPIC_VERSION` (optional): Anthropic version to use in API call (defaults to `vertex-2023-10-16`).
+  - `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `4096`).
+
+### YAML configuration
+
+Common [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) can be used to configure UI Agent functionality.
+
+Configuration file extension is available to provide ability to fine-tune details in 
+the [A2A Agent Card and Skills](https://a2a-protocol.org/latest/tutorials/python/3-agent-skills-and-card/) 
+to get better performance in your A2A system.
+For details [see `a2a` field in the Schema Definition](https://redhat-ux.github.io/next-gen-ui-agent/spec/a2a/#agent-configuration).
+
+Examle of the a2a yaml configuration extension:
+
+```yaml
+a2a:
+  agent_card:
+    name: UI component agent
+    description: This agent processes user prompt nd related structured data to generate the best UI component to visualize them
+  skills:
+    generate_ui_components:
+      name: Generate UI components to visualize data
+      tags:
+      - ui
+      - frontend
+
+# other UI Agent configurations
+
+```
+
+### Running Server locally from Git Repo
+
+If you are running this from inside of our [NextGenUI Agent GitHub repo](https://github.com/RedHat-UX/next-gen-ui-agent) then our `pants` repository manager can help you satisfy all dependencies. 
+In such case you can run the commands in the following way:
+
+```bash
+# Run directly
+PYTHONPATH=./libs python libs/next_gen_ui_a2a -h
+```
+
+Run it with real config arguments or env variables.
+
+### Example A2A client
+
+See [A2A client example code](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/next_gen_ui_a2a/readme_example.py).
+
+## Agent inputs and outputs
+
+**TODO** define expected agent input and structure of the output
+
+
+## Links
+
+* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/a2a-library/)
+* [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_a2a)
+* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)

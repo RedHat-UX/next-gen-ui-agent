@@ -5,7 +5,7 @@ from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
     trim_to_json,
 )
-from next_gen_ui_agent.model import InferenceBase
+from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 from pydantic_core import from_json
 
