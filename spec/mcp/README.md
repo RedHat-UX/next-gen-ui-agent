@@ -18,7 +18,7 @@ To use yaml configuration file auto completion or validation in your favorite ID
 
 The schema is published in [JSON Schema Store](https://www.schemastore.org/) and its [JSON API catalog](https://www.schemastore.org/api/json/catalog.json). 
 
-It is bound to `ngui_*_mcp_config.yaml`, `ngui_*_mcp_config.yml` and `ngui_*_mcp_config.json` file patterns. So it is automatically used in [supporting IDEs/editors](https://www.schemastore.org/#editors) 
+It is bound to `ngui-mcp_*.yaml`, `ngui-mcp_*.yml` and `ngui-mcp_*.json` file patterns. So it is automatically used in [supporting IDEs/editors](https://www.schemastore.org/#editors) 
 regarding their default configuration.
 
 ### VS Code or Cursor

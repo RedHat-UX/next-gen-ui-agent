@@ -15,7 +15,7 @@ To use yaml configuration file auto completion or validation in your favorite ID
 
 The schema is published in [JSON Schema Store](https://www.schemastore.org/) and its [JSON API catalog](https://www.schemastore.org/api/json/catalog.json). 
 
-It is bound to `ngui_*_a2a_config.yaml`, `ngui_*_a2a_config.yml` and `ngui_*_a2a_config.json` file patterns. So it is automatically used in [supporting IDEs/editors](https://www.schemastore.org/#editors) 
+It is bound to `ngui-a2a_*.yaml`, `ngui-a2a_*.yml` and `ngui-a2a_*.json` file patterns. So it is automatically used in [supporting IDEs/editors](https://www.schemastore.org/#editors) 
 regarding their default configuration.
 
 ### VS Code or Cursor
