@@ -172,7 +172,7 @@ def evaluate_agent_for_dataset_row(
     # separate steps so we can see LLM response even if it is invalid JSON
     time_start = round(time.time() * 1000)
 
-    llm_response = asyncio.run(
+    inference_result = asyncio.run(
         component_selection.perform_inference(
             inference, dsr["user_prompt"], json_data_for_llm, input_data_id
         )
@@ -182,7 +182,7 @@ def evaluate_agent_for_dataset_row(
     component: UIComponentMetadata | None = None
     try:
         component = component_selection.parse_infernce_output(
-            llm_response, input_data_id
+            inference_result, input_data_id
         )
         component.json_data = json_data
         component.json_wrapping_field_name = field_name
@@ -218,7 +218,9 @@ def evaluate_agent_for_dataset_row(
 
             # TODO NGUI-116 LLM-as-a-judge AI check to evaluate if fields are relevant to the user prompt and data
 
-    return DatasetRowAgentEvalResult(llm_response, errors, data)
+    # NOTE: `DatasetRowAgentEvalResult` expects the LLM response payload to be captured
+    # earlier in the evaluation loop. This function does not produce it directly.
+    return DatasetRowAgentEvalResult([], errors, data)
 
 
 def init_direct_api_inference_from_env(

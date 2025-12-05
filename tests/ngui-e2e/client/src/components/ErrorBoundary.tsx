@@ -70,9 +70,9 @@ class ErrorBoundary extends Component<Props, State> {
           <p>
             {this.state.error?.message || 'Unknown error occurred'}
           </p>
-          <details style={{ marginTop: '10px' }}>
+          <details className="error-boundary-details">
             <summary>Technical Details (for developers)</summary>
-            <pre style={{ fontSize: '12px', marginTop: '8px', whiteSpace: 'pre-wrap' }}>
+            <pre className="error-boundary-stack">
               {this.state.error?.stack}
             </pre>
           </details>
