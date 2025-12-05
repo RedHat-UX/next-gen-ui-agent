@@ -86,7 +86,9 @@ async def test_agent_executor_one_message_and_metadata() -> None:
     assert len(event.parts) == 2
 
     assert isinstance(event.parts[0].root, TextPart)
-    assert event.parts[0].root.text == "UI generated"
+    assert event.parts[0].root.text.startswith("Component is rendered in UI.")
+    assert "title: 'Toy Story Details'" in event.parts[0].root.text
+    assert "component_type: one-card" in event.parts[0].root.text
 
     assert isinstance(event.parts[1].root, DataPart)
     ui_block = UIBlock.model_validate(event.parts[1].root.data)
@@ -132,7 +134,9 @@ async def test_agent_executor_two_messages() -> None:
     assert len(event.parts) == 2
 
     assert isinstance(event.parts[0].root, TextPart)
-    assert event.parts[0].root.text == "UI generated"
+    assert event.parts[0].root.text.startswith("Component is rendered in UI.")
+    assert "title: 'Toy Story Details'" in event.parts[0].root.text
+    assert "component_type: one-card" in event.parts[0].root.text
 
     assert isinstance(event.parts[1].root, DataPart)
     ui_block = UIBlock.model_validate(event.parts[1].root.data)

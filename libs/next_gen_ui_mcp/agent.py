@@ -9,7 +9,7 @@ from mcp import types
 from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.inference.inference_base import InferenceBase
-from next_gen_ui_agent.types import InputData, UIBlock, UIBlockConfiguration
+from next_gen_ui_agent.types import InputData, UIBlock
 from next_gen_ui_mcp.agent_config import MCPAgentConfig, MCPAgentToolConfig
 from next_gen_ui_mcp.types import MCPGenerateUIOutput
 from pydantic import Field
@@ -228,7 +228,7 @@ class NextGenUIMCPServer:
                     input_data=input_data,
                     inference=inference,
                 )
-                summary = f"Component is rendered in UI. {self.component_info(ui_block.configuration)}"
+                summary = f"Component is rendered in UI. {self.ngui_agent.component_info(ui_block.configuration)}"
                 return self.create_mcp_output(blocks=[ui_block], summary=summary)
             except Exception as e:
                 logger.exception("Error during UI generation")
@@ -332,7 +332,7 @@ class NextGenUIMCPServer:
 
                     blocks.append(ui_block)
                     success_output.append(
-                        f"{len(success_output)}. {self.component_info(ui_block.configuration)}"
+                        f"{len(success_output)}. {self.ngui_agent.component_info(ui_block.configuration)}"
                     )
                 except Exception as e:
                     logger.exception("Error processing component")
@@ -415,19 +415,6 @@ class NextGenUIMCPServer:
             id=rendering.id, rendering=rendering, configuration=block_config
         )
         return ui_block
-
-    def component_info(self, uiblock_config: UIBlockConfiguration | None) -> str:
-        if not uiblock_config:
-            return ""
-        c_info = []
-        if uiblock_config.data_type:
-            c_info.append(f"data_type: '{uiblock_config.data_type}'")
-        if uiblock_config.component_metadata:
-            c_info.append(f"title: '{uiblock_config.component_metadata.title}'")
-            c_info.append(
-                f"component_type: {uiblock_config.component_metadata.component}"
-            )
-        return ", ".join(c_info)
 
     def create_mcp_output(
         self,
