@@ -239,3 +239,16 @@ class NextGenUIAgent:
             input_data_transformer_name=component_metadata.input_data_transformer_name,
             json_wrapping_field_name=component_metadata.json_wrapping_field_name,
         )
+
+    def component_info(self, uiblock_config: UIBlockConfiguration | None) -> str:
+        if not uiblock_config:
+            return ""
+        c_info = []
+        if uiblock_config.data_type:
+            c_info.append(f"data_type: '{uiblock_config.data_type}'")
+        if uiblock_config.component_metadata:
+            c_info.append(f"title: '{uiblock_config.component_metadata.title}'")
+            c_info.append(
+                f"component_type: {uiblock_config.component_metadata.component}"
+            )
+        return ", ".join(c_info)
