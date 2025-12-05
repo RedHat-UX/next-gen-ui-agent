@@ -29,7 +29,8 @@ def load_args():
     arg_vague_component_check = False
     arg_also_warn_only = False
     arg_selected_component_type_check_only = False
-    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:")
+    arg_judge_enabled = False
+    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:j")
     for opt, arg in opts:
         if opt == "-h":
             print("eval.py <arguments>")
@@ -48,6 +49,9 @@ def load_args():
             print(
                 " -v - if present then component type check is vague, allowing `table` and `set-of-cards` components to be interchanged"
             )
+            print(
+                " -j - if present then LLM-as-a-Judge evaluation is enabled (requires JUDGE_MODEL, JUDGE_API_URL, JUDGE_API_KEY env vars)"
+            )
             print(" -h - help")
             sys.exit()
         elif opt in ("-c"):
@@ -62,6 +66,8 @@ def load_args():
             arg_vague_component_check = True
         elif opt in ("-f"):
             arg_dataset_file = arg
+        elif opt in ("-j"):
+            arg_judge_enabled = True
 
     if not arg_also_warn_only:
         print("Skipping `warn_only` dataset items ...")
@@ -75,6 +81,7 @@ def load_args():
         arg_vague_component_check,
         arg_also_warn_only,
         arg_selected_component_type_check_only,
+        arg_judge_enabled,
     )
 
 
