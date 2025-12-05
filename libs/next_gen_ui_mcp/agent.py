@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import uuid
-from typing import Annotated, List, Literal
+from typing import Annotated, List, Literal, Optional
 
 from fastmcp import Context, FastMCP
 from fastmcp.tools.tool import ToolResult
@@ -9,12 +9,8 @@ from mcp import types
 from mcp.types import TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.inference.inference_base import InferenceBase
-from next_gen_ui_agent.types import (
-    AgentConfig,
-    InputData,
-    UIBlock,
-    UIBlockConfiguration,
-)
+from next_gen_ui_agent.types import InputData, UIBlock, UIBlockConfiguration
+from next_gen_ui_mcp.agent_config import MCPAgentConfig, MCPAgentToolConfig
 from next_gen_ui_mcp.types import MCPGenerateUIOutput
 from pydantic import Field
 
@@ -76,7 +72,7 @@ class NextGenUIMCPServer:
 
     def __init__(
         self,
-        config: AgentConfig = AgentConfig(component_system="json"),
+        config: MCPAgentConfig = MCPAgentConfig(component_system="json"),
         name: str = "NextGenUIMCPServer",
         sampling_max_tokens: int = 2048,
         inference: InferenceBase | None = None,
@@ -106,16 +102,60 @@ class NextGenUIMCPServer:
         self.inference = inference
         self.ngui_agent = NextGenUIAgent(config=self.config)
 
+    def _get_argument_description(
+        self,
+        tool_config: Optional[MCPAgentToolConfig],
+        argument_name: str,
+        default: str,
+    ) -> str:
+        """Get argument description, using override from config if available.
+
+        Args:
+            tool_config: The tool config object (e.g., self.config.mcp.tools.generate_ui_component)
+            argument_name: Name of the argument
+            default: Default description to use if no override is found
+
+        Returns:
+            The argument description (override if available, otherwise default)
+        """
+        if (
+            tool_config
+            and tool_config.argument_descriptions
+            and argument_name in tool_config.argument_descriptions
+            and tool_config.argument_descriptions[argument_name]
+            and tool_config.argument_descriptions[argument_name].strip() != ""
+        ):
+            return tool_config.argument_descriptions[argument_name]
+        return default
+
     def _setup_mcp_tools(self) -> None:
         """Set up MCP tools for the agent."""
         logger.info("Registering tools")
 
+        tool_config = (
+            self.config.mcp.tools.generate_ui_component
+            if (
+                self.config.mcp
+                and self.config.mcp.tools
+                and self.config.mcp.tools.generate_ui_component
+            )
+            else None
+        )
+
         @self.mcp.tool(
             name="generate_ui_component",
             description=(
-                "Generate one UI component for given user_prompt and data. "
-                "Always get fresh data from another tool first. "
-                "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+                tool_config.description
+                if (
+                    tool_config
+                    and tool_config.description
+                    and tool_config.description.strip() != ""
+                )
+                else (
+                    "Generate one UI component for given user_prompt and data. "
+                    "Always get fresh data from another tool first. "
+                    "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+                )
             ),
             enabled="generate_ui_component" in self.enabled_tools,
             # exclude session_id so LLM does not see it
@@ -127,29 +167,52 @@ class NextGenUIMCPServer:
             user_prompt: Annotated[
                 str,
                 Field(
-                    description="Original user query without any changes. Do not generate this."
+                    description=self._get_argument_description(
+                        tool_config,
+                        "user_prompt",
+                        "Original user query without any changes. Do not generate this.",
+                    )
                 ),
             ],
             data: Annotated[
                 str,
                 Field(
-                    description="Input raw data. COPY of data from another tool call. Do not change anything!. NEVER generate this."
+                    description=self._get_argument_description(
+                        tool_config,
+                        "data",
+                        "Input raw data. COPY of data from another tool call. Do not change anything!. NEVER generate this.",
+                    )
                 ),
             ],
             data_type: Annotated[
                 str,
                 Field(
-                    description="Name of tool call used for 'data' argument. COPY of tool name. Do not change anything! NEVER generate this."
+                    description=self._get_argument_description(
+                        tool_config,
+                        "data_type",
+                        "Name of tool call used for 'data' argument. COPY of tool name. Do not change anything! NEVER generate this.",
+                    )
                 ),
             ],
             data_id: Annotated[
                 str | None,
                 Field(
-                    description="ID of tool call used for 'data' argument. Exact COPY of tool name. Do not change anything! NEVER generate this."
+                    description=self._get_argument_description(
+                        tool_config,
+                        "data_id",
+                        "ID of tool call used for 'data' argument. Exact COPY of tool name. Do not change anything! NEVER generate this.",
+                    )
                 ),
             ] = None,
             # session_id should be sent as part of metadata. However some frameworks do not support that yet and send it as argument, e.g. Llama-stack
-            session_id: Annotated[str | None, Field(description="Session ID")] = None,
+            session_id: Annotated[
+                str | None,
+                Field(
+                    description=self._get_argument_description(
+                        tool_config, "session_id", "Session ID"
+                    )
+                ),
+            ] = None,
         ) -> ToolResult:
             if not data_id:
                 data_id = str(uuid.uuid4())
@@ -172,12 +235,30 @@ class NextGenUIMCPServer:
                 await ctx.error(f"UI generation failed: {e}")
                 raise e
 
+        tool_config_multiple = (
+            self.config.mcp.tools.generate_ui_multiple_components
+            if (
+                self.config.mcp
+                and self.config.mcp.tools
+                and self.config.mcp.tools.generate_ui_multiple_components
+            )
+            else None
+        )
+
         @self.mcp.tool(
             name="generate_ui_multiple_components",
             description=(
-                "Generate multiple UI components for given user_prompt. "
-                "Always get fresh data from another tool first. "
-                "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+                tool_config_multiple.description
+                if (
+                    tool_config_multiple
+                    and tool_config_multiple.description
+                    and tool_config_multiple.description.strip() != ""
+                )
+                else (
+                    "Generate multiple UI components for given user_prompt. "
+                    "Always get fresh data from another tool first. "
+                    "It's adviced to run the tool as last tool call in the chain, to be able process all data from previous tools calls."
+                )
             ),
             enabled="generate_ui_multiple_components" in self.enabled_tools,
             # exclude_args=["structured_data"],
@@ -188,17 +269,32 @@ class NextGenUIMCPServer:
             user_prompt: Annotated[
                 str,
                 Field(
-                    description="Original user query without any changes. Do not generate this."
+                    description=self._get_argument_description(
+                        tool_config_multiple,
+                        "user_prompt",
+                        "Original user query without any changes. Do not generate this.",
+                    )
                 ),
             ],
             structured_data: Annotated[
                 List[InputData] | None,
                 Field(
-                    description="Structured Input Data. Array of objects with 'id', 'data' and 'type' keys. NEVER generate this."
+                    description=self._get_argument_description(
+                        tool_config_multiple,
+                        "structured_data",
+                        "Structured Input Data. Array of objects with 'id', 'data' and 'type' keys. NEVER generate this.",
+                    )
                 ),
             ] = None,
             # session_id should be sent as part of metadata. However some frameworks do not support that yet and send it as argument, e.g. Llama-stack
-            session_id: Annotated[str | None, Field(description="Session ID")] = None,
+            session_id: Annotated[
+                str | None,
+                Field(
+                    description=self._get_argument_description(
+                        tool_config_multiple, "session_id", "Session ID"
+                    )
+                ),
+            ] = None,
         ) -> ToolResult:
             logger.debug(
                 "generate_ui_multiple_components invoked with session_id=%s", session_id
