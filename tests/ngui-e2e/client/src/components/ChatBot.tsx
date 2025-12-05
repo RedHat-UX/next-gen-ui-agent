@@ -10,10 +10,11 @@ import {
   MessageBox,
   type MessageProps,
 } from "@patternfly/chatbot";
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
 import DynamicComponent from "./DynamicComponent";
 import { useFetch } from "../hooks/useFetch";
+import { loadWebComponents } from "../utils/loadWebComponents";
 
 export default function ChatBotPage() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
@@ -62,6 +63,12 @@ export default function ChatBotPage() {
       body: { prompt: message },
     });
     newMessages.pop();
+
+    // If response is HTML, load required web components first
+    if (res && !res.error && res.type === "html") {
+      await loadWebComponents(res.response);
+    }
+
     newMessages.push({
       id: generateId(),
       role: "bot",
@@ -73,6 +80,12 @@ export default function ChatBotPage() {
         ? { content: "Something went wrong!" }
         : res.error
         ? { content: `Error: ${res.error}${res.details ? ` - ${res.details}` : ''}` }
+        : res.type === "html"
+        ? {
+            extraContent: {
+              afterMainContent: <div dangerouslySetInnerHTML={{ __html: res.response }} />,
+            },
+          }
         : {
             extraContent: {
               afterMainContent: <DynamicComponent config={res.response} showRawConfig={true} />,
@@ -104,10 +117,10 @@ export default function ChatBotPage() {
             {messages && messages.map((message, index) => {
               if (index === messages.length - 1) {
                 return (
-                  <>
+                  <React.Fragment key={message.id}>
                     <div ref={scrollToBottomRef}></div>
-                    <Message key={message.id} {...message} />
-                  </>
+                    <Message {...message} />
+                  </React.Fragment>
                 );
               }
               return <Message key={message.id} {...message} />;
