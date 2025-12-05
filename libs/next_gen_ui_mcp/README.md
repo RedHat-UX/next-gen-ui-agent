@@ -85,7 +85,7 @@ Server can be configured using commandline arguments, or environment variables. 
 
 | Commandline Argument          | Environment Variable              | Default Value | Description                                                                                                                           |
 | ----------------------------- | --------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `--config-path`               | `NGUI_CONFIG_PATH`                | -             | Path to [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) (to merge more yaml files, multiple commandline args can be used/comma separated in env variable). |
+| `--config-path`               | `NGUI_CONFIG_PATH`                | -             | Path to [YAML configuration files](#yaml-configuration) (to merge more yaml files, multiple commandline args can be used/comma separated in env variable). |
 | `--component-system`          | `NGUI_COMPONENT_SYSTEM`           | `json`        | UI Component system (`json` + any installed). Overrides value from YAML config file if used.                                          |
 | `--transport`                 | `MCP_TRANSPORT`                   | `stdio`       | Transport protocol for MCP (`stdio`, `sse`, `streamable-http`).                                                                       |
 | `--host`                      | `MCP_HOST`                        | `127.0.0.1`   | Host to bind to (for `sse` and `streamable-http` transports).                                                                         |
@@ -157,6 +157,28 @@ Requires:
   - `NGUI_PROVIDER_TEMPERATURE` (optional): Temperature for model inference (defaults to `0.0` for deterministic responses).
   - `NGUI_PROVIDER_ANTHROPIC_VERSION` (optional): Anthropic version to use in API call (defaults to `vertex-2023-10-16`).
   - `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `4096`).
+
+### YAML configuration
+
+Common [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-gen-ui-agent/guide/configuration/) can be used to configure UI Agent functionality.
+
+Configuration file extension is available to provide ability to fine-tune descriptions for
+the MCP tools and their arguments, to get better performance in your AI assitant/orchestrator.
+For details [see `mcp` field in the Schema Definition](https://redhat-ux.github.io/next-gen-ui-agent/spec/mcp/#agent-configuration).
+
+Examle of the mcp yaml configuration extension:
+
+```yaml
+mcp:
+  tools:
+    generate_ui_multiple_components:
+      description: Generate multiple UI components for given user_prompt and input data.\nAlways get fresh data from another tool first.
+      argument_descriptions:
+        user_prompt: "Original user prompt without any changes, so UI components have necessary context. Do not generate this."
+
+# other UI Agent configurations
+
+```
 
 ### Running Server locally from Git Repo
 
