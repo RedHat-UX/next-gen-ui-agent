@@ -246,6 +246,16 @@ class UIComponentMetadata(UIComponentMetadataBase):
     Name of the field used for `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed.
     """
 
+    # Debug information for LLM interactions
+    llm_interactions: Optional[list[dict[str, Any]]] = None
+    """
+    List of LLM interactions for debugging. Each interaction contains:
+    - step: 'component_selection' or 'field_selection'
+    - system_prompt: System message sent to LLM
+    - user_prompt: User prompt sent to LLM
+    - raw_response: Raw response from LLM before parsing
+    """
+
 
 class UIComponentMetadataHandBuildComponent(UIComponentMetadata):
     """UI Component Mentadata for hand-build component."""

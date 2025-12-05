@@ -1,0 +1,118 @@
+{
+  "$defs": {
+    "ChartDataPoint": {
+      "description": "A single data point in a chart series",
+      "properties": {
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional name for the data point"
+        },
+        "x": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "X-axis value (label for the data point)"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "description": "Y-axis value (numeric value)"
+        }
+      },
+      "required": [
+        "x",
+        "y"
+      ],
+      "title": "ChartDataPoint",
+      "type": "object"
+    },
+    "ChartSeries": {
+      "description": "A series of data points for the chart",
+      "properties": {
+        "name": {
+          "description": "Name of the series (shown in legend)",
+          "type": "string"
+        },
+        "data": {
+          "description": "Array of data points in this series",
+          "items": {
+            "$ref": "#/$defs/ChartDataPoint"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "data"
+      ],
+      "title": "ChartSeries",
+      "type": "object"
+    }
+  },
+  "description": "Schema model for chart components with all valid component types.",
+  "properties": {
+    "component": {
+      "description": "Type of chart component",
+      "enum": [
+        "chart-bar",
+        "chart-line",
+        "chart-pie",
+        "chart-donut",
+        "chart-mirrored-bar"
+      ],
+      "type": "string"
+    },
+    "id": {
+      "description": "id of the backend data this component is for",
+      "type": "string"
+    },
+    "title": {
+      "description": "title of the component",
+      "type": "string"
+    },
+    "data": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/ChartSeries"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Array of data series for the chart"
+    }
+  },
+  "required": [
+    "component",
+    "id",
+    "title"
+  ],
+  "title": "ComponentDataChartSchema",
+  "type": "object"
+}

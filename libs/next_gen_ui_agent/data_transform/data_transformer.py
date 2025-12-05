@@ -1,7 +1,7 @@
 import json
 import logging
 from abc import ABC
-from typing import Any, Generic, TypeVar
+from typing import Any, ClassVar, Generic, TypeVar
 
 from next_gen_ui_agent.data_transform.data_transformer_utils import (
     copy_array_fields_from_ui_component_metadata,
@@ -26,6 +26,9 @@ logger = logging.getLogger(__name__)
 
 class DataTransformerBase(ABC, Generic[T]):
     """Data transformer"""
+
+    # Default component name so subclasses always expose the attribute for logging/type checking
+    COMPONENT_NAME: ClassVar[str] = "UNSPECIFIED_COMPONENT"
 
     def __init__(self):
         self._component_data: T = None  # type: ignore

@@ -1,12 +1,29 @@
 import json
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, TypedDict
 
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data, wrap_string_as_json
 from next_gen_ui_agent.types import InputDataInternal, UIComponentMetadata
+
+
+class LLMInteraction(TypedDict):
+    """LLM interaction metadata for debugging."""
+
+    step: str
+    system_prompt: str
+    user_prompt: str
+    raw_response: str
+
+
+class InferenceResult(TypedDict):
+    """Result from perform_inference containing outputs and metadata."""
+
+    outputs: list[str]  # The actual LLM responses
+    llm_interactions: list[LLMInteraction]  # Metadata for debugging
+
 
 MAX_STRING_DATA_LENGTH_FOR_LLM = 1000
 """Maximum length of the string data passed to the LLM in characters."""
@@ -77,12 +94,12 @@ class ComponentSelectionStrategy(ABC):
             # we have to reduce arrays size to avoid LLM context window limit
             json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
 
-        inference_output = await self.perform_inference(
+        inference_result = await self.perform_inference(
             inference, user_prompt, json_data_for_llm, input_data_id
         )
 
         try:
-            result = self.parse_infernce_output(inference_output, input_data_id)
+            result = self.parse_infernce_output(inference_result, input_data_id)
             result.json_data = json_data
             result.input_data_transformer_name = input_data_transformer_name
             result.json_wrapping_field_name = json_wrapping_field_name
@@ -98,10 +115,10 @@ class ComponentSelectionStrategy(ABC):
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
-    ) -> list[str]:
+    ) -> InferenceResult:
         """
         Perform inference to select UI components and configure them.
-        Multiple LLM calls can be performed and inference results can be returned as a list of strings.
+        Multiple LLM calls can be performed and inference results can be returned along with metadata.
 
         Args:
             inference: Inference to use to call LLM by the agent
@@ -110,20 +127,20 @@ class ComponentSelectionStrategy(ABC):
             input_data_id: ID of the input data
 
         Returns:
-            List of strings with LLM inference outputs
+            InferenceResult with outputs and llm_interactions
         """
         pass
 
     @abstractmethod
     def parse_infernce_output(
-        self, inference_output: list[str], input_data_id: str
+        self, inference_result: InferenceResult, input_data_id: str
     ) -> UIComponentMetadata:
         """
         Parse LLM inference outputs from `perform_inference` and return `UIComponentMetadata`
         or throw exception if it can't be constructed because of invalid LLM outputs.
 
         Args:
-            inference_output: List of strings with LLM inference outputs generated from perform_inference method
+            inference_result: InferenceResult from perform_inference method
             input_data_id: ID of the input data
 
         Returns:
@@ -171,3 +188,46 @@ def trim_to_json(text: str) -> str:
         return text[start_index:]
 
     return text[start_index:end_index]
+
+
+def validate_and_correct_chart_type(
+    result: UIComponentMetadata, logger: logging.Logger
+) -> None:
+    """
+    Validate that the chart component type in the result matches what's mentioned in the reasoning.
+    If there's a mismatch, auto-correct the component and log a warning.
+
+    Args:
+        result: The UIComponentMetadata to validate and potentially correct
+        logger: Logger instance for warnings
+    """
+    if not result.component.startswith("chart-"):
+        return
+
+    reasoning_lower = (result.reasonForTheComponentSelection or "").lower()
+
+    # Map of chart type keywords to expected component values
+    # Order matters: check more specific types first (e.g., "mirrored-bar" before "bar")
+    chart_type_checks = [
+        ("chart-mirrored-bar", ["mirrored-bar", "mirrored bar"]),
+        ("chart-donut", ["donut"]),
+        ("chart-pie", ["pie"]),
+        ("chart-line", ["line"]),
+        ("chart-bar", ["bar"]),
+    ]
+
+    # Check for explicit chart type mentions in reasoning
+    detected_type = None
+    for expected_component, keywords in chart_type_checks:
+        if any(keyword in reasoning_lower for keyword in keywords):
+            detected_type = expected_component
+            break
+
+    # If we detected a type in reasoning and it doesn't match the actual component, correct it
+    if detected_type and detected_type != result.component:
+        logger.warning(
+            "[NGUI] LLM returned component='%s' but reasoning mentions '%s'. Auto-correcting.",
+            result.component,
+            detected_type,
+        )
+        result.component = detected_type
