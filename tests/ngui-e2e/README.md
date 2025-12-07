@@ -15,12 +15,15 @@ ngui-e2e/
 - **`server/`** - FastAPI backend that provides AI-powered UI generation APIs using LangGraph integration
 - **`client/`** - React frontend application that consumes the backend APIs and renders dynamic UI components
 
+The web components used by the client are maintained in [`libs/next_gen_ui_web/`](../../libs/next_gen_ui_web/) as a reusable package (`@rhngui/web`).
+
 ## Getting Started
 
 Each subfolder contains its own README with detailed setup, installation, configuration, and running instructions:
 
 - See [`server/README.md`](server/README.md) for backend setup and configuration
 - See [`client/README.md`](client/README.md) for frontend setup and configuration
+- See [`libs/next_gen_ui_web/README.md`](../../libs/next_gen_ui_web/README.md) for web component development and styling patterns
 
 ## Purpose
 

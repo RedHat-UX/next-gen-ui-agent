@@ -1,0 +1,13 @@
+<ngui-card title="{{title}}"{% if image %} layout="horizontal-split"{% endif %}>
+{% if image %}
+  <img slot="image" src="{{image}}" alt="{{title}}">
+{% endif %}
+  <dl>
+{%  for f in fields %}
+    <dt>{{f.get("name")}}</dt>
+    <dd>{% for item in f.get("data") %}
+{{      item }}{% if not loop.last %}, {% endif %}
+{%    endfor %}</dd>
+{%  endfor %}
+  </dl>
+</ngui-card>

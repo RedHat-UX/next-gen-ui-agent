@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+elements/*.js
+elements/*.js.map
+elements/*.d.ts
+elements/*.d.ts.map
+
+# Generated manifest
+custom-elements.json

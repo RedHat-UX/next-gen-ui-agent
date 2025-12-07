@@ -2,7 +2,7 @@ import React from 'react';
 import { Alert, EmptyState, EmptyStateBody, Title } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 // @ts-ignore - dynamicui module doesn't have type definitions
-import DynamicUILibrary from 'dynamicui';
+// import DynamicUILibrary from 'dynamicui';
 import ErrorBoundary from './ErrorBoundary';
 
 interface DynamicComponentProps {
@@ -125,7 +125,7 @@ const DynamicComponent: React.FC<DynamicComponentProps> = ({
   );
 
   return (
-    <ErrorBoundary 
+    <ErrorBoundary
       fallback={DynamicComponentErrorFallback}
       onError={(error, errorInfo) => {
         // Log error details for debugging
@@ -137,7 +137,8 @@ const DynamicComponent: React.FC<DynamicComponentProps> = ({
         });
       }}
     >
-      <DynamicUILibrary config={config} />
+      {/* <DynamicUILibrary config={config} /> */}
+      <div>DynamicUI component placeholder (not needed for web components PoC)</div>
     </ErrorBoundary>
   );
 };

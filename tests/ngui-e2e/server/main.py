@@ -9,7 +9,9 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 from next_gen_ui_langgraph.readme_example import search_movie
+from next_gen_ui_web_components_renderer import WebComponentsStrategyFactory
 from pydantic import BaseModel, SecretStr
+from stevedore import extension
 
 # Load environment variables
 load_dotenv()
@@ -36,11 +38,25 @@ else:
 movies_agent = create_react_agent(
     model=llm,
     tools=[search_movie],
-    prompt="You are useful movies assistant to answer user questions",
+    prompt="You are a movie information assistant. You MUST use the search_movie tool to retrieve accurate movie data. Never answer from memory - always call search_movie first to get the official data, then present it to the user.",
 )
 
-ngui_agent = NextGenUILangGraphAgent(model=llm).build_graph()
-ngui_cfg = {"configurable": {"component_system": "json"}}
+ngui_langgraph_agent = NextGenUILangGraphAgent(model=llm)
+ngui_cfg = {"configurable": {"component_system": "web-components"}}
+
+# Manually register the web-components renderer since we're running from source
+# (stevedore entry points only work for installed packages)
+web_components_factory = WebComponentsStrategyFactory()
+ngui_ext = extension.Extension(
+    name="web-components",
+    entry_point=None,
+    plugin=web_components_factory,
+    obj=web_components_factory,
+)
+ngui_langgraph_agent.ngui_agent._extension_manager.extensions.append(ngui_ext)
+
+# Build the graph after registering the renderer
+ngui_agent = ngui_langgraph_agent.build_graph()
 
 # === FastAPI setup ===
 app = FastAPI()
@@ -225,7 +241,17 @@ async def generate_response(request: GenerateRequest):
 
         print(f"Rendition content: {rendition_content}")
 
-        # Step 5: Parse JSON with comprehensive error handling
+        # Step 5: Return response based on component system
+        # For web-components, return HTML directly
+        # For json, parse and validate the JSON
+        component_system = ngui_cfg.get("configurable", {}).get("component_system", "json")
+
+        if component_system == "web-components":
+            # Return HTML directly for web components
+            print(f"Returning web component HTML")
+            return {"response": rendition_content, "type": "html"}
+
+        # For JSON renderer, parse with comprehensive error handling
         try:
             parsed_response = json.loads(rendition_content)
             print(f"Successfully parsed response: {parsed_response}")
