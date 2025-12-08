@@ -60,9 +60,16 @@ async def run_judge(
 
         # Map category to score
         category = result["category"]
-        score = category_mapping.get(
-            category, 0.5
-        )  # Default to 0.5 if unknown category
+        score = category_mapping.get(category)
+
+        if score is None:
+            # Unknown category - log warning and use neutral score
+            print(
+                f"   WARNING: Judge '{judge_name}' returned unexpected category: '{category}'"
+            )
+            print(f"   Expected one of: {list(category_mapping.keys())}")
+            print(f"   Judge response: {response[:200]}")
+            score = 0.5  # Default to neutral
 
         return {
             "judge_name": judge_name,
@@ -72,13 +79,19 @@ async def run_judge(
             "reasoning": result["reason"],
         }
     except Exception as e:
-        # If judge fails, return neutral result
+        # If judge fails, log error and return neutral result
+        print(f"   ERROR: Judge '{judge_name}' failed to execute")
+        print(f"   Exception: {type(e).__name__}: {str(e)}")
+        if hasattr(e, "__traceback__"):
+            import traceback
+
+            print(f"   Traceback: {traceback.format_exc()}")
         return {
             "judge_name": judge_name,
-            "category": "unknown",
+            "category": "judge_error",
             "score": 0.5,
             "passed": False,
-            "reasoning": f"Judge error: {str(e)}",
+            "reasoning": f"Judge execution error: {type(e).__name__}: {str(e)}",
         }
 
 
@@ -97,14 +110,16 @@ async def judge_field_relevance(
 
     backend_data_str = _truncate_backend_data(backend_data)
 
-    prompt = f"""Evaluate if the selected fields are relevant to answering the user's question.
+    prompt = f"""Evaluate if the selected fields are appropriate for VISUALIZING the AVAILABLE DATA in the chosen COMPONENT TYPE to answer the user's question.
+
+Your task: Judge whether the fields chosen for visualization are relevant, complete, and appropriate for displaying in a {component.component} component.
 
 USER QUESTION: {user_prompt}
 
-AVAILABLE DATA:
+AVAILABLE DATA (from backend API):
 {backend_data_str}
 
-SELECTED FIELDS:
+SELECTED FIELDS (to visualize in UI):
 {json.dumps(fields_info, indent=2)}
 
 COMPONENT TYPE: {component.component}
