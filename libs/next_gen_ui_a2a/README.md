@@ -155,13 +155,39 @@ PYTHONPATH=./libs python libs/next_gen_ui_a2a -h
 
 Run it with real config arguments or env variables.
 
+### A2A Inspector
+
+You can use [A2A Inspector](https://github.com/a2aproject/a2a-inspector) to call the UI Agent. 
+Just point it to the running A2A UI agent instance (`http://127.0.0.1:8000` by default) and click `Connect`. `Agent Card` will be populated.
+
+To perform processing, enter user's prompt as a `Message` text, and provide structured JSON input data as `data` field in the `Message Metadata` section.
+
+Then click on the response bubble to see complete response message.
+
+
 ### Example A2A client
 
 See [A2A client example code](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/libs/next_gen_ui_a2a/readme_example.py).
 
 ## Agent inputs and outputs
 
-**TODO** define expected agent input and structure of the output
+**Note:** This is an initial implementation. It is expected to be evolved as we gain more experience with multi agent systems, how to propagate data and info about their origin in them etc.
+
+### Input
+
+Agent expects `Message` with `TextPart`, containing user's prompt. Then it looks for input data in:
+
+* string or object tree (converted to JSON string) in the `Message`'s or the `TextPart`'s metadata `data` item, with `type` item used as an input data type.
+* object tree (converted to JSON string) in the `Message`'s subsequent `DataPart`s. Input data type can't be provided in this case currently.
+
+Multiple InputData can be provided this way to generate multiple UI components.
+
+### Output
+
+A2A UI Agent reponds with separate `agent` `Message` for each InputData. It contains one generated UI compponent:
+
+* `TextPart` with the textual summary of the processing
+* `DataPart` with the [agent's JSON response](https://redhat-ux.github.io/next-gen-ui-agent/spec/output/)
 
 
 ## Links

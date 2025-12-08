@@ -91,7 +91,6 @@ class NextGenUIAgentExecutor(AgentExecutor):
                 id=rendering.id, rendering=rendering, configuration=block_config
             )
 
-            # TODO: NGUI-495 Return same Output like MCPGenerateUIOutput !!!
             summary = f"Component is rendered in UI. {self.ngui_agent.component_info(ui_block.configuration)}"
             message = Message(
                 role=Role.agent,
