@@ -89,6 +89,44 @@ Example JSON output:
   "video_img": "https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg"
 }
 ```
+
+### Chart
+[JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/chart.schema.json)
+
+Chart components support multiple visualization types:
+- `chart-bar` - Bar charts for comparing metrics across categories
+- `chart-line` - Line charts for trends over time
+- `chart-pie` - Pie charts for showing proportions
+- `chart-donut` - Donut charts for showing proportions with a central metric
+- `chart-mirrored-bar` - Mirrored bar charts for comparing two metrics side-by-side
+
+Example JSON output (bar chart):
+```json
+{
+  "component": "chart-bar",
+  "id": "test-id",
+  "title": "Sales Data",
+  "data": [
+    {
+      "name": "Q1",
+      "data": [
+        {"x": "Jan", "y": 100},
+        {"x": "Feb", "y": 150},
+        {"x": "Mar", "y": 200}
+      ]
+    },
+    {
+      "name": "Q2",
+      "data": [
+        {"x": "Apr", "y": 180},
+        {"x": "May", "y": 220},
+        {"x": "Jun", "y": 250}
+      ]
+    }
+  ]
+}
+```
+
 ## Dynamic components for `Array of objects` input data
 
 [Dynamic Components Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)  
