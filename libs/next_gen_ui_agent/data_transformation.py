@@ -3,6 +3,13 @@ import logging
 from typing import cast
 
 from next_gen_ui_agent.data_transform.audio import AudioPlayerDataTransformer
+from next_gen_ui_agent.data_transform.chart import (
+    BarChartDataTransformer,
+    DonutChartDataTransformer,
+    LineChartDataTransformer,
+    MirroredBarChartDataTransformer,
+    PieChartDataTransformer,
+)
 from next_gen_ui_agent.data_transform.data_transformer import DataTransformerBase
 from next_gen_ui_agent.data_transform.hand_build_component import (
     HandBuildComponentDataTransformer,
@@ -24,6 +31,11 @@ COMPONENT_TRANSFORMERS_REGISTRY: dict[str, DataTransformerBase] = {
     AudioPlayerDataTransformer.COMPONENT_NAME: AudioPlayerDataTransformer(),
     TableDataTransformer.COMPONENT_NAME: TableDataTransformer(),
     SetOfCardsDataTransformer.COMPONENT_NAME: SetOfCardsDataTransformer(),
+    BarChartDataTransformer.COMPONENT_NAME: BarChartDataTransformer(),
+    LineChartDataTransformer.COMPONENT_NAME: LineChartDataTransformer(),
+    PieChartDataTransformer.COMPONENT_NAME: PieChartDataTransformer(),
+    DonutChartDataTransformer.COMPONENT_NAME: DonutChartDataTransformer(),
+    MirroredBarChartDataTransformer.COMPONENT_NAME: MirroredBarChartDataTransformer(),
     HandBuildComponentDataTransformer.COMPONENT_NAME: HandBuildComponentDataTransformer(),
 }
 
@@ -31,6 +43,7 @@ COMPONENT_TRANSFORMERS_REGISTRY: dict[str, DataTransformerBase] = {
 def get_data_transformer(component: str) -> DataTransformerBase[ComponentDataBase]:
     """Get data transformer for UI component"""
     # TODO improve this by use of FactoryPattern instead of instance copy?
+
     data_transformer = COMPONENT_TRANSFORMERS_REGISTRY.get(component)
     if data_transformer:
         data_transformer = copy.deepcopy(data_transformer)

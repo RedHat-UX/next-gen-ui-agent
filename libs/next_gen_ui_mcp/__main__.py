@@ -49,8 +49,8 @@ from next_gen_ui_agent.inference.inference_builder import (
     create_inference_from_arguments,
     get_sampling_max_tokens_configuration,
 )
-from next_gen_ui_agent.types import AgentConfig
 from next_gen_ui_mcp.agent import MCP_ALL_TOOLS
+from next_gen_ui_mcp.agent_config import MCPAgentConfig
 
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -62,7 +62,7 @@ logger = logging.getLogger("NextGenUI-MCP-Server")
 
 
 def create_server(
-    config: AgentConfig = AgentConfig(component_system="json"),
+    config: MCPAgentConfig = MCPAgentConfig(component_system="json"),
     inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
     debug: bool = False,
@@ -217,7 +217,7 @@ Examples:
     )
 
     config_dict = read_agent_config_dict_from_arguments(args, logger)
-    config = AgentConfig(**config_dict)
+    config = MCPAgentConfig(**config_dict)
 
     enabled_tools = MCP_ALL_TOOLS
     if args.tools and args.tools != ["all"]:

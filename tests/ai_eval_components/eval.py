@@ -218,9 +218,9 @@ def evaluate_agent_for_dataset_row(
 
             # TODO NGUI-116 LLM-as-a-judge AI check to evaluate if fields are relevant to the user prompt and data
 
-    # NOTE: `DatasetRowAgentEvalResult` expects the LLM response payload to be captured
-    # earlier in the evaluation loop. This function does not produce it directly.
-    return DatasetRowAgentEvalResult([], errors, data)
+    # Capture LLM output from inference_result for reporting
+    llm_output = [inference_result] if inference_result else []
+    return DatasetRowAgentEvalResult(llm_output, errors, data)
 
 
 def init_direct_api_inference_from_env(
