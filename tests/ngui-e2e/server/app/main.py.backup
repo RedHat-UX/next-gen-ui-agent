@@ -1,0 +1,536 @@
+import json
+import ssl
+import os
+from typing import Any, Optional
+from enum import Enum
+
+from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from llama_stack_client import AsyncLlamaStackClient, DefaultAsyncHttpxClient
+from llama_stack_client.types import UserMessage, ToolExecutionStep, ToolResponse, ToolCall
+from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
+from next_gen_ui_agent import AgentConfig
+from pydantic import BaseModel, Field as PydanticField
+
+from app.config.settings import MAX_DATA_SIZE_MB, DEFAULT_DATA_FILE, AVAILABLE_MOVIES
+from app.config.prompts import get_data_filter_analysis_prompt, get_data_filter_execution_prompt
+
+
+class ErrorCode(str, Enum):
+    """API Error Codes"""
+    INVALID_INPUT = "INVALID_INPUT"
+    NO_DATA_PROVIDED = "NO_DATA_PROVIDED"
+    INVALID_JSON = "INVALID_JSON"
+    DATA_TOO_LARGE = "DATA_TOO_LARGE"
+    NGUI_AGENT_ERROR = "NGUI_AGENT_ERROR"
+    NO_COMPONENTS_GENERATED = "NO_COMPONENTS_GENERATED"
+    COMPONENT_PARSING_ERROR = "COMPONENT_PARSING_ERROR"
+    INTERNAL_ERROR = "INTERNAL_ERROR"
+    LLM_CONNECTION_ERROR = "LLM_CONNECTION_ERROR"
+    DATA_FILTER_ERROR = "DATA_FILTER_ERROR"
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+def load_default_data():
+    """Load default movies data from JSON file."""
+    try:
+        with open(DEFAULT_DATA_FILE, 'r') as f:
+            data = json.load(f)
+            if data and len(data) > 0:
+                print(f"Loaded {len(data)} movies from default data file")
+                return data
+            else:
+                print(f"Default data file is empty")
+                return None
+    except FileNotFoundError:
+        print(f"Default data file not found: {DEFAULT_DATA_FILE}")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"Error parsing default data file: {e}")
+        return None
+    except Exception as e:
+        print(f"Error loading default data: {e}")
+        return None
+
+DEFAULT_DATA = load_default_data()
+
+
+class DataFilterResult(BaseModel):
+    """Result from generic data filtering agent"""
+    query_type: str = PydanticField(description="Type of query: 'specific' (looking for specific item(s)) or 'all' (wanting all items)")
+    filter_instructions: str = PydanticField(description="Instructions on how to filter the data")
+    should_filter: bool = PydanticField(description="Whether filtering should be applied")
+    explanation: str = PydanticField(description="Brief explanation of what was understood from the query")
+
+
+async def generic_data_filter_agent(prompt: str, data: Any, client: AsyncLlamaStackClient, model_id: str) -> Optional[Any]:
+    """
+    Generic intelligent data filtering agent that works with ANY data type.
+    Analyzes user query and filters data accordingly.
+    
+    Works for:
+    - Movies data
+    - Cost efficiency data
+    - RBAC permissions
+    - Any JSON data structure
+    
+    Returns filtered data or all data if query is general.
+    """
+    if not data:
+        return None
+    
+    print(f"Data Filter Agent analyzing query: '{prompt}'")
+    
+    data_sample = json.dumps(data[0] if isinstance(data, list) and len(data) > 0 else data, indent=2)[:500]
+    data_count = len(data) if isinstance(data, list) else 1
+    
+    analysis_prompt = get_data_filter_analysis_prompt(data_sample, data_count, prompt)
+    
+    try:
+        # Call LLM to analyze the query
+        user_message = UserMessage(role="user", content=analysis_prompt)
+        response = await client.inference.chat_completion(
+            model_id=model_id,
+            messages=[user_message],
+        )
+        
+        response_content = response.completion_message.content
+        print(f"Filter Agent LLM response: {response_content[:200]}...")
+        
+        if "```json" in response_content:
+            json_start = response_content.find("```json") + 7
+            json_end = response_content.find("```", json_start)
+            json_str = response_content[json_start:json_end].strip()
+        elif "```" in response_content:
+            json_start = response_content.find("```") + 3
+            json_end = response_content.find("```", json_start)
+            json_str = response_content[json_start:json_end].strip()
+        else:
+            json_str = response_content.strip()
+        
+        result = json.loads(json_str)
+        filter_result = DataFilterResult(**result)
+        
+        print(f"Query type: {filter_result.query_type}")
+        print(f"Should filter: {filter_result.should_filter}")
+        print(f"Explanation: {filter_result.explanation}")
+        
+        if not filter_result.should_filter or filter_result.query_type == "all":
+            print(f"Returning all data (no filtering)")
+            return data
+        
+        print(f"Applying intelligent filtering...")
+        filter_prompt = f"""Given this data and user query, return ONLY the items that match the query.
+
+Data:
+```json
+{json.dumps(data, indent=2)}
+```
+
+User query: "{prompt}"
+Filter instructions: {filter_result.filter_instructions}
+
+Return ONLY the filtered data as valid JSON (array or object). Do not include any explanation, just the filtered data.
+If no items match, return an empty array [].
+"""
+        
+        user_message = UserMessage(role="user", content=filter_prompt)
+        filter_response = await client.inference.chat_completion(
+            model_id=model_id,
+            messages=[user_message],
+        )
+        
+        filtered_content = filter_response.completion_message.content
+        
+        # Parse filtered data (handle markdown code blocks)
+        if "```json" in filtered_content:
+            json_start = filtered_content.find("```json") + 7
+            json_end = filtered_content.find("```", json_start)
+            filtered_json_str = filtered_content[json_start:json_end].strip()
+        elif "```" in filtered_content:
+            json_start = filtered_content.find("```") + 3
+            json_end = filtered_content.find("```", json_start)
+            filtered_json_str = filtered_content[json_start:json_end].strip()
+        else:
+            filtered_json_str = filtered_content.strip()
+        
+        filtered_data = json.loads(filtered_json_str)
+        
+        if isinstance(filtered_data, list):
+            print(f"Filtered to {len(filtered_data)} item(s)")
+        else:
+            print(f"Filtered data returned")
+        
+        if (isinstance(filtered_data, list) and len(filtered_data) == 0) or not filtered_data:
+            print(f"Filtering returned empty, using all data")
+            return data
+        
+        return filtered_data
+            
+    except json.JSONDecodeError as e:
+        print(f"Failed to parse filter agent response: {e}")
+        print(f"Falling back to all data")
+        return data
+    except Exception as e:
+        print(f"Filter agent error: {e}")
+        print(f"Falling back to all data")
+        return data
+
+
+def get_llamastack_client():
+    """Create and return a configured LlamaStack client."""
+    ctx = ssl.create_default_context(
+        cafile=os.environ.get("LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH"),
+    )
+    return AsyncLlamaStackClient(
+        base_url=os.environ.get("LIGHTRAIL_LLAMA_STACK_BASE_URL"),
+        http_client=DefaultAsyncHttpxClient(verify=ctx),
+    )
+
+ngui_agent = None
+
+async def get_ngui_agent():
+    """Get or create the NGUI agent."""
+    global ngui_agent
+    if ngui_agent is None:
+        client = get_llamastack_client()
+        model_id = os.environ.get("MYAPP_MODEL_ID")
+        
+        config = AgentConfig(
+            unsupported_components=True,
+            input_data_json_wrapping=False
+        )
+        
+        ngui_agent = NextGenUILlamaStackAgent(client, model_id, config=config)
+    return ngui_agent
+
+class GenerateRequest(BaseModel):
+    prompt: str
+    data: Optional[Any] = None
+    data_type: Optional[str] = None
+    skip_filtering: bool = False
+
+
+class ErrorResponse(BaseModel):
+    """Standardized error response model"""
+    error_code: ErrorCode
+    message: str
+    details: Optional[str] = None
+    suggestion: Optional[str] = None
+
+
+def create_error_response(
+    error_code: ErrorCode,
+    message: str,
+    status_code: int,
+    details: Optional[str] = None,
+    suggestion: Optional[str] = None,
+) -> JSONResponse:
+    """Helper function to create standardized error responses with proper HTTP status codes."""
+    error_response = ErrorResponse(
+        error_code=error_code,
+        message=message,
+        details=details,
+        suggestion=suggestion,
+    )
+    
+    return JSONResponse(
+        status_code=status_code,
+        content=error_response.model_dump(exclude_none=True)
+    )
+
+
+@app.get("/api/v1/health")
+async def health():
+    """Health check endpoint"""
+    return {"status": "ok"}
+
+@app.get("/api/v1/wdyk")
+async def wdyk():
+    """Test LLM connectivity endpoint"""
+    try:
+        question = "What do you know? Keep it VERY short."
+        client = get_llamastack_client()
+        user_message = UserMessage(role="user", content=question)
+        response = await client.inference.chat_completion(
+            model_id=os.environ.get("MYAPP_MODEL_ID"),
+            messages=[user_message],
+        )
+        return {
+            "question": question,
+            "response": response.completion_message.content,
+        }
+    except Exception as e:
+        return create_error_response(
+            error_code=ErrorCode.LLM_CONNECTION_ERROR,
+            message="Failed to connect to LLM",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            details=str(e),
+            suggestion="Check if LlamaStack is running and configured correctly"
+        )
+
+@app.post("/generate")
+async def generate_response(request: GenerateRequest):
+    try:
+        prompt = request.prompt
+
+        # Validate input
+        if not prompt or not prompt.strip():
+            return create_error_response(
+                error_code=ErrorCode.INVALID_INPUT,
+                message="Prompt cannot be empty or whitespace only",
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+
+        print(f"Processing Prompt: {prompt}")
+
+        print("Step 1: Processing data")
+        
+        has_data = request.data is not None and request.data != [] and request.data != {} and request.data != ""
+        
+        client = get_llamastack_client()
+        model_id = os.environ.get("MYAPP_MODEL_ID")
+        
+        if not has_data:
+            if DEFAULT_DATA is None:
+                return create_error_response(
+                    error_code=ErrorCode.NO_DATA_PROVIDED,
+                    message="No data provided and default data is unavailable",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    details="Please provide JSON data (dict, list, or JSON string), or ensure default movies data file is available",
+                    suggestion="Include 'data' field in your request with valid JSON data"
+                )
+            
+            print("Using default data")
+            source_data = DEFAULT_DATA
+            source_tool_name = request.data_type or "default_data"
+            source_description = "Default data"
+            
+            if not request.skip_filtering:
+                print("Applying intelligent filtering to default data")
+                filtered_data = await generic_data_filter_agent(prompt, source_data, client, model_id)
+                if filtered_data:
+                    source_data = filtered_data
+                    source_description = "Default data (intelligently filtered)"
+        else:
+            print("Using user-provided data")
+            source_data = request.data
+            source_tool_name = request.data_type or "inline_data"
+            source_description = "User-provided data"
+            
+            if not request.skip_filtering:
+                print("Applying intelligent filtering to user-provided data")
+                filtered_data = await generic_data_filter_agent(prompt, source_data, client, model_id)
+                if filtered_data:
+                    source_data = filtered_data
+                    source_description = f"User-provided data (intelligently filtered)"
+            else:
+                print("Skipping filtering (skip_filtering=true)")
+                source_description = f"User-provided data (no filtering)"
+        
+        if isinstance(source_data, str):
+            try:
+                parsed_data = json.loads(source_data)
+                source_data = parsed_data
+                print("Parsed inline data as JSON")
+            except json.JSONDecodeError as e:
+                return create_error_response(
+                    error_code=ErrorCode.INVALID_JSON,
+                    message="Invalid JSON data",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    details=f"Parse error: {str(e)}",
+                    suggestion="NGUI agent only supports JSON data. Please provide valid JSON as a string, dict, or list."
+                )
+        
+        try:
+            data_json = json.dumps(source_data)
+        except (TypeError, ValueError) as e:
+            return create_error_response(
+                error_code=ErrorCode.INVALID_JSON,
+                message="Invalid data format",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                details=f"Data must be JSON-serializable: {str(e)}"
+            )
+        
+        size_mb = len(data_json.encode('utf-8')) / 1024 / 1024
+        print(f"Inline data size: {size_mb:.2f} MB")
+        
+        if size_mb > MAX_DATA_SIZE_MB:
+            return create_error_response(
+                error_code=ErrorCode.DATA_TOO_LARGE,
+                message="Data payload exceeds maximum size limit",
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                details=f"Inline data size: {size_mb:.2f} MB. Maximum allowed: {MAX_DATA_SIZE_MB} MB"
+            )
+
+        print("Step 2: Invoking NGUI agent")
+        try:
+            ngui_agent = await get_ngui_agent()
+            
+            call_id = f"{source_tool_name}_000"
+            
+            tool_call_args = {"description": source_description}
+            if request.data_type:
+                tool_call_args["type"] = request.data_type
+                print(f"Data type: {request.data_type}")
+            
+            tool_call = ToolCall(
+                call_id=call_id,
+                tool_name=source_tool_name,
+                arguments=tool_call_args
+            )
+            
+            content_str = json.dumps(source_data, default=str)
+            print(f"Data size: {len(content_str)} chars")
+            
+            tool_response = ToolResponse(
+                call_id=call_id,
+                tool_name=source_tool_name,
+                content=content_str
+            )
+            
+            print(f"Tool call: {source_tool_name}")
+            print(f"Tool args: {tool_call_args}")
+            print(f"Content preview: {content_str[:100]}...")
+            
+            tool_step = ToolExecutionStep(
+                step_id="step_001",
+                step_type="tool_execution",
+                turn_id="turn_001",
+                tool_calls=[tool_call],
+                tool_responses=[tool_response]
+            )
+            
+            print("Calling NGUI agent to generate UI")
+            renditions = []
+            try:
+                async for event in ngui_agent.create_turn(
+                    user_prompt=prompt.strip(),
+                    steps=[tool_step],
+                    component_system="json"
+                ):
+                    event_type = event.get('event_type')
+                    print(f"Event type: {event_type}")
+                    
+                    if event_type == 'success':
+                        ui_blocks = event.get('payload', [])
+                        print(f"Success payload type: {type(ui_blocks)}")
+                        print(f"Success payload: {ui_blocks}")
+                        if isinstance(ui_blocks, list):
+                            for ui_block in ui_blocks:
+                                if isinstance(ui_block, dict):
+                                    rendering = ui_block.get('rendering')
+                                else:
+                                    rendering = getattr(ui_block, 'rendering', None)
+                                if rendering:
+                                    renditions.append(rendering)
+                        else:
+                            if isinstance(ui_blocks, dict):
+                                rendering = ui_blocks.get('rendering')
+                            else:
+                                rendering = getattr(ui_blocks, 'rendering', None)
+                            if rendering:
+                                renditions.append(rendering)
+                    elif event_type == 'error':
+                        error_payload = event.get('payload', {})
+                        print(f"Error event: {error_payload}")
+                        raise Exception(f"NGUI agent error: {error_payload}")
+                    else:
+                        print(f"Other event: {event.get('payload', {})}")
+            except json.JSONDecodeError as je:
+                print(f"JSON decode error in event stream: {je}")
+                raise Exception(f"NGUI agent returned invalid JSON: {je}")
+            except Exception as inner_e:
+                print(f"Error during event processing: {inner_e}")
+                raise
+            
+            ngui_response = {"renditions": renditions}
+            print(f"Final response with {len(renditions)} rendition(s)")
+            
+        except Exception as e:
+            error_msg = str(e)
+            print(f"ERROR: NGUI agent failed: {error_msg}")
+            import traceback
+            print(f"Traceback: {traceback.format_exc()}")
+            return create_error_response(
+                error_code=ErrorCode.NGUI_AGENT_ERROR,
+                message="Failed to generate UI components",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                details=error_msg,
+                suggestion="Check server logs for detailed error information"
+            )
+
+        print("Step 3: Processing renditions")
+        if not ngui_response or not isinstance(ngui_response, dict):
+            return create_error_response(
+                error_code=ErrorCode.NGUI_AGENT_ERROR,
+                message="Invalid response from NGUI agent",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                details="NGUI agent returned invalid response structure"
+            )
+        
+        renditions = ngui_response.get("renditions", [])
+        if not renditions:
+            return create_error_response(
+                error_code=ErrorCode.NO_COMPONENTS_GENERATED,
+                message="No UI components generated",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                details="NGUI agent returned empty renditions",
+                suggestion="Try rephrasing your prompt or check your data format"
+            )
+        
+        parsed_components = []
+        for idx, rendition in enumerate(renditions):
+            rendition_content = (
+                rendition.get("content") if isinstance(rendition, dict)
+                else getattr(rendition, "content", None)
+            )
+            
+            if not rendition_content:
+                print(f"  Warning: Rendition {idx} has no content, skipping")
+                continue
+            
+            try:
+                parsed = json.loads(rendition_content)
+                if parsed and isinstance(parsed, dict):
+                    parsed_components.append(parsed)
+                    print(f"  Rendition {idx}: {parsed.get('component')} - {parsed.get('title')}")
+            except json.JSONDecodeError as e:
+                print(f"  Warning: Failed to parse rendition {idx}: {e}")
+                continue
+        
+        if not parsed_components:
+            return create_error_response(
+                error_code=ErrorCode.COMPONENT_PARSING_ERROR,
+                message="Failed to parse UI components",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                details="Unable to parse any renditions from NGUI agent response",
+                suggestion="This may indicate an issue with the component format. Check server logs for details."
+            )
+        
+        component = parsed_components[0]
+        print(f"Generated component: {component.get('component')} - {component.get('title')}")
+        
+        return {"response": component}
+
+    except Exception as e:
+        print(f"ERROR: Unexpected error in generate_response: {e}")
+        import traceback
+        print(f"Full traceback: {traceback.format_exc()}")
+        return create_error_response(
+            error_code=ErrorCode.INTERNAL_ERROR,
+            message="An unexpected error occurred",
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            details=str(e),
+            suggestion="Please try again or contact support if the issue persists"
+        )
+
