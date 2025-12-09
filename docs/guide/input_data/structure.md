@@ -133,6 +133,8 @@ as we put it into name of the field the array is stored in.
 
 As of UI Agent `0.3.0`, [automatic JSON wrapping](#automatic-json-wrapping) is applied if enabled and data `type` is provided to prevent problems with this kind of data.
 
+Arrays of objects can be also source of data for different [chart component types](../data_ui_blocks/dynamic_components.md#charts), for more details [see separate guide](./charts.md).
+
 !!! warning
     Array with one object only is typically interpreted as a single `Object` and relevant UI component is used to show it's values.
 
@@ -177,7 +179,6 @@ You can also nest `Array of simple values` in the `Object` (even if the `Object`
     *UI Agent* can sometimes select specific UI component to render this `Array of objects` only, but fields from the parent object are not rendered then. 
     But in many cases LLM of the *UI Agent* generates nonsense paths pointing to the values of this array.
     It is always better to provide this `Array of objects` as a separate input data, so two `Data UI Blocks` are shown, one for the parent `Object`, and one for the `Array of objects`.
-
 
 ## Data value types
 

@@ -8,6 +8,8 @@ LLM is not used/necessary in this case.
 
 See details about [component selection and configuration process](index.md#selection-and-configuration-process).
 
+Examples of the Patternfly React renderings are also availablein the [renderer demo](https://redhat-ux.github.io/next-gen-ui-react/).
+
 ## Components for [one `Object` input data](../input_data/structure.md#one-object-input-data)
 
 ### Card
@@ -71,6 +73,10 @@ Value can be simple text or number etc. List (array) of values is supported as w
 
 Layout for this set of cards has to be provided by frontend application.
 
+Example rendering by Patternfly React:
+
+![Set Of Cards Data UI Block rendering by Patternfly React](../../img/data_ui_block_set-of-cards.png "Set Of Cards Data UI Block rendering by Patternfly React")
+
 If enabled in the *UI Agent* configuration, [agent's output can contain list of all fields available in the input data](../../spec/output.md), so you can 
 provide user with the ability to manually select what is shown after this UI component is generated.
 
@@ -85,5 +91,33 @@ Table is UI block that displays:
 
 Individual cell value can be simple text or number etc. List (array) of values is supported as well.
 
+Example rendering by Patternfly React:
+
+![Table Data UI Block rendering by Patternfly React](../../img/data_ui_block_table.png "Table Data UI Block rendering by Patternfly React")
+
 If enabled in the *UI Agent* configuration, [agent's output can contain list of all fields available in the input data](../../spec/output.md), so you can 
 provide user with the ability to manually select which columns are shown after this UI component is generated.
+
+### Charts
+
+UI Agent can generate chart component with multiple different visualization types, each with own Component identification:
+
+* `chart-bar` - Bar charts for comparing metrics across categories
+* `chart-line` - Line charts for trends over time
+* `chart-pie` - Pie charts for showing proportions
+* `chart-donut` - Donut charts for showing proportions with a central metric
+* `chart-mirrored-bar` - Mirrored bar charts for comparing two metrics side-by-side
+
+Chart is UI block that displays:
+
+  * Title
+  * Data with one or multiple named *data series*, containing array of *data points*.
+
+Individual chart types share the same [UI component configuration format](../../spec/component.md#chart), but exact 
+requirements on the data differ a bit. Shapes of the data and mapping from the *UI Agent* input data is [described here](../input_data/charts.md).
+
+Example rendering of Pie Chart by Patternfly React:
+
+![Pie Chart Data UI Block rendering by Patternfly React](../../img/data_ui_block_chart-pie.png "Pie Chart Data UI Block rendering by Patternfly React")
+
+More chart examples are available in the [Patternfly React renderer demo](https://redhat-ux.github.io/next-gen-ui-react/component/chart).
