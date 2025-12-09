@@ -384,9 +384,7 @@ if __name__ == "__main__":
             )
             exit(1)
 
-    run_components, unsupported_components = select_run_components(
-        arg_ui_component, arg_dataset_file
-    )
+    run_components = select_run_components(arg_ui_component, arg_dataset_file)
 
     for dataset_file in dataset_files:
         dataset = load_dataset_file(dataset_file)

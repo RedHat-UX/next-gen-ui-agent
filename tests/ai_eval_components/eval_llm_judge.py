@@ -4,6 +4,8 @@ import asyncio
 import json
 
 from ai_eval_components.types import JudgeResult
+from next_gen_ui_agent.component_selection_chart_instructions import CHART_INSTRUCTIONS
+from next_gen_ui_agent.component_selection_common import UI_COMPONENTS_DESCRIPTION_ALL
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 
@@ -193,15 +195,28 @@ DATA STRUCTURE:
 
 CHOSEN COMPONENT: {component.component}
 
-Semantic Component Guidelines (domain-agnostic):
+Available UI Components (complete list):
+
+{UI_COMPONENTS_DESCRIPTION_ALL}
+
+{CHART_INSTRUCTIONS}
+
+Semantic Selection Guidelines (domain-agnostic):
 
 When user asks for SINGULAR visual/item:
 - "poster", "image", "logo", "diagram" -> image component
 - "details", "information", "status", "about X" -> one-card component
+- "trailer", "video", "promo" -> video-player component
 
 When user asks for MULTIPLE items/comparison:
 - "list of", "show all", "what are the" -> set-of-cards or table
 - "compare", "which ones", "data on" -> table
+
+When user asks for NUMERIC COMPARISONS or TRENDS:
+- "compare [metric]" -> chart-bar or table
+- "trend over time", "[metric] by week/month" -> chart-line
+- "distribution of", "breakdown by", "percentage of" -> chart-pie or chart-donut
+- "A vs B", "compare [metric1] and [metric2]" -> chart-mirrored-bar
 
 Cross-Domain Examples:
 
@@ -209,18 +224,25 @@ Movies:
 - "Show me the poster" -> image = GOOD | one-card = OK (works but overkill)
 - "Movie details" -> one-card = GOOD
 - "List of actors" -> set-of-cards = GOOD
+- "Compare movie revenues" -> chart-bar = GOOD | table = OK
+- "Revenue trend by week" -> chart-line = GOOD
+- "Genre distribution" -> chart-pie = GOOD | chart-donut = GOOD
+- "Budget vs Revenue" -> chart-mirrored-bar = GOOD
 
 Kubernetes:
 - "Cluster status" -> one-card = GOOD
 - "Show namespace diagram" -> image = GOOD
 - "List failing pods" -> set-of-cards = GOOD | table = GOOD
-- "Compare node resources" -> table = GOOD
+- "Compare node resources" -> table = GOOD | chart-bar = OK
 - "Pod details" -> one-card = GOOD
+- "CPU usage over time" -> chart-line = GOOD
 
 Subscriptions:
 - "User subscription info" -> one-card = GOOD
 - "All active subscriptions" -> set-of-cards = GOOD | table = GOOD
 - "Subscription details" -> one-card = GOOD
+- "Subscription cost comparison" -> chart-bar = GOOD | table = OK
+- "Active subscriptions by category" -> chart-pie = GOOD
 
 Evaluate and select ONE category that best describes the component choice:
 
