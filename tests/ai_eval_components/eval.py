@@ -32,6 +32,7 @@ from ai_eval_components.types import (
     DATASET_FILE_SUFFIX,
     DatasetRow,
     DatasetRowAgentEvalResult,
+    JudgeResult,
 )
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
@@ -143,9 +144,11 @@ def evaluate_agent_for_dataset_row(
     inference: InferenceBase,
     arg_vague_component_check: bool,
     arg_selected_component_type_check_only: bool = False,
+    judge_inference: InferenceBase | None = None,
 ):
     """Run agent evaluation for one dataset row"""
     errors: list[ComponentDataValidationError] = []
+    judge_results_list: list[JudgeResult] | None = None
     input_data = InputData(id="myid", data=dsr["backend_data"])
 
     input_data_id = input_data["id"]
@@ -198,33 +201,61 @@ def evaluate_agent_for_dataset_row(
         # any exception from this code is "SYS" error
         component.id = input_data_id
 
-        check_result_explicit(
-            component,
-            errors,
-            dsr,
-            arg_vague_component_check,
-            arg_selected_component_type_check_only,
-        )
+        if judge_inference:
+            # Judge-only mode: Skip deterministic checks, use LLM judges for evaluation
+            from ai_eval_components.eval_llm_judge import run_llm_judges
 
-        if not arg_selected_component_type_check_only:
-            # if not any error so far, validate the component data_paths and overal structure of data for given component
-            if len(errors) == 0:
-                data_transformer = get_data_transformer(component.component)
-                data = data_transformer.validate(component, input_data, errors)
+            judge_results_list = asyncio.run(
+                run_llm_judges(
+                    component, dsr["user_prompt"], json_data, judge_inference
+                )
+            )
 
-            # TODO NGUI-116 LLM-as-a-judge AI check to evaluate if fields are relevant to the user prompt and data
+            # Only judge failures determine test result
+            if judge_results_list:
+                for jr in judge_results_list:
+                    if not jr["passed"]:
+                        errors.append(
+                            ComponentDataValidationError(
+                                f"judge.{jr['judge_name']}",
+                                f"Category: {jr['category']}, Score {jr['score']:.2f}: {jr['reasoning']}",
+                            )
+                        )
+        else:
+            # Deterministic mode: Traditional validation (no judges)
+            check_result_explicit(
+                component,
+                errors,
+                dsr,
+                arg_vague_component_check,
+                arg_selected_component_type_check_only,
+            )
 
-    return DatasetRowAgentEvalResult(llm_response["outputs"], errors, data)
+            if not arg_selected_component_type_check_only:
+                # if not any error so far, validate the component data_paths and overal structure of data for given component
+                if len(errors) == 0:
+                    data_transformer = get_data_transformer(component.component)
+                    data = data_transformer.validate(component, input_data, errors)
+
+    return DatasetRowAgentEvalResult(
+        llm_response["outputs"], errors, data, judge_results_list
+    )
 
 
 def init_direct_api_inference_from_env(
     default_model: str | None = None,
+    override_model: str | None = None,
+    override_api_url: str | None = None,
+    override_api_key: str | None = None,
 ) -> InferenceBase | None:
     """
     Initialize OpenAI compatible API inference from environment variables if at least one `MODEL_API_xy` env variable is set.
 
     Parameters:
     * `default_model` - default model to use if `INFERENCE_MODEL` env variable is not set
+    * `override_model` - if provided, use this model instead of env vars
+    * `override_api_url` - if provided, use this URL instead of MODEL_API_URL
+    * `override_api_key` - if provided, use this key instead of MODEL_API_KEY
 
     Environment variables:
     * `INFERENCE_MODEL` - LLM model to use - inference is not created if undefined, default value can be provided as method argument
@@ -234,16 +265,12 @@ def init_direct_api_inference_from_env(
     * `MODEL_API_PROVIDER` - model API provider to use - optional, currently supported: `openai` (default), `anthropic`, `anthropic-vertexai-proxied`
     """
 
-    base_url = os.getenv("MODEL_API_URL")
+    base_url = override_api_url if override_api_url else os.getenv("MODEL_API_URL")
+    api_key = override_api_key if override_api_key else os.getenv("MODEL_API_KEY")
     temperature = os.getenv("MODEL_API_TEMPERATURE")
 
-    if (
-        base_url
-        or os.getenv("MODEL_API_KEY")
-        or temperature
-        or os.getenv("MODEL_API_PROVIDER")
-    ):
-        model = os.getenv("INFERENCE_MODEL", default_model)
+    if base_url or api_key or temperature or os.getenv("MODEL_API_PROVIDER"):
+        model = override_model or os.getenv("INFERENCE_MODEL") or default_model
         if not model:
             return None
 
@@ -254,28 +281,28 @@ def init_direct_api_inference_from_env(
         )
 
         if provider == "anthropic":
-            model = ChatAnthropic(
+            llm_model = ChatAnthropic(
                 model=model,
                 base_url=base_url,
-                api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
+                api_key=api_key,  # type: ignore
                 temperature=float(temperature) if temperature else None,
             )
         elif provider == "anthropic-vertexai-proxied":
             return ProxiedAnthropicVertexAIInference(
                 model=model,
-                api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
+                api_key=api_key,  # type: ignore
                 temperature=float(temperature) if temperature else 0,
                 base_url=base_url,  # type: ignore
             )
         else:
-            model = ChatOpenAI(
+            llm_model = ChatOpenAI(
                 model=model,
                 base_url=base_url,
-                api_key=os.getenv("MODEL_API_KEY"),  # type: ignore
+                api_key=api_key,  # type: ignore
                 temperature=float(temperature) if temperature else None,
             )
 
-        return LangChainModelInference(model=model)
+        return LangChainModelInference(model=llm_model)
 
     return None
 
@@ -288,6 +315,7 @@ if __name__ == "__main__":
         arg_vague_component_check,
         arg_also_warn_only,
         arg_selected_component_type_check_only,
+        arg_judge_enabled,
     ) = load_args()
     errors_dir_path = get_errors_dir()
     llm_output_dir_path = get_llm_output_dir(arg_write_llm_output)
@@ -306,6 +334,55 @@ if __name__ == "__main__":
     if not inference:
         print("Inference not initialized because not configured in env variables")
         exit(1)
+
+    # Get agent model name for reporting
+    agent_model_name = os.getenv("INFERENCE_MODEL", INFERENCE_MODEL_DEFAULT)
+
+    # Initialize judge inference if judges are enabled
+    judge_inference = None
+    judge_enabled_env = os.getenv("JUDGE_ENABLED", "false").lower() == "true"
+    judge_enabled = arg_judge_enabled or judge_enabled_env
+    judge_model_name = None
+    if judge_enabled:
+        judge_model_name = os.getenv("JUDGE_MODEL")
+        judge_api_url = os.getenv("JUDGE_API_URL")
+        judge_api_key = os.getenv("JUDGE_API_KEY")
+
+        if not judge_model_name or not judge_api_url or not judge_api_key:
+            print(
+                "Judge inference not initialized because not configured in env variables"
+            )
+            print("Required: JUDGE_MODEL, JUDGE_API_URL, JUDGE_API_KEY")
+            exit(1)
+
+        print(f"Initializing judge inference with model: {judge_model_name}")
+
+        judge_inference = init_direct_api_inference_from_env(
+            default_model=judge_model_name,
+            override_model=judge_model_name,
+            override_api_url=judge_api_url,
+            override_api_key=judge_api_key,
+        )
+        if not judge_inference:
+            # Temporarily set INFERENCE_MODEL to judge model for initialization
+            original_inference_model = os.getenv("INFERENCE_MODEL")
+            os.environ["INFERENCE_MODEL"] = judge_model_name
+            try:
+                judge_inference = init_inference_from_env(
+                    default_model=judge_model_name,
+                    default_config_file=LLAMASTACK_CONFIG_PATH_DEFAULT,
+                )
+            finally:
+                # Restore original INFERENCE_MODEL
+                if original_inference_model:
+                    os.environ["INFERENCE_MODEL"] = original_inference_model
+                else:
+                    os.environ.pop("INFERENCE_MODEL", None)
+        if not judge_inference:
+            print(
+                "Judge inference not initialized because not configured in env variables"
+            )
+            exit(1)
 
     run_components = select_run_components(arg_ui_component, arg_dataset_file)
 
@@ -350,6 +427,7 @@ if __name__ == "__main__":
                             inference,
                             arg_vague_component_check,
                             arg_selected_component_type_check_only,
+                            judge_inference,
                         )
                         if len(eval_result.errors) > 0:
                             is_progress_dot = report_err_uiagent(
@@ -375,4 +453,6 @@ if __name__ == "__main__":
 
     # Save performance stats to file for report generation
     perf_stats_file = errors_dir_path / "perf_stats.json"
-    save_perf_stats_to_file(str(perf_stats_file))
+    save_perf_stats_to_file(
+        str(perf_stats_file), judge_enabled, judge_model_name, agent_model_name
+    )
