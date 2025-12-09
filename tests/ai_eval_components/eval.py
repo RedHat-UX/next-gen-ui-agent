@@ -247,6 +247,7 @@ def init_direct_api_inference_from_env(
     override_model: str | None = None,
     override_api_url: str | None = None,
     override_api_key: str | None = None,
+    override_provider: str | None = None,
 ) -> InferenceBase | None:
     """
     Initialize OpenAI compatible API inference from environment variables if at least one `MODEL_API_xy` env variable is set.
@@ -256,6 +257,7 @@ def init_direct_api_inference_from_env(
     * `override_model` - if provided, use this model instead of env vars
     * `override_api_url` - if provided, use this URL instead of MODEL_API_URL
     * `override_api_key` - if provided, use this key instead of MODEL_API_KEY
+    * `override_provider` - if provided, use this provider instead of MODEL_API_PROVIDER
 
     Environment variables:
     * `INFERENCE_MODEL` - LLM model to use - inference is not created if undefined, default value can be provided as method argument
@@ -274,7 +276,7 @@ def init_direct_api_inference_from_env(
         if not model:
             return None
 
-        provider = os.getenv("MODEL_API_PROVIDER", "openai")
+        provider = override_provider or os.getenv("MODEL_API_PROVIDER", "openai")
 
         print(
             f"Creating UI Agent with {provider} API inference model={model} base_url={base_url} temperature={temperature}"
@@ -347,6 +349,9 @@ if __name__ == "__main__":
         judge_model_name = os.getenv("JUDGE_MODEL")
         judge_api_url = os.getenv("JUDGE_API_URL")
         judge_api_key = os.getenv("JUDGE_API_KEY")
+        judge_api_provider = os.getenv(
+            "JUDGE_API_PROVIDER", "openai"
+        )  # Default to openai for judge
 
         if not judge_model_name or not judge_api_url or not judge_api_key:
             print(
@@ -362,6 +367,7 @@ if __name__ == "__main__":
             override_model=judge_model_name,
             override_api_url=judge_api_url,
             override_api_key=judge_api_key,
+            override_provider=judge_api_provider,
         )
         if not judge_inference:
             # Temporarily set INFERENCE_MODEL to judge model for initialization
