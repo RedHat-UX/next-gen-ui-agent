@@ -1,7 +1,7 @@
-from typing import Any, Literal, Optional, Union
+from typing import Annotated, Any, Literal, Optional, Union
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Discriminator, Field
 
 
 class ComponentDataBase(BaseModel):
@@ -84,6 +84,78 @@ class ComponentDataAudio(ComponentDataBaseWithTitle):
     component: Literal["audio"] = "audio"
     image: str
     audio: str
+
+
+class ChartDataPoint(BaseModel):
+    """A single data point in a chart series"""
+
+    name: Optional[str] = Field(
+        default=None, description="Optional name for the data point"
+    )
+    x: Union[str, int, float] = Field(
+        description="X-axis value (label for the data point)"
+    )
+    y: Union[int, float] = Field(description="Y-axis value (numeric value)")
+
+
+class ChartSeries(BaseModel):
+    """A series of data points for the chart"""
+
+    name: str = Field(description="Name of the series (shown in legend)")
+    data: list[ChartDataPoint] = Field(
+        description="Array of data points in this series"
+    )
+
+
+class ComponentDataChartBase(ComponentDataBaseWithTitle):
+    """Base Component Data for Chart visualization with common properties."""
+
+    data: Optional[list[ChartSeries]] = Field(
+        default=None, description="Array of data series for the chart"
+    )
+
+
+class ComponentDataBarChart(ComponentDataChartBase):
+    """Component Data for Bar Chart."""
+
+    component: Literal["chart-bar"] = "chart-bar"
+
+
+class ComponentDataLineChart(ComponentDataChartBase):
+    """Component Data for Line Chart."""
+
+    component: Literal["chart-line"] = "chart-line"
+
+
+class ComponentDataPieChart(ComponentDataChartBase):
+    """Component Data for Pie Chart."""
+
+    component: Literal["chart-pie"] = "chart-pie"
+
+
+class ComponentDataDonutChart(ComponentDataChartBase):
+    """Component Data for Donut Chart."""
+
+    component: Literal["chart-donut"] = "chart-donut"
+
+
+class ComponentDataMirroredBarChart(ComponentDataChartBase):
+    """Component Data for Mirrored Bar Chart."""
+
+    component: Literal["chart-mirrored-bar"] = "chart-mirrored-bar"
+
+
+# Discriminated union of all chart types
+ComponentDataChart = Annotated[
+    Union[
+        ComponentDataBarChart,
+        ComponentDataLineChart,
+        ComponentDataPieChart,
+        ComponentDataDonutChart,
+        ComponentDataMirroredBarChart,
+    ],
+    Discriminator("component"),
+]
 
 
 # url suffixes to detect images

@@ -5,7 +5,8 @@ import uvicorn  # pants: no-infer-dep
 from a2a.server.apps import A2AStarletteApplication  # pants: no-infer-dep
 from a2a.server.request_handlers import DefaultRequestHandler  # pants: no-infer-dep
 from a2a.server.tasks import InMemoryTaskStore  # pants: no-infer-dep
-from next_gen_ui_a2a.agent_card import card
+from next_gen_ui_a2a.agent_card import create_agent_card
+from next_gen_ui_a2a.agent_config import A2AAgentConfig
 from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
 from next_gen_ui_agent.agent_config import (
     add_agent_config_comandline_args,
@@ -17,7 +18,6 @@ from next_gen_ui_agent.inference.inference_builder import (
     add_inference_comandline_args,
     create_inference_from_arguments,
 )
-from next_gen_ui_agent.types import AgentConfig
 
 logger = logging.getLogger("NextGenUI-A2A-Server")
 
@@ -74,7 +74,7 @@ Examples:
     )
 
     config_dict = read_agent_config_dict_from_arguments(args, logger)
-    config = AgentConfig(**config_dict)
+    config = A2AAgentConfig(**config_dict)
 
     logger.info(
         "Starting Next Gen UI A2A Server at host %s and port %s, debug=%s",
@@ -91,7 +91,7 @@ Examples:
     )
 
     server = A2AStarletteApplication(
-        agent_card=card,
+        agent_card=create_agent_card(config, f"http://{args.host}:{args.port}"),
         http_handler=request_handler,
     )
 

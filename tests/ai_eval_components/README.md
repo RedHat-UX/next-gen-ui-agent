@@ -86,7 +86,7 @@ python -m ai_eval_components.eval -c all -j
 
 Judges output predefined categories for consistency: `perfectly_relevant` (1.0), `relevant_with_supporting_detail` (0.85), `partially_relevant` (0.5), `irrelevant` (0.2) for field relevance; `perfect_choice` (1.0), `good_choice` (0.85), `reasonable_choice` (0.65), `wrong_choice` (0.3) for component choice.
 
-If no `-c` nor `-f` argument is used, evaluation runs only for fully implemented/supported UI components.
+If no `-c` nor `-f` argument is used, evaluation runs for all the components present in the evaluation dataset.
 If args are used, evaluation script automatically switches UI Agent to the mode with all UI components if necessary,
 message `UI Agent switched to 'all UI components' mode` is provided in this case.
 

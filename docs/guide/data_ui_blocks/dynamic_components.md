@@ -59,8 +59,6 @@ Example rendering by Red Hat Design System for a prompt `Play trailer of Toy Sto
 
 ### Set Of Cards
 
-[![Status](https://img.shields.io/badge/Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
-
 Component identification: [`set-of-cards`](../../spec/component.md#set-of-cards)
 
 Set of Card is UI block that displays:
@@ -77,8 +75,6 @@ If enabled in the *UI Agent* configuration, [agent's output can contain list of 
 provide user with the ability to manually select what is shown after this UI component is generated.
 
 ### Table
-
-[![Status](https://img.shields.io/badge/Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 Component identification: [`table`](../../spec/component.md#table)
 

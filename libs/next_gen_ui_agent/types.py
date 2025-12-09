@@ -114,15 +114,6 @@ class AgentConfig(BaseModel):
     Data transformer to use to transform the input data of this type.
     """
 
-    unsupported_components: Optional[bool] = Field(
-        default=None,
-        description="If `False` (default), the agent can generate only fully supported UI components. If `True`, the agent can also generate unsupported UI components.",
-    )
-    """
-    If `False` (default), the agent can generate only fully supported UI components.
-    If `True`, the agent can also generate unsupported UI components.
-    """
-
     component_selection_strategy: Optional[Literal["one_llm_call", "two_llm_calls"]] = (
         Field(
             default=None,
@@ -244,6 +235,16 @@ class UIComponentMetadata(UIComponentMetadataBase):
     json_wrapping_field_name: Optional[str] = None
     """
     Name of the field used for `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed.
+    """
+
+    # Debug information for LLM interactions
+    llm_interactions: Optional[list[dict[str, Any]]] = None
+    """
+    List of LLM interactions for debugging. Each interaction contains:
+    - step: 'component_selection' or 'field_selection'
+    - system_prompt: System message sent to LLM
+    - user_prompt: User prompt sent to LLM
+    - raw_response: Raw response from LLM before parsing
     """
 
 

@@ -94,7 +94,7 @@ async def test_select_component_json_wrapping_OK() -> None:
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
     inference = LangChainModelInference(llm)
 
-    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    component_selection = OnestepLLMCallComponentSelectionStrategy()
     result = await component_selection.select_component(
         inference, user_input, input_data
     )
