@@ -275,18 +275,6 @@
       "default": "json",
       "description": "Transformer used to parse the input data (can be overriden on 'data type' level). Default `json`, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
     },
-    "unsupported_components": {
-      "anyOf": [
-        {
-          "type": "boolean"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "default": null,
-      "description": "If `False` (default), the agent can generate only fully supported UI components. If `True`, the agent can also generate unsupported UI components."
-    },
     "component_selection_strategy": {
       "anyOf": [
         {

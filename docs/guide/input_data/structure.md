@@ -234,7 +234,7 @@ Other URL's are treated as a normal data values. UI components can render url as
 
 ### Enum value
 
-**ToDo** implementation of value formating with "Data hints" for enums
+**ToDo** implementation of value formating with "Data hints" for enums? Other possibility is frontend rendering customization based on the data field ID?
 
 
 ## Data hints using metadata

@@ -5,20 +5,10 @@ import sys
 from pathlib import Path
 
 from ai_eval_components.types import BASE_DATASET_PATH, DATASET_FILE_SUFFIX, DatasetRow
-from next_gen_ui_agent.data_transform.image import ImageDataTransformer
-from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
 from next_gen_ui_agent.data_transform.validation.assertions import assert_str_not_blank
 from next_gen_ui_agent.data_transform.validation.types import (
     ComponentDataValidationError,
 )
-from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
-
-""" List of components fully supported by the agent """
-SUPPORTED_COMPONENTS = [
-    OneCardDataTransformer.COMPONENT_NAME,
-    ImageDataTransformer.COMPONENT_NAME,
-    VideoPlayerDataTransformer.COMPONENT_NAME,
-]
 
 
 def load_args():
@@ -29,7 +19,8 @@ def load_args():
     arg_vague_component_check = False
     arg_also_warn_only = False
     arg_selected_component_type_check_only = False
-    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:")
+    arg_judge_enabled = False
+    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:j")
     for opt, arg in opts:
         if opt == "-h":
             print("eval.py <arguments>")
@@ -48,6 +39,9 @@ def load_args():
             print(
                 " -v - if present then component type check is vague, allowing `table` and `set-of-cards` components to be interchanged"
             )
+            print(
+                " -j - if present then LLM-as-a-Judge evaluation is enabled (requires JUDGE_MODEL, JUDGE_API_URL, JUDGE_API_KEY env vars)"
+            )
             print(" -h - help")
             sys.exit()
         elif opt in ("-c"):
@@ -62,6 +56,8 @@ def load_args():
             arg_vague_component_check = True
         elif opt in ("-f"):
             arg_dataset_file = arg
+        elif opt in ("-j"):
+            arg_judge_enabled = True
 
     if not arg_also_warn_only:
         print("Skipping `warn_only` dataset items ...")
@@ -75,6 +71,7 @@ def load_args():
         arg_vague_component_check,
         arg_also_warn_only,
         arg_selected_component_type_check_only,
+        arg_judge_enabled,
     )
 
 
@@ -82,33 +79,22 @@ def select_run_components(arg_ui_component, arg_dataset_file):
     """Select UI components to run for based on configuration"""
 
     run_components = None
-    unsupported_components = False
     if arg_ui_component:
         if arg_ui_component != "all":
             run_components = [arg_ui_component]
-            unsupported_components = arg_ui_component not in SUPPORTED_COMPONENTS
             print(f"Running evaluations for defined UI component {run_components} ...")
         else:
-            # this is true until there are any unsupported components inthe dataset
-            unsupported_components = True
             print(
                 "Running evaluations for all UI components present in the dataset ..."
             )
     elif arg_dataset_file:
-        # unsupported_components kept false, evaluated during eval for compoennts in the dataset file
         print(
             f"Running evaluations for all UI components from the dataset file '{arg_dataset_file}' ..."
         )
     else:
-        run_components = SUPPORTED_COMPONENTS
-        print(
-            f"Running evaluations for all supported/implemented UI components {run_components} ..."
-        )
+        print("Running evaluations for all UI components present in the dataset ...")
 
-    if unsupported_components:
-        print("UI Agent switched to 'all UI components' mode")
-
-    return run_components, unsupported_components
+    return run_components
 
 
 def validate_dataset_row(dsr: DatasetRow):

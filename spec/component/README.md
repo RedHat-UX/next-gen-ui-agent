@@ -90,51 +90,12 @@ Example JSON output:
 }
 ```
 
-### Chart
-[JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/chart.schema.json)
-
-Chart components support multiple visualization types:
-- `chart-bar` - Bar charts for comparing metrics across categories
-- `chart-line` - Line charts for trends over time
-- `chart-pie` - Pie charts for showing proportions
-- `chart-donut` - Donut charts for showing proportions with a central metric
-- `chart-mirrored-bar` - Mirrored bar charts for comparing two metrics side-by-side
-
-Example JSON output (bar chart):
-```json
-{
-  "component": "chart-bar",
-  "id": "test-id",
-  "title": "Sales Data",
-  "data": [
-    {
-      "name": "Q1",
-      "data": [
-        {"x": "Jan", "y": 100},
-        {"x": "Feb", "y": 150},
-        {"x": "Mar", "y": 200}
-      ]
-    },
-    {
-      "name": "Q2",
-      "data": [
-        {"x": "Apr", "y": 180},
-        {"x": "May", "y": 220},
-        {"x": "Jun", "y": 250}
-      ]
-    }
-  ]
-}
-```
-
 ## Dynamic components for `Array of objects` input data
 
 [Dynamic Components Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/)  
 [Array of objects input data Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/structure/#array-of-objects-input-data)
 
 ### Set Of Cards
-
-[![Status](https://img.shields.io/badge/Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 [JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/set-of-cards.schema.json)
 
@@ -190,8 +151,6 @@ Example JSON output:
 
 ### Table
 
-[![Status](https://img.shields.io/badge/Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
-
 [JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/table.schema.json)
 
 Example JSON output:
@@ -239,6 +198,43 @@ Example JSON output:
       ],
       "data_path": "actors[*]",
       "name": "Actors"
+    }
+  ]
+}
+```
+### Chart
+[JSON Schema](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/chart.schema.json)
+
+Chart components support multiple visualization types:
+
+- `chart-bar` - Bar charts for comparing metrics across categories
+- `chart-line` - Line charts for trends over time
+- `chart-pie` - Pie charts for showing proportions
+- `chart-donut` - Donut charts for showing proportions with a central metric
+- `chart-mirrored-bar` - Mirrored bar charts for comparing two metrics side-by-side
+
+Example JSON output (bar chart):
+```json
+{
+  "component": "chart-bar",
+  "id": "test-id",
+  "title": "Sales Data",
+  "data": [
+    {
+      "name": "Q1",
+      "data": [
+        {"x": "Jan", "y": 100},
+        {"x": "Feb", "y": 150},
+        {"x": "Mar", "y": 200}
+      ]
+    },
+    {
+      "name": "Q2",
+      "data": [
+        {"x": "Apr", "y": 180},
+        {"x": "May", "y": 220},
+        {"x": "Jun", "y": 250}
+      ]
     }
   ]
 }
