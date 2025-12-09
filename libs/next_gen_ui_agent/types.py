@@ -114,15 +114,6 @@ class AgentConfig(BaseModel):
     Data transformer to use to transform the input data of this type.
     """
 
-    unsupported_components: Optional[bool] = Field(
-        default=None,
-        description="If `False` (default), the agent can generate only fully supported UI components. If `True`, the agent can also generate unsupported UI components.",
-    )
-    """
-    If `False` (default), the agent can generate only fully supported UI components.
-    If `True`, the agent can also generate unsupported UI components.
-    """
-
     component_selection_strategy: Optional[Literal["one_llm_call", "two_llm_calls"]] = (
         Field(
             default=None,

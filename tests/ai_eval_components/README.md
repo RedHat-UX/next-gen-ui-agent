@@ -69,7 +69,7 @@ You can use these commandline argument:
 pants run tests/ai_eval_components/eval.py -- -c one-card
 ```
 
-If no `-c` nor `-f` argument is used, evaluation runs only for fully implemented/supported UI components.
+If no `-c` nor `-f` argument is used, evaluation runs for all the components present in the evaluation dataset.
 If args are used, evaluation script automatically switches UI Agent to the mode with all UI components if necessary,
 message `UI Agent switched to 'all UI components' mode` is provided in this case.
 

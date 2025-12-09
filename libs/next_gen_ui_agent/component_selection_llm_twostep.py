@@ -31,7 +31,6 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
     def __init__(
         self,
-        unsupported_components: bool,
         select_component_only: bool = False,
         input_data_json_wrapping: bool = True,
     ):
@@ -39,12 +38,10 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         Component selection strategy using two LLM inference calls, one for component selection and one for its configuration.
 
         Args:
-            unsupported_components: if True, generate all UI components, otherwise generate only supported UI components
             select_component_only: if True, only generate the component, it is not necesary to generate it's configuration
             input_data_json_wrapping: if True, wrap the JSON input data into data type field if necessary due to its structure
         """
         super().__init__(logger, input_data_json_wrapping)
-        self.unsupported_components = unsupported_components
         self.select_component_only = select_component_only
 
     def parse_infernce_output(
@@ -141,7 +138,7 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
 {TWOSTEP_STEP1_PROMPT_RULES}
 
-Available components: {get_ui_components_description(self.unsupported_components)}
+Available components: {get_ui_components_description()}
 
 {CHART_INSTRUCTIONS}
 """
