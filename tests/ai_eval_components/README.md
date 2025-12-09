@@ -215,3 +215,22 @@ pants run tests/ai_eval_components/dataset_gen.py -- -s tests/ai_eval_components
 See console output for info about the process and results.
 
 Result of the generation is stored in the `dataset` subdirectory in this module, which is used for the evaluation itself. You have to commit change here after the regeneration.
+
+## Syncing Datasets to E2E Client
+
+After regenerating datasets, you should sync them to the e2e test client to keep the UI in sync:
+
+```sh
+# Sync datasets to e2e client (generates inlineDatasets.ts and quickPrompts.ts)
+pants run tests/ai_eval_components/sync_datasets_to_e2e.py
+```
+
+This script reads from both `dataset/` and `dataset_k8s/` directories and generates:
+- `tests/ngui-e2e/client/src/data/inlineDatasets.ts` - Inline datasets for testing
+- `tests/ngui-e2e/client/src/quickPrompts.ts` - Quick prompt suggestions with attached data
+
+**Recommended workflow:**
+1. Regenerate datasets: `pants run tests/ai_eval_components/dataset_gen.py`
+2. Regenerate K8s datasets: `pants run tests/ai_eval_components/dataset_gen.py -- -s tests/ai_eval_components/dataset_src_k8s/ -d tests/ai_eval_components/dataset_k8s/`
+3. Sync to e2e client: `pants run tests/ai_eval_components/sync_datasets_to_e2e.py`
+4. Review and commit changes

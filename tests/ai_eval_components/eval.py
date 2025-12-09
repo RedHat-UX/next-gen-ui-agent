@@ -43,6 +43,7 @@ from next_gen_ui_agent.component_selection_llm_onestep import (
 from next_gen_ui_agent.component_selection_llm_strategy import (
     MAX_ARRAY_SIZE_FOR_LLM,
     ComponentSelectionStrategy,
+    InferenceResult,
 )
 from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
@@ -171,7 +172,7 @@ def evaluate_agent_for_dataset_row(
     # separate steps so we can see LLM response even if it is invalid JSON
     time_start = round(time.time() * 1000)
 
-    llm_response = asyncio.run(
+    inference_result: InferenceResult = asyncio.run(
         component_selection.perform_inference(
             inference, dsr["user_prompt"], json_data_for_llm, input_data_id
         )
@@ -181,7 +182,7 @@ def evaluate_agent_for_dataset_row(
     component: UIComponentMetadata | None = None
     try:
         component = component_selection.parse_infernce_output(
-            llm_response, input_data_id
+            inference_result, input_data_id
         )
         component.json_data = json_data
         component.json_wrapping_field_name = field_name
@@ -237,9 +238,9 @@ def evaluate_agent_for_dataset_row(
                     data_transformer = get_data_transformer(component.component)
                     data = data_transformer.validate(component, input_data, errors)
 
-    return DatasetRowAgentEvalResult(
-        llm_response["outputs"], errors, data, judge_results_list
-    )
+    # Capture LLM output from inference_result for reporting
+    llm_output = inference_result["outputs"]
+    return DatasetRowAgentEvalResult(llm_output, errors, data, judge_results_list)
 
 
 def init_direct_api_inference_from_env(
