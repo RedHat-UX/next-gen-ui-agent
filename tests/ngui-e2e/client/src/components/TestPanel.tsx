@@ -17,6 +17,7 @@ import {
 import { MockModeToggle } from './MockModeToggle';
 import { QuickPrompts } from './QuickPrompts';
 import { INLINE_DATASETS } from '../data/inlineDatasets';
+import type { QuickPrompt } from '../quickPrompts';
 
 interface ModelInfo {
   name: string;
@@ -35,7 +36,7 @@ interface TestPanelProps {
   onSendMockDirect: (config: any, label: string) => void;
   
   // Quick Prompts props
-  onPromptSelect: (prompt: string) => void;
+  onPromptSelect: (prompt: QuickPrompt) => void;
   disabled?: boolean;
   
   // Model Info

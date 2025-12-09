@@ -43,6 +43,7 @@ from next_gen_ui_agent.component_selection_llm_onestep import (
 from next_gen_ui_agent.component_selection_llm_strategy import (
     MAX_ARRAY_SIZE_FOR_LLM,
     ComponentSelectionStrategy,
+    InferenceResult,
 )
 from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
@@ -172,7 +173,7 @@ def evaluate_agent_for_dataset_row(
     # separate steps so we can see LLM response even if it is invalid JSON
     time_start = round(time.time() * 1000)
 
-    inference_result = asyncio.run(
+    inference_result: InferenceResult = asyncio.run(
         component_selection.perform_inference(
             inference, dsr["user_prompt"], json_data_for_llm, input_data_id
         )
@@ -219,7 +220,7 @@ def evaluate_agent_for_dataset_row(
             # TODO NGUI-116 LLM-as-a-judge AI check to evaluate if fields are relevant to the user prompt and data
 
     # Capture LLM output from inference_result for reporting
-    llm_output = [inference_result] if inference_result else []
+    llm_output = inference_result["outputs"]
     return DatasetRowAgentEvalResult(llm_output, errors, data)
 
 

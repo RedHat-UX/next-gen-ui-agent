@@ -200,6 +200,17 @@
   color: var(--pf-v6-global--Color--200);
 }
 
+.quick-prompt-id {
+  color: #6a6e73;
+  font-size: 0.7rem;
+  font-family: monospace;
+  display: block;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+  min-height: 1.4em;
+}
+
 /* ===== Mock Mode Toggle ===== */
 .mock-toggle-menu {
   width: 100%;

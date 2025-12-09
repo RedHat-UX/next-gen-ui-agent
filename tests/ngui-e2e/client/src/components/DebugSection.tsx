@@ -3,6 +3,7 @@ import { Button } from '@patternfly/react-core';
 import { MetadataViewer } from './MetadataViewer';
 import { PipelineViewer } from './PipelineViewer';
 import { DataTransformationViewer } from './DataTransformationViewer';
+import { DatasetViewer } from './DatasetViewer';
 import { JsonViewer } from './JsonViewer';
 
 interface DebugSectionProps {
@@ -33,6 +34,7 @@ interface DebugSectionProps {
       dataPath: string;
     }>;
   };
+  dataset?: any;
   config?: any;
   messageId: string;
 }
@@ -42,12 +44,13 @@ export function DebugSection({
   llmInteractions, 
   agentMessages, 
   dataTransform,
+  dataset,
   config,
   messageId 
 }: DebugSectionProps) {
-  const [openSection, setOpenSection] = useState<'debug' | 'json' | null>(null);
+  const [openSection, setOpenSection] = useState<'debug' | 'dataset' | 'json' | null>(null);
 
-  const toggleSection = (section: 'debug' | 'json') => {
+  const toggleSection = (section: 'debug' | 'dataset' | 'json') => {
     setOpenSection(prev => prev === section ? null : section);
   };
 
@@ -61,6 +64,15 @@ export function DebugSection({
         >
           {openSection === 'debug' ? '▼' : '▶'} Debug Information
         </Button>
+        {dataset && (
+          <Button 
+            variant="link" 
+            onClick={() => toggleSection('dataset')}
+            className="debug-section-button"
+          >
+            {openSection === 'dataset' ? '▼' : '▶'} Attached Dataset
+          </Button>
+        )}
         <Button 
           variant="link" 
           onClick={() => toggleSection('json')}
@@ -81,6 +93,9 @@ export function DebugSection({
           )}
           {dataTransform && <DataTransformationViewer dataTransform={dataTransform} messageId={messageId} />}
         </>
+      )}
+      {openSection === 'dataset' && dataset && (
+        <DatasetViewer dataset={dataset} messageId={messageId} />
       )}
       {openSection === 'json' && config && (
         <JsonViewer config={config} messageId={messageId} alwaysExpanded={true} />

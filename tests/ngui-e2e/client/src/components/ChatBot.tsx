@@ -17,6 +17,8 @@ import { useFetch } from "../hooks/useFetch";
 import { getMockDataByName } from "../mockData";
 import { TestPanel } from "./TestPanel";
 import { DebugSection } from "./DebugSection";
+import type { QuickPrompt } from "../quickPrompts";
+import { INLINE_DATASETS } from "../data/inlineDatasets";
 
 export default function ChatBotPage() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
@@ -132,9 +134,33 @@ export default function ChatBotPage() {
     handleMockSend(config, label);
   };
 
-  const handleQuickPromptSelect = (prompt: string) => {
-    // Send the prompt through normal flow
-    handleSend(prompt);
+  const handleQuickPromptSelect = (prompt: QuickPrompt) => {
+    // If the prompt has a dataset, look it up by ID and attach it
+    const dataset = prompt.dataset;
+    if (dataset?.datasetId) {
+      const inlineDataset = INLINE_DATASETS.find(d => d.id === dataset.datasetId);
+      if (inlineDataset) {
+        const datasetJson = JSON.stringify(inlineDataset.payload, null, 2);
+        const datasetType = dataset.dataType || inlineDataset.dataType || '';
+        // Update state for UI display
+        setInlineDataset(datasetJson);
+        setInlineDatasetType(datasetType);
+        // Send the prompt with dataset override to avoid timing issues
+        handleSend(prompt.prompt, datasetJson, datasetType);
+      } else {
+        console.warn(`Dataset with ID "${dataset.datasetId}" not found in INLINE_DATASETS`);
+        // Fallback to sending without dataset
+        setInlineDataset('');
+        setInlineDatasetType('');
+        handleSend(prompt.prompt);
+      }
+    } else {
+      // Clear dataset if prompt doesn't have one
+      setInlineDataset('');
+      setInlineDatasetType('');
+      // Send the prompt through normal flow
+      handleSend(prompt.prompt);
+    }
   };
 
   // Resize handlers
@@ -178,7 +204,7 @@ export default function ChatBotPage() {
     };
   }, [isResizing]);
 
-  const handleSend = async (message: string) => {
+  const handleSend = async (message: string, datasetOverride?: string, datasetTypeOverride?: string) => {
     // Check if in mock mode
     if (isMockMode) {
       const newMessages: MessageProps[] = [...messages];
@@ -230,15 +256,19 @@ export default function ChatBotPage() {
     });
     setMessages(newMessages);
 
+    // Use override dataset if provided, otherwise use state
+    const datasetToUse = datasetOverride !== undefined ? datasetOverride : inlineDataset;
+    const datasetTypeToUse = datasetTypeOverride !== undefined ? datasetTypeOverride : inlineDatasetType;
+
     const res = await fetchData(import.meta.env.VITE_API_ENDPOINT, {
       method: "POST",
       body: { 
         prompt: message,
         strategy: selectedStrategy,
-        ...(inlineDataset.trim()
+        ...(datasetToUse.trim()
           ? {
-              data: inlineDataset,
-              data_type: inlineDatasetType.trim() || undefined,
+              data: datasetToUse,
+              data_type: datasetTypeToUse.trim() || undefined,
             }
           : {}),
       },
@@ -283,12 +313,13 @@ export default function ChatBotPage() {
               afterMainContent: (
                 <>
                   <DynamicComponent config={res.response} showRawConfig={false} />
-                  {isDebugMode && (res.metadata || res.metadata?.llmInteractions || res.metadata?.agentMessages || res.metadata?.dataTransform) && (
+                  {isDebugMode && (res.metadata || res.metadata?.llmInteractions || res.metadata?.agentMessages || res.metadata?.dataTransform || res.metadata?.dataset) && (
                     <DebugSection
                       metadata={res.metadata}
                       llmInteractions={res.metadata?.llmInteractions}
                       agentMessages={res.metadata?.agentMessages}
                       dataTransform={res.metadata?.dataTransform}
+                      dataset={res.metadata?.dataset}
                       config={res.response}
                       messageId={botMessageId}
                     />

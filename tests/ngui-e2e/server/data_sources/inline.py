@@ -81,6 +81,7 @@ def process_inline_data(
     inline_data_context = {
         "source": tool_name,
         "recordCount": record_count,
+        "payload": inline_payload,  # Include the actual dataset payload
     }
 
     return movie_response, inline_data_context, None

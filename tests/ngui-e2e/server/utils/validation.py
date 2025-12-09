@@ -247,6 +247,8 @@ def extract_component_metadata(
             data_transform["inlineSource"] = inline_data_context["source"]
             if inline_data_context.get("recordCount") is not None:
                 data_transform["inlineRecordCount"] = inline_data_context["recordCount"]
+            if inline_data_context.get("payload") is not None:
+                metadata["dataset"] = inline_data_context["payload"]
 
         if data_transform:
             metadata["dataTransform"] = data_transform

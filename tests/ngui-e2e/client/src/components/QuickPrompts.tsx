@@ -16,7 +16,7 @@ import { quickPrompts, groupedPrompts } from '../quickPrompts';
 import type { QuickPrompt, QuickPromptCategory } from '../quickPrompts';
 
 interface QuickPromptsProps {
-  onPromptSelect: (prompt: string) => void;
+  onPromptSelect: (prompt: QuickPrompt) => void;
   disabled?: boolean;
 }
 
@@ -34,7 +34,7 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
   };
 
   const handlePromptClick = (prompt: QuickPrompt) => {
-    onPromptSelect(prompt.prompt);
+    onPromptSelect(prompt);
   };
 
   const renderPromptCard = (prompt: QuickPrompt) => (
@@ -47,16 +47,9 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
         className={`quick-prompt-card ${disabled ? 'quick-prompt-card-disabled' : 'quick-prompt-card-enabled'}`}
       >
         <CardTitle>
-          <Stack>
-            <StackItem>
-              <span className="quick-prompt-icon">{prompt.icon || '💬'}</span>
-            </StackItem>
-            <StackItem>
-              <Label color="blue" isCompact>
-                {prompt.expectedComponent === 'multiple' ? 'Multi' : prompt.expectedComponent}
-              </Label>
-            </StackItem>
-          </Stack>
+          <Label color="blue" isCompact>
+            {prompt.expectedComponent === 'multiple' ? 'Multi' : prompt.expectedComponent}
+          </Label>
         </CardTitle>
         <CardBody>
           <Stack hasGutter>
@@ -64,8 +57,11 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
               <strong className="quick-prompt-title">{prompt.prompt}</strong>
             </StackItem>
             <StackItem>
-              <small className="quick-prompt-description">
-                {prompt.description}
+              <small 
+                className="quick-prompt-id"
+                title={prompt.id}
+              >
+                ID: {prompt.id}
               </small>
             </StackItem>
           </Stack>
@@ -73,6 +69,43 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
       </Card>
     </GridItem>
   );
+
+  const renderPromptsBySource = (category: QuickPromptCategory) => {
+    const categoryPrompts = groupedPrompts[category];
+    const generalPrompts = categoryPrompts.general || [];
+    const k8sPrompts = categoryPrompts.k8s || [];
+
+    return (
+      <div className="test-panel-tab-content">
+        <Stack hasGutter>
+          {generalPrompts.length > 0 && (
+            <StackItem>
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#6a6e73' }}>
+                  General ({generalPrompts.length})
+                </h4>
+                <Grid hasGutter>
+                  {generalPrompts.map(renderPromptCard)}
+                </Grid>
+              </div>
+            </StackItem>
+          )}
+          {k8sPrompts.length > 0 && (
+            <StackItem>
+              <div style={{ marginTop: generalPrompts.length > 0 ? '24px' : '0' }}>
+                <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: '#6a6e73' }}>
+                  Kubernetes / OpenShift ({k8sPrompts.length})
+                </h4>
+                <Grid hasGutter>
+                  {k8sPrompts.map(renderPromptCard)}
+                </Grid>
+              </div>
+            </StackItem>
+          )}
+        </Stack>
+      </div>
+    );
+  };
 
   return (
     <Stack hasGutter>
@@ -89,62 +122,50 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
         >
                 <Tab 
                   eventKey={0} 
-                  title={<TabTitleText>🎴 Cards ({groupedPrompts.cards.length})</TabTitleText>}
-                  aria-label="Cards prompts"
+                  title={<TabTitleText>🃎 One Card ({groupedPrompts['one-card'].general.length + groupedPrompts['one-card'].k8s.length})</TabTitleText>}
+                  aria-label="One card prompts"
                 >
-                  <div className="test-panel-tab-content">
-                    <Grid hasGutter>
-                      {groupedPrompts.cards.map(renderPromptCard)}
-                    </Grid>
-                  </div>
+                  {renderPromptsBySource('one-card')}
                 </Tab>
 
                 <Tab 
                   eventKey={1} 
-                  title={<TabTitleText>📋 Tables ({groupedPrompts.tables.length})</TabTitleText>}
-                  aria-label="Tables prompts"
+                  title={<TabTitleText>🃏 Set Of Cards ({groupedPrompts['set-of-cards'].general.length + groupedPrompts['set-of-cards'].k8s.length})</TabTitleText>}
+                  aria-label="Set of cards prompts"
                 >
-                  <div className="test-panel-tab-content">
-                    <Grid hasGutter>
-                      {groupedPrompts.tables.map(renderPromptCard)}
-                    </Grid>
-                  </div>
+                  {renderPromptsBySource('set-of-cards')}
                 </Tab>
 
                 <Tab 
                   eventKey={2} 
-                  title={<TabTitleText>📊 Charts ({groupedPrompts.charts.length})</TabTitleText>}
-                  aria-label="Charts prompts"
+                  title={<TabTitleText>📋 Tables ({groupedPrompts.tables.general.length + groupedPrompts.tables.k8s.length})</TabTitleText>}
+                  aria-label="Tables prompts"
                 >
-                  <div className="test-panel-tab-content">
-                    <Grid hasGutter>
-                      {groupedPrompts.charts.map(renderPromptCard)}
-                    </Grid>
-                  </div>
+                  {renderPromptsBySource('tables')}
                 </Tab>
 
                 <Tab 
                   eventKey={3} 
-                  title={<TabTitleText>🎥 Media ({groupedPrompts.media.length})</TabTitleText>}
-                  aria-label="Media prompts"
+                  title={<TabTitleText>📊 Charts ({groupedPrompts.charts.general.length + groupedPrompts.charts.k8s.length})</TabTitleText>}
+                  aria-label="Charts prompts"
                 >
-                  <div className="test-panel-tab-content">
-                    <Grid hasGutter>
-                      {groupedPrompts.media.map(renderPromptCard)}
-                    </Grid>
-                  </div>
+                  {renderPromptsBySource('charts')}
                 </Tab>
 
                 <Tab 
                   eventKey={4} 
-                  title={<TabTitleText>🎭 Mixed ({groupedPrompts.mixed.length})</TabTitleText>}
-                  aria-label="Mixed prompts"
+                  title={<TabTitleText>🖼️ Image ({groupedPrompts['image'].general.length + groupedPrompts['image'].k8s.length})</TabTitleText>}
+                  aria-label="Image prompts"
                 >
-                  <div className="test-panel-tab-content">
-                    <Grid hasGutter>
-                      {groupedPrompts.mixed.map(renderPromptCard)}
-                    </Grid>
-                  </div>
+                  {renderPromptsBySource('image')}
+                </Tab>
+
+                <Tab 
+                  eventKey={5} 
+                  title={<TabTitleText>🎥 Video Player ({groupedPrompts['video-player'].general.length + groupedPrompts['video-player'].k8s.length})</TabTitleText>}
+                  aria-label="Video player prompts"
+                >
+                  {renderPromptsBySource('video-player')}
                 </Tab>
         </Tabs>
       </StackItem>
