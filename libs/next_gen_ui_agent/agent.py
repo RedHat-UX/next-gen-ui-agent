@@ -1,5 +1,4 @@
 import logging
-import os
 from typing import Optional
 
 from next_gen_ui_agent.agent_config import parse_config_yaml
@@ -89,28 +88,16 @@ class NextGenUIAgent:
             else "default"
         )
 
-        # select which kind of components should be geneated
-        unsupported_components = False
-        if self.config.unsupported_components is None:
-            unsupported_components = (
-                os.getenv("NEXT_GEN_UI_AGENT_USE_ALL_COMPONENTS", "false").lower()
-                == "true"
-            )
-        elif self.config.unsupported_components is True:
-            unsupported_components = True
-
         input_data_json_wrapping = self.config.input_data_json_wrapping
         if input_data_json_wrapping is None:
             input_data_json_wrapping = True
 
         if strategy_name == "default" or strategy_name == "one_llm_call":
             return OnestepLLMCallComponentSelectionStrategy(
-                unsupported_components,
                 input_data_json_wrapping=input_data_json_wrapping,
             )
         elif strategy_name == "two_llm_calls":
             return TwostepLLMCallComponentSelectionStrategy(
-                unsupported_components,
                 input_data_json_wrapping=input_data_json_wrapping,
             )
         else:

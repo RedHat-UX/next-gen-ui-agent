@@ -17,11 +17,6 @@ Optional name of the [Input Data Transformer](input_data/transformation.md) used
 Can be overriden [per data type](#data_transformer-str-optional_1). Defaults to [JSON](./input_data/transformation.md#json-transformer).
 
 
-### `unsupported_components` [`bool`, optional]
-
-Whether to allow unsupported/Tech Preview [Dynamic UI components](data_ui_blocks/dynamic_components.md) to be selected by LLM (default: `False`)
-
-
 ### `component_selection_strategy` [`str`, optional]
 
 Strategy for LLM powered component selection and configuration step:
@@ -119,8 +114,7 @@ inference = LangChainModelInference(llm)
 # Create configuration
 config = {
     "component_system": "json",
-    "component_selection_strategy": "default",
-    "unsupported_components": True
+    "component_selection_strategy": "default"
 }
 
 agent = NextGenUIAgent(config=config)
@@ -149,7 +143,6 @@ Create a YAML configuration file:
 ```yaml
 ---
 component_system: json
-unsupported_components: false
 component_selection_strategy: default
 
 data_types:
@@ -185,7 +178,6 @@ from next_gen_ui_agent import NextGenUIAgent
 yaml_config = """
 component_system: json
 component_selection_strategy: two_llm_calls
-unsupported_components: true
 """
 
 # Pass YAML string directly to constructor

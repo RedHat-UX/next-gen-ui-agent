@@ -22,7 +22,6 @@ from ai_eval_components.eval_reporting import (
     report_success,
 )
 from ai_eval_components.eval_utils import (
-    SUPPORTED_COMPONENTS,
     get_dataset_files,
     load_args,
     load_dataset_file,
@@ -143,7 +142,6 @@ def evaluate_agent_for_dataset_row(
     dsr: DatasetRow,
     inference: InferenceBase,
     arg_vague_component_check: bool,
-    unsupported_components: bool = False,
     arg_selected_component_type_check_only: bool = False,
 ):
     """Run agent evaluation for one dataset row"""
@@ -161,12 +159,10 @@ def evaluate_agent_for_dataset_row(
 
     component_selection: ComponentSelectionStrategy
     if not TWO_STEP_COMPONENT_SELECTION:
-        component_selection = OnestepLLMCallComponentSelectionStrategy(
-            unsupported_components
-        )
+        component_selection = OnestepLLMCallComponentSelectionStrategy()
     else:
         component_selection = TwostepLLMCallComponentSelectionStrategy(
-            unsupported_components, arg_selected_component_type_check_only
+            arg_selected_component_type_check_only
         )
 
     # separate steps so we can see LLM response even if it is invalid JSON
@@ -311,9 +307,7 @@ if __name__ == "__main__":
         print("Inference not initialized because not configured in env variables")
         exit(1)
 
-    run_components, unsupported_components = select_run_components(
-        arg_ui_component, arg_dataset_file
-    )
+    run_components = select_run_components(arg_ui_component, arg_dataset_file)
 
     for dataset_file in dataset_files:
         dataset = load_dataset_file(dataset_file)
@@ -350,21 +344,11 @@ if __name__ == "__main__":
                             f_err, ds_errors, dsr, is_progress_dot
                         )
                     else:
-                        # automatically switch to unsupported_components mode if any found in the dataset
-                        if not unsupported_components:
-                            unsupported_components = (
-                                dsr["expected_component"] not in SUPPORTED_COMPONENTS
-                            )
-                            if unsupported_components:
-                                print(
-                                    "\nUI Agent switched to 'all UI components' mode as unsupported one was found in the dataset file\n"
-                                )
 
                         eval_result = evaluate_agent_for_dataset_row(
                             dsr,
                             inference,
                             arg_vague_component_check,
-                            unsupported_components,
                             arg_selected_component_type_check_only,
                         )
                         if len(eval_result.errors) > 0:

@@ -34,7 +34,7 @@ component_system: json2
 
 def test_parse_config_yaml_str_INVALID() -> None:
     with pytest.raises(ValidationError):
-        parse_config_yaml("unsupported_components: ooo")
+        parse_config_yaml("input_data_json_wrapping: ooo")
 
 
 @pytest.fixture()

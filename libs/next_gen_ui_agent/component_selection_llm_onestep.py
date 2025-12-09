@@ -26,18 +26,15 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
     def __init__(
         self,
-        unsupported_components: bool = False,
         input_data_json_wrapping: bool = True,
     ):
         """
         Component selection strategy using one LLM inference call for both component selection and configuration.
 
         Args:
-            unsupported_components: if True, generate all UI components, otherwise generate only supported UI components
             input_data_json_wrapping: if True, wrap the JSON input data into data type field if necessary due to its structure
         """
         super().__init__(logger, input_data_json_wrapping)
-        self.unsupported_components = unsupported_components
 
     async def perform_inference(
         self,
@@ -59,7 +56,7 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
 {ONESTEP_PROMPT_RULES}
 
-Available components: {get_ui_components_description(self.unsupported_components)}
+Available components: {get_ui_components_description()}
 
 {CHART_INSTRUCTIONS}
 """
