@@ -1,12 +1,14 @@
 """Pydantic models for API requests and responses."""
 
-from typing import Any, Optional
 from enum import Enum
+from typing import Any, Optional
+
 from pydantic import BaseModel, Field
 
 
 class ErrorCode(str, Enum):
     """API Error Codes"""
+
     INVALID_INPUT = "INVALID_INPUT"
     NO_DATA_PROVIDED = "NO_DATA_PROVIDED"
     INVALID_JSON = "INVALID_JSON"
@@ -21,6 +23,7 @@ class ErrorCode(str, Enum):
 
 class GenerateRequest(BaseModel):
     """Request model for generate endpoint."""
+
     prompt: str
     data: Optional[Any] = Field(
         default=None,
@@ -38,6 +41,7 @@ class GenerateRequest(BaseModel):
 
 class ErrorResponse(BaseModel):
     """Standardized error response model."""
+
     error_code: ErrorCode
     message: str
     details: Optional[str] = None
@@ -46,10 +50,14 @@ class ErrorResponse(BaseModel):
 
 class DataFilterResult(BaseModel):
     """Result from generic data filtering agent."""
+
     query_type: str = Field(
         description="Type of query: 'specific' (looking for specific item(s)) or 'all' (wanting all items)"
     )
-    filter_instructions: str = Field(description="Instructions on how to filter the data")
+    filter_instructions: str = Field(
+        description="Instructions on how to filter the data"
+    )
     should_filter: bool = Field(description="Whether filtering should be applied")
-    explanation: str = Field(description="Brief explanation of what was understood from the query")
-
+    explanation: str = Field(
+        description="Brief explanation of what was understood from the query"
+    )

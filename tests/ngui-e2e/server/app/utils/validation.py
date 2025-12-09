@@ -2,9 +2,10 @@
 
 import json
 from typing import Any, Optional, Tuple
+
+from app.models import ErrorCode
 from app.utils.logging import log_error, log_info
 from app.utils.response import create_error_response
-from app.models import ErrorCode
 from fastapi import status
 
 
@@ -115,7 +116,7 @@ def validate_ngui_response(
     # Step 10: Parse and validate JSON
     try:
         parsed_response = json.loads(rendition_content)
-        log_info(f"Successfully parsed response")
+        log_info("Successfully parsed response")
 
         # Additional validation of parsed response
         if not isinstance(parsed_response, dict):
@@ -170,8 +171,11 @@ def extract_component_metadata(
     Returns:
         Dictionary containing extracted metadata
     """
-    from app.utils.agent_messages import extract_tool_data_summary, serialize_agent_events
-    
+    from app.utils.agent_messages import (
+        extract_tool_data_summary,
+        serialize_agent_events,
+    )
+
     metadata: dict[str, Any] = {}
 
     # Add model information
@@ -184,7 +188,7 @@ def extract_component_metadata(
     renditions = ngui_response.get("renditions", [])
     if renditions:
         metadata["rendition_count"] = len(renditions)
-        
+
         # Try to extract component type from first rendition content
         try:
             first_rendition = renditions[0]
@@ -192,7 +196,7 @@ def extract_component_metadata(
                 content = first_rendition.get("content", "")
             else:
                 content = getattr(first_rendition, "content", "")
-            
+
             if content:
                 parsed_content = json.loads(content)
                 if "component" in parsed_content:
@@ -217,4 +221,3 @@ def extract_component_metadata(
         metadata["event_count"] = len(events)
 
     return metadata
-

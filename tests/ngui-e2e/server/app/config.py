@@ -2,6 +2,7 @@
 
 import logging
 import os
+
 from next_gen_ui_agent.agent_config import AgentConfig
 
 # Configure logging to show INFO level messages
@@ -46,7 +47,4 @@ AVAILABLE_MOVIES = [
 
 # NGUI agent configuration
 # Compatible with next_gen_ui_agent 0.3.x
-NGUI_CONFIG = AgentConfig(
-    unsupported_components=True
-)
-
+NGUI_CONFIG = AgentConfig(unsupported_components=True)

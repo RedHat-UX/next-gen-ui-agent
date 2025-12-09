@@ -2,17 +2,16 @@
 
 import json
 from typing import Any, Optional, Tuple
-from llama_stack_client.types import ToolCall, ToolResponse, ToolExecutionStep
+
+from app.models import ErrorCode
 from app.utils.logging import log_info
 from app.utils.response import create_error_response
-from app.models import ErrorCode
 from fastapi import status
+from llama_stack_client.types import ToolCall, ToolExecutionStep, ToolResponse
 
 
 def process_inline_data(
-    prompt: str, 
-    data: Any, 
-    data_type: Optional[str] = None
+    prompt: str, data: Any, data_type: Optional[str] = None
 ) -> Tuple[Optional[ToolExecutionStep], Optional[dict]]:
     """
     Process inline data provided in the request.
@@ -77,34 +76,27 @@ def process_inline_data(
     # Build tool call and response
     tool_name = data_type or "inline_data"
     call_id = f"{tool_name}_000"
-    
+
     tool_call_args = {"description": "User-provided data"}
     if data_type:
         tool_call_args["type"] = data_type
         log_info(f"Data type: {data_type}")
-    
-    tool_call = ToolCall(
-        call_id=call_id,
-        tool_name=tool_name,
-        arguments=tool_call_args
-    )
-    
+
+    tool_call = ToolCall(call_id=call_id, tool_name=tool_name, arguments=tool_call_args)
+
     tool_response = ToolResponse(
-        call_id=call_id,
-        tool_name=tool_name,
-        content=inline_data_json
+        call_id=call_id, tool_name=tool_name, content=inline_data_json
     )
-    
+
     tool_step = ToolExecutionStep(
         step_id="step_001",
         step_type="tool_execution",
         turn_id="turn_001",
         tool_calls=[tool_call],
-        tool_responses=[tool_response]
+        tool_responses=[tool_response],
     )
-    
+
     log_info(f"Tool call: {tool_name}")
     log_info(f"Data size: {len(inline_data_json)} chars")
 
     return tool_step, None
-

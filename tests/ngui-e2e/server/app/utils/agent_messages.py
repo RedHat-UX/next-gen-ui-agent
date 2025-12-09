@@ -74,7 +74,9 @@ def serialize_tool_step(tool_step: Any) -> dict[str, Any]:
             step_dict["tool_responses"] = [
                 {
                     "tool_name": getattr(tr, "tool_name", "unknown"),
-                    "content": str(getattr(tr, "content", ""))[:200],  # Truncate for brevity
+                    "content": str(getattr(tr, "content", ""))[
+                        :200
+                    ],  # Truncate for brevity
                 }
                 for tr in tool_responses
             ]
@@ -116,11 +118,10 @@ def extract_tool_data_summary(tool_step: Any) -> dict[str, Any]:
         summary["data_size"] = len(content)
     elif isinstance(content, (dict, list)):
         import json
+
         try:
             summary["data_size"] = len(json.dumps(content))
         except Exception:
             summary["data_size"] = -1
 
     return summary
-
-

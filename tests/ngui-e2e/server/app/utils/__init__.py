@@ -26,4 +26,3 @@ __all__ = [
     "log_debug",
     "log_section",
 ]
-

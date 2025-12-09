@@ -33,4 +33,3 @@ def log_section(title: str) -> None:
     separator = "=" * 60
     message = f"\n{separator}\n{title}\n{separator}"
     log_info(message)
-

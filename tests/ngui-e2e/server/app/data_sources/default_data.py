@@ -1,19 +1,20 @@
 """Default data loading utilities."""
 
 import json
+
 from app.config import DEFAULT_DATA_FILE
 
 
 def load_default_data():
     """Load default movies data from JSON file."""
     try:
-        with open(DEFAULT_DATA_FILE, 'r') as f:
+        with open(DEFAULT_DATA_FILE, "r") as f:
             data = json.load(f)
             if data and len(data) > 0:
                 print(f"Loaded {len(data)} movies from default data file")
                 return data
             else:
-                print(f"Default data file is empty")
+                print("Default data file is empty")
                 return None
     except FileNotFoundError:
         print(f"Default data file not found: {DEFAULT_DATA_FILE}")
@@ -28,4 +29,3 @@ def load_default_data():
 
 # Load default data on module import
 DEFAULT_DATA = load_default_data()
-

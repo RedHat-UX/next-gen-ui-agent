@@ -1,9 +1,9 @@
 """Utilities for creating API responses."""
 
-from typing import Any, Optional
-from fastapi import status
-from fastapi.responses import JSONResponse
+from typing import Optional
+
 from app.models import ErrorCode, ErrorResponse
+from fastapi.responses import JSONResponse
 
 
 def create_error_response(
@@ -20,9 +20,7 @@ def create_error_response(
         details=details,
         suggestion=suggestion,
     )
-    
-    return JSONResponse(
-        status_code=status_code,
-        content=error_response.model_dump(exclude_none=True)
-    )
 
+    return JSONResponse(
+        status_code=status_code, content=error_response.model_dump(exclude_none=True)
+    )

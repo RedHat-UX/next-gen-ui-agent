@@ -1,14 +1,14 @@
 """FastAPI application for the NGUI E2E server."""
 
+from app.routes import generate_router, health_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import generate_router, health_router
 
 # Create FastAPI app
 app = FastAPI(
     title="NGUI E2E API",
     description="Next Gen UI Agent API for AI-powered UI component generation",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Add CORS middleware

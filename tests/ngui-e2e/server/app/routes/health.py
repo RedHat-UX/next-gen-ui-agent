@@ -1,11 +1,11 @@
 """Health check and model info endpoints."""
 
-from fastapi import APIRouter, status
-from app.config import MYAPP_MODEL_ID, LIGHTRAIL_LLAMA_STACK_BASE_URL
+from app.config import LIGHTRAIL_LLAMA_STACK_BASE_URL, MYAPP_MODEL_ID
 from app.llm import get_llm_client
-from llama_stack_client.types import UserMessage
-from app.utils.response import create_error_response
 from app.models import ErrorCode
+from app.utils.response import create_error_response
+from fastapi import APIRouter, status
+from llama_stack_client.types import UserMessage
 
 router = APIRouter()
 
@@ -41,6 +41,5 @@ async def wdyk():
             message="Failed to connect to LLM",
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             details=str(e),
-            suggestion="Check if LlamaStack is running and configured correctly"
+            suggestion="Check if LlamaStack is running and configured correctly",
         )
-

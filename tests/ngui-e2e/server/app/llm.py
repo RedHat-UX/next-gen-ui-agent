@@ -1,7 +1,7 @@
 """LlamaStack client setup and connection testing."""
 
-import os
 import ssl
+
 from app.config import (
     LIGHTRAIL_LLAMA_STACK_BASE_URL,
     LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH,
@@ -64,4 +64,3 @@ def get_llm_client():
     if _client_instance is None:
         _client_instance = get_llamastack_client()
     return _client_instance
-
