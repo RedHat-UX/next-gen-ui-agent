@@ -3,7 +3,7 @@
 
 default:
   tags:
-    - shared-podman
+    - itup-alm-x86
 
 workflow:
   rules:
@@ -19,15 +19,19 @@ variables:
   PYTHON_VERSION: "3.13"
   PYTHONPATH: "tests:libs"
   DEBIAN_FRONTEND: "noninteractive"
+  KUBERNETES_CPU_REQUEST: "1"
+  KUBERNETES_CPU_LIMIT: "2"
+  KUBERNETES_MEMORY_REQUEST: "2Gi"
+  KUBERNETES_MEMORY_LIMIT: "4Gi"
 
 stages:
   - test
 
 complete_eval:
   stage: test
-  image: ubuntu:latest
+  image: ${REGISTRY_URL}/ubuntu:latest
   tags:
-    - shared-podman
+    - itup-alm-x86
   timeout: 20 hours
   before_script:
     - echo "=== Setting up environment ==="
