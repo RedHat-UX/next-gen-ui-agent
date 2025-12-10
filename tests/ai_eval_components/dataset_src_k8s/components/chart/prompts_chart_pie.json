@@ -1,7 +1,7 @@
 [
-  "Show pod status distribution",
+  "Show pod status distribution as a pie chart",
   "Display pod status as a pie chart",
-  "Show pod breakdown",
-  "What's the pod status distribution?",
+  "Show pod breakdown in a donut chart",
+  "What percentage of pods are running?",
   "Show pod status as a donut chart"
 ]

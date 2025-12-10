@@ -1,6 +1,6 @@
 [
-  "Show container restart counts",
-  "Which containers have restarted the most?",
-  "Display restart statistics for containers",
-  "Compare container restarts"
+  "Show container restart counts as a bar chart",
+  "Which containers have restarted the most? Show chart",
+  "Display restart statistics for containers in a chart",
+  "Compare container restarts in a bar chart"
 ]

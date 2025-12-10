@@ -1,6 +1,6 @@
 [
-  "Compare CPU and memory usage for all pods",
-  "Show pod resource utilization",
-  "Compare CPU vs memory across pods",
-  "Show resource usage comparison"
+  "Show CPU and memory comparison chart",
+  "Compare CPU vs memory in a bar chart",
+  "Display dual metric comparison for pods",
+  "Show side-by-side CPU and memory chart"
 ]

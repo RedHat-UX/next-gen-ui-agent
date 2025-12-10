@@ -1,7 +1,7 @@
 [
-  "Compare CPU usage across pods",
-  "Show pod CPU consumption",
-  "Which pods use the most CPU?",
-  "Display CPU usage by pod",
-  "Show me pod resource usage"
+  "Show CPU usage comparison chart",
+  "Display pod CPU as a bar chart",
+  "Compare CPU across pods in a chart",
+  "Show me a bar chart of pod memory usage",
+  "Chart the resource usage by pod"
 ]

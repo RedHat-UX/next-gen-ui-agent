@@ -1,7 +1,7 @@
 [
   "Show CPU usage trends over time",
-  "Display hourly CPU metrics",
-  "Show CPU usage history",
-  "Show CPU trends",
-  "Display CPU usage over time"
+  "Display CPU metrics as a line chart",
+  "Show hourly CPU trend chart",
+  "Graph the CPU usage history",
+  "Show me CPU trends over the last hour"
 ]

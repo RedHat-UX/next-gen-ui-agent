@@ -1,6 +1,6 @@
 [
   "Show pod restart trends over time",
-  "Display restart history",
-  "Show me pod restart patterns",
-  "Track pod restarts throughout the day"
+  "Display restart history as a line chart",
+  "Show me pod restart pattern chart",
+  "Track pod restarts throughout the day as a trend"
 ]

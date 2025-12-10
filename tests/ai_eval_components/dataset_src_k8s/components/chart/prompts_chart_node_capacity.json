@@ -1,6 +1,6 @@
 [
-  "Compare CPU used vs capacity across nodes",
-  "Show node resource utilization",
-  "Compare memory usage and capacity for all nodes",
-  "Display node CPU and memory utilization"
+  "Compare CPU used vs capacity across nodes in a chart",
+  "Show node resource utilization as a comparison chart",
+  "Compare memory usage and capacity chart for all nodes",
+  "Display node CPU and memory side-by-side chart"
 ]

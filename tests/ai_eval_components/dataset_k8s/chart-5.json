@@ -1,0 +1,46 @@
+[
+  {
+    "id": "chart-000020",
+    "user_prompt": "Show pod restart trends over time",
+    "backend_data": "[\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"00:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"04:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"08:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"12:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"16:00\",\n    \"restarts\": 2\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"20:00\",\n    \"restarts\": 2\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"00:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"04:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"08:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"12:00\",\n    \"restarts\": 3\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"16:00\",\n    \"restarts\": 5\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"20:00\",\n    \"restarts\": 5\n  }\n]\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pod_restarts_trend.json",
+      "prompt_file": "prompts_chart_restarts.json"
+    }
+  },
+  {
+    "id": "chart-000021",
+    "user_prompt": "Display restart history as a line chart",
+    "backend_data": "[\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"00:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"04:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"08:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"12:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"16:00\",\n    \"restarts\": 2\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"20:00\",\n    \"restarts\": 2\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"00:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"04:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"08:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"12:00\",\n    \"restarts\": 3\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"16:00\",\n    \"restarts\": 5\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"20:00\",\n    \"restarts\": 5\n  }\n]\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pod_restarts_trend.json",
+      "prompt_file": "prompts_chart_restarts.json"
+    }
+  },
+  {
+    "id": "chart-000022",
+    "user_prompt": "Show me pod restart pattern chart",
+    "backend_data": "[\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"00:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"04:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"08:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"12:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"16:00\",\n    \"restarts\": 2\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"20:00\",\n    \"restarts\": 2\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"00:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"04:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"08:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"12:00\",\n    \"restarts\": 3\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"16:00\",\n    \"restarts\": 5\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"20:00\",\n    \"restarts\": 5\n  }\n]\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pod_restarts_trend.json",
+      "prompt_file": "prompts_chart_restarts.json"
+    }
+  },
+  {
+    "id": "chart-000023",
+    "user_prompt": "Track pod restarts throughout the day as a trend",
+    "backend_data": "[\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"00:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"04:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"08:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"12:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"16:00\",\n    \"restarts\": 2\n  },\n  {\n    \"podName\": \"docs-preview-app-7d9c8\",\n    \"hour\": \"20:00\",\n    \"restarts\": 2\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"00:00\",\n    \"restarts\": 0\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"04:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"08:00\",\n    \"restarts\": 1\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"12:00\",\n    \"restarts\": 3\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"16:00\",\n    \"restarts\": 5\n  },\n  {\n    \"podName\": \"backend-api-5f6b2\",\n    \"hour\": \"20:00\",\n    \"restarts\": 5\n  }\n]\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pod_restarts_trend.json",
+      "prompt_file": "prompts_chart_restarts.json"
+    }
+  }
+]
