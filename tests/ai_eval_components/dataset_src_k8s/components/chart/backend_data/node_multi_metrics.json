@@ -1,0 +1,39 @@
+{
+  "nodes": [
+    {
+      "nodeName": "worker-node-01",
+      "cpuUsagePercent": 65.2,
+      "memoryUsagePercent": 75.0,
+      "diskUsagePercent": 45.8,
+      "networkThroughputMbps": 125.3
+    },
+    {
+      "nodeName": "worker-node-02",
+      "cpuUsagePercent": 85.1,
+      "memoryUsagePercent": 87.5,
+      "diskUsagePercent": 62.4,
+      "networkThroughputMbps": 234.7
+    },
+    {
+      "nodeName": "worker-node-03",
+      "cpuUsagePercent": 42.8,
+      "memoryUsagePercent": 52.3,
+      "diskUsagePercent": 38.1,
+      "networkThroughputMbps": 89.2
+    },
+    {
+      "nodeName": "worker-node-04",
+      "cpuUsagePercent": 78.9,
+      "memoryUsagePercent": 81.2,
+      "diskUsagePercent": 71.5,
+      "networkThroughputMbps": 198.4
+    },
+    {
+      "nodeName": "worker-node-05",
+      "cpuUsagePercent": 52.3,
+      "memoryUsagePercent": 68.7,
+      "diskUsagePercent": 55.2,
+      "networkThroughputMbps": 156.8
+    }
+  ]
+}

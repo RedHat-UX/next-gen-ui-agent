@@ -1,6 +1,0 @@
-[
-  "Compare pod count across namespaces in a chart",
-  "Show namespace resource usage as a bar chart",
-  "Which namespaces have the most pods? Show as chart",
-  "Display pod distribution by namespace in a bar chart"
-]

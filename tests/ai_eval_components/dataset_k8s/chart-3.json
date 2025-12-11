@@ -1,57 +1,57 @@
 [
   {
     "id": "chart-000010",
-    "user_prompt": "Show CPU usage trends over time",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"timestamp\": \"2024-01-15T00:00:00Z\",\n      \"cpuPercent\": 45.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T01:00:00Z\",\n      \"cpuPercent\": 52.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T02:00:00Z\",\n      \"cpuPercent\": 48.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T03:00:00Z\",\n      \"cpuPercent\": 41.7\n    },\n    {\n      \"timestamp\": \"2024-01-15T04:00:00Z\",\n      \"cpuPercent\": 38.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T05:00:00Z\",\n      \"cpuPercent\": 36.4\n    },\n    {\n      \"timestamp\": \"2024-01-15T06:00:00Z\",\n      \"cpuPercent\": 42.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T07:00:00Z\",\n      \"cpuPercent\": 55.6\n    },\n    {\n      \"timestamp\": \"2024-01-15T08:00:00Z\",\n      \"cpuPercent\": 68.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T09:00:00Z\",\n      \"cpuPercent\": 72.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T10:00:00Z\",\n      \"cpuPercent\": 78.5\n    },\n    {\n      \"timestamp\": \"2024-01-15T11:00:00Z\",\n      \"cpuPercent\": 81.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T12:00:00Z\",\n      \"cpuPercent\": 76.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T13:00:00Z\",\n      \"cpuPercent\": 74.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T14:00:00Z\",\n      \"cpuPercent\": 70.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T15:00:00Z\",\n      \"cpuPercent\": 65.7\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
+    "user_prompt": "Show pod status distribution as a pie chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
+    "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
-      "data_file": "cpu_usage_timeseries.json",
-      "prompt_file": "prompts_chart_line.json"
+      "data_file": "pod_status_distribution.json",
+      "prompt_file": "prompts_chart_pie.json"
     }
   },
   {
     "id": "chart-000011",
-    "user_prompt": "Display CPU metrics as a line chart",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"timestamp\": \"2024-01-15T00:00:00Z\",\n      \"cpuPercent\": 45.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T01:00:00Z\",\n      \"cpuPercent\": 52.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T02:00:00Z\",\n      \"cpuPercent\": 48.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T03:00:00Z\",\n      \"cpuPercent\": 41.7\n    },\n    {\n      \"timestamp\": \"2024-01-15T04:00:00Z\",\n      \"cpuPercent\": 38.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T05:00:00Z\",\n      \"cpuPercent\": 36.4\n    },\n    {\n      \"timestamp\": \"2024-01-15T06:00:00Z\",\n      \"cpuPercent\": 42.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T07:00:00Z\",\n      \"cpuPercent\": 55.6\n    },\n    {\n      \"timestamp\": \"2024-01-15T08:00:00Z\",\n      \"cpuPercent\": 68.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T09:00:00Z\",\n      \"cpuPercent\": 72.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T10:00:00Z\",\n      \"cpuPercent\": 78.5\n    },\n    {\n      \"timestamp\": \"2024-01-15T11:00:00Z\",\n      \"cpuPercent\": 81.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T12:00:00Z\",\n      \"cpuPercent\": 76.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T13:00:00Z\",\n      \"cpuPercent\": 74.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T14:00:00Z\",\n      \"cpuPercent\": 70.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T15:00:00Z\",\n      \"cpuPercent\": 65.7\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
+    "user_prompt": "Display pod status as a pie chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
+    "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
-      "data_file": "cpu_usage_timeseries.json",
-      "prompt_file": "prompts_chart_line.json"
+      "data_file": "pod_status_distribution.json",
+      "prompt_file": "prompts_chart_pie.json"
     }
   },
   {
     "id": "chart-000012",
-    "user_prompt": "Show hourly CPU trend chart",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"timestamp\": \"2024-01-15T00:00:00Z\",\n      \"cpuPercent\": 45.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T01:00:00Z\",\n      \"cpuPercent\": 52.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T02:00:00Z\",\n      \"cpuPercent\": 48.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T03:00:00Z\",\n      \"cpuPercent\": 41.7\n    },\n    {\n      \"timestamp\": \"2024-01-15T04:00:00Z\",\n      \"cpuPercent\": 38.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T05:00:00Z\",\n      \"cpuPercent\": 36.4\n    },\n    {\n      \"timestamp\": \"2024-01-15T06:00:00Z\",\n      \"cpuPercent\": 42.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T07:00:00Z\",\n      \"cpuPercent\": 55.6\n    },\n    {\n      \"timestamp\": \"2024-01-15T08:00:00Z\",\n      \"cpuPercent\": 68.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T09:00:00Z\",\n      \"cpuPercent\": 72.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T10:00:00Z\",\n      \"cpuPercent\": 78.5\n    },\n    {\n      \"timestamp\": \"2024-01-15T11:00:00Z\",\n      \"cpuPercent\": 81.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T12:00:00Z\",\n      \"cpuPercent\": 76.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T13:00:00Z\",\n      \"cpuPercent\": 74.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T14:00:00Z\",\n      \"cpuPercent\": 70.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T15:00:00Z\",\n      \"cpuPercent\": 65.7\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
+    "user_prompt": "Show pod breakdown in a pie chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
+    "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
-      "data_file": "cpu_usage_timeseries.json",
-      "prompt_file": "prompts_chart_line.json"
+      "data_file": "pod_status_distribution.json",
+      "prompt_file": "prompts_chart_pie.json"
     }
   },
   {
     "id": "chart-000013",
-    "user_prompt": "Graph the CPU usage history",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"timestamp\": \"2024-01-15T00:00:00Z\",\n      \"cpuPercent\": 45.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T01:00:00Z\",\n      \"cpuPercent\": 52.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T02:00:00Z\",\n      \"cpuPercent\": 48.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T03:00:00Z\",\n      \"cpuPercent\": 41.7\n    },\n    {\n      \"timestamp\": \"2024-01-15T04:00:00Z\",\n      \"cpuPercent\": 38.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T05:00:00Z\",\n      \"cpuPercent\": 36.4\n    },\n    {\n      \"timestamp\": \"2024-01-15T06:00:00Z\",\n      \"cpuPercent\": 42.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T07:00:00Z\",\n      \"cpuPercent\": 55.6\n    },\n    {\n      \"timestamp\": \"2024-01-15T08:00:00Z\",\n      \"cpuPercent\": 68.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T09:00:00Z\",\n      \"cpuPercent\": 72.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T10:00:00Z\",\n      \"cpuPercent\": 78.5\n    },\n    {\n      \"timestamp\": \"2024-01-15T11:00:00Z\",\n      \"cpuPercent\": 81.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T12:00:00Z\",\n      \"cpuPercent\": 76.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T13:00:00Z\",\n      \"cpuPercent\": 74.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T14:00:00Z\",\n      \"cpuPercent\": 70.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T15:00:00Z\",\n      \"cpuPercent\": 65.7\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
+    "user_prompt": "What percentage of pods are running?",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
+    "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
-      "data_file": "cpu_usage_timeseries.json",
-      "prompt_file": "prompts_chart_line.json"
+      "data_file": "pod_status_distribution.json",
+      "prompt_file": "prompts_chart_pie.json"
     }
   },
   {
     "id": "chart-000014",
-    "user_prompt": "Show me CPU trends over the last hour",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"timestamp\": \"2024-01-15T00:00:00Z\",\n      \"cpuPercent\": 45.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T01:00:00Z\",\n      \"cpuPercent\": 52.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T02:00:00Z\",\n      \"cpuPercent\": 48.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T03:00:00Z\",\n      \"cpuPercent\": 41.7\n    },\n    {\n      \"timestamp\": \"2024-01-15T04:00:00Z\",\n      \"cpuPercent\": 38.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T05:00:00Z\",\n      \"cpuPercent\": 36.4\n    },\n    {\n      \"timestamp\": \"2024-01-15T06:00:00Z\",\n      \"cpuPercent\": 42.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T07:00:00Z\",\n      \"cpuPercent\": 55.6\n    },\n    {\n      \"timestamp\": \"2024-01-15T08:00:00Z\",\n      \"cpuPercent\": 68.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T09:00:00Z\",\n      \"cpuPercent\": 72.9\n    },\n    {\n      \"timestamp\": \"2024-01-15T10:00:00Z\",\n      \"cpuPercent\": 78.5\n    },\n    {\n      \"timestamp\": \"2024-01-15T11:00:00Z\",\n      \"cpuPercent\": 81.2\n    },\n    {\n      \"timestamp\": \"2024-01-15T12:00:00Z\",\n      \"cpuPercent\": 76.8\n    },\n    {\n      \"timestamp\": \"2024-01-15T13:00:00Z\",\n      \"cpuPercent\": 74.3\n    },\n    {\n      \"timestamp\": \"2024-01-15T14:00:00Z\",\n      \"cpuPercent\": 70.1\n    },\n    {\n      \"timestamp\": \"2024-01-15T15:00:00Z\",\n      \"cpuPercent\": 65.7\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
+    "user_prompt": "Show pod status as a pie chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
+    "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
-      "data_file": "cpu_usage_timeseries.json",
-      "prompt_file": "prompts_chart_line.json"
+      "data_file": "pod_status_distribution.json",
+      "prompt_file": "prompts_chart_pie.json"
     }
   }
 ]

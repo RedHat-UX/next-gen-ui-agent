@@ -1,46 +1,46 @@
 [
   {
-    "id": "chart-000020",
-    "user_prompt": "Show pod restart trends over time",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"00:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"04:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"08:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"12:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"16:00\",\n      \"restarts\": 2\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"20:00\",\n      \"restarts\": 2\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"00:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"04:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"08:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"12:00\",\n      \"restarts\": 3\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"16:00\",\n      \"restarts\": 5\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"20:00\",\n      \"restarts\": 5\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
+    "id": "chart-000019",
+    "user_prompt": "Compare CPU used vs capacity across nodes in a chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"nodeName\": \"worker-node-01\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 5200,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 24576,\n      \"podCount\": 15\n    },\n    {\n      \"nodeName\": \"worker-node-02\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 6800,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 28672,\n      \"podCount\": 18\n    },\n    {\n      \"nodeName\": \"worker-node-03\",\n      \"cpuCapacity\": 16000,\n      \"cpuUsed\": 9600,\n      \"memoryCapacity\": 65536,\n      \"memoryUsed\": 45056,\n      \"podCount\": 22\n    },\n    {\n      \"nodeName\": \"worker-node-04\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 3200,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 16384,\n      \"podCount\": 8\n    },\n    {\n      \"nodeName\": \"worker-node-05\",\n      \"cpuCapacity\": 16000,\n      \"cpuUsed\": 12000,\n      \"memoryCapacity\": 65536,\n      \"memoryUsed\": 52428,\n      \"podCount\": 25\n    }\n  ]\n}\n",
+    "expected_component": "chart-mirrored-bar",
     "warn_only": false,
     "src": {
-      "data_file": "pod_restarts_trend.json",
-      "prompt_file": "prompts_chart_restarts.json"
+      "data_file": "node_capacity.json",
+      "prompt_file": "prompts_chart_node_capacity.json"
+    }
+  },
+  {
+    "id": "chart-000020",
+    "user_prompt": "Show node resource utilization as a comparison chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"nodeName\": \"worker-node-01\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 5200,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 24576,\n      \"podCount\": 15\n    },\n    {\n      \"nodeName\": \"worker-node-02\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 6800,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 28672,\n      \"podCount\": 18\n    },\n    {\n      \"nodeName\": \"worker-node-03\",\n      \"cpuCapacity\": 16000,\n      \"cpuUsed\": 9600,\n      \"memoryCapacity\": 65536,\n      \"memoryUsed\": 45056,\n      \"podCount\": 22\n    },\n    {\n      \"nodeName\": \"worker-node-04\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 3200,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 16384,\n      \"podCount\": 8\n    },\n    {\n      \"nodeName\": \"worker-node-05\",\n      \"cpuCapacity\": 16000,\n      \"cpuUsed\": 12000,\n      \"memoryCapacity\": 65536,\n      \"memoryUsed\": 52428,\n      \"podCount\": 25\n    }\n  ]\n}\n",
+    "expected_component": "chart-mirrored-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "node_capacity.json",
+      "prompt_file": "prompts_chart_node_capacity.json"
     }
   },
   {
     "id": "chart-000021",
-    "user_prompt": "Display restart history as a line chart",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"00:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"04:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"08:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"12:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"16:00\",\n      \"restarts\": 2\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"20:00\",\n      \"restarts\": 2\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"00:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"04:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"08:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"12:00\",\n      \"restarts\": 3\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"16:00\",\n      \"restarts\": 5\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"20:00\",\n      \"restarts\": 5\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
+    "user_prompt": "Compare memory usage and capacity chart for all nodes",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"nodeName\": \"worker-node-01\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 5200,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 24576,\n      \"podCount\": 15\n    },\n    {\n      \"nodeName\": \"worker-node-02\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 6800,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 28672,\n      \"podCount\": 18\n    },\n    {\n      \"nodeName\": \"worker-node-03\",\n      \"cpuCapacity\": 16000,\n      \"cpuUsed\": 9600,\n      \"memoryCapacity\": 65536,\n      \"memoryUsed\": 45056,\n      \"podCount\": 22\n    },\n    {\n      \"nodeName\": \"worker-node-04\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 3200,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 16384,\n      \"podCount\": 8\n    },\n    {\n      \"nodeName\": \"worker-node-05\",\n      \"cpuCapacity\": 16000,\n      \"cpuUsed\": 12000,\n      \"memoryCapacity\": 65536,\n      \"memoryUsed\": 52428,\n      \"podCount\": 25\n    }\n  ]\n}\n",
+    "expected_component": "chart-mirrored-bar",
     "warn_only": false,
     "src": {
-      "data_file": "pod_restarts_trend.json",
-      "prompt_file": "prompts_chart_restarts.json"
+      "data_file": "node_capacity.json",
+      "prompt_file": "prompts_chart_node_capacity.json"
     }
   },
   {
     "id": "chart-000022",
-    "user_prompt": "Show me pod restart pattern chart",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"00:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"04:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"08:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"12:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"16:00\",\n      \"restarts\": 2\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"20:00\",\n      \"restarts\": 2\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"00:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"04:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"08:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"12:00\",\n      \"restarts\": 3\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"16:00\",\n      \"restarts\": 5\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"20:00\",\n      \"restarts\": 5\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
+    "user_prompt": "Display node CPU and memory side-by-side chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"nodeName\": \"worker-node-01\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 5200,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 24576,\n      \"podCount\": 15\n    },\n    {\n      \"nodeName\": \"worker-node-02\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 6800,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 28672,\n      \"podCount\": 18\n    },\n    {\n      \"nodeName\": \"worker-node-03\",\n      \"cpuCapacity\": 16000,\n      \"cpuUsed\": 9600,\n      \"memoryCapacity\": 65536,\n      \"memoryUsed\": 45056,\n      \"podCount\": 22\n    },\n    {\n      \"nodeName\": \"worker-node-04\",\n      \"cpuCapacity\": 8000,\n      \"cpuUsed\": 3200,\n      \"memoryCapacity\": 32768,\n      \"memoryUsed\": 16384,\n      \"podCount\": 8\n    },\n    {\n      \"nodeName\": \"worker-node-05\",\n      \"cpuCapacity\": 16000,\n      \"cpuUsed\": 12000,\n      \"memoryCapacity\": 65536,\n      \"memoryUsed\": 52428,\n      \"podCount\": 25\n    }\n  ]\n}\n",
+    "expected_component": "chart-mirrored-bar",
     "warn_only": false,
     "src": {
-      "data_file": "pod_restarts_trend.json",
-      "prompt_file": "prompts_chart_restarts.json"
-    }
-  },
-  {
-    "id": "chart-000023",
-    "user_prompt": "Track pod restarts throughout the day as a trend",
-    "backend_data": "{\n  \"items\": [\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"00:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"04:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"08:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"12:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"16:00\",\n      \"restarts\": 2\n    },\n    {\n      \"podName\": \"docs-preview-app-7d9c8\",\n      \"hour\": \"20:00\",\n      \"restarts\": 2\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"00:00\",\n      \"restarts\": 0\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"04:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"08:00\",\n      \"restarts\": 1\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"12:00\",\n      \"restarts\": 3\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"16:00\",\n      \"restarts\": 5\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"hour\": \"20:00\",\n      \"restarts\": 5\n    }\n  ]\n}\n",
-    "expected_component": "chart-line",
-    "warn_only": false,
-    "src": {
-      "data_file": "pod_restarts_trend.json",
-      "prompt_file": "prompts_chart_restarts.json"
+      "data_file": "node_capacity.json",
+      "prompt_file": "prompts_chart_node_capacity.json"
     }
   }
 ]
