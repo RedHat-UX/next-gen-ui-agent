@@ -1,5 +1,5 @@
 {
-  "result": [
+  "items": [
     {
       "metric": {
         "__name__": "instance:node_cpu_utilisation:rate1m",

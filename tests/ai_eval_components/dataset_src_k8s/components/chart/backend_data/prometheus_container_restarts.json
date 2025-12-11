@@ -1,5 +1,5 @@
 {
-  "result": [
+  "items": [
     {
       "metric": {
         "__name__": "kube_pod_container_status_restarts_total",

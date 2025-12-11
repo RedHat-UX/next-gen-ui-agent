@@ -1,5 +1,5 @@
 {
-  "result": [
+  "items": [
     {
       "metric": {
         "__name__": "node_memory_MemAvailable_bytes",

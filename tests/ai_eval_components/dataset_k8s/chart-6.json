@@ -2,7 +2,7 @@
   {
     "id": "chart-000024",
     "user_prompt": "Compare pod count across namespaces in a chart",
-    "backend_data": "[\n  {\n    \"namespace\": \"production\",\n    \"podCount\": 42,\n    \"cpuLimit\": 16000,\n    \"memoryLimit\": 65536\n  },\n  {\n    \"namespace\": \"staging\",\n    \"podCount\": 18,\n    \"cpuLimit\": 8000,\n    \"memoryLimit\": 32768\n  },\n  {\n    \"namespace\": \"development\",\n    \"podCount\": 12,\n    \"cpuLimit\": 4000,\n    \"memoryLimit\": 16384\n  },\n  {\n    \"namespace\": \"system\",\n    \"podCount\": 8,\n    \"cpuLimit\": 2000,\n    \"memoryLimit\": 8192\n  },\n  {\n    \"namespace\": \"monitoring\",\n    \"podCount\": 6,\n    \"cpuLimit\": 2000,\n    \"memoryLimit\": 8192\n  }\n]\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"namespace\": \"production\",\n      \"podCount\": 42,\n      \"cpuLimit\": 16000,\n      \"memoryLimit\": 65536\n    },\n    {\n      \"namespace\": \"staging\",\n      \"podCount\": 18,\n      \"cpuLimit\": 8000,\n      \"memoryLimit\": 32768\n    },\n    {\n      \"namespace\": \"development\",\n      \"podCount\": 12,\n      \"cpuLimit\": 4000,\n      \"memoryLimit\": 16384\n    },\n    {\n      \"namespace\": \"system\",\n      \"podCount\": 8,\n      \"cpuLimit\": 2000,\n      \"memoryLimit\": 8192\n    },\n    {\n      \"namespace\": \"monitoring\",\n      \"podCount\": 6,\n      \"cpuLimit\": 2000,\n      \"memoryLimit\": 8192\n    }\n  ]\n}\n",
     "expected_component": "chart-bar",
     "warn_only": false,
     "src": {
@@ -13,7 +13,7 @@
   {
     "id": "chart-000025",
     "user_prompt": "Show namespace resource usage as a bar chart",
-    "backend_data": "[\n  {\n    \"namespace\": \"production\",\n    \"podCount\": 42,\n    \"cpuLimit\": 16000,\n    \"memoryLimit\": 65536\n  },\n  {\n    \"namespace\": \"staging\",\n    \"podCount\": 18,\n    \"cpuLimit\": 8000,\n    \"memoryLimit\": 32768\n  },\n  {\n    \"namespace\": \"development\",\n    \"podCount\": 12,\n    \"cpuLimit\": 4000,\n    \"memoryLimit\": 16384\n  },\n  {\n    \"namespace\": \"system\",\n    \"podCount\": 8,\n    \"cpuLimit\": 2000,\n    \"memoryLimit\": 8192\n  },\n  {\n    \"namespace\": \"monitoring\",\n    \"podCount\": 6,\n    \"cpuLimit\": 2000,\n    \"memoryLimit\": 8192\n  }\n]\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"namespace\": \"production\",\n      \"podCount\": 42,\n      \"cpuLimit\": 16000,\n      \"memoryLimit\": 65536\n    },\n    {\n      \"namespace\": \"staging\",\n      \"podCount\": 18,\n      \"cpuLimit\": 8000,\n      \"memoryLimit\": 32768\n    },\n    {\n      \"namespace\": \"development\",\n      \"podCount\": 12,\n      \"cpuLimit\": 4000,\n      \"memoryLimit\": 16384\n    },\n    {\n      \"namespace\": \"system\",\n      \"podCount\": 8,\n      \"cpuLimit\": 2000,\n      \"memoryLimit\": 8192\n    },\n    {\n      \"namespace\": \"monitoring\",\n      \"podCount\": 6,\n      \"cpuLimit\": 2000,\n      \"memoryLimit\": 8192\n    }\n  ]\n}\n",
     "expected_component": "chart-bar",
     "warn_only": false,
     "src": {
@@ -24,7 +24,7 @@
   {
     "id": "chart-000026",
     "user_prompt": "Which namespaces have the most pods? Show as chart",
-    "backend_data": "[\n  {\n    \"namespace\": \"production\",\n    \"podCount\": 42,\n    \"cpuLimit\": 16000,\n    \"memoryLimit\": 65536\n  },\n  {\n    \"namespace\": \"staging\",\n    \"podCount\": 18,\n    \"cpuLimit\": 8000,\n    \"memoryLimit\": 32768\n  },\n  {\n    \"namespace\": \"development\",\n    \"podCount\": 12,\n    \"cpuLimit\": 4000,\n    \"memoryLimit\": 16384\n  },\n  {\n    \"namespace\": \"system\",\n    \"podCount\": 8,\n    \"cpuLimit\": 2000,\n    \"memoryLimit\": 8192\n  },\n  {\n    \"namespace\": \"monitoring\",\n    \"podCount\": 6,\n    \"cpuLimit\": 2000,\n    \"memoryLimit\": 8192\n  }\n]\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"namespace\": \"production\",\n      \"podCount\": 42,\n      \"cpuLimit\": 16000,\n      \"memoryLimit\": 65536\n    },\n    {\n      \"namespace\": \"staging\",\n      \"podCount\": 18,\n      \"cpuLimit\": 8000,\n      \"memoryLimit\": 32768\n    },\n    {\n      \"namespace\": \"development\",\n      \"podCount\": 12,\n      \"cpuLimit\": 4000,\n      \"memoryLimit\": 16384\n    },\n    {\n      \"namespace\": \"system\",\n      \"podCount\": 8,\n      \"cpuLimit\": 2000,\n      \"memoryLimit\": 8192\n    },\n    {\n      \"namespace\": \"monitoring\",\n      \"podCount\": 6,\n      \"cpuLimit\": 2000,\n      \"memoryLimit\": 8192\n    }\n  ]\n}\n",
     "expected_component": "chart-bar",
     "warn_only": false,
     "src": {
@@ -35,7 +35,7 @@
   {
     "id": "chart-000027",
     "user_prompt": "Display pod distribution by namespace in a bar chart",
-    "backend_data": "[\n  {\n    \"namespace\": \"production\",\n    \"podCount\": 42,\n    \"cpuLimit\": 16000,\n    \"memoryLimit\": 65536\n  },\n  {\n    \"namespace\": \"staging\",\n    \"podCount\": 18,\n    \"cpuLimit\": 8000,\n    \"memoryLimit\": 32768\n  },\n  {\n    \"namespace\": \"development\",\n    \"podCount\": 12,\n    \"cpuLimit\": 4000,\n    \"memoryLimit\": 16384\n  },\n  {\n    \"namespace\": \"system\",\n    \"podCount\": 8,\n    \"cpuLimit\": 2000,\n    \"memoryLimit\": 8192\n  },\n  {\n    \"namespace\": \"monitoring\",\n    \"podCount\": 6,\n    \"cpuLimit\": 2000,\n    \"memoryLimit\": 8192\n  }\n]\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"namespace\": \"production\",\n      \"podCount\": 42,\n      \"cpuLimit\": 16000,\n      \"memoryLimit\": 65536\n    },\n    {\n      \"namespace\": \"staging\",\n      \"podCount\": 18,\n      \"cpuLimit\": 8000,\n      \"memoryLimit\": 32768\n    },\n    {\n      \"namespace\": \"development\",\n      \"podCount\": 12,\n      \"cpuLimit\": 4000,\n      \"memoryLimit\": 16384\n    },\n    {\n      \"namespace\": \"system\",\n      \"podCount\": 8,\n      \"cpuLimit\": 2000,\n      \"memoryLimit\": 8192\n    },\n    {\n      \"namespace\": \"monitoring\",\n      \"podCount\": 6,\n      \"cpuLimit\": 2000,\n      \"memoryLimit\": 8192\n    }\n  ]\n}\n",
     "expected_component": "chart-bar",
     "warn_only": false,
     "src": {

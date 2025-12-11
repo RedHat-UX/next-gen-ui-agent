@@ -2,7 +2,7 @@
   {
     "id": "chart-000015",
     "user_prompt": "Show pod status distribution as a pie chart",
-    "backend_data": "[\n  {\n    \"status\": \"Running\",\n    \"count\": 42\n  },\n  {\n    \"status\": \"Pending\",\n    \"count\": 5\n  },\n  {\n    \"status\": \"Failed\",\n    \"count\": 3\n  },\n  {\n    \"status\": \"Succeeded\",\n    \"count\": 12\n  }\n]\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
@@ -13,7 +13,7 @@
   {
     "id": "chart-000016",
     "user_prompt": "Display pod status as a pie chart",
-    "backend_data": "[\n  {\n    \"status\": \"Running\",\n    \"count\": 42\n  },\n  {\n    \"status\": \"Pending\",\n    \"count\": 5\n  },\n  {\n    \"status\": \"Failed\",\n    \"count\": 3\n  },\n  {\n    \"status\": \"Succeeded\",\n    \"count\": 12\n  }\n]\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
@@ -23,8 +23,8 @@
   },
   {
     "id": "chart-000017",
-    "user_prompt": "Show pod breakdown in a donut chart",
-    "backend_data": "[\n  {\n    \"status\": \"Running\",\n    \"count\": 42\n  },\n  {\n    \"status\": \"Pending\",\n    \"count\": 5\n  },\n  {\n    \"status\": \"Failed\",\n    \"count\": 3\n  },\n  {\n    \"status\": \"Succeeded\",\n    \"count\": 12\n  }\n]\n",
+    "user_prompt": "Show pod breakdown in a pie chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
@@ -35,7 +35,7 @@
   {
     "id": "chart-000018",
     "user_prompt": "What percentage of pods are running?",
-    "backend_data": "[\n  {\n    \"status\": \"Running\",\n    \"count\": 42\n  },\n  {\n    \"status\": \"Pending\",\n    \"count\": 5\n  },\n  {\n    \"status\": \"Failed\",\n    \"count\": 3\n  },\n  {\n    \"status\": \"Succeeded\",\n    \"count\": 12\n  }\n]\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
@@ -45,8 +45,8 @@
   },
   {
     "id": "chart-000019",
-    "user_prompt": "Show pod status as a donut chart",
-    "backend_data": "[\n  {\n    \"status\": \"Running\",\n    \"count\": 42\n  },\n  {\n    \"status\": \"Pending\",\n    \"count\": 5\n  },\n  {\n    \"status\": \"Failed\",\n    \"count\": 3\n  },\n  {\n    \"status\": \"Succeeded\",\n    \"count\": 12\n  }\n]\n",
+    "user_prompt": "Show pod status as a pie chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"status\": \"Running\",\n      \"count\": 42\n    },\n    {\n      \"status\": \"Pending\",\n      \"count\": 5\n    },\n    {\n      \"status\": \"Failed\",\n      \"count\": 3\n    },\n    {\n      \"status\": \"Succeeded\",\n      \"count\": 12\n    }\n  ]\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {

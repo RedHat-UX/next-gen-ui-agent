@@ -1,22 +1,24 @@
-[
-  {
-    "ageRange": "< 1 hour",
-    "count": 5
-  },
-  {
-    "ageRange": "1-6 hours",
-    "count": 12
-  },
-  {
-    "ageRange": "6-24 hours",
-    "count": 18
-  },
-  {
-    "ageRange": "1-7 days",
-    "count": 24
-  },
-  {
-    "ageRange": "> 7 days",
-    "count": 31
-  }
-]
+{
+  "items": [
+    {
+      "ageRange": "< 1 hour",
+      "count": 5
+    },
+    {
+      "ageRange": "1-6 hours",
+      "count": 12
+    },
+    {
+      "ageRange": "6-24 hours",
+      "count": 18
+    },
+    {
+      "ageRange": "1-7 days",
+      "count": 24
+    },
+    {
+      "ageRange": "> 7 days",
+      "count": 31
+    }
+  ]
+}

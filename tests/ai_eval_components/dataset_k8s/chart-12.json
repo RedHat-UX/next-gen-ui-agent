@@ -1,8 +1,8 @@
 [
   {
     "id": "chart-000048",
-    "user_prompt": "Show pod phase distribution from Prometheus",
-    "backend_data": "{\n  \"result\": [\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Running\"\n      },\n      \"value\": [1763034271, \"42\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Pending\"\n      },\n      \"value\": [1763034271, \"5\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Failed\"\n      },\n      \"value\": [1763034271, \"3\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Succeeded\"\n      },\n      \"value\": [1763034271, \"12\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
+    "user_prompt": "Show pod phase distribution from Prometheus as a pie chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Running\"\n      },\n      \"value\": [1763034271, \"42\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Pending\"\n      },\n      \"value\": [1763034271, \"5\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Failed\"\n      },\n      \"value\": [1763034271, \"3\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Succeeded\"\n      },\n      \"value\": [1763034271, \"12\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
@@ -12,8 +12,8 @@
   },
   {
     "id": "chart-000049",
-    "user_prompt": "Display pod status breakdown as a chart",
-    "backend_data": "{\n  \"result\": [\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Running\"\n      },\n      \"value\": [1763034271, \"42\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Pending\"\n      },\n      \"value\": [1763034271, \"5\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Failed\"\n      },\n      \"value\": [1763034271, \"3\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Succeeded\"\n      },\n      \"value\": [1763034271, \"12\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
+    "user_prompt": "Display pod status distribution as a pie chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Running\"\n      },\n      \"value\": [1763034271, \"42\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Pending\"\n      },\n      \"value\": [1763034271, \"5\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Failed\"\n      },\n      \"value\": [1763034271, \"3\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Succeeded\"\n      },\n      \"value\": [1763034271, \"12\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
@@ -24,7 +24,7 @@
   {
     "id": "chart-000050",
     "user_prompt": "What's the pod status distribution?",
-    "backend_data": "{\n  \"result\": [\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Running\"\n      },\n      \"value\": [1763034271, \"42\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Pending\"\n      },\n      \"value\": [1763034271, \"5\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Failed\"\n      },\n      \"value\": [1763034271, \"3\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Succeeded\"\n      },\n      \"value\": [1763034271, \"12\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Running\"\n      },\n      \"value\": [1763034271, \"42\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Pending\"\n      },\n      \"value\": [1763034271, \"5\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Failed\"\n      },\n      \"value\": [1763034271, \"3\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Succeeded\"\n      },\n      \"value\": [1763034271, \"12\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {
@@ -35,7 +35,7 @@
   {
     "id": "chart-000051",
     "user_prompt": "Show pod phases as a pie chart",
-    "backend_data": "{\n  \"result\": [\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Running\"\n      },\n      \"value\": [1763034271, \"42\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Pending\"\n      },\n      \"value\": [1763034271, \"5\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Failed\"\n      },\n      \"value\": [1763034271, \"3\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Succeeded\"\n      },\n      \"value\": [1763034271, \"12\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Running\"\n      },\n      \"value\": [1763034271, \"42\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Pending\"\n      },\n      \"value\": [1763034271, \"5\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Failed\"\n      },\n      \"value\": [1763034271, \"3\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"kube_pod_status_phase\",\n        \"phase\": \"Succeeded\"\n      },\n      \"value\": [1763034271, \"12\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
     "expected_component": "chart-pie",
     "warn_only": false,
     "src": {

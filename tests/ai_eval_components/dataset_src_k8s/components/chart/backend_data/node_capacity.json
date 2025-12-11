@@ -1,42 +1,44 @@
-[
-  {
-    "nodeName": "worker-node-01",
-    "cpuCapacity": 8000,
-    "cpuUsed": 5200,
-    "memoryCapacity": 32768,
-    "memoryUsed": 24576,
-    "podCount": 15
-  },
-  {
-    "nodeName": "worker-node-02",
-    "cpuCapacity": 8000,
-    "cpuUsed": 6800,
-    "memoryCapacity": 32768,
-    "memoryUsed": 28672,
-    "podCount": 18
-  },
-  {
-    "nodeName": "worker-node-03",
-    "cpuCapacity": 16000,
-    "cpuUsed": 9600,
-    "memoryCapacity": 65536,
-    "memoryUsed": 45056,
-    "podCount": 22
-  },
-  {
-    "nodeName": "worker-node-04",
-    "cpuCapacity": 8000,
-    "cpuUsed": 3200,
-    "memoryCapacity": 32768,
-    "memoryUsed": 16384,
-    "podCount": 8
-  },
-  {
-    "nodeName": "worker-node-05",
-    "cpuCapacity": 16000,
-    "cpuUsed": 12000,
-    "memoryCapacity": 65536,
-    "memoryUsed": 52428,
-    "podCount": 25
-  }
-]
+{
+  "items": [
+    {
+      "nodeName": "worker-node-01",
+      "cpuCapacity": 8000,
+      "cpuUsed": 5200,
+      "memoryCapacity": 32768,
+      "memoryUsed": 24576,
+      "podCount": 15
+    },
+    {
+      "nodeName": "worker-node-02",
+      "cpuCapacity": 8000,
+      "cpuUsed": 6800,
+      "memoryCapacity": 32768,
+      "memoryUsed": 28672,
+      "podCount": 18
+    },
+    {
+      "nodeName": "worker-node-03",
+      "cpuCapacity": 16000,
+      "cpuUsed": 9600,
+      "memoryCapacity": 65536,
+      "memoryUsed": 45056,
+      "podCount": 22
+    },
+    {
+      "nodeName": "worker-node-04",
+      "cpuCapacity": 8000,
+      "cpuUsed": 3200,
+      "memoryCapacity": 32768,
+      "memoryUsed": 16384,
+      "podCount": 8
+    },
+    {
+      "nodeName": "worker-node-05",
+      "cpuCapacity": 16000,
+      "cpuUsed": 12000,
+      "memoryCapacity": 65536,
+      "memoryUsed": 52428,
+      "podCount": 25
+    }
+  ]
+}
