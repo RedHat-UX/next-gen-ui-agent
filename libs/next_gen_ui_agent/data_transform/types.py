@@ -113,6 +113,10 @@ class ComponentDataChartBase(ComponentDataBaseWithTitle):
     data: Optional[list[ChartSeries]] = Field(
         default=None, description="Array of data series for the chart"
     )
+    x_axis_label: Optional[str] = Field(
+        default=None,
+        description="Label for the x-axis (shared by all series). Typically taken from the first field's name.",
+    )
 
 
 class ComponentDataBarChart(ComponentDataChartBase):

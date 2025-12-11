@@ -21,6 +21,73 @@ export interface QuickPrompt {
 }
 
 export const quickPrompts: QuickPrompt[] = [
+  // Charts
+  {
+    id: "chart_line_multiseries_000001",
+    category: "charts",
+    prompt: "Show me weekly revenue for Movie A and Movie B",
+    expectedComponent: "chart-line",
+    source: "general",
+    dataset: {
+      datasetId: "chart-line_chart_line_multiseries_movies",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_line_multiseries_000002",
+    category: "charts",
+    prompt: "Display sales performance for Product X and Product Y over months",
+    expectedComponent: "chart-line",
+    source: "general",
+    dataset: {
+      datasetId: "chart-line_chart_line_multiseries_products",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_line_multiseries_000003",
+    category: "charts",
+    prompt: "Show user count for Region A and Region B by quarter",
+    expectedComponent: "chart-line",
+    source: "general",
+    dataset: {
+      datasetId: "chart-line_chart_line_multiseries_regions",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_line_standard_000001",
+    category: "charts",
+    prompt: "Show me sales and profit over time",
+    expectedComponent: "chart-line",
+    source: "general",
+    dataset: {
+      datasetId: "chart-line_chart_line_standard_sales_profit",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_line_standard_000002",
+    category: "charts",
+    prompt: "Display revenue and expenses trends",
+    expectedComponent: "chart-line",
+    source: "general",
+    dataset: {
+      datasetId: "chart-line_chart_line_standard_revenue_expenses",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_line_standard_000003",
+    category: "charts",
+    prompt: "Plot temperature and humidity over the day",
+    expectedComponent: "chart-line",
+    source: "general",
+    dataset: {
+      datasetId: "chart-line_chart_line_standard_temperature_humidity",
+      dataType: "chart-line.dataset",
+    }
+  },
   // Image
   {
     id: "image_000001",
