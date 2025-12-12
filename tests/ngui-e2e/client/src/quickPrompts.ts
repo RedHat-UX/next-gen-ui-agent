@@ -23,7 +23,7 @@ export interface QuickPrompt {
 export const quickPrompts: QuickPrompt[] = [
   // Charts
   {
-    id: "chart_line_multiseries_000001",
+    id: "chart_line_000001",
     category: "charts",
     prompt: "Show me weekly revenue for Movie A and Movie B",
     expectedComponent: "chart-line",
@@ -34,7 +34,7 @@ export const quickPrompts: QuickPrompt[] = [
     }
   },
   {
-    id: "chart_line_multiseries_000002",
+    id: "chart_line_000002",
     category: "charts",
     prompt: "Display sales performance for Product X and Product Y over months",
     expectedComponent: "chart-line",
@@ -45,7 +45,7 @@ export const quickPrompts: QuickPrompt[] = [
     }
   },
   {
-    id: "chart_line_multiseries_000003",
+    id: "chart_line_000003",
     category: "charts",
     prompt: "Show user count for Region A and Region B by quarter",
     expectedComponent: "chart-line",
@@ -56,7 +56,7 @@ export const quickPrompts: QuickPrompt[] = [
     }
   },
   {
-    id: "chart_line_standard_000001",
+    id: "chart_line_000004",
     category: "charts",
     prompt: "Show me sales and profit over time",
     expectedComponent: "chart-line",
@@ -67,7 +67,7 @@ export const quickPrompts: QuickPrompt[] = [
     }
   },
   {
-    id: "chart_line_standard_000002",
+    id: "chart_line_000005",
     category: "charts",
     prompt: "Display revenue and expenses trends",
     expectedComponent: "chart-line",
@@ -78,7 +78,7 @@ export const quickPrompts: QuickPrompt[] = [
     }
   },
   {
-    id: "chart_line_standard_000003",
+    id: "chart_line_000006",
     category: "charts",
     prompt: "Plot temperature and humidity over the day",
     expectedComponent: "chart-line",

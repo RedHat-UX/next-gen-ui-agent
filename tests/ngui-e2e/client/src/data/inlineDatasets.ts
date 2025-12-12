@@ -170,6 +170,36 @@ export const INLINE_DATASETS: InlineDataset[] = [
 ],
   },
   {
+    id: "chart-line_chart_line_standard_revenue_expenses",
+    label: "Chart Line Standard Revenue Expenses",
+    description: "Example: 'Display revenue and expenses trends...'",
+    dataType: "chart-line.dataset",
+    payload: {
+      "data": [
+            {
+                  "quarter": "Q1",
+                  "revenue": 50000,
+                  "expenses": 35000
+            },
+            {
+                  "quarter": "Q2",
+                  "revenue": 60000,
+                  "expenses": 40000
+            },
+            {
+                  "quarter": "Q3",
+                  "revenue": 55000,
+                  "expenses": 38000
+            },
+            {
+                  "quarter": "Q4",
+                  "revenue": 70000,
+                  "expenses": 45000
+            }
+      ]
+},
+  },
+  {
     id: "one-card_simple_subscription_direct",
     label: "Simple Subscription Direct",
     description: "Example: 'When does my RHEL subscription end?...'",
@@ -183,6 +213,41 @@ export const INLINE_DATASETS: InlineDataset[] = [
       "viewUrl": "https://access.redhat.com/sub/EUS-101",
       "editUrl": "https://access.redhat.com/sub/ed/EUS-101",
       "renewUrl": "https://access.redhat.com/sub/r/EUS-101"
+},
+  },
+  {
+    id: "chart-line_chart_line_standard_sales_profit",
+    label: "Chart Line Standard Sales Profit",
+    description: "Example: 'Show me sales and profit over time...'",
+    dataType: "chart-line.dataset",
+    payload: {
+      "data": [
+            {
+                  "month": "Jan",
+                  "sales": 100,
+                  "profit": 20
+            },
+            {
+                  "month": "Feb",
+                  "sales": 150,
+                  "profit": 35
+            },
+            {
+                  "month": "Mar",
+                  "sales": 120,
+                  "profit": 25
+            },
+            {
+                  "month": "Apr",
+                  "sales": 180,
+                  "profit": 45
+            },
+            {
+                  "month": "May",
+                  "sales": 200,
+                  "profit": 50
+            }
+      ]
 },
   },
   {
@@ -502,6 +567,50 @@ export const INLINE_DATASETS: InlineDataset[] = [
 },
   },
   {
+    id: "chart-line_chart_line_multiseries_regions",
+    label: "Chart Line Multiseries Regions",
+    description: "Example: 'Show user count for Region A and Region B by quarter...'",
+    dataType: "chart-line.dataset",
+    payload: {
+      "regions": [
+            {
+                  "regionName": "Region A",
+                  "quarterlyUsers": [
+                        {
+                              "quarter": "Q1",
+                              "users": 5000
+                        },
+                        {
+                              "quarter": "Q2",
+                              "users": 6000
+                        },
+                        {
+                              "quarter": "Q3",
+                              "users": 5500
+                        }
+                  ]
+            },
+            {
+                  "regionName": "Region B",
+                  "quarterlyUsers": [
+                        {
+                              "quarter": "Q1",
+                              "users": 3000
+                        },
+                        {
+                              "quarter": "Q2",
+                              "users": 4000
+                        },
+                        {
+                              "quarter": "Q3",
+                              "users": 3500
+                        }
+                  ]
+            }
+      ]
+},
+  },
+  {
     id: "one-card_simple_subscription_direct_inarray",
     label: "Simple Subscription Direct Inarray",
     description: "Example: 'When does my RHEL subscription end?...'",
@@ -538,6 +647,50 @@ export const INLINE_DATASETS: InlineDataset[] = [
             }
       }
 ],
+  },
+  {
+    id: "chart-line_chart_line_multiseries_products",
+    label: "Chart Line Multiseries Products",
+    description: "Example: 'Display sales performance for Product X and Product Y over months...'",
+    dataType: "chart-line.dataset",
+    payload: {
+      "products": [
+            {
+                  "name": "Product X",
+                  "monthlySales": [
+                        {
+                              "month": "Jan",
+                              "sales": 1000
+                        },
+                        {
+                              "month": "Feb",
+                              "sales": 1200
+                        },
+                        {
+                              "month": "Mar",
+                              "sales": 1100
+                        }
+                  ]
+            },
+            {
+                  "name": "Product Y",
+                  "monthlySales": [
+                        {
+                              "month": "Jan",
+                              "sales": 800
+                        },
+                        {
+                              "month": "Feb",
+                              "sales": 950
+                        },
+                        {
+                              "month": "Mar",
+                              "sales": 900
+                        }
+                  ]
+            }
+      ]
+},
   },
   {
     id: "one-card_simple_movie_actorsNames_camelCase",
@@ -769,6 +922,50 @@ export const INLINE_DATASETS: InlineDataset[] = [
             "Tim Allen",
             "Tom Hanks",
             "Don Rickles"
+      ]
+},
+  },
+  {
+    id: "chart-line_chart_line_multiseries_movies",
+    label: "Chart Line Multiseries Movies",
+    description: "Example: 'Show me weekly revenue for Movie A and Movie B...'",
+    dataType: "chart-line.dataset",
+    payload: {
+      "movies": [
+            {
+                  "title": "Movie A",
+                  "weeklyData": [
+                        {
+                              "week": "W1",
+                              "revenue": 100
+                        },
+                        {
+                              "week": "W2",
+                              "revenue": 150
+                        },
+                        {
+                              "week": "W3",
+                              "revenue": 120
+                        }
+                  ]
+            },
+            {
+                  "title": "Movie B",
+                  "weeklyData": [
+                        {
+                              "week": "W1",
+                              "revenue": 80
+                        },
+                        {
+                              "week": "W2",
+                              "revenue": 120
+                        },
+                        {
+                              "week": "W3",
+                              "revenue": 100
+                        }
+                  ]
+            }
       ]
 },
   },
@@ -1226,6 +1423,36 @@ export const INLINE_DATASETS: InlineDataset[] = [
 },
   },
   {
+    id: "chart-line_chart_line_standard_temperature_humidity",
+    label: "Chart Line Standard Temperature Humidity",
+    description: "Example: 'Plot temperature and humidity over the day...'",
+    dataType: "chart-line.dataset",
+    payload: {
+      "readings": [
+            {
+                  "time": "06:00",
+                  "temperature": 15,
+                  "humidity": 60
+            },
+            {
+                  "time": "12:00",
+                  "temperature": 25,
+                  "humidity": 45
+            },
+            {
+                  "time": "18:00",
+                  "temperature": 22,
+                  "humidity": 55
+            },
+            {
+                  "time": "24:00",
+                  "temperature": 18,
+                  "humidity": 65
+            }
+      ]
+},
+  },
+  {
     id: "one-card_simple_subscription_inobject",
     label: "Simple Subscription Inobject",
     description: "Example: 'When does my RHEL subscription end?...'",
@@ -1399,233 +1626,6 @@ export const INLINE_DATASETS: InlineDataset[] = [
                   "viewUrl": "https://access.redhat.com/sub/08it7jrdntrfg",
                   "editLink": "https://access.redhat.com/sub/e/08it7jrdntrfg",
                   "renewalLink": "https://access.redhat.com/sub/r/08it7jrdntrfg"
-            }
-      ]
-},
-  },
-  {
-    id: "chart-line_chart_line_multiseries_movies",
-    label: "Chart Line Multiseries Movies",
-    description: "Example: 'Show me weekly revenue for Movie A and Movie B...'",
-    dataType: "chart-line.dataset",
-    payload: {
-      "movies": [
-            {
-                  "title": "Movie A",
-                  "weeklyData": [
-                        {
-                              "week": "W1",
-                              "revenue": 100
-                        },
-                        {
-                              "week": "W2",
-                              "revenue": 150
-                        },
-                        {
-                              "week": "W3",
-                              "revenue": 120
-                        }
-                  ]
-            },
-            {
-                  "title": "Movie B",
-                  "weeklyData": [
-                        {
-                              "week": "W1",
-                              "revenue": 80
-                        },
-                        {
-                              "week": "W2",
-                              "revenue": 120
-                        },
-                        {
-                              "week": "W3",
-                              "revenue": 100
-                        }
-                  ]
-            }
-      ]
-},
-  },
-  {
-    id: "chart-line_chart_line_multiseries_products",
-    label: "Chart Line Multiseries Products",
-    description: "Example: 'Display sales performance for Product X and Product Y over months...'",
-    dataType: "chart-line.dataset",
-    payload: {
-      "products": [
-            {
-                  "name": "Product X",
-                  "monthlySales": [
-                        {
-                              "month": "Jan",
-                              "sales": 1000
-                        },
-                        {
-                              "month": "Feb",
-                              "sales": 1200
-                        },
-                        {
-                              "month": "Mar",
-                              "sales": 1100
-                        }
-                  ]
-            },
-            {
-                  "name": "Product Y",
-                  "monthlySales": [
-                        {
-                              "month": "Jan",
-                              "sales": 800
-                        },
-                        {
-                              "month": "Feb",
-                              "sales": 950
-                        },
-                        {
-                              "month": "Mar",
-                              "sales": 900
-                        }
-                  ]
-            }
-      ]
-},
-  },
-  {
-    id: "chart-line_chart_line_multiseries_regions",
-    label: "Chart Line Multiseries Regions",
-    description: "Example: 'Show user count for Region A and Region B by quarter...'",
-    dataType: "chart-line.dataset",
-    payload: {
-      "regions": [
-            {
-                  "regionName": "Region A",
-                  "quarterlyUsers": [
-                        {
-                              "quarter": "Q1",
-                              "users": 5000
-                        },
-                        {
-                              "quarter": "Q2",
-                              "users": 6000
-                        },
-                        {
-                              "quarter": "Q3",
-                              "users": 5500
-                        }
-                  ]
-            },
-            {
-                  "regionName": "Region B",
-                  "quarterlyUsers": [
-                        {
-                              "quarter": "Q1",
-                              "users": 3000
-                        },
-                        {
-                              "quarter": "Q2",
-                              "users": 4000
-                        },
-                        {
-                              "quarter": "Q3",
-                              "users": 3500
-                        }
-                  ]
-            }
-      ]
-},
-  },
-  {
-    id: "chart-line_chart_line_standard_sales_profit",
-    label: "Chart Line Standard Sales Profit",
-    description: "Example: 'Show me sales and profit over time...'",
-    dataType: "chart-line.dataset",
-    payload: {
-      "data": [
-            {
-                  "month": "Jan",
-                  "sales": 100,
-                  "profit": 20
-            },
-            {
-                  "month": "Feb",
-                  "sales": 150,
-                  "profit": 35
-            },
-            {
-                  "month": "Mar",
-                  "sales": 120,
-                  "profit": 25
-            },
-            {
-                  "month": "Apr",
-                  "sales": 180,
-                  "profit": 45
-            },
-            {
-                  "month": "May",
-                  "sales": 200,
-                  "profit": 50
-            }
-      ]
-},
-  },
-  {
-    id: "chart-line_chart_line_standard_revenue_expenses",
-    label: "Chart Line Standard Revenue Expenses",
-    description: "Example: 'Display revenue and expenses trends...'",
-    dataType: "chart-line.dataset",
-    payload: {
-      "data": [
-            {
-                  "quarter": "Q1",
-                  "revenue": 50000,
-                  "expenses": 35000
-            },
-            {
-                  "quarter": "Q2",
-                  "revenue": 60000,
-                  "expenses": 40000
-            },
-            {
-                  "quarter": "Q3",
-                  "revenue": 55000,
-                  "expenses": 38000
-            },
-            {
-                  "quarter": "Q4",
-                  "revenue": 70000,
-                  "expenses": 45000
-            }
-      ]
-},
-  },
-  {
-    id: "chart-line_chart_line_standard_temperature_humidity",
-    label: "Chart Line Standard Temperature Humidity",
-    description: "Example: 'Plot temperature and humidity over the day...'",
-    dataType: "chart-line.dataset",
-    payload: {
-      "readings": [
-            {
-                  "time": "06:00",
-                  "temperature": 15,
-                  "humidity": 60
-            },
-            {
-                  "time": "12:00",
-                  "temperature": 25,
-                  "humidity": 45
-            },
-            {
-                  "time": "18:00",
-                  "temperature": 22,
-                  "humidity": 55
-            },
-            {
-                  "time": "24:00",
-                  "temperature": 18,
-                  "humidity": 65
             }
       ]
 },
