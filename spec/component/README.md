@@ -1,7 +1,7 @@
 # UI Components Spec
 
 Specification of the json format (as JSON Schema) of the `Data UI Blocks` produced by the *UI Agent* json UI renderer.
-Mainly usefull to implement client-side renderers as they consume this format.
+Mainly useful to implement client-side renderers as they consume this format.
 
 How relevant object types are generated to TypeScript then can be tested here: [https://transform.tools/json-schema-to-typescript](https://transform.tools/json-schema-to-typescript)
 
@@ -214,6 +214,7 @@ Chart components support multiple visualization types:
 - `chart-mirrored-bar` - Mirrored bar charts for comparing two metrics side-by-side
 
 Example JSON output (bar chart):
+
 ```json
 {
   "component": "chart-bar",
@@ -240,6 +241,9 @@ Example JSON output (bar chart):
   ]
 }
 ```
+
+Data for chart can be represented as one or more named *data series* in the `data` array, containing array of *data points*. 
+*Data point* contains `x` (`string` or `number`) and `y` (`number`) values.
 
 Example JSON output (line chart - standard):
 ```json
@@ -296,6 +300,9 @@ Example JSON output (line chart - multi-series):
 ```
 
 **Note**: The `x_axis_label` field is automatically populated from the first field's name for standard charts, or the second field's name for multi-series line charts. This label can be used by renderers to display the x-axis label on the chart.
+
+Exact data requirements for individual chart types, and how are they converted from the *UI Agent* input data structures,
+is described in [this documentation guide](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/charts/).
 
 ## Hand Build Component (aka HBC)
 

@@ -204,7 +204,7 @@ and Next Gen UI web component rendering:
 
 ## 7. Render web component
 
-Take the rendition of NextGenUI Agent in you web app. To successfull render rhds web component you need to install RHDS itself.
+Take the rendition of NextGenUI Agent in you web app. To successfully render rhds web component you need to install RHDS itself.
 Follow [installation guide](https://ux.redhat.com/get-started/developers/installation/).
 
 This is inline component rendering. Try to play trailer, full-screen mode, resize window etc.

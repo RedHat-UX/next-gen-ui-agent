@@ -133,6 +133,8 @@ as we put it into name of the field the array is stored in.
 
 As of UI Agent `0.3.0`, [automatic JSON wrapping](#automatic-json-wrapping) is applied if enabled and data `type` is provided to prevent problems with this kind of data.
 
+Arrays of objects can be also source of data for different [chart component types](../data_ui_blocks/dynamic_components.md#charts), for more details [see separate guide](./charts.md).
+
 !!! warning
     Array with one object only is typically interpreted as a single `Object` and relevant UI component is used to show it's values.
 
@@ -178,10 +180,9 @@ You can also nest `Array of simple values` in the `Object` (even if the `Object`
     But in many cases LLM of the *UI Agent* generates nonsense paths pointing to the values of this array.
     It is always better to provide this `Array of objects` as a separate input data, so two `Data UI Blocks` are shown, one for the parent `Object`, and one for the `Array of objects`.
 
-
 ## Data value types
 
-Data value type is important for formating during visualization. Details depend on used frontend technology etc. 
+Data value type is important for formatting during visualization. Details depend on used frontend technology etc. 
 Some data value types are also important for specific UI components as they may form heart of their functionality, e.g "Image URL" for `image` component.
 
 Data field value can be `null` also in JSON.
@@ -208,7 +209,7 @@ Data field value is interpreted as plain `string` until any other type applies.
 
 ### Image URL
 
-To interpret data field as an url pointing to the image, it must match any of this:
+To interpret data field as a URL pointing to the image, it must match any of this:
 
 * data field value must be http/s url pointing to the file with [image extension defined in `IMAGE_URL_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
 * data field value must be http/s url and data field name must end with [extension defined in `IMAGE_DATA_PATH_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
@@ -221,7 +222,7 @@ Field with Image URL is important for [`image`](../data_ui_blocks/dynamic_compon
 
 ### Video URL
 
-To interpret data field as an url pointing to the video, it must match any of this:
+To interpret data field as a URL pointing to the video, it must match any of this:
 
 * data field value must be http/s url containing `.youtube.` or `youtu.be`
 * data field value must be http/s url and data field name must end with [extension defined in `VIDEO_DATA_PATH_SUFFIXES`](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_agent/data_transform/types.py)
@@ -234,7 +235,7 @@ Other URL's are treated as a normal data values. UI components can render url as
 
 ### Enum value
 
-**ToDo** implementation of value formating with "Data hints" for enums? Other possibility is frontend rendering customization based on the data field ID?
+**ToDo** implementation of value formatting with "Data hints" for enums? Other possibility is frontend rendering customization based on the data field ID?
 
 
 ## Data hints using metadata
