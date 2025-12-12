@@ -1,7 +1,7 @@
 # UI Components Spec
 
 Specification of the json format (as JSON Schema) of the `Data UI Blocks` produced by the *UI Agent* json UI renderer.
-Mainly usefull to implement client-side renderers as they consume this format.
+Mainly useful to implement client-side renderers as they consume this format.
 
 How relevant object types are generated to TypeScript then can be tested here: [https://transform.tools/json-schema-to-typescript](https://transform.tools/json-schema-to-typescript)
 
