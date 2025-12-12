@@ -21,6 +21,799 @@ export interface QuickPrompt {
 }
 
 export const quickPrompts: QuickPrompt[] = [
+  // Charts
+  {
+    id: "chart_000001",
+    category: "charts",
+    prompt: "Show CPU usage comparison chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_pod_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000002",
+    category: "charts",
+    prompt: "Display pod CPU as a bar chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_pod_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000003",
+    category: "charts",
+    prompt: "Compare CPU across pods in a chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_pod_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000004",
+    category: "charts",
+    prompt: "Show me a bar chart of pod memory usage",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_pod_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000005",
+    category: "charts",
+    prompt: "Chart the resource usage by pod",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_pod_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000006",
+    category: "charts",
+    prompt: "Show CPU and memory comparison chart",
+    expectedComponent: "chart-mirrored-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-mirrored-bar_pod_metrics",
+      dataType: "chart-mirrored-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000007",
+    category: "charts",
+    prompt: "Compare CPU vs memory in a bar chart",
+    expectedComponent: "chart-mirrored-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-mirrored-bar_pod_metrics",
+      dataType: "chart-mirrored-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000008",
+    category: "charts",
+    prompt: "Display dual metric comparison for pods",
+    expectedComponent: "chart-mirrored-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-mirrored-bar_pod_metrics",
+      dataType: "chart-mirrored-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000009",
+    category: "charts",
+    prompt: "Show side-by-side CPU and memory chart",
+    expectedComponent: "chart-mirrored-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-mirrored-bar_pod_metrics",
+      dataType: "chart-mirrored-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000010",
+    category: "charts",
+    prompt: "Show pod status distribution as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_status_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000011",
+    category: "charts",
+    prompt: "Display pod status as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_status_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000012",
+    category: "charts",
+    prompt: "Show pod breakdown in a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_status_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000013",
+    category: "charts",
+    prompt: "What percentage of pods are running?",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_status_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000014",
+    category: "charts",
+    prompt: "Show pod status as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_status_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000015",
+    category: "charts",
+    prompt: "Show pod age distribution as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_age_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000016",
+    category: "charts",
+    prompt: "Display pod age breakdown as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_age_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000017",
+    category: "charts",
+    prompt: "What's the age distribution of pods? Show as chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_age_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000018",
+    category: "charts",
+    prompt: "Show pod age as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pod_age_distribution",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000019",
+    category: "charts",
+    prompt: "Compare CPU used vs capacity across nodes in a chart",
+    expectedComponent: "chart-mirrored-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-mirrored-bar_node_capacity",
+      dataType: "chart-mirrored-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000020",
+    category: "charts",
+    prompt: "Show node resource utilization as a comparison chart",
+    expectedComponent: "chart-mirrored-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-mirrored-bar_node_capacity",
+      dataType: "chart-mirrored-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000021",
+    category: "charts",
+    prompt: "Compare memory usage and capacity chart for all nodes",
+    expectedComponent: "chart-mirrored-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-mirrored-bar_node_capacity",
+      dataType: "chart-mirrored-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000022",
+    category: "charts",
+    prompt: "Display node CPU and memory side-by-side chart",
+    expectedComponent: "chart-mirrored-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-mirrored-bar_node_capacity",
+      dataType: "chart-mirrored-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000023",
+    category: "charts",
+    prompt: "Show pod phase distribution from Prometheus",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_prometheus_node_cpu_timeseries",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000024",
+    category: "charts",
+    prompt: "Display pod status breakdown as a chart",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_prometheus_node_cpu_timeseries",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000025",
+    category: "charts",
+    prompt: "What's the pod status distribution?",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_prometheus_node_cpu_timeseries",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000026",
+    category: "charts",
+    prompt: "Show pod phases as a pie chart",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_prometheus_node_cpu_timeseries",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000027",
+    category: "charts",
+    prompt: "Compare available memory across nodes as a chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_prometheus_memory_usage",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000028",
+    category: "charts",
+    prompt: "Show node memory availability bar chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_prometheus_memory_usage",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000029",
+    category: "charts",
+    prompt: "Which nodes have the most available memory? Chart it",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_prometheus_memory_usage",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000030",
+    category: "charts",
+    prompt: "Display memory metrics by node in a bar chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_prometheus_memory_usage",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000031",
+    category: "charts",
+    prompt: "Show container restart counts as a bar chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_prometheus_container_restarts",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000032",
+    category: "charts",
+    prompt: "Which containers have restarted the most? Show chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_prometheus_container_restarts",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000033",
+    category: "charts",
+    prompt: "Display restart statistics for containers in a chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_prometheus_container_restarts",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000034",
+    category: "charts",
+    prompt: "Compare container restarts in a bar chart",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_prometheus_container_restarts",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000035",
+    category: "charts",
+    prompt: "Show pod phase distribution from Prometheus as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_prometheus_pod_status_count",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000036",
+    category: "charts",
+    prompt: "Display pod status distribution as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_prometheus_pod_status_count",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000037",
+    category: "charts",
+    prompt: "What's the pod status distribution?",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_prometheus_pod_status_count",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000038",
+    category: "charts",
+    prompt: "Show pod phases as a pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_prometheus_pod_status_count",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000039",
+    category: "charts",
+    prompt: "Count pods by status",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_status_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000040",
+    category: "charts",
+    prompt: "How many pods are in each status?",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_status_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000041",
+    category: "charts",
+    prompt: "Show pod status count as pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_status_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000042",
+    category: "charts",
+    prompt: "Count and display pod statuses",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_status_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000043",
+    category: "charts",
+    prompt: "What's the distribution of pod statuses?",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_status_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000044",
+    category: "charts",
+    prompt: "Show label distribution as donut chart",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pods_labels_frequency",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000045",
+    category: "charts",
+    prompt: "Count pod labels across all pods",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pods_labels_frequency",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000046",
+    category: "charts",
+    prompt: "What labels are most common?",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pods_labels_frequency",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000047",
+    category: "charts",
+    prompt: "Display label frequency as donut",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pods_labels_frequency",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000048",
+    category: "charts",
+    prompt: "Show label breakdown counting occurrences",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pods_labels_frequency",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000049",
+    category: "charts",
+    prompt: "Show pod status as a donut chart",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_status_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000050",
+    category: "charts",
+    prompt: "Display pod distribution as donut",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_status_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000051",
+    category: "charts",
+    prompt: "Create donut chart of pod statuses",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_status_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000052",
+    category: "charts",
+    prompt: "Show pod status breakdown in a donut chart",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_status_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000053",
+    category: "charts",
+    prompt: "Visualize pod status as donut with center metric",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_status_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000054",
+    category: "charts",
+    prompt: "Show pod age distribution as donut chart",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_age_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000055",
+    category: "charts",
+    prompt: "Display pod age ranges in a donut chart",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_age_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000056",
+    category: "charts",
+    prompt: "Create donut chart showing pod ages",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_age_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000057",
+    category: "charts",
+    prompt: "Visualize pod age breakdown as donut with center",
+    expectedComponent: "chart-donut",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-donut_pod_age_distribution",
+      dataType: "chart-donut.dataset",
+    }
+  },
+  {
+    id: "chart_000058",
+    category: "charts",
+    prompt: "Show CPU history for each pod",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_pods_cpu_history_nested",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000059",
+    category: "charts",
+    prompt: "Display CPU trends per pod over time",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_pods_cpu_history_nested",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000060",
+    category: "charts",
+    prompt: "Chart historical CPU usage for all pods",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_pods_cpu_history_nested",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000061",
+    category: "charts",
+    prompt: "Compare pod CPU trends",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_pods_cpu_history_nested",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000062",
+    category: "charts",
+    prompt: "Show CPU over time for multiple pods",
+    expectedComponent: "chart-line",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-line_pods_cpu_history_nested",
+      dataType: "chart-line.dataset",
+    }
+  },
+  {
+    id: "chart_000063",
+    category: "charts",
+    prompt: "Count pods per namespace",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_namespace_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000064",
+    category: "charts",
+    prompt: "How many pods in each namespace?",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_namespace_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000065",
+    category: "charts",
+    prompt: "Show namespace distribution",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_namespace_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000066",
+    category: "charts",
+    prompt: "Display pod count by namespace as pie chart",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_namespace_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000067",
+    category: "charts",
+    prompt: "Which namespaces have the most pods?",
+    expectedComponent: "chart-pie",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-pie_pods_namespace_frequency",
+      dataType: "chart-pie.dataset",
+    }
+  },
+  {
+    id: "chart_000068",
+    category: "charts",
+    prompt: "Compare all node metrics",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_node_multi_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000069",
+    category: "charts",
+    prompt: "Show CPU, memory, disk and network for nodes",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_node_multi_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000070",
+    category: "charts",
+    prompt: "Display comprehensive node metrics",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_node_multi_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000071",
+    category: "charts",
+    prompt: "Chart all resource metrics across nodes",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_node_multi_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
+  {
+    id: "chart_000072",
+    category: "charts",
+    prompt: "Compare multiple metrics for each node",
+    expectedComponent: "chart-bar",
+    source: "k8s",
+    dataset: {
+      datasetId: "chart-bar_node_multi_metrics",
+      dataType: "chart-bar.dataset",
+    }
+  },
   // Image
   {
     id: "image_000001",

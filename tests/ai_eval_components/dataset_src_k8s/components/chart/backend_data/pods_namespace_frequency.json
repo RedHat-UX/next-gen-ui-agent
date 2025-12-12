@@ -1,0 +1,21 @@
+{
+  "pods": [
+    { "name": "frontend-1", "namespace": "production", "status": "Running" },
+    { "name": "frontend-2", "namespace": "production", "status": "Running" },
+    { "name": "backend-1", "namespace": "production", "status": "Running" },
+    { "name": "backend-2", "namespace": "production", "status": "Running" },
+    { "name": "worker-1", "namespace": "production", "status": "Running" },
+    { "name": "worker-2", "namespace": "production", "status": "Running" },
+    { "name": "cache-1", "namespace": "production", "status": "Running" },
+    { "name": "test-app-1", "namespace": "staging", "status": "Running" },
+    { "name": "test-app-2", "namespace": "staging", "status": "Running" },
+    { "name": "test-db", "namespace": "staging", "status": "Running" },
+    { "name": "dev-app", "namespace": "development", "status": "Running" },
+    { "name": "dev-db", "namespace": "development", "status": "Running" },
+    { "name": "kube-proxy", "namespace": "kube-system", "status": "Running" },
+    { "name": "coredns-1", "namespace": "kube-system", "status": "Running" },
+    { "name": "coredns-2", "namespace": "kube-system", "status": "Running" },
+    { "name": "prometheus", "namespace": "monitoring", "status": "Running" },
+    { "name": "grafana", "namespace": "monitoring", "status": "Running" }
+  ]
+}

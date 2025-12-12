@@ -181,7 +181,9 @@ if __name__ == "__main__":
                         dataset_row["input_data_type"] = item_generate[
                             "input_data_type"
                         ]
-                    dataset_row["expected_component"] = component_name
+                    dataset_row["expected_component"] = item_generate.get(
+                        "expected_component", component_name
+                    )
                     dataset_row["warn_only"] = item_generate.get("warn_only", False)
                     if shared:
                         df = "backend_data_shared/" + backend_data_file_name

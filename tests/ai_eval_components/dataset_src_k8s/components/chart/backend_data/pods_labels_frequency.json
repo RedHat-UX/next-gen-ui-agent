@@ -1,0 +1,54 @@
+{
+  "pods": [
+    {
+      "name": "frontend-app",
+      "labels": ["production", "web", "critical"],
+      "namespace": "production"
+    },
+    {
+      "name": "backend-api",
+      "labels": ["production", "api", "critical"],
+      "namespace": "production"
+    },
+    {
+      "name": "worker-queue",
+      "labels": ["production", "worker", "async"],
+      "namespace": "production"
+    },
+    {
+      "name": "cache-redis",
+      "labels": ["production", "cache"],
+      "namespace": "production"
+    },
+    {
+      "name": "monitoring-agent",
+      "labels": ["production", "monitoring", "critical"],
+      "namespace": "system"
+    },
+    {
+      "name": "test-runner",
+      "labels": ["staging", "testing"],
+      "namespace": "staging"
+    },
+    {
+      "name": "dev-postgres",
+      "labels": ["development", "database"],
+      "namespace": "development"
+    },
+    {
+      "name": "staging-nginx",
+      "labels": ["staging", "web"],
+      "namespace": "staging"
+    },
+    {
+      "name": "backup-service",
+      "labels": ["production", "backup"],
+      "namespace": "production"
+    },
+    {
+      "name": "log-collector",
+      "labels": ["production", "logging", "system"],
+      "namespace": "system"
+    }
+  ]
+}
