@@ -1,0 +1,51 @@
+[
+    {
+        "comment": "Multiseries chart - movies weekly revenue",
+        "prompts_file": "prompts_chart_line_multiseries_movies.json",
+        "input_data_type": "movies.weekly.revenue",
+        "backend_data_files": [
+            "chart_line_multiseries_movies.json"
+        ]
+    },
+    {
+        "comment": "Multiseries chart - products monthly sales",
+        "prompts_file": "prompts_chart_line_multiseries_products.json",
+        "input_data_type": "products.monthly.sales",
+        "backend_data_files": [
+            "chart_line_multiseries_products.json"
+        ]
+    },
+    {
+        "comment": "Multiseries chart - regions quarterly users",
+        "prompts_file": "prompts_chart_line_multiseries_regions.json",
+        "input_data_type": "regions.quarterly.users",
+        "backend_data_files": [
+            "chart_line_multiseries_regions.json"
+        ]
+    },
+    {
+        "comment": "Standard chart - sales and profit",
+        "prompts_file": "prompts_chart_line_standard_sales_profit.json",
+        "input_data_type": "sales.profit.trends",
+        "backend_data_files": [
+            "chart_line_standard_sales_profit.json"
+        ]
+    },
+    {
+        "comment": "Standard chart - revenue and expenses",
+        "prompts_file": "prompts_chart_line_standard_revenue_expenses.json",
+        "input_data_type": "financial.quarterly",
+        "backend_data_files": [
+            "chart_line_standard_revenue_expenses.json"
+        ]
+    },
+    {
+        "comment": "Standard chart - temperature and humidity",
+        "prompts_file": "prompts_chart_line_standard_temperature_humidity.json",
+        "input_data_type": "weather.daily",
+        "backend_data_files": [
+            "chart_line_standard_temperature_humidity.json"
+        ]
+    }
+]
+
