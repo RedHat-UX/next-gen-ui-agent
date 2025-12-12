@@ -14,7 +14,7 @@
     "@patternfly/patternfly": "^6.3.1",
     "@patternfly/react-core": "^6.3.1",
     "@patternfly/react-icons": "^6.3.1",
-    "@rhngui/patternfly-react-renderer": "^1.0.0-alpha.0",
+    "@rhngui/patternfly-react-renderer": "^1.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
   },
