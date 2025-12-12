@@ -214,6 +214,7 @@ Chart components support multiple visualization types:
 - `chart-mirrored-bar` - Mirrored bar charts for comparing two metrics side-by-side
 
 Example JSON output (bar chart):
+
 ```json
 {
   "component": "chart-bar",
@@ -239,6 +240,12 @@ Example JSON output (bar chart):
   ]
 }
 ```
+
+Data for chart can be represented as one or more named *data series* in the `data` array, containing array of *data points*. 
+*Data point* contains `x` (`string` or `number`) and `y` (`number`) values.
+
+Exact data requirements for individual chart types, and how are they converted from the *UI Agent* input data structures,
+is described in [this documentation guide](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/charts/).
 
 ## Hand Build Component (aka HBC)
 
