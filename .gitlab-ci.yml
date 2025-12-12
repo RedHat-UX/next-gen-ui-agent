@@ -3,7 +3,7 @@
 
 default:
   tags:
-    - itup-alm-x86
+    - ${GITLAB_RUNNER_TAGS}
 
 workflow:
   rules:
@@ -31,7 +31,7 @@ complete_eval:
   stage: test
   image: ${REGISTRY_URL}/ubuntu:latest
   tags:
-    - itup-alm-x86
+    - ${GITLAB_RUNNER_TAGS}
   timeout: 20 hours
   before_script:
     - echo "=== Setting up environment ==="
