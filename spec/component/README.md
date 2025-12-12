@@ -220,6 +220,7 @@ Example JSON output (bar chart):
   "component": "chart-bar",
   "id": "test-id",
   "title": "Sales Data",
+  "x_axis_label": "Month",
   "data": [
     {
       "name": "Q1",
@@ -243,6 +244,62 @@ Example JSON output (bar chart):
 
 Data for chart can be represented as one or more named *data series* in the `data` array, containing array of *data points*. 
 *Data point* contains `x` (`string` or `number`) and `y` (`number`) values.
+
+Example JSON output (line chart - standard):
+```json
+{
+  "component": "chart-line",
+  "id": "test-id",
+  "title": "Sales and Profit Over Time",
+  "x_axis_label": "Month",
+  "data": [
+    {
+      "name": "Sales",
+      "data": [
+        {"x": "Jan", "y": 100},
+        {"x": "Feb", "y": 150},
+        {"x": "Mar", "y": 120}
+      ]
+    },
+    {
+      "name": "Profit",
+      "data": [
+        {"x": "Jan", "y": 20},
+        {"x": "Feb", "y": 35},
+        {"x": "Mar", "y": 25}
+      ]
+    }
+  ]
+}
+```
+
+Example JSON output (line chart - multi-series):
+```json
+{
+  "component": "chart-line",
+  "id": "test-id",
+  "title": "Weekly Revenue by Movie",
+  "x_axis_label": "Week",
+  "data": [
+    {
+      "name": "Movie A",
+      "data": [
+        {"x": "W1", "y": 100},
+        {"x": "W2", "y": 150}
+      ]
+    },
+    {
+      "name": "Movie B",
+      "data": [
+        {"x": "W1", "y": 80},
+        {"x": "W2", "y": 120}
+      ]
+    }
+  ]
+}
+```
+
+**Note**: The `x_axis_label` field is automatically populated from the first field's name for standard charts, or the second field's name for multi-series line charts. This label can be used by renderers to display the x-axis label on the chart.
 
 Exact data requirements for individual chart types, and how are they converted from the *UI Agent* input data structures,
 is described in [this documentation guide](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/charts/).

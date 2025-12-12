@@ -1,0 +1,14 @@
+[
+  {
+    "id": "chart-line-000004",
+    "user_prompt": "Show me sales and profit over time",
+    "backend_data": "{\n    \"data\": [\n        {\n            \"month\": \"Jan\",\n            \"sales\": 100,\n            \"profit\": 20\n        },\n        {\n            \"month\": \"Feb\",\n            \"sales\": 150,\n            \"profit\": 35\n        },\n        {\n            \"month\": \"Mar\",\n            \"sales\": 120,\n            \"profit\": 25\n        },\n        {\n            \"month\": \"Apr\",\n            \"sales\": 180,\n            \"profit\": 45\n        },\n        {\n            \"month\": \"May\",\n            \"sales\": 200,\n            \"profit\": 50\n        }\n    ]\n}\n\n",
+    "input_data_type": "sales.profit.trends",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/chart_line_standard_sales_profit.json",
+      "prompt_file": "prompts_chart_line_standard_sales_profit.json"
+    }
+  }
+]

@@ -78,6 +78,52 @@ def test_process_line_chart_two_fields() -> None:
     assert len(result.data[0].data) == 3
 
 
+def test_process_line_chart_standard_three_fields() -> None:
+    """Test processing standard line chart with 3 fields (x, y1, y2) - 2 lines."""
+    c = UIComponentMetadata.model_validate(
+        {
+            "id": "test_line_two_metrics",
+            "title": "Sales and Profit Over Time",
+            "component": "chart-line",
+            "fields": [
+                {"name": "Month", "data_path": "data[*].month"},
+                {"name": "Sales", "data_path": "data[*].sales"},
+                {"name": "Profit", "data_path": "data[*].profit"},
+            ],
+        }
+    )
+    data = InputData(
+        id="test_line_two_metrics",
+        data="""{
+            "data": [
+                {"month": "Jan", "sales": 100, "profit": 20},
+                {"month": "Feb", "sales": 150, "profit": 35},
+                {"month": "Mar", "sales": 120, "profit": 25}
+            ]
+        }""",
+    )
+    result = LineChartDataTransformer().process(c, data)
+    assert result.component == "chart-line"
+    assert result.data is not None
+    assert len(result.data) == 2  # Two series (Sales and Profit)
+    assert result.data[0].name == "Sales"
+    assert result.data[1].name == "Profit"
+    assert len(result.data[0].data) == 3
+    assert len(result.data[1].data) == 3
+    # Verify Sales data
+    assert result.data[0].data[0].x == "Jan"
+    assert result.data[0].data[0].y == 100
+    assert result.data[0].data[1].x == "Feb"
+    assert result.data[0].data[1].y == 150
+    # Verify Profit data
+    assert result.data[1].data[0].x == "Jan"
+    assert result.data[1].data[0].y == 20
+    assert result.data[1].data[1].x == "Feb"
+    assert result.data[1].data[1].y == 35
+    # Verify x-axis label is set from first field name
+    assert result.x_axis_label == "Month"
+
+
 def test_process_line_chart_multi_series() -> None:
     """Test processing multi-series line chart with 3 fields (series_id, x, y)."""
     c = UIComponentMetadata.model_validate(
@@ -127,6 +173,8 @@ def test_process_line_chart_multi_series() -> None:
     assert result.data[0].data[0].y == 100
     assert result.data[0].data[1].x == "W2"
     assert result.data[0].data[1].y == 150
+    # Verify x-axis label is set from second field name (x-axis) for multi-series
+    assert result.x_axis_label == "Week"
 
 
 def test_validate_line_chart_ok() -> None:
