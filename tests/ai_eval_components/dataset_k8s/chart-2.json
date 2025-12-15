@@ -1,0 +1,46 @@
+[
+  {
+    "id": "chart-000006",
+    "user_prompt": "Show CPU and memory comparison chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"podName\": \"frontend-app-7d9c8\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 850,\n      \"memoryUsage\": 2048,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 1200,\n      \"memoryUsage\": 4096,\n      \"restarts\": 2,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"database-primary-3a1d4\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 2100,\n      \"memoryUsage\": 8192,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"redis-cache-9e2c7\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 450,\n      \"memoryUsage\": 1024,\n      \"restarts\": 1,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"worker-queue-4k8j3\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 1800,\n      \"memoryUsage\": 3072,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"monitoring-agent-2w9s5\",\n      \"namespace\": \"system\",\n      \"cpuUsage\": 320,\n      \"memoryUsage\": 512,\n      \"restarts\": 5,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"ingress-controller-8h3n1\",\n      \"namespace\": \"system\",\n      \"cpuUsage\": 680,\n      \"memoryUsage\": 1536,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-mirrored-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "pod_metrics.json",
+      "prompt_file": "prompts_chart_mirrored.json"
+    }
+  },
+  {
+    "id": "chart-000007",
+    "user_prompt": "Compare CPU vs memory in a bar chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"podName\": \"frontend-app-7d9c8\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 850,\n      \"memoryUsage\": 2048,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 1200,\n      \"memoryUsage\": 4096,\n      \"restarts\": 2,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"database-primary-3a1d4\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 2100,\n      \"memoryUsage\": 8192,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"redis-cache-9e2c7\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 450,\n      \"memoryUsage\": 1024,\n      \"restarts\": 1,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"worker-queue-4k8j3\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 1800,\n      \"memoryUsage\": 3072,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"monitoring-agent-2w9s5\",\n      \"namespace\": \"system\",\n      \"cpuUsage\": 320,\n      \"memoryUsage\": 512,\n      \"restarts\": 5,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"ingress-controller-8h3n1\",\n      \"namespace\": \"system\",\n      \"cpuUsage\": 680,\n      \"memoryUsage\": 1536,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-mirrored-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "pod_metrics.json",
+      "prompt_file": "prompts_chart_mirrored.json"
+    }
+  },
+  {
+    "id": "chart-000008",
+    "user_prompt": "Display dual metric comparison for pods",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"podName\": \"frontend-app-7d9c8\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 850,\n      \"memoryUsage\": 2048,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 1200,\n      \"memoryUsage\": 4096,\n      \"restarts\": 2,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"database-primary-3a1d4\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 2100,\n      \"memoryUsage\": 8192,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"redis-cache-9e2c7\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 450,\n      \"memoryUsage\": 1024,\n      \"restarts\": 1,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"worker-queue-4k8j3\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 1800,\n      \"memoryUsage\": 3072,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"monitoring-agent-2w9s5\",\n      \"namespace\": \"system\",\n      \"cpuUsage\": 320,\n      \"memoryUsage\": 512,\n      \"restarts\": 5,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"ingress-controller-8h3n1\",\n      \"namespace\": \"system\",\n      \"cpuUsage\": 680,\n      \"memoryUsage\": 1536,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-mirrored-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "pod_metrics.json",
+      "prompt_file": "prompts_chart_mirrored.json"
+    }
+  },
+  {
+    "id": "chart-000009",
+    "user_prompt": "Show side-by-side CPU and memory chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"podName\": \"frontend-app-7d9c8\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 850,\n      \"memoryUsage\": 2048,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"backend-api-5f6b2\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 1200,\n      \"memoryUsage\": 4096,\n      \"restarts\": 2,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"database-primary-3a1d4\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 2100,\n      \"memoryUsage\": 8192,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"redis-cache-9e2c7\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 450,\n      \"memoryUsage\": 1024,\n      \"restarts\": 1,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"worker-queue-4k8j3\",\n      \"namespace\": \"production\",\n      \"cpuUsage\": 1800,\n      \"memoryUsage\": 3072,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"monitoring-agent-2w9s5\",\n      \"namespace\": \"system\",\n      \"cpuUsage\": 320,\n      \"memoryUsage\": 512,\n      \"restarts\": 5,\n      \"status\": \"Running\"\n    },\n    {\n      \"podName\": \"ingress-controller-8h3n1\",\n      \"namespace\": \"system\",\n      \"cpuUsage\": 680,\n      \"memoryUsage\": 1536,\n      \"restarts\": 0,\n      \"status\": \"Running\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-mirrored-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "pod_metrics.json",
+      "prompt_file": "prompts_chart_mirrored.json"
+    }
+  }
+]
