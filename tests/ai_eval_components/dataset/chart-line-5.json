@@ -1,0 +1,14 @@
+[
+  {
+    "id": "chart-line-000005",
+    "user_prompt": "Display revenue and expenses trends",
+    "backend_data": "{\n    \"data\": [\n        {\n            \"quarter\": \"Q1\",\n            \"revenue\": 50000,\n            \"expenses\": 35000\n        },\n        {\n            \"quarter\": \"Q2\",\n            \"revenue\": 60000,\n            \"expenses\": 40000\n        },\n        {\n            \"quarter\": \"Q3\",\n            \"revenue\": 55000,\n            \"expenses\": 38000\n        },\n        {\n            \"quarter\": \"Q4\",\n            \"revenue\": 70000,\n            \"expenses\": 45000\n        }\n    ]\n}\n\n",
+    "input_data_type": "financial.quarterly",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/chart_line_standard_revenue_expenses.json",
+      "prompt_file": "prompts_chart_line_standard_revenue_expenses.json"
+    }
+  }
+]

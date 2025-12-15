@@ -66,6 +66,12 @@ class ChartDataTransformerBase(DataTransformerBase[TChart], Generic[TChart]):
         # Build chart data (implemented by subclasses)
         self._build_chart_data(fields, json_data, component)
 
+        # Set x-axis label from appropriate field name (all series share the same x-axis)
+        # For most charts, first field is x-axis. For multi-series line charts, second field is x-axis.
+        # Subclasses can override this by setting x_axis_label in _build_chart_data if needed.
+        if fields and len(fields) > 0 and not self._component_data.x_axis_label:
+            self._component_data.x_axis_label = fields[0].name
+
         if self._component_data.data:
             logger.debug(
                 "Created %d chart series with %d data points in first series",

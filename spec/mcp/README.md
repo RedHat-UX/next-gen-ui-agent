@@ -1,7 +1,7 @@
 # MCP Server Spec
 
 Specifications of the json format (as JSON Schema) of the [Next Gen UI MCP Server](https://redhat-ux.github.io/next-gen-ui-agent/guide/ai_apps_binding/mcp-library/).
-Mainly usefull to implement client-side interaction directly with MCP server.
+Mainly useful to implement client-side interaction directly with MCP server.
 
 How relevant object types are generated to TypeScript then can be tested here: [https://transform.tools/json-schema-to-typescript](https://transform.tools/json-schema-to-typescript)
 

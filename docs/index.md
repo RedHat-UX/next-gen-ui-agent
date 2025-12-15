@@ -6,14 +6,14 @@ It also provides wide configuration options for use cases where tighter control 
 components is required.
 
 In the future, this agent will also maintain UI state and view layouts to keep UI and flows 
-consistent, handle personalized values formating, and many other features. Stay tuned ;-)
+consistent, handle personalized values formatting, and many other features. Stay tuned ;-)
 
 ## Why use Next Gen UI Agent?
 
 * `Rich user experience` - Extends simple text based LLM applications output by rich GUI components like card, table, chart, 
 video-player, image gallery etc. Possibility to plug in own components.
-* `Extensible architecture` - Developer's choice to which AI framwork to plug and which UI component framework to render.
-* `AI Frameworks integration` - Seamless integration of various AI framworks.
+* `Extensible architecture` - Developer's choice to which AI framework to plug and which UI component framework to render.
+* `AI Frameworks integration` - Seamless integration of various AI frameworks.
 * `Server (Agent) side UI rendering` - Powerful agent centralized HTML (e.g. web component) rendition.
 * `Client side UI rendering` - Client side rendering for more control over the rendition - React/PatternFly NPM.
 

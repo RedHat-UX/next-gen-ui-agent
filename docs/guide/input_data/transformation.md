@@ -72,7 +72,7 @@ Jane Ei  25   Boston
 
 Transformer name: `noop`
 
-This transformer keeps input data as a `string`, not as a parsed JSON tree. Usefull if large chunk of unformatted text must be passed to the UI component.
+This transformer keeps input data as a `string`, not as a parsed JSON tree. Useful if large chunk of unformatted text must be passed to the UI component.
 
 For [Hand-Build Components](../data_ui_blocks/hand_build_components.md), text is outputted directly in [the `data` field of their JSON data](../../spec/component.md#hand-build-component-aka-hbc).
 

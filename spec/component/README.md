@@ -1,7 +1,7 @@
 # UI Components Spec
 
 Specification of the json format (as JSON Schema) of the `Data UI Blocks` produced by the *UI Agent* json UI renderer.
-Mainly usefull to implement client-side renderers as they consume this format.
+Mainly useful to implement client-side renderers as they consume this format.
 
 How relevant object types are generated to TypeScript then can be tested here: [https://transform.tools/json-schema-to-typescript](https://transform.tools/json-schema-to-typescript)
 
@@ -214,11 +214,13 @@ Chart components support multiple visualization types:
 - `chart-mirrored-bar` - Mirrored bar charts for comparing two metrics side-by-side
 
 Example JSON output (bar chart):
+
 ```json
 {
   "component": "chart-bar",
   "id": "test-id",
   "title": "Sales Data",
+  "x_axis_label": "Month",
   "data": [
     {
       "name": "Q1",
@@ -239,6 +241,68 @@ Example JSON output (bar chart):
   ]
 }
 ```
+
+Data for chart can be represented as one or more named *data series* in the `data` array, containing array of *data points*. 
+*Data point* contains `x` (`string` or `number`) and `y` (`number`) values.
+
+Example JSON output (line chart - standard):
+```json
+{
+  "component": "chart-line",
+  "id": "test-id",
+  "title": "Sales and Profit Over Time",
+  "x_axis_label": "Month",
+  "data": [
+    {
+      "name": "Sales",
+      "data": [
+        {"x": "Jan", "y": 100},
+        {"x": "Feb", "y": 150},
+        {"x": "Mar", "y": 120}
+      ]
+    },
+    {
+      "name": "Profit",
+      "data": [
+        {"x": "Jan", "y": 20},
+        {"x": "Feb", "y": 35},
+        {"x": "Mar", "y": 25}
+      ]
+    }
+  ]
+}
+```
+
+Example JSON output (line chart - multi-series):
+```json
+{
+  "component": "chart-line",
+  "id": "test-id",
+  "title": "Weekly Revenue by Movie",
+  "x_axis_label": "Week",
+  "data": [
+    {
+      "name": "Movie A",
+      "data": [
+        {"x": "W1", "y": 100},
+        {"x": "W2", "y": 150}
+      ]
+    },
+    {
+      "name": "Movie B",
+      "data": [
+        {"x": "W1", "y": 80},
+        {"x": "W2", "y": 120}
+      ]
+    }
+  ]
+}
+```
+
+**Note**: The `x_axis_label` field is automatically populated from the first field's name for standard charts, or the second field's name for multi-series line charts. This label can be used by renderers to display the x-axis label on the chart.
+
+Exact data requirements for individual chart types, and how are they converted from the *UI Agent* input data structures,
+is described in [this documentation guide](https://redhat-ux.github.io/next-gen-ui-agent/guide/input_data/charts/).
 
 ## Hand Build Component (aka HBC)
 

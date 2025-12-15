@@ -106,6 +106,18 @@
       ],
       "default": null,
       "description": "Array of data series for the chart"
+    },
+    "x_axis_label": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Label for the x-axis (shared by all series). Typically taken from the first field's name."
     }
   },
   "required": [
