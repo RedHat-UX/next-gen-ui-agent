@@ -51,7 +51,7 @@ LLM_RESPONSE = """
 
 
 @pytest.mark.asyncio
-async def test_agent_executor_one_message_and_metadata() -> None:
+async def test_agent_executor_one_part_input_with_metadata() -> None:
     msg = AIMessage(content=LLM_RESPONSE)
     llm = FakeMessagesListChatModel(responses=[msg])
     inference = LangChainModelInference(llm)
@@ -93,6 +93,7 @@ async def test_agent_executor_one_message_and_metadata() -> None:
     assert isinstance(event.parts[1].root, DataPart)
     ui_block = UIBlock.model_validate(event.parts[1].root.data)
     assert ui_block.configuration is not None
+    assert ui_block.configuration.data_type == "search_movie"
     assert ui_block.configuration.component_metadata is not None
     assert "one-card" == ui_block.configuration.component_metadata.component
     assert ui_block.rendering is not None
@@ -102,7 +103,7 @@ async def test_agent_executor_one_message_and_metadata() -> None:
 
 
 @pytest.mark.asyncio
-async def test_agent_executor_two_messages() -> None:
+async def test_agent_executor_one_part_input_with_message_metadata() -> None:
     msg = AIMessage(content=LLM_RESPONSE)
     llm = FakeMessagesListChatModel(responses=[msg])
     inference = LangChainModelInference(llm)
@@ -117,7 +118,65 @@ async def test_agent_executor_two_messages() -> None:
                     text="Tell me details about Toy Story",
                 )
             ),
-            Part(root=DataPart(data=movies_data_obj)),
+        ],
+        message_id=str(uuid4()),
+        metadata={
+            "data": movies_data_obj,  # intentionally without type
+        },
+    )
+
+    context = await SimpleRequestContextBuilder().build(
+        params=MessageSendParams(message=message)
+    )
+
+    event_queue = EventQueue()
+    await executor.execute(context, event_queue)
+
+    event = await event_queue.dequeue_event(no_wait=True)
+    assert isinstance(event, Message)
+    assert len(event.parts) == 2
+
+    assert isinstance(event.parts[0].root, TextPart)
+    assert event.parts[0].root.text.startswith("Component is rendered in UI.")
+    assert "title: 'Toy Story Details'" in event.parts[0].root.text
+    assert "component_type: one-card" in event.parts[0].root.text
+
+    assert isinstance(event.parts[1].root, DataPart)
+    ui_block = UIBlock.model_validate(event.parts[1].root.data)
+    assert ui_block.configuration is not None
+    assert ui_block.configuration.data_type is None
+    assert ui_block.configuration.component_metadata is not None
+    assert "one-card" == ui_block.configuration.component_metadata.component
+    assert ui_block.rendering is not None
+    c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
+    assert "one-card" == c.component
+    assert "Toy Story Details" == c.title
+
+
+@pytest.mark.asyncio
+async def test_agent_executor_two_parts_input() -> None:
+    msg = AIMessage(content=LLM_RESPONSE)
+    llm = FakeMessagesListChatModel(responses=[msg])
+    inference = LangChainModelInference(llm)
+
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
+
+    message = Message(
+        role=Role.user,
+        parts=[
+            Part(
+                root=TextPart(
+                    text="Tell me details about Toy Story",
+                )
+            ),
+            Part(
+                root=DataPart(
+                    data=movies_data_obj,
+                    metadata={
+                        "type": "search_detail",
+                    },
+                )
+            ),
         ],
         message_id=str(uuid4()),
     )
@@ -141,6 +200,7 @@ async def test_agent_executor_two_messages() -> None:
     assert isinstance(event.parts[1].root, DataPart)
     ui_block = UIBlock.model_validate(event.parts[1].root.data)
     assert ui_block.configuration is not None
+    assert ui_block.configuration.data_type == "search_detail"
     assert ui_block.configuration.component_metadata is not None
     assert "one-card" == ui_block.configuration.component_metadata.component
     assert ui_block.rendering is not None

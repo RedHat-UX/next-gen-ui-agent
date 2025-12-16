@@ -175,16 +175,16 @@ See [A2A client example code](https://github.com/RedHat-UX/next-gen-ui-agent/blo
 
 ### Input
 
-Agent expects `Message` with `TextPart`, containing user's prompt. Then it looks for input data in:
+Agent expects `Message` with `TextPart`, containing user's prompt. Then it looks for the input data blocks in:
 
-* string or object tree (converted to JSON string) in the `Message`'s or the `TextPart`'s metadata `data` item, with `type` item used as an input data type.
-* object tree (converted to JSON string) in the `Message`'s subsequent `DataPart`s. Input data type can't be provided in this case currently.
+* string or object tree (converted to JSON string) in the `Message`'s or the `TextPart`'s metadata `data` item, with optional `type` item used as an input data type.
+* object tree (converted to JSON string) in the `Message`'s subsequent `DataPart`s. Input data type can be optionally provided in this part's metadat `type` item.
 
-Multiple InputData can be provided this way to generate multiple UI components.
+Multiple input data blocks can be provided this way to generate multiple UI components in one call.
 
 ### Output
 
-A2A UI Agent reponds with separate `agent` `Message` for each InputData. It contains one generated UI compponent:
+A2A UI Agent reponds with separate `agent` `Message` for each input data block. It contains one generated UI compponent:
 
 * `TextPart` with the textual summary of the processing
 * `DataPart` with the [agent's JSON response](https://redhat-ux.github.io/next-gen-ui-agent/spec/output/)
