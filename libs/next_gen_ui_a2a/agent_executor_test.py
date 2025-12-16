@@ -7,6 +7,7 @@ from a2a.types import DataPart, Message, MessageSendParams, Part, Role, TextPart
 from langchain_core.language_models import FakeMessagesListChatModel
 from langchain_core.messages import AIMessage
 from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
+from next_gen_ui_a2a.compat_a2a import InvalidParamsError
 from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.types import AgentConfig, UIBlock
@@ -151,6 +152,202 @@ async def test_agent_executor_one_part_input_with_message_metadata() -> None:
     c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
     assert "one-card" == c.component
     assert "Toy Story Details" == c.title
+
+
+@pytest.mark.asyncio
+async def test_error_when_no_message_provided() -> None:
+    """Executor should raise InvalidParamsError when context.message is None."""
+    msg = AIMessage(content=LLM_RESPONSE)
+    llm = FakeMessagesListChatModel(responses=[msg])
+    inference = LangChainModelInference(llm)
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
+
+    class DummyContext:
+        def __init__(self) -> None:
+            self.message = None
+            self.metadata = {}
+
+    context = DummyContext()
+    event_queue = EventQueue()
+    with pytest.raises(InvalidParamsError):
+        await executor.execute(context, event_queue)  # type: ignore[arg-type]
+
+
+@pytest.mark.asyncio
+async def test_error_when_no_input_data() -> None:
+    """Executor should raise InvalidParamsError when there are no inputs gathered."""
+    msg = AIMessage(content=LLM_RESPONSE)
+    llm = FakeMessagesListChatModel(responses=[msg])
+    inference = LangChainModelInference(llm)
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
+
+    message = Message(role=Role.user, parts=[], message_id=str(uuid4()))
+    context = await SimpleRequestContextBuilder().build(
+        params=MessageSendParams(message=message)
+    )
+    event_queue = EventQueue()
+    with pytest.raises(InvalidParamsError):
+        await executor.execute(context, event_queue)
+
+
+@pytest.mark.asyncio
+async def test_invalid_json_in_metadata_records_failure() -> None:
+    """Malformed JSON in metadata should be recorded as a failure and included in summary."""
+    msg = AIMessage(content=LLM_RESPONSE)
+    llm = FakeMessagesListChatModel(responses=[msg])
+    inference = LangChainModelInference(llm)
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
+
+    message = Message(
+        role=Role.user,
+        parts=[
+            Part(
+                root=TextPart(
+                    text="Generate UI (bad json)",
+                    metadata={"data": "{not: json}", "type": "search_movie"},
+                )
+            ),
+        ],
+        message_id=str(uuid4()),
+    )
+    context = await SimpleRequestContextBuilder().build(
+        params=MessageSendParams(message=message)
+    )
+    event_queue = EventQueue()
+    await executor.execute(context, event_queue)
+
+    # Drain events and check final summary
+    from asyncio import QueueEmpty
+
+    events = []
+    while True:
+        try:
+            events.append(await event_queue.dequeue_event(no_wait=True))
+        except QueueEmpty:
+            break
+    assert len(events) >= 1
+    summary = events[-1]
+    assert isinstance(summary, Message)
+    assert isinstance(summary.parts[0].root, TextPart)
+    txt = summary.parts[0].root.text
+    assert "Successfully generated 0" in txt
+    assert "Failed: 1" in txt
+    assert "Failed component generation:" in txt
+    assert "Invalid JSON format" in txt
+
+
+@pytest.mark.asyncio
+async def test_success_only_summary_failed_zero() -> None:
+    """When there is only a valid input, final summary should report Failed: 0."""
+    msg = AIMessage(content=LLM_RESPONSE)
+    llm = FakeMessagesListChatModel(responses=[msg])
+    inference = LangChainModelInference(llm)
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
+
+    message = Message(
+        role=Role.user,
+        parts=[
+            Part(
+                root=TextPart(
+                    text="Generate UI",
+                    metadata={"data": movies_data_obj, "type": "search_movie"},
+                )
+            )
+        ],
+        message_id=str(uuid4()),
+    )
+    context = await SimpleRequestContextBuilder().build(
+        params=MessageSendParams(message=message)
+    )
+    event_queue = EventQueue()
+    await executor.execute(context, event_queue)
+
+    # Drain events and check final summary
+    from asyncio import QueueEmpty
+
+    events = []
+    while True:
+        try:
+            events.append(await event_queue.dequeue_event(no_wait=True))
+        except QueueEmpty:
+            break
+    assert len(events) >= 1
+    summary = events[-1]
+    assert isinstance(summary, Message)
+    assert isinstance(summary.parts[0].root, TextPart)
+    txt = summary.parts[0].root.text
+    assert "Successfully generated 1" in txt
+    assert "Failed: 0" in txt
+
+
+@pytest.mark.asyncio
+async def test_agent_executor_summary_includes_failures(monkeypatch) -> None:
+    # Arrange: model + executor
+    msg = AIMessage(content=LLM_RESPONSE)
+    llm = FakeMessagesListChatModel(responses=[msg])
+    inference = LangChainModelInference(llm)
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
+
+    # Patch: fail deterministically on the second call (patch the class method)
+    original_select = type(executor.ngui_agent).select_component
+    call_counter = {"n": 0}
+
+    async def fail_on_second(self, *, user_prompt: str, input_data):
+        call_counter["n"] += 1
+        if call_counter["n"] == 2:
+            raise Exception("forced fail for test")
+        return await original_select(
+            self, user_prompt=user_prompt, input_data=input_data
+        )
+
+    monkeypatch.setattr(
+        type(executor.ngui_agent), "select_component", fail_on_second, raising=False
+    )
+
+    # Two inputs
+    good = {"movie": {"title": "Toy Story"}}
+    bad = {"movie": {"title": "Toy Story 2"}}
+
+    message = Message(
+        role=Role.user,
+        parts=[
+            Part(root=TextPart(text="Tell me details about Toy Story")),
+            Part(root=DataPart(data=good)),
+            Part(root=DataPart(data=bad)),
+        ],
+        message_id=str(uuid4()),
+    )
+
+    context = await SimpleRequestContextBuilder().build(
+        params=MessageSendParams(message=message)
+    )
+
+    # Act
+    event_queue = EventQueue()
+    await executor.execute(context, event_queue)
+
+    # Drain all events; EventQueue raises asyncio.QueueEmpty when empty
+    from asyncio import QueueEmpty
+
+    events = []
+    while True:
+        try:
+            ev = await event_queue.dequeue_event(no_wait=True)
+            events.append(ev)
+        except QueueEmpty:
+            break
+
+    # Assert: final event is the summary with one failure recorded
+    assert len(events) >= 1
+    final = events[-1]
+    assert isinstance(final, Message)
+    assert len(final.parts) >= 1
+    assert isinstance(final.parts[0].root, TextPart)
+    txt = final.parts[0].root.text
+    assert "Successfully generated" in txt
+    assert "Failed: 1" in txt
+    assert "Failed component generation:" in txt
+    assert "forced fail for test" in txt
 
 
 @pytest.mark.asyncio
