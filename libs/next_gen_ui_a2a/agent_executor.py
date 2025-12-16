@@ -35,20 +35,27 @@ class NextGenUIAgentExecutor(AgentExecutor):
                         data = metadata["data"]
                     else:
                         data = json.dumps(metadata["data"])
+
+                    data_type = None
+                    if metadata.get("type"):
+                        data_type = str(metadata.get("type"))
+
                     input_data_list.append(
                         InputData(
                             id=id,
                             data=data,
-                            type=str(metadata.get("type")),
+                            type=data_type,
                         )
                     )
 
             if isinstance(part_root, DataPart):
+                data_type = None
+                if part_root.metadata and part_root.metadata.get("type"):
+                    data_type = str(part_root.metadata.get("type"))
+
                 input_data_list.append(
-                    InputData(id=id, data=json.dumps(part_root.data))
+                    InputData(id=id, data=json.dumps(part_root.data), type=data_type)
                 )
-            elif not user_prompt and isinstance(part_root, TextPart):
-                input_data_list.append(InputData(id=id, data=part_root.text))
 
         return user_prompt, input_data_list
 
