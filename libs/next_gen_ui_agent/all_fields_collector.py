@@ -7,7 +7,7 @@ from next_gen_ui_agent.data_transform.data_transformer_utils import (
 )
 from next_gen_ui_agent.types import DataField, UIComponentMetadata
 
-COMPONENTS_WITH_ALL_FIELDS = ["table", "set-of-cards"]
+COMPONENTS_WITH_ALL_FIELDS = ["data-view", "set-of-cards"]
 """ List of component names where `generate_all_fields()` function generates all possible fields to be shown in the UI."""
 
 # Set of known words with their preferred casing for field name generation
@@ -125,7 +125,7 @@ def generate_all_fields(
 ) -> list[DataField] | None:
     """
     Generate all possible fields to be shown in the UI for the component based on input data and fields currently selected to be shown.
-    Currently, all fields are generated only for `table` and `set-of-cards` components. If component does not support all fields, return `None`.
+    Currently, all fields are generated only for `data-view` and `set-of-cards` components. If component does not support all fields, return `None`.
     """
 
     if (

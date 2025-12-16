@@ -332,7 +332,7 @@ Response example 2:
     }
 ]
 """,
-    "table": """Response example 1:
+    "data-view": """Response example 1:
 [
     {
         "reason": "It is always good to show order name",

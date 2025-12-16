@@ -2,10 +2,10 @@ from jinja2 import Environment, PackageLoader  # pants: no-infer-dep
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.renderer.audio import AudioPlayerRenderStrategy
 from next_gen_ui_agent.renderer.base_renderer import RenderStrategyBase, StrategyFactory
+from next_gen_ui_agent.renderer.data_view import DataViewRenderStrategy
 from next_gen_ui_agent.renderer.image import ImageRenderStrategy
 from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.set_of_cards import SetOfCardsRenderStrategy
-from next_gen_ui_agent.renderer.table import TableRenderStrategy
 from next_gen_ui_agent.renderer.video import VideoRenderStrategy
 from typing_extensions import override
 
@@ -61,7 +61,7 @@ class RhdsOneCardRenderStrategy(OneCardRenderStrategy, RhdsStrategyBase):
     pass
 
 
-class RhdsTableRenderStrategy(TableRenderStrategy, RhdsStrategyBase):
+class RhdsDataViewRenderStrategy(DataViewRenderStrategy, RhdsStrategyBase):
     pass
 
 
@@ -92,8 +92,8 @@ class RhdsStrategyFactory(StrategyFactory):
         match component.component:
             case RhdsOneCardRenderStrategy.COMPONENT_NAME:
                 return RhdsOneCardRenderStrategy()
-            case RhdsTableRenderStrategy.COMPONENT_NAME:
-                return RhdsTableRenderStrategy()
+            case RhdsDataViewRenderStrategy.COMPONENT_NAME:
+                return RhdsDataViewRenderStrategy()
             case RhdsSetOfCardsRenderStrategy.COMPONENT_NAME:
                 return RhdsSetOfCardsRenderStrategy()
             case RhdsImageRenderStrategy.COMPONENT_NAME:

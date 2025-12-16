@@ -3,5 +3,5 @@ from next_gen_ui_agent.renderer.base_renderer import (
 )
 
 
-class TableRenderStrategy(RendererStrategyBaseWithArrayValueFileds):
-    COMPONENT_NAME = "table"
+class DataViewRenderStrategy(RendererStrategyBaseWithArrayValueFileds):
+    COMPONENT_NAME = "data-view"

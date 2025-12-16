@@ -1,7 +1,7 @@
 from next_gen_ui_agent.data_transform.types import (
+    ComponentDataDataView,
     ComponentDataImage,
     ComponentDataOneCard,
-    ComponentDataTable,
     ComponentDataVideo,
     DataFieldSimpleValue,
 )
@@ -33,11 +33,11 @@ _transformed_component_one_card = ComponentDataOneCard.model_validate(
     }
 )
 
-_transformed_component_table = ComponentDataTable.model_validate(
+_transformed_component_data_view = ComponentDataDataView.model_validate(
     {
         "id": "test_id_1",
         "title": "Movies",
-        "component": "table",
+        "component": "data-view",
         "fields": [
             {
                 "name": "Titles",
@@ -77,8 +77,8 @@ def get_transformed_component(component_name="one-card"):
             return _transformed_component_image.model_copy()
         case _transformed_component_video.component:
             return _transformed_component_video.model_copy()
-        case _transformed_component_table.component:
-            return _transformed_component_table.model_copy()
+        case _transformed_component_data_view.component:
+            return _transformed_component_data_view.model_copy()
         case _:
             raise Exception(
                 f"Unkonwn _transformed_component component_name={component_name}"

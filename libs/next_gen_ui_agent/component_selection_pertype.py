@@ -1,9 +1,9 @@
 from typing import Any, Optional
 
+from next_gen_ui_agent.data_transform.data_view import DataViewDataTransformer
 from next_gen_ui_agent.data_transform.image import ImageDataTransformer
 from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
-from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
 from next_gen_ui_agent.types import (
     AgentConfig,
@@ -16,7 +16,7 @@ DYNAMIC_COMPONENT_NAMES = [
     OneCardDataTransformer.COMPONENT_NAME,
     ImageDataTransformer.COMPONENT_NAME,
     VideoPlayerDataTransformer.COMPONENT_NAME,
-    TableDataTransformer.COMPONENT_NAME,
+    DataViewDataTransformer.COMPONENT_NAME,
     SetOfCardsDataTransformer.COMPONENT_NAME,
 ]
 """ List of dynamic component names. """

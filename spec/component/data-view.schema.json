@@ -67,11 +67,11 @@
       "type": "object"
     }
   },
-  "description": "Component Data for Table.",
+  "description": "Component Data for DataView.",
   "properties": {
     "component": {
-      "const": "table",
-      "default": "table",
+      "const": "data-view",
+      "default": "data-view",
       "type": "string"
     },
     "id": {
@@ -94,6 +94,6 @@
     "title",
     "fields"
   ],
-  "title": "ComponentDataTable",
+  "title": "ComponentDataDataView",
   "type": "object"
 }

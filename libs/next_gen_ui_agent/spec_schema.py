@@ -5,6 +5,7 @@ import os
 from typing import Any, Literal
 
 from next_gen_ui_agent import AgentConfig
+from next_gen_ui_agent.data_transform.data_view import DataViewDataTransformer
 from next_gen_ui_agent.data_transform.hand_build_component import (
     HandBuildComponentDataTransformer,
 )
@@ -12,14 +13,13 @@ from next_gen_ui_agent.data_transform.image import ImageDataTransformer
 from next_gen_ui_agent.data_transform.json_schema_config import CustomGenerateJsonSchema
 from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
-from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.types import (
     ComponentDataChartBase,
+    ComponentDataDataView,
     ComponentDataHandBuildComponent,
     ComponentDataImage,
     ComponentDataOneCard,
     ComponentDataSetOfCards,
-    ComponentDataTable,
     ComponentDataVideo,
 )
 from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
@@ -60,8 +60,8 @@ component_schemas: list[tuple[str, str, type[BaseModel]]] = [
     ),
     (
         component_dir,
-        f"{TableDataTransformer.COMPONENT_NAME}.schema.json",
-        ComponentDataTable,
+        f"{DataViewDataTransformer.COMPONENT_NAME}.schema.json",
+        ComponentDataDataView,
     ),
     (
         component_dir,

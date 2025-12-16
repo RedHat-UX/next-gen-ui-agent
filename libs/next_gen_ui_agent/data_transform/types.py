@@ -241,10 +241,10 @@ class ComponentDataSetOfCards(ComponentDataBaseWithArrayValueFileds):
     component: Literal["set-of-cards"] = "set-of-cards"
 
 
-class ComponentDataTable(ComponentDataBaseWithArrayValueFileds):
-    """Component Data for Table."""
+class ComponentDataDataView(ComponentDataBaseWithArrayValueFileds):
+    """Component Data for DataView."""
 
-    component: Literal["table"] = "table"
+    component: Literal["data-view"] = "data-view"
 
 
 class ComponentDataVideo(ComponentDataBaseWithTitle):

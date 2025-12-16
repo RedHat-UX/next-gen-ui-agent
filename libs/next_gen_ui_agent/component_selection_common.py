@@ -12,7 +12,7 @@ UI_COMPONENTS_DESCRIPTION_ALL = """
 * one-card - component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.
 * video-player - component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70
 * image - component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg
-* table - component to visualize array of objects with multiple items (typically 3 or more) in a tabular format. Use when user explicitly requests a table, or for data with many items (especially >6), small number of fields, and short values.
+* data-view - component to visualize array of objects with multiple items (typically 3 or more) in a structured data view format. Use when user explicitly requests a data view or table, or for data with many items (especially >6), small number of fields, and short values.
 * set-of-cards - component to visualize array of objects with multiple items. Use for data with fewer items (<6), high number of fields, or fields with long values. Also good when visual separation between items is important.
 * chart-bar - component to visualize numeric data as a bar chart. Use for comparing one metric across categories.
 * chart-line - component to visualize numeric data as a line chart. Use for trends over time or continuous data.
@@ -31,7 +31,7 @@ def get_ui_components_description() -> str:
 # SECTION 2: Internal Building Blocks (Private - not imported by strategies)
 # ============================================================================
 _COMMON_RULES = """RULES:
-- If user explicitly requests a component type ("table", "chart", "cards"), USE IT unless data structure prevents it
+- If user explicitly requests a component type ("data-view", "table", "chart", "cards"), USE IT unless data structure prevents it
 - Select one component in "component" field
 - Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)"""
 
@@ -58,9 +58,9 @@ ONESTEP_PROMPT_RULES = f"""{_COMMON_RULES}
 ONESTEP_RESPONSE_EXAMPLES = """Response example for multi-item data:
 {
     "title": "Orders",
-    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
+    "reasonForTheComponentSelection": "User explicitly requested a data view, and data has multiple items with short field values",
     "confidenceScore": "95%",
-    "component": "table",
+    "component": "data-view",
     "fields" : [
         {"name":"Name","data_path":"orders[*].name"},
         {"name":"Creation Date","data_path":"orders[*].creationDate"}
@@ -113,10 +113,10 @@ TWOSTEP_STEP1_PROMPT_RULES = f"""{_COMMON_RULES}
 
 TWOSTEP_STEP1_RESPONSE_EXAMPLES = """Response example for multi-item data:
 {
-    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
+    "reasonForTheComponentSelection": "User explicitly requested a data view, and data has multiple items with short field values",
     "confidenceScore": "95%",
     "title": "Orders",
-    "component": "table"
+    "component": "data-view"
 }
 
 Response example for one-item data:

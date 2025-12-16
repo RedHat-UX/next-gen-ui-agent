@@ -1,13 +1,13 @@
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.renderer.audio import AudioPlayerRenderStrategy
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
+from next_gen_ui_agent.renderer.data_view import DataViewRenderStrategy
 from next_gen_ui_agent.renderer.hand_build_component import (
     HandBuildComponentRenderStrategy,
 )
 from next_gen_ui_agent.renderer.image import ImageRenderStrategy
 from next_gen_ui_agent.renderer.one_card import OneCardRenderStrategy
 from next_gen_ui_agent.renderer.set_of_cards import SetOfCardsRenderStrategy
-from next_gen_ui_agent.renderer.table import TableRenderStrategy
 from next_gen_ui_agent.renderer.video import VideoRenderStrategy
 
 
@@ -27,8 +27,8 @@ class JsonStrategyFactory(StrategyFactory):
         match component.component:
             case OneCardRenderStrategy.COMPONENT_NAME:
                 return OneCardRenderStrategy()
-            case TableRenderStrategy.COMPONENT_NAME:
-                return TableRenderStrategy()
+            case DataViewRenderStrategy.COMPONENT_NAME:
+                return DataViewRenderStrategy()
             case SetOfCardsRenderStrategy.COMPONENT_NAME:
                 return SetOfCardsRenderStrategy()
             case ImageRenderStrategy.COMPONENT_NAME:

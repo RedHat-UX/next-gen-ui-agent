@@ -11,13 +11,13 @@ from next_gen_ui_agent.data_transform.chart import (
     PieChartDataTransformer,
 )
 from next_gen_ui_agent.data_transform.data_transformer import DataTransformerBase
+from next_gen_ui_agent.data_transform.data_view import DataViewDataTransformer
 from next_gen_ui_agent.data_transform.hand_build_component import (
     HandBuildComponentDataTransformer,
 )
 from next_gen_ui_agent.data_transform.image import ImageDataTransformer
 from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
-from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
 from next_gen_ui_agent.types import InputData, UIComponentMetadata
@@ -29,7 +29,7 @@ COMPONENT_TRANSFORMERS_REGISTRY: dict[str, DataTransformerBase] = {
     ImageDataTransformer.COMPONENT_NAME: ImageDataTransformer(),
     VideoPlayerDataTransformer.COMPONENT_NAME: VideoPlayerDataTransformer(),
     AudioPlayerDataTransformer.COMPONENT_NAME: AudioPlayerDataTransformer(),
-    TableDataTransformer.COMPONENT_NAME: TableDataTransformer(),
+    DataViewDataTransformer.COMPONENT_NAME: DataViewDataTransformer(),
     SetOfCardsDataTransformer.COMPONENT_NAME: SetOfCardsDataTransformer(),
     BarChartDataTransformer.COMPONENT_NAME: BarChartDataTransformer(),
     LineChartDataTransformer.COMPONENT_NAME: LineChartDataTransformer(),
