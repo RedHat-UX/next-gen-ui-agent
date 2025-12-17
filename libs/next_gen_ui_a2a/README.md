@@ -182,13 +182,17 @@ Agent expects `Message` with `TextPart`, containing user's prompt. Then it looks
 
 Multiple input data blocks can be provided this way to generate multiple UI components in one call.
 
+If no input data blocks are found in the message, `InvalidParamsError` is raised.
+
 ### Output
 
-A2A UI Agent reponds with separate `agent` `Message` for each input data block. It contains one generated UI compponent:
+A2A UI Agent reponds with separate `agent` `Message` for each successfully processed input data block. It contains one generated UI compponent:
 
 * `TextPart` with the textual summary of the processing
 * `DataPart` with the [agent's JSON response](https://redhat-ux.github.io/next-gen-ui-agent/spec/output/)
 
+At the end of processing, UI Agent also sends final `agent` `Message` with `TextPart` containing textual summary of the whole processing, like number 
+of successfully processed input data blocks, number of errors, and details about all processings.
 
 ## Links
 
