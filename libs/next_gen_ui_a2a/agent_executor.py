@@ -3,8 +3,8 @@ import uuid
 
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
-from a2a.types import DataPart, Message, Part, Role, TextPart
-from next_gen_ui_a2a.compat_a2a import InvalidParamsError
+from a2a.types import DataPart, InvalidParamsError, Message, Part, Role, TextPart
+from a2a.utils.errors import ServerError
 from next_gen_ui_agent import AgentConfig, InputData, NextGenUIAgent, UIBlock
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 
@@ -66,14 +66,17 @@ class NextGenUIAgentExecutor(AgentExecutor):
         event_queue: EventQueue,
     ) -> None:
         if not context.message:
-            raise InvalidParamsError("No message provided")
+            raise ServerError(error=InvalidParamsError(message="No message provided"))
         component_system = context.metadata.get("component_system", "json")
 
         user_prompt, input_data_list = self._data_selection(context.message)
         if len(input_data_list) == 0:
-            raise InvalidParamsError(
-                "No input data gathered from either Message metadata or TextPart metadata or DataPart"
+            raise ServerError(
+                error=InvalidParamsError(
+                    message="No input data gathered from either Message metadata or TextPart metadata or DataPart"
+                )
             )
+
         # TODO: Parallelize per input data if needed (depends on NGUI-495	Stabilize input/output A2A schemas, sync with MCP)
         success_output = ["\nSuccessful generated components:"]
         failed_output = ["\nFailed component generation:"]
@@ -107,6 +110,7 @@ class NextGenUIAgentExecutor(AgentExecutor):
 
                 message = Message(
                     role=Role.agent,
+                    context_id=context.context_id,
                     parts=[
                         Part(
                             root=TextPart(
@@ -126,7 +130,6 @@ class NextGenUIAgentExecutor(AgentExecutor):
                     ],
                     message_id=str(uuid.uuid4()),
                     task_id=None,
-                    context_id=None,
                 )
                 await event_queue.enqueue_event(message)
             except Exception as e:
@@ -134,14 +137,17 @@ class NextGenUIAgentExecutor(AgentExecutor):
                     f"{len(failed_output)}. UI generation failed for this component. {e}"
                 )
 
-        summary_message = self.create_a2a_output(success_output, failed_output)
+        summary_message = self.create_a2a_output(context, success_output, failed_output)
         await event_queue.enqueue_event(summary_message)
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
         raise Exception("cancel not supported")
 
     def create_a2a_output(
-        self, success_output: list[str], failed_output: list[str]
+        self,
+        context: RequestContext,
+        success_output: list[str],
+        failed_output: list[str],
     ) -> Message:
         """Create final A2A output summary message."""
         successes = len(success_output) - 1
@@ -165,5 +171,5 @@ class NextGenUIAgentExecutor(AgentExecutor):
             ],
             message_id=str(uuid.uuid4()),
             task_id=None,
-            context_id=None,
+            context_id=context.context_id,
         )

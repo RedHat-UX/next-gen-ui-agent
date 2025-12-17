@@ -4,10 +4,10 @@ import pytest
 from a2a.server.agent_execution import SimpleRequestContextBuilder
 from a2a.server.events import EventQueue
 from a2a.types import DataPart, Message, MessageSendParams, Part, Role, TextPart
+from a2a.utils.errors import ServerError
 from langchain_core.language_models import FakeMessagesListChatModel
 from langchain_core.messages import AIMessage
 from next_gen_ui_a2a.agent_executor import NextGenUIAgentExecutor
-from next_gen_ui_a2a.compat_a2a import InvalidParamsError
 from next_gen_ui_agent.data_transform.types import ComponentDataOneCard
 from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.types import AgentConfig, UIBlock
@@ -165,11 +165,11 @@ async def test_error_when_no_message_provided() -> None:
     class DummyContext:
         def __init__(self) -> None:
             self.message = None
-            self.metadata = {}
+            self.metadata = None
 
     context = DummyContext()
     event_queue = EventQueue()
-    with pytest.raises(InvalidParamsError):
+    with pytest.raises(ServerError, match="No message provided"):
         await executor.execute(context, event_queue)  # type: ignore[arg-type]
 
 
@@ -186,7 +186,10 @@ async def test_error_when_no_input_data() -> None:
         params=MessageSendParams(message=message)
     )
     event_queue = EventQueue()
-    with pytest.raises(InvalidParamsError):
+    with pytest.raises(
+        ServerError,
+        match="No input data gathered from either Message metadata or TextPart metadata or DataPart",
+    ):
         await executor.execute(context, event_queue)
 
 
