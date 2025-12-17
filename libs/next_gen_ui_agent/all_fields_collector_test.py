@@ -28,7 +28,7 @@ def test_generate_all_fields_returns_none_for_unsupported_component():
 def test_generate_all_fields_returns_none_when_fields_is_empty():
     """Test that generate_all_fields returns None when fields list is empty."""
     component_metadata = UIComponentMetadata(
-        component="table",
+        component="data-view",
         title="Test",
         fields=[],
         json_data={"items": [{"name": "test"}]},
@@ -39,9 +39,9 @@ def test_generate_all_fields_returns_none_when_fields_is_empty():
 
 
 def test_generate_all_fields_table_component_simple_fields():
-    """Test that generate_all_fields correctly extracts all fields from a table component with simple fields."""
+    """Test that generate_all_fields correctly extracts all fields from a data-view component with simple fields."""
     component_metadata = UIComponentMetadata(
-        component="table",
+        component="data-view",
         title="Test Table",
         fields=[
             DataField(
@@ -112,7 +112,7 @@ def test_generate_all_fields_set_of_cards_component():
 def test_generate_all_fields_with_nested_objects():
     """Test that generate_all_fields correctly handles nested objects and ignores fields containing arrays of objects."""
     component_metadata = UIComponentMetadata(
-        component="table",
+        component="data-view",
         title="Test Table",
         fields=[
             DataField(
@@ -177,7 +177,7 @@ def test_generate_all_fields_with_nested_objects():
 def test_generate_all_fields_with_deeply_nested_objects():
     """Test that generate_all_fields correctly handles deeply nested objects."""
     component_metadata = UIComponentMetadata(
-        component="table",
+        component="data-view",
         title="Test Table",
         fields=[
             DataField(
@@ -218,7 +218,7 @@ def test_generate_all_fields_with_deeply_nested_objects():
 def test_generate_all_fields_with_empty_array():
     """Test that generate_all_fields handles empty array in json_data  - this should never happen but just to be sure it works as expected."""
     component_metadata = UIComponentMetadata(
-        component="table",
+        component="data-view",
         title="Test Table",
         fields=[
             DataField(
@@ -237,7 +237,7 @@ def test_generate_all_fields_with_empty_array():
 def test_generate_all_fields_with_missing_data_path():
     """Test that generate_all_fields handles missing data in json_data gracefully."""
     component_metadata = UIComponentMetadata(
-        component="table",
+        component="data-view",
         title="Test Table",
         fields=[
             DataField(
@@ -257,7 +257,7 @@ def test_generate_all_fields_with_missing_data_path():
 def test_generate_all_fields_with_non_dict_array_items():
     """Test that generate_all_fields handles array items that are not dictionaries."""
     component_metadata = UIComponentMetadata(
-        component="table",
+        component="data-view",
         title="Test Table",
         fields=[
             DataField(

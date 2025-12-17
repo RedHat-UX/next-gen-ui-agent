@@ -48,8 +48,8 @@ from next_gen_ui_agent.component_selection_llm_strategy import (
 from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
 )
+from next_gen_ui_agent.data_transform.data_view import DataViewDataTransformer
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
-from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.types import ComponentDataBase
 from next_gen_ui_agent.data_transform.validation.assertions import (
     assert_array_not_empty,
@@ -111,14 +111,14 @@ def check_result_explicit(
             if arg_vague_component_check:
                 # allow `table` and `set-of-cards` components to be interchanged
                 if (
-                    generated_component == TableDataTransformer.COMPONENT_NAME
+                    generated_component == DataViewDataTransformer.COMPONENT_NAME
                     and ds_expected_component
                     == SetOfCardsDataTransformer.COMPONENT_NAME
                 ):
                     return
                 if (
                     generated_component == SetOfCardsDataTransformer.COMPONENT_NAME
-                    and ds_expected_component == TableDataTransformer.COMPONENT_NAME
+                    and ds_expected_component == DataViewDataTransformer.COMPONENT_NAME
                 ):
                     return
 

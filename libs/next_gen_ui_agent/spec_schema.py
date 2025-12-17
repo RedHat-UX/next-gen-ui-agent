@@ -94,6 +94,8 @@ def schema_file_path(spec_subdir: str, filename: str) -> str:
 
 def save_schema(dir: str, filename: str, schema: dict[str, Any]) -> None:
     file_path = schema_file_path(dir, filename)
+    # Create directory if it doesn't exist
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
     with open(file_path, "w") as file:
         logger.info("Saving schema to %s", file_path)
         file.write(json.dumps(schema, indent=2))

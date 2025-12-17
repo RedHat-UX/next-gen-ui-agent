@@ -43,7 +43,7 @@ def test_check_result_explicit_COMPONENT_INCORRECT() -> None:
         }
     )
     # but expected component is different
-    dsr: DatasetRow = {"expected_component": "table"}  # type: ignore
+    dsr: DatasetRow = {"expected_component": "data-view"}  # type: ignore
 
     check_result_explicit(component, errors, dsr, False)
     assert len(errors) == 1
@@ -61,7 +61,7 @@ def test_check_result_explicit_COMPONENT_INCORRECT_VAGUE() -> None:
         }
     )
     # expected component is different, but vague check allows it
-    dsr: DatasetRow = {"expected_component": "table"}  # type: ignore
+    dsr: DatasetRow = {"expected_component": "data-view"}  # type: ignore
 
     check_result_explicit(component, errors, dsr, True)
     assert len(errors) == 0

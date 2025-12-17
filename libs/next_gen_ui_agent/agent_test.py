@@ -511,7 +511,7 @@ class TestConstructUIBlockConfiguration:
             id="1", data='[{"title": "Toy Story", "year": 2024}]', type="my_type"
         )
         component_metadata = UIComponentMetadata(
-            component="table",
+            component="data-view",
             id="1",
             title="Toy Story",
             fields=[DataField(name="Title", data_path="my_type[*].title")],
@@ -549,7 +549,7 @@ class TestConstructUIBlockConfiguration:
             id="1", data='[{"title": "Toy Story", "year": 2024}]', type="my_type"
         )
         component_metadata = UIComponentMetadata(
-            component="table",
+            component="data-view",
             id="1",
             title="Toy Story",
             fields=[DataField(name="Title", data_path="my_type[*].title")],
@@ -608,7 +608,7 @@ class TestConstructUIBlockConfiguration:
             id="1", data='[{"title": "Toy Story", "year": 2024}]', type="my_type"
         )
         component_metadata = UIComponentMetadata(
-            component="table",
+            component="data-view",
             id="1",
             title="Toy Story",
             fields=[DataField(name="Title", data_path="my_type[*].title")],
@@ -651,7 +651,7 @@ class TestConstructUIBlockConfiguration:
             id="1", data='[{"title": "Toy Story", "year": 2024}]', type="my_type"
         )
         component_metadata = UIComponentMetadata(
-            component="table",
+            component="data-view",
             id="1",
             title="Toy Story",
             fields=[DataField(name="Title", data_path="my_type[*].title")],
