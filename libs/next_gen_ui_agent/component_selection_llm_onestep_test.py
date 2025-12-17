@@ -101,6 +101,7 @@ async def test_select_component_json_wrapping_OK() -> None:
     assert result.component == "one-card"
     assert result.json_wrapping_field_name == "movie_detail"
     assert result.input_data_transformer_name is None
+    assert result.input_data_type == "movie.detail"
     # assert json_data are wrapped as type is provided
     assert result.json_data == json.loads(
         '{ "movie_detail" :' + movies_data_TO_WRAP + "}"
@@ -123,6 +124,7 @@ async def test_select_component_json_wrapping_no_OK() -> None:
     assert result.component == "one-card"
     assert result.json_wrapping_field_name is None
     assert result.input_data_transformer_name is None
+    assert result.input_data_type is None
     # assert json_data are not wrapped as type is not provided
     assert result.json_data == json.loads(movies_data_TO_WRAP)
 

@@ -24,7 +24,7 @@ class DataField(BaseModel):
         description="Unique field ID. Can be used in CSS selectors to target the field, eg. to set its style, or during live refresh of the shown data from the backend.",
         default_factory=lambda: uuid4().hex,
     )
-    """Unique field ID. Can be used in CSS selectors to target the field, eg. to set its style, or during live refresh of the shown data from the backend."""
+    """Unique field ID. Can be used for frontend customizations, eg. using it in CSS class names to target the field and set its style. Or as a field id during live refresh of the shown data from the backend."""
 
     name: str = Field(description="Field name to be shown in the UI")
     """Field name to be shown in the UI."""
@@ -167,8 +167,8 @@ class InputData(TypedDict):
     """JSON data to be processed."""
     type: NotRequired[str | None]
     """
-    Optional type identification of the input data. Used for "hand-build component" selection
-    based on Agent's configuration. See `AgentConfig.hand_build_components_mapping`.
+    Optional type identification of the input data. Used for processing (see `AgentConfig.data_types`) and frontend visualization customizations.
+    Name of Tool used to load data from backend is typically put into this field.
     """
     hand_build_component_type: NotRequired[str | None]
     """
@@ -235,6 +235,11 @@ class UIComponentMetadata(UIComponentMetadataBase):
     json_wrapping_field_name: Optional[str] = None
     """
     Name of the field used for `JSON Wrapping` if it was performed, `None` if `JSON Wrapping` was not performed.
+    """
+
+    input_data_type: Optional[str] = None
+    """
+    Optional type of the input data. Can be used for frontend customization of the component for concrete data type, eg. by using it in CSS class names.
     """
 
     # Debug information for LLM interactions

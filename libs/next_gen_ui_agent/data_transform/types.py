@@ -9,6 +9,10 @@ class ComponentDataBase(BaseModel):
 
     component: Any = Field(description="component type")
     id: str = Field(description="id of the backend data this component is for")
+    input_data_type: Optional[str] = Field(
+        default=None,
+        description="Optional type of the input data. Can be used for frontend customization of the component for concrete data type, eg. by using it in CSS class names.",
+    )
 
 
 class ComponentDataBaseWithTitle(ComponentDataBase):

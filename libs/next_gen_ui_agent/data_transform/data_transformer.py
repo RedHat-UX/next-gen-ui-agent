@@ -36,6 +36,7 @@ class DataTransformerBase(ABC, Generic[T]):
     def preprocess_rendering_context(self, component: UIComponentMetadata):
         """Prepare _component_data property for further use in the transformer"""
         self._component_data.id = component.id  # type: ignore
+        self._component_data.input_data_type = component.input_data_type
         if isinstance(self._component_data, ComponentDataBaseWithTitle):
             self._component_data.title = component.title
         if isinstance(self._component_data, ComponentDataBaseWithSimpleValueFileds):
