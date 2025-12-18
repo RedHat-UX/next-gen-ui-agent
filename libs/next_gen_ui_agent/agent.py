@@ -122,6 +122,7 @@ class NextGenUIAgent:
         component = select_component_per_type(input_data, json_data)
         if component:
             component.input_data_transformer_name = input_data_transformer_name
+            component.input_data_type = input_data.get("type")
             return component
         else:
             inference = inference if inference else self.inference

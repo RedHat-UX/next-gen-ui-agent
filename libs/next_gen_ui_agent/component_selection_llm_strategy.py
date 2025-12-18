@@ -103,6 +103,7 @@ class ComponentSelectionStrategy(ABC):
             result.json_data = json_data
             result.input_data_transformer_name = input_data_transformer_name
             result.json_wrapping_field_name = json_wrapping_field_name
+            result.input_data_type = input_data.get("type")
             return result
         except Exception as e:
             self.logger.exception("Cannot decode the json from LLM response")
