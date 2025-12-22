@@ -1,11 +1,12 @@
 import logging
 from typing import Any
 
-from next_gen_ui_agent.component_selection_chart_instructions import CHART_INSTRUCTIONS
 from next_gen_ui_agent.component_selection_common import (
+    CHART_COMPONENTS,
     ONESTEP_PROMPT_RULES,
-    ONESTEP_RESPONSE_EXAMPLES,
-    get_ui_components_description,
+    build_chart_instructions,
+    build_components_description,
+    build_onestep_examples,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
@@ -27,14 +28,57 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
     def __init__(
         self,
         input_data_json_wrapping: bool = True,
+        allowed_components: set[str] | None = None,
     ):
         """
         Component selection strategy using one LLM inference call for both component selection and configuration.
 
         Args:
             input_data_json_wrapping: if True, wrap the JSON input data into data type field if necessary due to its structure
+            allowed_components: set of component names allowed to be selected, or None to allow all components
         """
         super().__init__(logger, input_data_json_wrapping)
+        self._system_prompt_base, self._response_examples = (
+            self._build_system_prompt_parts(allowed_components)
+        )
+
+    def _build_system_prompt_parts(
+        self, allowed_components: set[str] | None
+    ) -> tuple[str, str]:
+        """
+        Build system prompt parts based on allowed components.
+
+        Args:
+            allowed_components: Set of allowed component names, or None for all components
+
+        Returns:
+            Tuple of (system_prompt_base, response_examples)
+        """
+        # Get filtered component descriptions
+        components_description = build_components_description(allowed_components)
+
+        # Get filtered examples
+        response_examples = build_onestep_examples(allowed_components)
+
+        # Detect chart components in allowed set
+        if allowed_components is None:
+            allowed_charts = CHART_COMPONENTS
+        else:
+            allowed_charts = allowed_components & CHART_COMPONENTS
+
+        # Get chart instructions (empty if no charts)
+        chart_instructions = build_chart_instructions(allowed_charts)
+
+        # Build the system prompt base
+        system_prompt_base = f"""You are a UI design assistant. Select the best component to visualize the Data based on User query.
+
+{ONESTEP_PROMPT_RULES}
+
+Available components: {components_description}
+
+{chart_instructions}"""
+
+        return system_prompt_base, response_examples
 
     async def perform_inference(
         self,
@@ -52,17 +96,11 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             # logger.debug(user_prompt)
             # logger.debug(input_data)
 
-        sys_msg_content = f"""You are a UI design assistant. Select the best component to visualize the Data based on User query.
-
-{ONESTEP_PROMPT_RULES}
-
-Available components: {get_ui_components_description()}
-
-{CHART_INSTRUCTIONS}
-"""
-
-        sys_msg_content += f"""
-{ONESTEP_RESPONSE_EXAMPLES}"""
+        # Use pre-constructed prompts
+        sys_msg_content = self._system_prompt_base
+        if self._response_examples:
+            sys_msg_content += f"""
+{self._response_examples}"""
 
         prompt = f"""=== User query ===
     {user_prompt}

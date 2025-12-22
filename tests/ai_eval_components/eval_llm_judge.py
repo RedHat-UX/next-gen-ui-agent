@@ -4,8 +4,10 @@ import asyncio
 import json
 
 from ai_eval_components.types import JudgeResult
-from next_gen_ui_agent.component_selection_chart_instructions import CHART_INSTRUCTIONS
-from next_gen_ui_agent.component_selection_common import UI_COMPONENTS_DESCRIPTION_ALL
+from next_gen_ui_agent.component_selection_common import (
+    get_all_chart_instructions,
+    get_all_components_description,
+)
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
 
@@ -197,9 +199,9 @@ CHOSEN COMPONENT: {component.component}
 
 Available UI Components (complete list):
 
-{UI_COMPONENTS_DESCRIPTION_ALL}
+{get_all_components_description()}
 
-{CHART_INSTRUCTIONS}
+{get_all_chart_instructions()}
 
 Semantic Selection Guidelines (domain-agnostic):
 
