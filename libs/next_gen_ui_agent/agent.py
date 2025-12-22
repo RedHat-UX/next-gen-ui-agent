@@ -92,13 +92,18 @@ class NextGenUIAgent:
         if input_data_json_wrapping is None:
             input_data_json_wrapping = True
 
+        # TODO get allowed_components from the configuration
+        allowed_components = None
+
         if strategy_name == "default" or strategy_name == "one_llm_call":
             return OnestepLLMCallComponentSelectionStrategy(
                 input_data_json_wrapping=input_data_json_wrapping,
+                allowed_components=allowed_components,
             )
         elif strategy_name == "two_llm_calls":
             return TwostepLLMCallComponentSelectionStrategy(
                 input_data_json_wrapping=input_data_json_wrapping,
+                allowed_components=allowed_components,
             )
         else:
             raise ValueError(
