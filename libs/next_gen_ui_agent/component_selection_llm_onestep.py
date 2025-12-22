@@ -7,6 +7,7 @@ from next_gen_ui_agent.component_selection_common import (
     build_chart_instructions,
     build_components_description,
     build_onestep_examples,
+    normalize_allowed_components,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
@@ -16,7 +17,11 @@ from next_gen_ui_agent.component_selection_llm_strategy import (
     validate_and_correct_chart_type,
 )
 from next_gen_ui_agent.inference.inference_base import InferenceBase
-from next_gen_ui_agent.types import UIComponentMetadata
+from next_gen_ui_agent.types import (
+    CONFIG_OPTIONS_ALL_COMPONETS,
+    AgentConfig,
+    UIComponentMetadata,
+)
 from pydantic_core import from_json
 
 logger = logging.getLogger(__name__)
@@ -27,33 +32,32 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
     def __init__(
         self,
-        input_data_json_wrapping: bool = True,
-        allowed_components: set[str] | None = None,
+        config: AgentConfig,
     ):
         """
         Component selection strategy using one LLM inference call for both component selection and configuration.
 
         Args:
-            input_data_json_wrapping: if True, wrap the JSON input data into data type field if necessary due to its structure
-            allowed_components: set of component names allowed to be selected, or None to allow all components
+            config: AgentConfig to get selectable components and input data json wrapping configuration from
         """
-        super().__init__(logger, input_data_json_wrapping)
-        self._system_prompt_base, self._response_examples = (
-            self._build_system_prompt_parts(allowed_components)
-        )
+        super().__init__(logger, config)
+        self._system_prompt = self._build_system_prompt(config.selectable_components)
 
-    def _build_system_prompt_parts(
-        self, allowed_components: set[str] | None
-    ) -> tuple[str, str]:
+    def _build_system_prompt(
+        self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
+    ) -> str:
         """
-        Build system prompt parts based on allowed components.
+        Build complete system prompt based on allowed components.
 
         Args:
-            allowed_components: Set of allowed component names, or None for all components
+            allowed_components_config: Set of allowed component names, or None for all components
 
         Returns:
-            Tuple of (system_prompt_base, response_examples)
+            Complete system prompt string
         """
+
+        allowed_components = normalize_allowed_components(allowed_components_config)
+
         # Get filtered component descriptions
         components_description = build_components_description(allowed_components)
 
@@ -61,16 +65,13 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         response_examples = build_onestep_examples(allowed_components)
 
         # Detect chart components in allowed set
-        if allowed_components is None:
-            allowed_charts = CHART_COMPONENTS
-        else:
-            allowed_charts = allowed_components & CHART_COMPONENTS
+        allowed_charts = allowed_components & CHART_COMPONENTS
 
         # Get chart instructions (empty if no charts)
         chart_instructions = build_chart_instructions(allowed_charts)
 
-        # Build the system prompt base
-        system_prompt_base = f"""You are a UI design assistant. Select the best component to visualize the Data based on User query.
+        # Build the complete system prompt
+        system_prompt = f"""You are a UI design assistant. Select the best component to visualize the Data based on User query.
 
 {ONESTEP_PROMPT_RULES}
 
@@ -78,7 +79,13 @@ Available components: {components_description}
 
 {chart_instructions}"""
 
-        return system_prompt_base, response_examples
+        # Add examples if available
+        if response_examples:
+            system_prompt += f"""
+
+{response_examples}"""
+
+        return system_prompt
 
     async def perform_inference(
         self,
@@ -96,11 +103,8 @@ Available components: {components_description}
             # logger.debug(user_prompt)
             # logger.debug(input_data)
 
-        # Use pre-constructed prompts
-        sys_msg_content = self._system_prompt_base
-        if self._response_examples:
-            sys_msg_content += f"""
-{self._response_examples}"""
+        # Use pre-constructed system prompt
+        sys_msg_content = self._system_prompt
 
         prompt = f"""=== User query ===
     {user_prompt}

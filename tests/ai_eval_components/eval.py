@@ -36,6 +36,7 @@ from ai_eval_components.types import (
 )
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
+from next_gen_ui_agent import AgentConfig
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
@@ -163,10 +164,13 @@ def evaluate_agent_for_dataset_row(
 
     component_selection: ComponentSelectionStrategy
     if not TWO_STEP_COMPONENT_SELECTION:
-        component_selection = OnestepLLMCallComponentSelectionStrategy()
+        component_selection = OnestepLLMCallComponentSelectionStrategy(
+            config=AgentConfig()
+        )
     else:
         component_selection = TwostepLLMCallComponentSelectionStrategy(
-            arg_selected_component_type_check_only
+            config=AgentConfig(),
+            select_component_only=arg_selected_component_type_check_only,
         )
 
     # separate steps so we can see LLM response even if it is invalid JSON
