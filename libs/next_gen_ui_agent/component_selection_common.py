@@ -4,6 +4,20 @@ This module provides reusable prompt components and examples for LLM-based
 component selection strategies. The public API is organized by strategy type.
 """
 
+from next_gen_ui_agent.data_transform.chart import (
+    BarChartDataTransformer,
+    DonutChartDataTransformer,
+    LineChartDataTransformer,
+    MirroredBarChartDataTransformer,
+    PieChartDataTransformer,
+)
+from next_gen_ui_agent.data_transform.image import ImageDataTransformer
+from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
+from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
+from next_gen_ui_agent.data_transform.table import TableDataTransformer
+from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
+from next_gen_ui_agent.types import CONFIG_OPTIONS_ALL_COMPONETS
+
 # ============================================================================
 # SECTION 1: Shared Utilities (Public API)
 # ============================================================================
@@ -19,7 +33,7 @@ def get_all_components_description() -> str:
     Returns:
         Formatted string with all component descriptions
     """
-    return build_components_description(None)
+    return build_components_description(set(COMPONENT_METADATA.keys()))
 
 
 def get_all_chart_instructions() -> str:
@@ -39,6 +53,7 @@ def get_all_chart_instructions() -> str:
 # SECTION 2: Internal Building Blocks (Private - not imported by strategies)
 # ============================================================================
 _COMMON_RULES = """RULES:
+- Generate JSON only
 - If user explicitly requests a component type ("table", "chart", "cards"), USE IT unless data structure prevents it
 - Select one component in "component" field
 - Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)"""
@@ -58,7 +73,6 @@ _JSONPATH_REQUIREMENTS = """JSONPATH REQUIREMENTS:
 # SECTION 3: One-Step Strategy (Public API)
 # ============================================================================
 ONESTEP_PROMPT_RULES = f"""{_COMMON_RULES}
-- Generate JSON only
 {_COMMON_FIELD_SELECTION_RULES}
 
 {_JSONPATH_REQUIREMENTS}"""
@@ -82,26 +96,28 @@ TWOSTEP_STEP2_PROMPT_RULES = f"""RULES:
 # ============================================================================
 
 # Ordered list of all component names (for consistent display order)
+# Using COMPONENT_NAME constants from transformer classes ensures single source of truth
 ALL_COMPONENTS = [
-    "one-card",
-    "image",
-    "video-player",
-    "table",
-    "set-of-cards",
-    "chart-bar",
-    "chart-line",
-    "chart-pie",
-    "chart-donut",
-    "chart-mirrored-bar",
+    OneCardDataTransformer.COMPONENT_NAME,
+    ImageDataTransformer.COMPONENT_NAME,
+    VideoPlayerDataTransformer.COMPONENT_NAME,
+    TableDataTransformer.COMPONENT_NAME,
+    SetOfCardsDataTransformer.COMPONENT_NAME,
+    BarChartDataTransformer.COMPONENT_NAME,
+    LineChartDataTransformer.COMPONENT_NAME,
+    PieChartDataTransformer.COMPONENT_NAME,
+    DonutChartDataTransformer.COMPONENT_NAME,
+    MirroredBarChartDataTransformer.COMPONENT_NAME,
 ]
 
 # Set of chart component names for easy detection
+# Using COMPONENT_NAME constants from transformer classes ensures single source of truth
 CHART_COMPONENTS = {
-    "chart-bar",
-    "chart-line",
-    "chart-pie",
-    "chart-donut",
-    "chart-mirrored-bar",
+    BarChartDataTransformer.COMPONENT_NAME,
+    LineChartDataTransformer.COMPONENT_NAME,
+    PieChartDataTransformer.COMPONENT_NAME,
+    DonutChartDataTransformer.COMPONENT_NAME,
+    MirroredBarChartDataTransformer.COMPONENT_NAME,
 }
 
 # Common rules applying to all chart types
@@ -112,41 +128,29 @@ CHART_COMMON_RULES = """- Don't add unrequested metrics
 COMPONENT_METADATA = {
     "one-card": {
         "description": "component to visualize multiple fields from one-item data. One image can be shown if url is available together with other fields. Array of simple values from one-item data can be shown as a field. Array of objects can't be shown as a field.",
-        "onestep_example": '{"title":"Order CA565","reasonForTheComponentSelection":"One item available in the data","confidenceScore":"75%","component":"one-card","fields":[{"name":"Name","data_path":"order.name"},{"name":"Order date","data_path":"order.createdDate"},{"name":"Order status","data_path":"order.status.name"}]}',
-        "twostep_step1_example": '{"reasonForTheComponentSelection":"One item available in the data. Multiple fields to show based on the User query","confidenceScore":"95%","title":"Order CA565","component":"one-card"}',
         "twostep_step2_example": '[{"reason":"It is always good to show order name","confidenceScore":"98%","name":"Name","data_path":"order.name"},{"reason":"It is generally good to show order date","confidenceScore":"94%","name":"Order date","data_path":"order.createdDate"},{"reason":"User asked to see the order status","confidenceScore":"98%","name":"Order status","data_path":"order.status.name"}]',
         "twostep_step2_extension": 'Value the "data_path" points to must be either simple value or array of simple values. Do not point to objects in the "data_path".\nDo not use the same "data_path" for multiple fields.\nOne field can point to the large image shown as the main image in the card UI, if url is available in the "Data".\nShow ID value only if it seems important for the user, like order ID. Do not show ID value if it is not important for the user.',
     },
     "image": {
         "description": "component to show one image from one-item data. Images like posters, covers, pictures. Do not use for video! Select it if no other fields are necessary to be shown. Data must contain url pointing to the image to be shown, e.g. https://www.images.com/v-PjgYDrg70.jpeg",
-        "onestep_example": '{"title":"Magazine cover","reasonForTheComponentSelection":"User asked to see the magazine cover","confidenceScore":"98%","component":"image","fields":[{"name":"Cover Image Url","data_path":"magazine.cover_image_url"}]}',
-        "twostep_step1_example": '{"reasonForTheComponentSelection":"User asked to see the magazine cover","confidenceScore":"75%","title":"Magazine cover","component":"image"}',
         "twostep_step2_example": '[{"reason":"image UI component is used, so we have to provide image url","confidenceScore":"98%","name":"Image Url","data_path":"order.pictureUrl"}]',
         "twostep_step2_extension": 'Provide one field only in the list, containing url of the image to be shown, taken from the "Data".',
     },
     "video-player": {
         "description": "component to play video from one-item data. Videos like trailers, promo videos. Data must contain url pointing to the video to be shown, e.g. https://www.youtube.com/watch?v=v-PjgYDrg70",
-        "onestep_example": '{"title":"Movie Trailer","reasonForTheComponentSelection":"User asked to see the movie trailer video","confidenceScore":"98%","component":"video-player","fields":[{"name":"Video Url","data_path":"order.trailerUrl"}]}',
-        "twostep_step1_example": '{"reasonForTheComponentSelection":"User asked to see the movie trailer video","confidenceScore":"95%","title":"Movie Trailer","component":"video-player"}',
         "twostep_step2_example": '[{"reason":"video-player UI component is used, so we have to provide video url","confidenceScore":"98%","name":"Video Url","data_path":"order.trailerUrl"}]',
         "twostep_step2_extension": 'Provide one field only in the list, containing url of the video to be played, taken from the "Data".',
     },
     "table": {
         "description": "component to visualize array of objects with multiple items (typically 3 or more) in a tabular format. Use when user explicitly requests a table, or for data with many items (especially >6), small number of fields, and short values.",
-        "onestep_example": '{"title":"Orders","reasonForTheComponentSelection":"User explicitly requested a table, and data has multiple items with short field values","confidenceScore":"95%","component":"table","fields":[{"name":"Name","data_path":"orders[*].name"},{"name":"Creation Date","data_path":"orders[*].creationDate"}]}',
-        "twostep_step1_example": '{"reasonForTheComponentSelection":"User explicitly requested a table, and data has multiple items with short field values","confidenceScore":"95%","title":"Orders","component":"table"}',
         "twostep_step2_example": '[{"reason":"It is always good to show order name","confidenceScore":"98%","name":"Name","data_path":"order[].name"},{"reason":"It is generally good to show order date","confidenceScore":"94%","name":"Order date","data_path":"order[].createdDate"},{"reason":"User asked to see the order status","confidenceScore":"98%","name":"Order status","data_path":"order[].status.name"}]',
     },
     "set-of-cards": {
         "description": "component to visualize array of objects with multiple items. Use for data with fewer items (<6), high number of fields, or fields with long values. Also good when visual separation between items is important.",
-        "onestep_example": '{"title":"Products","reasonForTheComponentSelection":"Data has multiple items with several fields that benefit from card layout for visual separation","confidenceScore":"90%","component":"set-of-cards","fields":[{"name":"Name","data_path":"products[*].name"},{"name":"Description","data_path":"products[*].description"},{"name":"Price","data_path":"products[*].price"}]}',
-        "twostep_step1_example": '{"reasonForTheComponentSelection":"Data has multiple items with several fields that benefit from card layout for visual separation","confidenceScore":"90%","title":"Products","component":"set-of-cards"}',
         "twostep_step2_example": '[{"reason":"It is always good to show product name","confidenceScore":"98%","name":"Name","data_path":"products[].name"},{"reason":"Product description provides important context","confidenceScore":"92%","name":"Description","data_path":"products[].description"},{"reason":"Price is essential information for products","confidenceScore":"95%","name":"Price","data_path":"products[].price"}]',
     },
     "chart-bar": {
         "description": "component to visualize numeric data as a bar chart. Use for comparing one metric across categories.",
-        "onestep_example": '{"title":"Movie Revenue Comparison","reasonForTheComponentSelection":"User wants to compare numeric values as a chart","confidenceScore":"90%","component":"chart-bar","fields":[{"name":"Movie","data_path":"movies[*].title"},{"name":"Revenue","data_path":"movies[*].revenue"}]}',
-        "twostep_step1_example": '{"title":"Movie Revenue Comparison","reasonForTheComponentSelection":"User wants to compare numeric values as a chart","confidenceScore":"90%","component":"chart-bar"}',
         "twostep_step2_example": '[{"name":"Movie","data_path":"movies[*].title"},{"name":"Revenue","data_path":"movies[*].revenue"}]',
         "twostep_step2_extension": "FIELDS: chart-bar=2 [category,metric]",
         "chart_description": "Compare 1 metric across items",
@@ -156,8 +160,6 @@ COMPONENT_METADATA = {
     },
     "chart-line": {
         "description": "component to visualize numeric data as a line chart. Use for trends over time or continuous data.",
-        "onestep_example": '{"title":"Sales Over Time","reasonForTheComponentSelection":"User wants to see trends over time","confidenceScore":"90%","component":"chart-line","fields":[{"name":"Month","data_path":"data[*].month"},{"name":"Revenue","data_path":"data[*].revenue"}]}',
-        "twostep_step1_example": '{"title":"Sales Over Time","reasonForTheComponentSelection":"User wants to see trends over time","confidenceScore":"90%","component":"chart-line"}',
         "twostep_step2_example": '[{"name":"Month","data_path":"data[*].month"},{"name":"Revenue","data_path":"data[*].revenue"}]',
         "twostep_step2_extension": "FIELDS: chart-line=2+ [time/x-axis,metric1,metric2,...] OR 3 [entity_id,time/x-axis,metric] for multi-series\nLine: Use standard pattern [time,metric1,metric2] for multiple metrics, or [entity_id,time,metric] for same metric across entities.",
         "chart_description": "Time-series, trends over time",
@@ -167,8 +169,6 @@ COMPONENT_METADATA = {
     },
     "chart-pie": {
         "description": "component to visualize data distribution as a pie chart. Use for showing proportions or percentages.",
-        "onestep_example": '{"title":"Genre Distribution","reasonForTheComponentSelection":"User wants to see distribution of genres","confidenceScore":"90%","component":"chart-pie","fields":[{"name":"Genre","data_path":"items[*].genres"}]}',
-        "twostep_step1_example": '{"title":"Genre Distribution","reasonForTheComponentSelection":"User wants to see distribution of genres","confidenceScore":"90%","component":"chart-pie"}',
         "twostep_step2_example": '[{"name":"Genre","data_path":"movies[*].genres"}]',
         "twostep_step2_extension": "FIELDS: chart-pie=1 [category]\nPie: backend counts, use [*] for arrays.",
         "chart_description": "Distribution of 1 categorical field",
@@ -178,8 +178,6 @@ COMPONENT_METADATA = {
     },
     "chart-donut": {
         "description": "component to visualize data distribution as a donut chart. Use for showing proportions with a central metric.",
-        "onestep_example": '{"title":"Category Distribution","reasonForTheComponentSelection":"User wants to see distribution with central metric","confidenceScore":"90%","component":"chart-donut","fields":[{"name":"Category","data_path":"items[*].category"}]}',
-        "twostep_step1_example": '{"title":"Category Distribution","reasonForTheComponentSelection":"User wants to see distribution with central metric","confidenceScore":"90%","component":"chart-donut"}',
         "twostep_step2_example": '[{"name":"Category","data_path":"movies[*].category"}]',
         "twostep_step2_extension": "FIELDS: chart-donut=1 [category]\nDonut: backend counts, use [*] for arrays.",
         "chart_description": "Distribution of 1 categorical field",
@@ -189,8 +187,6 @@ COMPONENT_METADATA = {
     },
     "chart-mirrored-bar": {
         "description": "component to visualize two metrics side-by-side as mirrored bars. Use for comparing two metrics across categories.",
-        "onestep_example": '{"title":"Movie ROI and Budget Comparison","reasonForTheComponentSelection":"User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales","confidenceScore":"90%","component":"chart-mirrored-bar","fields":[{"name":"Movie","data_path":"get_all_movies[*].movie.title"},{"name":"ROI","data_path":"get_all_movies[*].movie.roi"},{"name":"Budget","data_path":"get_all_movies[*].movie.budget"}]}',
-        "twostep_step1_example": '{"title":"Movie ROI and Budget Comparison","reasonForTheComponentSelection":"User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales","confidenceScore":"90%","component":"chart-mirrored-bar"}',
         "twostep_step2_example": '[{"name":"Movie","data_path":"get_all_movies[*].movie.title"},{"name":"ROI","data_path":"get_all_movies[*].movie.roi"},{"name":"Budget","data_path":"get_all_movies[*].movie.budget"}]',
         "twostep_step2_extension": "FIELDS: chart-mirrored-bar=3 [category,metric1,metric2]",
         "chart_description": 'Compare 2 metrics side-by-side (e.g., "A and B", "A vs B", different scales)',
@@ -201,7 +197,52 @@ COMPONENT_METADATA = {
 }
 
 
-def build_components_description(allowed_components: set[str] | None) -> str:
+def normalize_allowed_components(
+    allowed_components: CONFIG_OPTIONS_ALL_COMPONETS,
+) -> set[str]:
+    """
+    Normalize allowed_components to a set of strings.
+
+    Args:
+        allowed_components: Set of allowed component names, or None for all components
+
+    Returns:
+        Set of allowed component names
+    """
+    if allowed_components is None:
+        return set(COMPONENT_METADATA.keys())
+    return allowed_components  # type: ignore
+
+
+def has_chart_components(allowed_components: set[str]) -> bool:
+    """
+    Check if any chart component is in the allowed components.
+
+    Args:
+        allowed_components: Set of allowed component names
+
+    Returns:
+        True if any chart component is present, False otherwise
+    """
+    return bool(allowed_components & CHART_COMPONENTS)
+
+
+def has_non_chart_components(allowed_components: set[str]) -> bool:
+    """
+    Check if any non-chart component is in the allowed components.
+
+    Args:
+        allowed_components: Set of allowed component names
+
+    Returns:
+        True if any non-chart component is present, False otherwise
+    """
+    return bool(allowed_components - CHART_COMPONENTS)
+
+
+def build_components_description(
+    allowed_components: set[str],
+) -> str:
     """
     Build filtered component descriptions based on allowed components.
 
@@ -211,8 +252,6 @@ def build_components_description(allowed_components: set[str] | None) -> str:
     Returns:
         Formatted string with component descriptions
     """
-    if allowed_components is None:
-        allowed_components = set(COMPONENT_METADATA.keys())
 
     descriptions = []
     for component in ALL_COMPONENTS:
@@ -224,23 +263,23 @@ def build_components_description(allowed_components: set[str] | None) -> str:
     return "\n".join(descriptions)
 
 
-def build_onestep_examples(allowed_components: set[str] | None) -> str:
+def build_onestep_examples(
+    allowed_components: set[str],
+) -> str:
     """
     Build filtered one-step strategy examples based on allowed components.
 
     Args:
-        allowed_components: Set of allowed component names, or None for all components
+        allowed_components: Set of allowed component names, preprocessed by `normalize_allowed_components` function
 
     Returns:
         Formatted string with response examples
     """
-    if allowed_components is None:
-        allowed_components = set(COMPONENT_METADATA.keys())
 
     examples = []
 
-    # Add table example if allowed
-    if "table" in allowed_components:
+    if has_non_chart_components(allowed_components):
+
         examples.append(
             """Response example for multi-item data:
 {
@@ -252,13 +291,9 @@ def build_onestep_examples(allowed_components: set[str] | None) -> str:
         {"name":"Name","data_path":"orders[*].name"},
         {"name":"Creation Date","data_path":"orders[*].creationDate"}
     ]
-}"""
-        )
+}
 
-    # Add one-card example if allowed
-    if "one-card" in allowed_components:
-        examples.append(
-            """Response example for one-item data:
+Response example for one-item data:
 {
     "title": "Order CA565",
     "reasonForTheComponentSelection": "One item available in the data",
@@ -271,8 +306,8 @@ def build_onestep_examples(allowed_components: set[str] | None) -> str:
 }"""
         )
 
-    # Add chart-bar example if allowed
-    if "chart-bar" in allowed_components:
+    if has_chart_components(allowed_components):
+
         examples.append(
             """Response example for bar chart:
 {
@@ -284,13 +319,9 @@ def build_onestep_examples(allowed_components: set[str] | None) -> str:
         {{"name":"Movie","data_path":"movies[*].title"}},
         {{"name":"Revenue","data_path":"movies[*].revenue"}}
     ]
-}"""
-        )
+}
 
-    # Add chart-mirrored-bar example if allowed
-    if "chart-mirrored-bar" in allowed_components:
-        examples.append(
-            """Response example for mirrored-bar chart (comparing 2 metrics, note nested structure):
+Response example for mirrored-bar chart (comparing 2 metrics, note nested structure):
 {
     "title": "Movie ROI and Budget Comparison",
     "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
@@ -307,23 +338,23 @@ def build_onestep_examples(allowed_components: set[str] | None) -> str:
     return "\n\n".join(examples)
 
 
-def build_twostep_step1_examples(allowed_components: set[str] | None) -> str:
+def build_twostep_step1_examples(
+    allowed_components: set[str],
+) -> str:
     """
     Build filtered two-step step-1 strategy examples based on allowed components.
 
     Args:
-        allowed_components: Set of allowed component names, or None for all components
+        allowed_components: Set of allowed component names, preprocessed by `normalize_allowed_components` function
 
     Returns:
         Formatted string with response examples
     """
-    if allowed_components is None:
-        allowed_components = set(COMPONENT_METADATA.keys())
 
     examples = []
 
-    # Add table example if allowed
-    if "table" in allowed_components:
+    if has_non_chart_components(allowed_components):
+
         examples.append(
             """Response example for multi-item data:
 {
@@ -331,25 +362,17 @@ def build_twostep_step1_examples(allowed_components: set[str] | None) -> str:
     "confidenceScore": "95%",
     "title": "Orders",
     "component": "table"
-}"""
-        )
+}
 
-    # Add one-card example if allowed
-    if "one-card" in allowed_components:
-        examples.append(
-            """Response example for one-item data:
+Response example for one-item data:
 {
     "reasonForTheComponentSelection": "One item available in the data. Multiple fields to show based on the User query",
     "confidenceScore": "95%",
     "title": "Order CA565",
     "component": "one-card"
-}"""
-        )
+}
 
-    # Add image example if allowed
-    if "image" in allowed_components:
-        examples.append(
-            """Response example for one-item data and image:
+Response example for one-item data and image:
 {
     "reasonForTheComponentSelection": "User asked to see the magazine cover",
     "confidenceScore": "75%",
@@ -358,8 +381,8 @@ def build_twostep_step1_examples(allowed_components: set[str] | None) -> str:
 }"""
         )
 
-    # Add chart-bar example if allowed
-    if "chart-bar" in allowed_components:
+    if has_chart_components(allowed_components):
+
         examples.append(
             """Response example for bar chart:
 {
@@ -367,13 +390,9 @@ def build_twostep_step1_examples(allowed_components: set[str] | None) -> str:
     "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
     "confidenceScore": "90%",
     "component": "chart-bar"
-}"""
-        )
+}
 
-    # Add chart-mirrored-bar example if allowed
-    if "chart-mirrored-bar" in allowed_components:
-        examples.append(
-            """Response example for mirrored-bar chart (comparing 2 metrics):
+Response example for mirrored-bar chart (comparing 2 metrics):
 {
     "title": "Movie ROI and Budget Comparison",
     "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
@@ -397,9 +416,6 @@ def build_twostep_step2_example(component: str) -> str:
     """
     if component in COMPONENT_METADATA:
         return COMPONENT_METADATA[component].get("twostep_step2_example", "")
-    # Handle "chart" as alias for any chart component
-    if component == "chart":
-        return COMPONENT_METADATA.get("chart-bar", {}).get("twostep_step2_example", "")
     return ""
 
 
@@ -415,10 +431,6 @@ def build_twostep_step2_extension(component: str) -> str:
     """
     if component in COMPONENT_METADATA:
         return COMPONENT_METADATA[component].get("twostep_step2_extension", "")
-    # Handle "chart" as alias for any chart component
-    if component == "chart":
-        # Return combined chart field extensions
-        return "FIELDS: chart-pie/chart-donut=1 [category], chart-bar=2 [category,metric], chart-mirrored-bar=3 [category,metric1,metric2], chart-line=2+ [time/x-axis,metric1,metric2,...] OR 3 [entity_id,time/x-axis,metric] for multi-series\nPie/donut: backend counts, use [*] for arrays. Line: Use standard pattern [time,metric1,metric2] for multiple metrics, or [entity_id,time,metric] for same metric across entities."
     return ""
 
 
@@ -473,13 +485,13 @@ def build_chart_instructions(allowed_chart_components: set[str]) -> str:
         "CHART TYPES (count ONLY metrics user requests):",
         "\n".join(chart_types),
         "",
-        "FIELDS BY TYPE:",
+        "FIELDS BY CHART TYPE:",
         "\n".join(fields_by_type),
         "",
-        "RULES:",
+        "CHART RULES:",
         CHART_COMMON_RULES,
         "",
-        "EXAMPLES:",
+        "CHART EXAMPLES:",
         "\n".join(examples),
     ]
 

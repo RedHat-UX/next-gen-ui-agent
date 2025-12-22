@@ -24,6 +24,9 @@ The process goes over these steps in this order:
 
 If only *"no LLM required"* use cases are used in your deployment, the *UI Agent* can be instantiated without LLM (without LLM Inference provider).
 
+*UI Agent* by default selects from all the supported Dynamic Components in step `3.`, but you can narrow choice to the components suitable for your application
+[in the configuration](../configuration.md#selectable_components-setstr-optional).
+
 In the future, we plan to implement additional options for "per `InputData.type` configured" components:
 
 * LLM powered selection from more components (dynamic with or without pre-defined configuration, or HBC)

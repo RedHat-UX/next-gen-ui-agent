@@ -6,7 +6,7 @@ from typing import Any, TypedDict
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data, wrap_string_as_json
-from next_gen_ui_agent.types import InputDataInternal, UIComponentMetadata
+from next_gen_ui_agent.types import AgentConfig, InputDataInternal, UIComponentMetadata
 
 
 class LLMInteraction(TypedDict):
@@ -42,9 +42,13 @@ class ComponentSelectionStrategy(ABC):
     If `False`, the agent will never wrap the JSON input data into data type field.
     """
 
-    def __init__(self, logger: logging.Logger, input_data_json_wrapping: bool):
+    def __init__(self, logger: logging.Logger, config: AgentConfig):
         self.logger = logger
-        self.input_data_json_wrapping = input_data_json_wrapping
+        self.input_data_json_wrapping = (
+            config.input_data_json_wrapping
+            if config.input_data_json_wrapping is not None
+            else True
+        )
 
     async def select_component(
         self,

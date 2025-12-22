@@ -275,6 +275,63 @@
       "default": "json",
       "description": "Transformer used to parse the input data (can be overriden on 'data type' level). Default `json`, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
     },
+    "selectable_components": {
+      "anyOf": [
+        {
+          "items": {
+            "anyOf": [
+              {
+                "const": "one-card",
+                "type": "string"
+              },
+              {
+                "const": "image",
+                "type": "string"
+              },
+              {
+                "const": "video-player",
+                "type": "string"
+              },
+              {
+                "const": "table",
+                "type": "string"
+              },
+              {
+                "const": "set-of-cards",
+                "type": "string"
+              },
+              {
+                "const": "chart-bar",
+                "type": "string"
+              },
+              {
+                "const": "chart-line",
+                "type": "string"
+              },
+              {
+                "const": "chart-pie",
+                "type": "string"
+              },
+              {
+                "const": "chart-donut",
+                "type": "string"
+              },
+              {
+                "const": "chart-mirrored-bar",
+                "type": "string"
+              }
+            ]
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "List of components that can be selected by the agent's LLM for data visualization. If not set, all components are selectable."
+    },
     "component_selection_strategy": {
       "anyOf": [
         {
@@ -288,7 +345,7 @@
           "type": "null"
         }
       ],
-      "default": null,
+      "default": "one_llm_call",
       "description": "Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!"
     },
     "data_types": {
@@ -315,7 +372,7 @@
           "type": "null"
         }
       ],
-      "default": null,
+      "default": true,
       "description": "If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure. If `False`, the agent will never wrap the JSON input data into data type field."
     },
     "generate_all_fields": {
