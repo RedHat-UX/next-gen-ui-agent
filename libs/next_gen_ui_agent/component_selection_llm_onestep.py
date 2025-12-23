@@ -43,6 +43,12 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         super().__init__(logger, config)
         self._system_prompt = self._build_system_prompt(config.selectable_components)
 
+    def get_system_prompt(self) -> str:
+        """
+        Get the system prompt for the component selection strategy.
+        """
+        return self._system_prompt
+
     def _build_system_prompt(
         self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
     ) -> str:
@@ -71,11 +77,12 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         chart_instructions = build_chart_instructions(allowed_charts)
 
         # Build the complete system prompt
-        system_prompt = f"""You are a UI design assistant. Select the best component to visualize the Data based on User query.
+        system_prompt = f"""You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
 
 {ONESTEP_PROMPT_RULES}
 
-Available components: {components_description}
+AVAILABLE UI COMPONENTS:
+{components_description}
 
 {chart_instructions}"""
 
