@@ -17,12 +17,20 @@ Optional name of the [Input Data Transformer](input_data/transformation.md) used
 Can be overriden [per data type](#data_transformer-str-optional_1). Defaults to [JSON](./input_data/transformation.md#json-transformer).
 
 
+### `selectable_components` [`set[str]`, optional]
+
+Set of components that can be selected by the agent's LLM for the input data visualization. If not set, all the components supported by the agent can be selected.
+You can select from [all the supported dynamic components](./data_ui_blocks/dynamic_components.md) using their Component identification like  `one-card`, `image`, 
+`video-player`, `table`, `set-of-cards`, `chart-bar`, `chart-line`, `chart-pie`, `chart-donut`, `chart-mirrored-bar`.
+
+
 ### `component_selection_strategy` [`str`, optional]
 
 Strategy for LLM powered component selection and configuration step:
 
-- `one_llm_call`: Uses single LLM call for component selection and configuration - default
-- `two_llm_calls`: Uses two LLM calls - first selects component type, second configures it - *experimental feature!*
+- `one_llm_call`: Uses single LLM inference call for component selection and configuration - default
+- `two_llm_calls`: Uses two LLM inference calls - first selects component type, second configures it - *experimental feature!* 
+  We haven't seen any gain in accuracy, processing time mostly doubles, but you can play with this approach if interrested.
 
 
 ### `input_data_json_wrapping` [`bool`, optional]
