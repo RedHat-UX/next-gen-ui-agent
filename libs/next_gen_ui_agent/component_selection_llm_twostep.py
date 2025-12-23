@@ -9,7 +9,7 @@ from next_gen_ui_agent.component_selection_common import (
     build_components_description,
     build_twostep_step1_examples,
     build_twostep_step2_example,
-    build_twostep_step2_extension,
+    build_twostep_step2_rules,
     normalize_allowed_components,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
@@ -47,6 +47,12 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             config.selectable_components
         )
 
+    def get_system_prompt(self) -> str:
+        """
+        Get the system prompt for the component selection strategy.
+        """
+        return self._step1_system_prompt
+
     def _build_step1_system_prompt(
         self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
     ) -> str:
@@ -74,11 +80,12 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         chart_instructions = build_chart_instructions(allowed_charts)
 
         # Build the complete system prompt
-        system_prompt = f"""You are a UI design assistant. Select the best component to show the Data based on User query.
+        system_prompt = f"""You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
 
 {TWOSTEP_STEP1_PROMPT_RULES}
 
-Available components: {components_description}
+AVAILABLE UI COMPONENTS:
+{components_description}
 
 {chart_instructions}"""
 
@@ -225,7 +232,7 @@ Available components: {components_description}
 
 {TWOSTEP_STEP2_PROMPT_RULES}
 
-{build_twostep_step2_extension(component)}
+{build_twostep_step2_rules(component)}
 
 {build_twostep_step2_example(component)}
 """

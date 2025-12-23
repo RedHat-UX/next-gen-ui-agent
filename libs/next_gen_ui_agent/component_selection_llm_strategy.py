@@ -50,6 +50,12 @@ class ComponentSelectionStrategy(ABC):
             else True
         )
 
+    def get_system_prompt(self) -> str:
+        """
+        Get the system prompt for the component selection strategy.
+        """
+        return "NOT IMPLEMENTED"
+
     async def select_component(
         self,
         inference: InferenceBase,

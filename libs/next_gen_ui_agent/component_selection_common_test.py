@@ -7,7 +7,7 @@ from next_gen_ui_agent.component_selection_common import (
     build_onestep_examples,
     build_twostep_step1_examples,
     build_twostep_step2_example,
-    build_twostep_step2_extension,
+    build_twostep_step2_rules,
     has_chart_components,
     has_non_chart_components,
     normalize_allowed_components,
@@ -205,36 +205,36 @@ class TestBuildOnestepExamples:
         """Test that all examples are included when all components are allowed."""
         allowed = set(COMPONENT_METADATA.keys())
         result = build_onestep_examples(allowed)
-        assert "table" in result
-        assert "one-card" in result
-        assert "chart-bar" in result
-        assert "chart-mirrored-bar" in result
+        assert '"table"' in result
+        assert '"one-card"' in result
+        assert '"chart-bar"' in result
+        assert '"chart-mirrored-bar"' in result
 
     def test_only_non_chart_components(self):
         """Test that examples are returned based on component types."""
         allowed = {"table", "one-card"}
         result = build_onestep_examples(allowed)
-        assert "table" in result
-        assert "one-card" in result
-        assert "chart-bar" not in result
-        assert "chart-mirrored-bar" not in result
+        assert '"table"' in result
+        assert '"one-card"' in result
+        assert '"chart-bar"' not in result
+        assert '"chart-mirrored-bar"' not in result
 
     def test_only_chart_components(self):
         """Test that examples are returned based on component types."""
         allowed = {"chart-bar", "chart-mirrored-bar"}
         result = build_onestep_examples(allowed)
-        assert "table" not in result
-        assert "one-card" not in result
-        assert "chart-bar" in result
-        assert "chart-mirrored-bar" in result
+        assert '"table"' not in result
+        assert '"one-card"' not in result
+        assert '"chart-bar"' in result
+        assert '"chart-mirrored-bar"' in result
 
     def test_empty_set(self):
         """Test with empty set returns non-chart examples only."""
         result = build_onestep_examples(set())
-        assert "table" not in result
-        assert "one-card" not in result
-        assert "chart-bar" not in result
-        assert "chart-mirrored-bar" not in result
+        assert '"table"' not in result
+        assert '"one-card"' not in result
+        assert '"chart-bar"' not in result
+        assert '"chart-mirrored-bar"' not in result
 
 
 class TestBuildTwostepStep1Examples:
@@ -244,38 +244,38 @@ class TestBuildTwostepStep1Examples:
         """Test that all examples are included when all components are allowed."""
         allowed = set(COMPONENT_METADATA.keys())
         result = build_twostep_step1_examples(allowed)
-        assert "table" in result
-        assert "one-card" in result
-        assert "image" in result
-        assert "chart-bar" in result
-        assert "chart-mirrored-bar" in result
+        assert '"table"' in result
+        assert '"one-card"' in result
+        assert '"image"' in result
+        assert '"chart-bar"' in result
+        assert '"chart-mirrored-bar"' in result
 
     def test_only_non_chart_components(self):
         """Test that examples are returned."""
         allowed = {"image"}
         result = build_twostep_step1_examples(allowed)
-        assert "image" in result
-        assert "table" in result
-        assert "one-card" in result
-        assert "chart-bar" not in result
-        assert "chart-mirrored-bar" not in result
+        assert '"image"' in result
+        assert '"table"' in result
+        assert '"one-card"' in result
+        assert '"chart-bar"' not in result
+        assert '"chart-mirrored-bar"' not in result
 
     def test_only_chart_components(self):
         """Test that examples are returned based on component types."""
         allowed = {"chart-bar", "chart-mirrored-bar"}
         result = build_twostep_step1_examples(allowed)
-        assert "table" not in result
-        assert "one-card" not in result
-        assert "image" not in result
+        assert '"table"' not in result
+        assert '"one-card"' not in result
+        assert '"image"' not in result
 
     def test_empty_set(self):
         """Test with empty set still returns examples."""
         result = build_twostep_step1_examples(set())
-        assert "table" not in result
-        assert "one-card" not in result
-        assert "image" not in result
-        assert "chart-bar" not in result
-        assert "chart-mirrored-bar" not in result
+        assert '"table"' not in result
+        assert '"one-card"' not in result
+        assert '"image"' not in result
+        assert '"chart-bar"' not in result
+        assert '"chart-mirrored-bar"' not in result
 
 
 class TestBuildTwostepStep2Example:
@@ -299,24 +299,24 @@ class TestBuildTwostepStep2Example:
         assert result == ""
 
 
-class TestBuildTwostepStep2Extension:
+class TestBuildTwostepStep2Rules:
     """Test build_twostep_step2_extension function."""
 
     def test_component_with_extension(self):
         """Test getting extension for component that has one."""
-        result = build_twostep_step2_extension("one-card")
+        result = build_twostep_step2_rules("one-card")
         assert result
         assert "data_path" in result
 
     def test_component_without_extension(self):
         """Test getting extension for component without one."""
-        result = build_twostep_step2_extension("table")
+        result = build_twostep_step2_rules("table")
         # table doesn't have extension in metadata
         assert result == ""
 
     def test_invalid_component(self):
         """Test getting extension for non-existent component."""
-        result = build_twostep_step2_extension("non-existent")
+        result = build_twostep_step2_rules("non-existent")
         assert result == ""
 
 
