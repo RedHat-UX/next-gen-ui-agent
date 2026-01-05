@@ -1,0 +1,122 @@
+[
+    {
+        "question": "I have an array of product objects with name, price, description, and stock. What UI component should I use?",
+        "answer": "For an array of product objects with multiple fields, use a **table component**. Tables are ideal for displaying structured data with multiple columns across many rows. This allows users to scan, compare, and sort products easily. Each product becomes a row, and fields like name, price, description, and stock become columns."
+    },
+    {
+        "question": "I have a single user profile object with name, email, avatar URL, and bio. Which component should I display this with?",
+        "answer": "For a single object with structured information, use a **single card component**. A card is perfect for displaying one item with multiple attributes in a visually organized way. It provides clear hierarchy and makes the profile information easy to read at a glance."
+    },
+    {
+        "question": "My data is an array of employee records and the user wants to compare salaries across departments. What should I show?",
+        "answer": "Use a **table component** for this use case. When users need to compare values across multiple records, tables excel at displaying the data in a scannable format. You can add sorting and filtering capabilities to help users analyze salary data by department, making comparisons straightforward."
+    },
+    {
+        "question": "I received data with an image URL like 'https://example.com/photo.jpg'. What component should render this?",
+        "answer": "Use an **image viewer component**. When your data contains an image URL, the image viewer will fetch and display the image properly. It should support features like zoom, full-screen view, and loading states. This provides the best user experience for viewing images."
+    },
+    {
+        "question": "The data contains a YouTube video URL 'https://youtube.com/watch?v=abc123'. How should this be displayed?",
+        "answer": "Use a **video player component**. For video URLs (YouTube, Vimeo, or direct video links), a video player provides playback controls, volume adjustment, and fullscreen options. For YouTube URLs specifically, you can use an embedded YouTube player or extract the video ID for proper embedding."
+    },
+    {
+        "question": "I have an array of blog post objects with title, excerpt, author, and thumbnail. The user wants to browse them. What UI component fits best?",
+        "answer": "Use a **set of cards component** (card grid or card list). When displaying multiple items that have rich content like thumbnails and text, cards work better than tables. Each blog post gets its own card, showing the thumbnail, title, excerpt, and author in a visually appealing layout that's easy to browse."
+    },
+    {
+        "question": "My data shows monthly sales figures over the past year as an array of {month, amount}. The user wants to see the trend. What should I use?",
+        "answer": "Use a **line chart component**. Line charts are ideal for showing trends over time. With months on the x-axis and sales amounts on the y-axis, users can easily see patterns, growth, or decline in sales. Line charts make temporal data and trends immediately visible."
+    },
+    {
+        "question": "I have data showing market share percentages for 5 companies. What chart type should I use?",
+        "answer": "Use a **pie chart** or **donut chart** component. Both are perfect for showing proportions and parts of a whole. When you have percentage data that adds up to 100%, pie/donut charts make it easy to visualize each company's relative market share at a glance. Donut charts are slightly more modern and leave space for a total in the center."
+    },
+    {
+        "question": "The user wants to compare revenue across different product categories. I have an array of {category, revenue}. What component?",
+        "answer": "Use a **bar chart component** (vertical or horizontal bars). Bar charts are excellent for comparing values across categories. Each category gets a bar whose height/length represents the revenue, making it easy to see which products generate the most revenue. This is more effective than a table for visual comparison."
+    },
+    {
+        "question": "I have a single notification object with message, timestamp, and priority. How should this be displayed?",
+        "answer": "Use a **single card component**. A card is ideal for displaying a single notification with its various attributes. You can style the card based on priority (colors for urgent/normal), show the message prominently, and include the timestamp. Cards provide good visual separation and hierarchy for single items."
+    },
+    {
+        "question": "My data is an array of image URLs from a photo gallery. What's the best way to show these?",
+        "answer": "Use an **image gallery component** (which is a specialized collection of image viewers). For multiple images, a gallery with thumbnails provides the best experience. Users can browse thumbnails and click to view full-size images. This is better than showing one image viewer or a table of URLs."
+    },
+    {
+        "question": "I have quarterly profit data for 3 years. The user wants to see how profits changed. What chart should I use?",
+        "answer": "Use a **line chart component**. Line charts excel at showing change over time across multiple periods. With quarters/years on the x-axis and profit on the y-axis, the line clearly shows trends, growth, decline, and seasonality. This makes temporal patterns immediately visible."
+    },
+    {
+        "question": "The data contains playlist information with multiple video URLs in an array. The user wants to watch them. What component?",
+        "answer": "Use a **video player component with playlist support**. For multiple videos, you need a player that can handle playlists, showing the current video with a list of other videos in the queue. Users can navigate between videos, and the player manages playback across the collection."
+    },
+    {
+        "question": "I have customer satisfaction survey results as percentages for 'Very Satisfied', 'Satisfied', 'Neutral', 'Unsatisfied'. What chart type?",
+        "answer": "Use a **donut chart** or **pie chart component**. These categorical percentage distributions are perfect for donut/pie charts. Each satisfaction level becomes a slice, and users can immediately see the proportion of each category. Donut charts are preferred for a modern look and the ability to show a summary in the center."
+    },
+    {
+        "question": "My data is a large array of transaction records with date, amount, category, and merchant. Users need to search and filter. What component?",
+        "answer": "Use a **table component with search and filter capabilities**. Tables are best for large datasets with multiple fields that users need to search through. Add features like column sorting, filtering by category, date range selection, and search by merchant. This gives users powerful tools to find specific transactions."
+    },
+    {
+        "question": "I have a single recipe object with title, image URL, ingredients array, and instructions. How should this be presented?",
+        "answer": "Use a **single card component combined with an image viewer**. Display the recipe as a card that includes the embedded image at the top (using image viewer), followed by the title, ingredients list, and instructions. This creates a rich, organized presentation of all recipe information in one cohesive view."
+    },
+    {
+        "question": "The data shows website traffic by hour for today. User wants to identify peak times. What visualization?",
+        "answer": "Use a **line chart** or **area chart component**. For hourly data showing traffic patterns throughout a day, line/area charts make peaks and valleys obvious. The x-axis shows hours, y-axis shows traffic count, and the line/area shape clearly indicates when traffic is highest and lowest."
+    },
+    {
+        "question": "I have an array of team member objects with name, role, photo URL, and email. The user wants to see the team. What component?",
+        "answer": "Use a **set of cards component** (card grid). For team members with photos, cards provide an attractive way to display each person. Each card shows the photo prominently, along with name, role, and contact info. This is more engaging than a table and works well for people profiles."
+    },
+    {
+        "question": "My data compares actual vs budgeted expenses across departments as {department, actual, budget}. What should I use?",
+        "answer": "Use a **grouped bar chart component**. When comparing two metrics (actual vs budget) across multiple categories (departments), grouped bars work perfectly. Each department gets two bars side-by-side for easy comparison. This makes it immediately clear which departments are over or under budget."
+    },
+    {
+        "question": "I have a single error message object with error code, message, and timestamp. How should I display this?",
+        "answer": "Use a **single card component**, specifically styled as an error card or alert. A card provides clear visual hierarchy for the error information, and you can style it with error colors (red) to grab attention. Display the error code prominently, the message clearly, and include the timestamp for context."
+    },
+    {
+        "question": "The data is an array of movie objects with title, poster URL, rating, and description. User is browsing for something to watch. What component?",
+        "answer": "Use a **set of cards component** (card grid). Movies are highly visual content where poster images are crucial. Cards allow each movie to show its poster prominently along with title, rating, and description. This creates an engaging browsing experience much better than a table would."
+    },
+    {
+        "question": "I have age distribution data showing count of users in ranges: 18-25, 26-35, 36-45, 46+. What chart type?",
+        "answer": "Use a **bar chart component** (vertical bars). For distribution across age ranges, bar charts are ideal. Each age range gets a bar showing the count, making it easy to see which age groups are most represented. Bar charts handle categorical ranges better than line charts and are clearer than pie charts for this purpose."
+    },
+    {
+        "question": "My data is a single statistic object with value, label, and trend (up/down). How should this be shown?",
+        "answer": "Use a **single card component**, specifically a KPI or metric card. For single statistics, a card focused on the number works best. Display the value prominently (large font), show the label, and use an icon or color to indicate trend direction. This creates a clean, scannable metric display."
+    },
+    {
+        "question": "I have an array of invoice records with invoice number, date, client, amount, and status. User needs to manage invoices. What component?",
+        "answer": "Use a **table component** with action buttons. Tables are perfect for business records like invoices that have multiple fields and require management actions. Users can scan all fields, sort by date or amount, filter by status, and interact with actions like view, download, or email directly from the table."
+    },
+    {
+        "question": "The data shows temperature readings throughout the day. User wants to see temperature variation. What chart?",
+        "answer": "Use a **line chart** or **area chart component**. Temperature over time is continuous data best represented by a line chart. The smooth line shows temperature changes throughout the day, making it easy to identify patterns like morning lows, afternoon highs, and evening cooling. Area charts add visual weight to emphasize the temperature range."
+    },
+    {
+        "question": "I have a single product object with image URLs array, title, price, and description. The user is viewing product details. What components?",
+        "answer": "Use a **combination of image gallery and single card components**. The image gallery displays all product photos with thumbnail navigation at the top. Below that, use a card to organize the product information (title, price, description). This provides both rich visual content and structured product details in an organized layout."
+    },
+    {
+        "question": "My data shows revenue breakdown by region as percentages. User wants to see regional contribution. What chart?",
+        "answer": "Use a **pie chart** or **donut chart component**. Percentage breakdowns showing parts of a whole are perfect for pie/donut charts. Each region becomes a colored slice, instantly showing which regions contribute most to revenue. Donut charts are more modern and can display the total revenue in the center."
+    },
+    {
+        "question": "I have an array of 50+ product listings with multiple attributes. The user wants to find specific products quickly. What UI component?",
+        "answer": "Use a **table component with pagination, search, and filters**. For large datasets where users need to find specific items, tables with robust search/filter capabilities are essential. Add pagination to handle the volume, column sorting for organization, and filters for attributes. This gives users powerful tools to narrow down and find what they need."
+    },
+    {
+        "question": "The data contains a tutorial video URL and related text instructions. How should this learning content be displayed?",
+        "answer": "Use a **video player component** at the top, followed by a **card or text section** for instructions below. This layout lets users watch the video tutorial while having written instructions available for reference. The video player should be prominent, and the text should be clearly formatted and easy to read alongside the video."
+    },
+    {
+        "question": "I have sales data by month for 3 different product lines. User wants to compare product performance over time. What chart?",
+        "answer": "Use a **multi-line chart component**. When comparing trends across multiple categories over time, multi-line charts are ideal. Each product line gets its own colored line on the same chart, making it easy to compare their performance and see which is growing faster, seasonal patterns, and crossover points."
+    }
+]
