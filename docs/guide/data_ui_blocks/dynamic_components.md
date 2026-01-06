@@ -2,6 +2,8 @@
 
 These fully AI/LLM selected and configured dynamic *Data UI Blocks* are now supported by *UI Agent*. UI Agent selects UI 
 component which matches best the current user prompt and [input data structure](../input_data/structure.md).
+*UI Agent* selects from all the supported components by default, but you can narrow choice to the components suitable for your application
+[in the configuration](../configuration.md#selectable_components-setstr-optional).
 
 Optionally, this components can be [mapped per `InputData.type` and pre-configured in this mapping](../configuration.md#components-listagentconfigcomponent-optional),
 LLM is not used/necessary in this case.
@@ -73,7 +75,7 @@ Value can be simple text or number etc. List (array) of values is supported as w
 
 Layout for this set of cards has to be provided by frontend application.
 
-Example rendering by Patternfly React:
+Example rendering by Patternfly React Cards:
 
 ![Set Of Cards Data UI Block rendering by Patternfly React](../../img/data_ui_block_set-of-cards.png "Set Of Cards Data UI Block rendering by Patternfly React")
 
@@ -91,7 +93,7 @@ Table is UI block that displays:
 
 Individual cell value can be simple text or number etc. List (array) of values is supported as well.
 
-Example rendering by Patternfly React:
+Example rendering by Patternfly React Data view:
 
 ![Table Data UI Block rendering by Patternfly React](../../img/data_ui_block_table.png "Table Data UI Block rendering by Patternfly React")
 

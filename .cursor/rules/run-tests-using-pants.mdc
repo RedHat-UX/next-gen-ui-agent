@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+run tests using pants configured in the project
