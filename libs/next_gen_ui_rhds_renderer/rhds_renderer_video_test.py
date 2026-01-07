@@ -1,3 +1,4 @@
+from next_gen_ui_agent import design_system_handler
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.data_transform.types import ComponentDataVideo
 from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
@@ -18,7 +19,7 @@ class TestVideoRHDSRendererWithShareableTests(BaseVideoRendererTests):
 
 def test_renderer_video_full() -> None:
     agent = NextGenUIAgent()
-    agent._extension_manager = extension_manager_for_testing(
+    design_system_handler.EXTENSION_MANAGER = extension_manager_for_testing(
         "rhds", RhdsStrategyFactory()
     )
     component = get_transformed_component("video-player")
@@ -51,7 +52,7 @@ def test_renderer_video_full() -> None:
 
 def test_renderer_video_bad_url() -> None:
     agent = NextGenUIAgent()
-    agent._extension_manager = extension_manager_for_testing(
+    design_system_handler.EXTENSION_MANAGER = extension_manager_for_testing(
         "rhds", RhdsStrategyFactory()
     )
     component: ComponentDataVideo = get_transformed_component("video-player")

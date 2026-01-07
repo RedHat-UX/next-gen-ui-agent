@@ -70,6 +70,7 @@ def test_process_data_in_component() -> None:
             "component": "one-card",
             "fields": [],
             "json_data": json.loads(data_str),
+            "input_data_type": "test_input_data_type",
         }
     )
 
@@ -81,3 +82,4 @@ def test_process_data_in_component() -> None:
     data_transformer.process(component, data)
 
     assert data_transformer.json_data == json.loads(data_str)
+    assert data_transformer._component_data.input_data_type == "test_input_data_type"

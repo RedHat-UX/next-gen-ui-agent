@@ -1,0 +1,57 @@
+[
+  {
+    "id": "chart-000058",
+    "user_prompt": "Show CPU history for each pod",
+    "backend_data": "{\n  \"podMetrics\": [\n    {\n      \"podName\": \"frontend-app\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 45.2 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 52.8 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 48.3 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 41.7 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 38.9 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 42.1 }\n      ]\n    },\n    {\n      \"podName\": \"backend-api\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 68.3 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 72.9 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 76.5 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 71.2 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 69.8 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 73.4 }\n      ]\n    },\n    {\n      \"podName\": \"worker-queue\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 55.1 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 58.4 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 62.7 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 59.3 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 56.6 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 60.2 }\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_cpu_history_nested.json",
+      "prompt_file": "prompts_chart_line_nested_multiseries.json"
+    }
+  },
+  {
+    "id": "chart-000059",
+    "user_prompt": "Display CPU trends per pod over time",
+    "backend_data": "{\n  \"podMetrics\": [\n    {\n      \"podName\": \"frontend-app\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 45.2 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 52.8 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 48.3 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 41.7 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 38.9 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 42.1 }\n      ]\n    },\n    {\n      \"podName\": \"backend-api\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 68.3 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 72.9 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 76.5 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 71.2 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 69.8 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 73.4 }\n      ]\n    },\n    {\n      \"podName\": \"worker-queue\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 55.1 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 58.4 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 62.7 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 59.3 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 56.6 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 60.2 }\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_cpu_history_nested.json",
+      "prompt_file": "prompts_chart_line_nested_multiseries.json"
+    }
+  },
+  {
+    "id": "chart-000060",
+    "user_prompt": "Chart historical CPU usage for all pods",
+    "backend_data": "{\n  \"podMetrics\": [\n    {\n      \"podName\": \"frontend-app\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 45.2 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 52.8 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 48.3 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 41.7 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 38.9 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 42.1 }\n      ]\n    },\n    {\n      \"podName\": \"backend-api\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 68.3 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 72.9 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 76.5 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 71.2 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 69.8 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 73.4 }\n      ]\n    },\n    {\n      \"podName\": \"worker-queue\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 55.1 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 58.4 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 62.7 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 59.3 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 56.6 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 60.2 }\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_cpu_history_nested.json",
+      "prompt_file": "prompts_chart_line_nested_multiseries.json"
+    }
+  },
+  {
+    "id": "chart-000061",
+    "user_prompt": "Compare pod CPU trends",
+    "backend_data": "{\n  \"podMetrics\": [\n    {\n      \"podName\": \"frontend-app\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 45.2 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 52.8 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 48.3 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 41.7 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 38.9 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 42.1 }\n      ]\n    },\n    {\n      \"podName\": \"backend-api\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 68.3 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 72.9 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 76.5 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 71.2 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 69.8 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 73.4 }\n      ]\n    },\n    {\n      \"podName\": \"worker-queue\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 55.1 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 58.4 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 62.7 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 59.3 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 56.6 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 60.2 }\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_cpu_history_nested.json",
+      "prompt_file": "prompts_chart_line_nested_multiseries.json"
+    }
+  },
+  {
+    "id": "chart-000062",
+    "user_prompt": "Show CPU over time for multiple pods",
+    "backend_data": "{\n  \"podMetrics\": [\n    {\n      \"podName\": \"frontend-app\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 45.2 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 52.8 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 48.3 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 41.7 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 38.9 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 42.1 }\n      ]\n    },\n    {\n      \"podName\": \"backend-api\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 68.3 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 72.9 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 76.5 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 71.2 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 69.8 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 73.4 }\n      ]\n    },\n    {\n      \"podName\": \"worker-queue\",\n      \"cpuHistory\": [\n        { \"timestamp\": \"00:00\", \"cpuPercent\": 55.1 },\n        { \"timestamp\": \"01:00\", \"cpuPercent\": 58.4 },\n        { \"timestamp\": \"02:00\", \"cpuPercent\": 62.7 },\n        { \"timestamp\": \"03:00\", \"cpuPercent\": 59.3 },\n        { \"timestamp\": \"04:00\", \"cpuPercent\": 56.6 },\n        { \"timestamp\": \"05:00\", \"cpuPercent\": 60.2 }\n      ]\n    }\n  ]\n}\n",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_cpu_history_nested.json",
+      "prompt_file": "prompts_chart_line_nested_multiseries.json"
+    }
+  }
+]

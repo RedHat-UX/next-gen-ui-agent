@@ -1,0 +1,14 @@
+[
+  {
+    "id": "chart-line-000006",
+    "user_prompt": "Plot temperature and humidity over the day",
+    "backend_data": "{\n    \"readings\": [\n        {\n            \"time\": \"06:00\",\n            \"temperature\": 15,\n            \"humidity\": 60\n        },\n        {\n            \"time\": \"12:00\",\n            \"temperature\": 25,\n            \"humidity\": 45\n        },\n        {\n            \"time\": \"18:00\",\n            \"temperature\": 22,\n            \"humidity\": 55\n        },\n        {\n            \"time\": \"24:00\",\n            \"temperature\": 18,\n            \"humidity\": 65\n        }\n    ]\n}\n\n",
+    "input_data_type": "weather.daily",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/chart_line_standard_temperature_humidity.json",
+      "prompt_file": "prompts_chart_line_standard_temperature_humidity.json"
+    }
+  }
+]

@@ -5,12 +5,12 @@ from langchain_core.language_models import FakeMessagesListChatModel
 from next_gen_ui_agent.component_selection_llm_strategy import (
     MAX_STRING_DATA_LENGTH_FOR_LLM,
 )
+from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.json_data_wrapper import wrap_string_as_json
 from next_gen_ui_agent.types import InputDataInternal
 from pytest import fail
 
 from .component_selection_llm_onestep import OnestepLLMCallComponentSelectionStrategy
-from .model import LangChainModelInference
 
 movies_data = """[
 {
@@ -94,13 +94,14 @@ async def test_select_component_json_wrapping_OK() -> None:
     llm = FakeMessagesListChatModel(responses=[msg])  # type: ignore
     inference = LangChainModelInference(llm)
 
-    component_selection = OnestepLLMCallComponentSelectionStrategy(False)
+    component_selection = OnestepLLMCallComponentSelectionStrategy()
     result = await component_selection.select_component(
         inference, user_input, input_data
     )
     assert result.component == "one-card"
     assert result.json_wrapping_field_name == "movie_detail"
     assert result.input_data_transformer_name is None
+    assert result.input_data_type == "movie.detail"
     # assert json_data are wrapped as type is provided
     assert result.json_data == json.loads(
         '{ "movie_detail" :' + movies_data_TO_WRAP + "}"
@@ -123,6 +124,7 @@ async def test_select_component_json_wrapping_no_OK() -> None:
     assert result.component == "one-card"
     assert result.json_wrapping_field_name is None
     assert result.input_data_transformer_name is None
+    assert result.input_data_type is None
     # assert json_data are not wrapped as type is not provided
     assert result.json_data == json.loads(movies_data_TO_WRAP)
 

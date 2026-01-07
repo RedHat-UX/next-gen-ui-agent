@@ -69,6 +69,7 @@ nav:
       - Input Data:
         - guide/input_data/index.md
         - Structures: guide/input_data/structure.md
+        - Charts structures: guide/input_data/charts.md
         - Transformation: guide/input_data/transformation.md
       - guide/llm.md
       - Data UI Blocks:
@@ -103,6 +104,7 @@ nav:
     - spec/config.md
     - spec/output.md
     - spec/mcp.md
+    - spec/a2a.md
     - Changelog:
       - changelog/index.md
       - changelog/release_notes.md

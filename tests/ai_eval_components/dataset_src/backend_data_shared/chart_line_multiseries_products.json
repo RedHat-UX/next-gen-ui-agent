@@ -1,0 +1,39 @@
+{
+    "products": [
+        {
+            "name": "Product X",
+            "monthlySales": [
+                {
+                    "month": "Jan",
+                    "sales": 1000
+                },
+                {
+                    "month": "Feb",
+                    "sales": 1200
+                },
+                {
+                    "month": "Mar",
+                    "sales": 1100
+                }
+            ]
+        },
+        {
+            "name": "Product Y",
+            "monthlySales": [
+                {
+                    "month": "Jan",
+                    "sales": 800
+                },
+                {
+                    "month": "Feb",
+                    "sales": 950
+                },
+                {
+                    "month": "Mar",
+                    "sales": 900
+                }
+            ]
+        }
+    ]
+}
+

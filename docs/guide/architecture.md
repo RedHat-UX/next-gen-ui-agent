@@ -22,7 +22,7 @@ Stricter configuration can be defined when tighter control of the UI components 
 details see [Component Selection and Configuration docs](./data_ui_blocks/index.md#selection-and-configuration-process).
 
 In the future, this agent will also maintain `UI state` and view layouts to keep UI and flows consistent, handle personalized 
-values formating, and many other features. Stay tuned ;-)
+values formatting, and many other features. Stay tuned ;-)
 
 Example of the generated `Data UI Block`:
 ![Example of the Data UI Block](../img/data_ui_block_card.png "Example of the Data UI Block")

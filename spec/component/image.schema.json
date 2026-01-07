@@ -10,6 +10,18 @@
       "description": "id of the backend data this component is for",
       "type": "string"
     },
+    "input_data_type": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional type of the input data. Can be used for frontend customization of the component for concrete data type, eg. by using it in CSS class names."
+    },
     "title": {
       "description": "title of the component",
       "type": "string"

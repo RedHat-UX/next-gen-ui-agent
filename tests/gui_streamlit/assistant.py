@@ -4,7 +4,8 @@ import logging
 from langchain_core.language_models import FakeMessagesListChatModel
 from langchain_core.messages import AIMessage, BaseMessage, ChatMessage, ToolMessage
 from langgraph.graph.graph import CompiledGraph
-from next_gen_ui_agent.renderer.base_renderer import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent import design_system_handler
+from next_gen_ui_agent.design_system_handler import PLUGGABLE_RENDERERS_NAMESPACE
 from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
 from next_gen_ui_patternfly_renderer.patternfly_renderer import (
     PatternflyStrategyFactory,
@@ -32,7 +33,7 @@ def create_ngui_graph(llm_data: list[str | dict]):
         extensions=[extension_rhds, extension_patternfly],
         namespace=PLUGGABLE_RENDERERS_NAMESPACE,
     )
-    ngui_graph.ngui_agent._extension_manager = em
+    design_system_handler.EXTENSION_MANAGER = em
     return ngui_graph
 
 

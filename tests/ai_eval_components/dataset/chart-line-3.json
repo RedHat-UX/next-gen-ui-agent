@@ -1,0 +1,14 @@
+[
+  {
+    "id": "chart-line-000003",
+    "user_prompt": "Show user count for Region A and Region B by quarter",
+    "backend_data": "{\n    \"regions\": [\n        {\n            \"regionName\": \"Region A\",\n            \"quarterlyUsers\": [\n                {\n                    \"quarter\": \"Q1\",\n                    \"users\": 5000\n                },\n                {\n                    \"quarter\": \"Q2\",\n                    \"users\": 6000\n                },\n                {\n                    \"quarter\": \"Q3\",\n                    \"users\": 5500\n                }\n            ]\n        },\n        {\n            \"regionName\": \"Region B\",\n            \"quarterlyUsers\": [\n                {\n                    \"quarter\": \"Q1\",\n                    \"users\": 3000\n                },\n                {\n                    \"quarter\": \"Q2\",\n                    \"users\": 4000\n                },\n                {\n                    \"quarter\": \"Q3\",\n                    \"users\": 3500\n                }\n            ]\n        }\n    ]\n}\n\n",
+    "input_data_type": "regions.quarterly.users",
+    "expected_component": "chart-line",
+    "warn_only": false,
+    "src": {
+      "data_file": "backend_data_shared/chart_line_multiseries_regions.json",
+      "prompt_file": "prompts_chart_line_multiseries_regions.json"
+    }
+  }
+]

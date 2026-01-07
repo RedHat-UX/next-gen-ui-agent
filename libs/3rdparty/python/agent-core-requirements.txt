@@ -1,6 +1,8 @@
+aiohttp
 stevedore==5.4.1
 jsonpath-ng
 pydantic
 pydantic-core
 typing_extensions
 pyyaml>=5.3.1
+argparse

@@ -1,0 +1,70 @@
+{
+  "pods": [
+    {
+      "name": "frontend-app-7d9c8",
+      "status": "Running",
+      "namespace": "production",
+      "node": "worker-01"
+    },
+    {
+      "name": "backend-api-5f6b2",
+      "status": "Running",
+      "namespace": "production",
+      "node": "worker-02"
+    },
+    {
+      "name": "worker-queue-4k8j3",
+      "status": "Running",
+      "namespace": "production",
+      "node": "worker-03"
+    },
+    {
+      "name": "cache-redis-9e2c7",
+      "status": "Running",
+      "namespace": "production",
+      "node": "worker-01"
+    },
+    {
+      "name": "db-primary-3a1d4",
+      "status": "Running",
+      "namespace": "production",
+      "node": "worker-04"
+    },
+    {
+      "name": "auth-service-6k2m9",
+      "status": "Running",
+      "namespace": "production",
+      "node": "worker-02"
+    },
+    {
+      "name": "test-runner-8h3n1",
+      "status": "Failed",
+      "namespace": "staging",
+      "node": "worker-05"
+    },
+    {
+      "name": "backup-job-2w9s5",
+      "status": "Failed",
+      "namespace": "production",
+      "node": "worker-03"
+    },
+    {
+      "name": "init-config-1p4s7",
+      "status": "Succeeded",
+      "namespace": "system",
+      "node": "worker-01"
+    },
+    {
+      "name": "data-migration-5n8r3",
+      "status": "Succeeded",
+      "namespace": "production",
+      "node": "worker-02"
+    },
+    {
+      "name": "pending-deploy-9k2m4",
+      "status": "Pending",
+      "namespace": "staging",
+      "node": "worker-04"
+    }
+  ]
+}

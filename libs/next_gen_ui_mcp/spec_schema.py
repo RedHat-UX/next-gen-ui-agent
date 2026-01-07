@@ -2,6 +2,7 @@ import logging
 
 from next_gen_ui_agent.data_transform.json_schema_config import CustomGenerateJsonSchema
 from next_gen_ui_agent.spec_schema import save_schema
+from next_gen_ui_mcp.agent_config import MCPAgentConfig
 from next_gen_ui_mcp.types import MCPGenerateUIInput, MCPGenerateUIOutput
 from pydantic import BaseModel
 
@@ -9,6 +10,7 @@ mcp_subdir = "mcp"
 mcp_schemas: list[tuple[str, str, type[BaseModel]]] = [
     (mcp_subdir, "generate_ui_input.schema.json", MCPGenerateUIInput),
     (mcp_subdir, "generate_ui_output.schema.json", MCPGenerateUIOutput),
+    (mcp_subdir, "mcp_agent_config.schema.json", MCPAgentConfig),
 ]
 
 

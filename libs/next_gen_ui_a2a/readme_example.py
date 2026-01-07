@@ -1,3 +1,5 @@
+""" Example A2A client to call Next Gen UI A2A server """
+
 import logging
 from uuid import uuid4
 
@@ -16,6 +18,7 @@ from a2a.utils.constants import AGENT_CARD_WELL_KNOWN_PATH
 
 
 async def main() -> None:
+
     # Configure logging to show INFO level messages
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)  # Get a logger instance

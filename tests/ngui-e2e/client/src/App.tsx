@@ -1,7 +1,11 @@
 import ChatBotPage from "./components/ChatBot";
 
 function App() {
-  return <ChatBotPage />;
+  return (
+    <div className="app-container">
+      <ChatBotPage />
+    </div>
+  );
 }
 
 export default App;

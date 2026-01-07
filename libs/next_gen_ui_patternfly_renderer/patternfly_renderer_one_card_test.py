@@ -1,8 +1,7 @@
+from next_gen_ui_agent import design_system_handler
 from next_gen_ui_agent.agent import NextGenUIAgent
-from next_gen_ui_agent.renderer.base_renderer import (
-    PLUGGABLE_RENDERERS_NAMESPACE,
-    StrategyFactory,
-)
+from next_gen_ui_agent.design_system_handler import PLUGGABLE_RENDERERS_NAMESPACE
+from next_gen_ui_agent.renderer.base_renderer import StrategyFactory
 from next_gen_ui_agent.renderer.one_card_shareable_tests import BaseOneCardRendererTests
 from next_gen_ui_patternfly_renderer import PatternflyStrategyFactory
 from next_gen_ui_testing.data_after_transformation import get_transformed_component
@@ -30,7 +29,7 @@ def test_renderer_one_card() -> None:
     em = ExtensionManager(PLUGGABLE_RENDERERS_NAMESPACE).make_test_instance(
         extensions=[extension], namespace=PLUGGABLE_RENDERERS_NAMESPACE
     )
-    agent._extension_manager = em
+    design_system_handler.EXTENSION_MANAGER = em
     component = get_transformed_component()
     rendition = agent.generate_rendering(component, component_system).content
     assert (

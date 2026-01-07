@@ -1,0 +1,39 @@
+{
+    "regions": [
+        {
+            "regionName": "Region A",
+            "quarterlyUsers": [
+                {
+                    "quarter": "Q1",
+                    "users": 5000
+                },
+                {
+                    "quarter": "Q2",
+                    "users": 6000
+                },
+                {
+                    "quarter": "Q3",
+                    "users": 5500
+                }
+            ]
+        },
+        {
+            "regionName": "Region B",
+            "quarterlyUsers": [
+                {
+                    "quarter": "Q1",
+                    "users": 3000
+                },
+                {
+                    "quarter": "Q2",
+                    "users": 4000
+                },
+                {
+                    "quarter": "Q3",
+                    "users": 3500
+                }
+            ]
+        }
+    ]
+}
+

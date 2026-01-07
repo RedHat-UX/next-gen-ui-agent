@@ -18,7 +18,7 @@ component selection happens.
 
 ### Mapping from `InputData.type`
 
-This approach is usefull if you want to completely decouple UI component selection from *Controlling assistant* into *UI Agent*.
+This approach is useful if you want to completely decouple UI component selection from *Controlling assistant* into *UI Agent*.
 
 Each [`InputData`](../input_data/index.md#inputdata-object-fields) sent to *UI Agent* can have `type` defined, which is a 
 string identifier of the data piece type eg. `movies:movie-detail`, `movies:movies-list`, `movies:actor-detail`. It is up 
