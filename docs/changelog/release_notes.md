@@ -2,6 +2,51 @@
 
 ---
 
+## Release Notes - Version 0.4.0
+
+This release marks a significant milestone in expanding Next Gen UI's integration capabilities and evaluation framework. The highlight is the **developer preview of Agent-to-Agent (A2A) protocol support**, enabling seamless agent interoperability. We've also introduced powerful LLM fine-tuning capabilities, enhanced our evaluation framework with LLM-as-a-Judge functionality and multi-provider support, and significantly improved configuration flexibility. This release continues our commitment to production readiness with Python 3.14 support, comprehensive configuration options, and streamlined component handling.
+
+### Key Features and Benefits
+
+* **Agent-to-Agent (A2A) Protocol Support (Developer Preview)**:
+    * **A2A Server Implementation**: Introduced comprehensive A2A protocol support with standalone server, package, and container image, enabling agents to communicate and collaborate with each other (NGUI-223).
+    * **Enhanced A2A Configuration**: A2A agent card and skill information can now be fine-tuned directly in YAML config files for better discoverability and documentation (NGUI-497).
+    * **Improved Input Processing**: Enhanced A2A agent input processing with comprehensive documentation for easier integration (NGUI-518).
+    * **Unified Configuration**: MCP and A2A server configurations have been unified for consistent deployment and management experience (NGUI-496).
+
+* **LLM Fine-tuning and Evaluation Framework**:
+    * **Fine-tuning Pipeline**: Added Google Colab notebook with comprehensive LLM LoRA fine-tuning pipeline, enabling model customization for specific use cases (NGUI-507).
+    * **LLM-as-a-Judge Evaluation**: Introduced LLM-as-a-Judge evaluation methodology with categorical outputs and CLI flag support for automated quality assessment.
+    * **Multi-Provider Support**: Added Anthropic/Claude API support in both JUDGE_API_PROVIDER for evaluation and general agent operations, expanding model choice flexibility.
+    * **GitLab CI/CD Integration**: Implemented GitLab CI/CD pipeline for automated LLM evaluation tests, ensuring continuous quality monitoring.
+
+* **Enhanced Configuration and Customization**:
+    * **MCP Tools Fine-tuning**: Added ability to fine-tune MCP tool descriptions in agent config files, improving LLM tool selection accuracy (NGUI-509).
+    * **Component Configuration Enhancement**: Input data types now included in component JSON for better frontend customization support (NGUI-526).
+    * **Session Management**: Added `session_id` argument support in MCP tools for better session tracking and state management (NGUI-501).
+    * **Available Fields Metadata**: Agent output now includes list of all available fields for table and set-of-cards components, improving dynamic UI rendering (NGUI-446).
+
+* **Technology Stack Modernization**:
+    * **Python 3.14 Support**: Added official support for Python 3.14, staying current with the latest language features and improvements (NGUI-465).
+    * **FastMCP 2.13 Upgrade**: Updated to FastMCP version 2.13 for enhanced MCP functionality and performance (NGUI-463).
+    * **Dependency Management**: Updated Commitizen version with pinned GitHub actions for more reliable CI/CD operations (NGUI-490).
+
+* **Streamlined Architecture**:
+    * **Removed Deprecated Features**: 
+        - Removed deprecated ACP agent as the ACP protocol itself has been deprecated (NGUI-467).
+        - Removed supported-only components configuration, simplifying component management (NGUI-499).
+    * **Dependency Cleanup**: Cleaned up Pants dependencies for e2e-server, improving build performance and maintainability.
+
+### Known Issues or Limitations
+
+* **A2A Protocol Status**: The Agent-to-Agent (A2A) protocol support is currently in **Developer Preview** status. While functional, the API may evolve based on community feedback and real-world usage patterns. Production deployments should carefully evaluate stability requirements.
+
+* **LLM Fine-tuning Requirements**: The LLM fine-tuning pipeline requires Google Colab or equivalent environment with GPU support. Local execution may require significant computational resources.
+
+* **Multi-Provider Configuration**: When using multiple AI providers (e.g., different providers for agent operations vs. evaluation), ensure proper API key configuration for each provider to avoid authentication issues.
+
+---
+
 ## Release Notes - Version 0.3.0
 
 This release represents a major advancement for Next Gen UI, focusing on robustness, reliability, and production readiness. We've improved the core agent API to provide better error handling and parallel processing capabilities, migrated to FastMCP for enhanced MCP functionality, and introduced a comprehensive input data transformation framework. This release also brings significant improvements to all AI framework/protocol implementations, better configuration management, and production deployment support.
