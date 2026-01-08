@@ -108,8 +108,10 @@ generate_report_metadata:
     - when: on_success
   dependencies:
     - complete_eval
+  before_script:
+    - export PYTHONPATH="tests:libs"
   script:
-    - python tests/ai_eval_components/save_report_metadata.py
+    - python -m ai_eval_components.save_report_metadata
   artifacts:
     when: always
     paths:
