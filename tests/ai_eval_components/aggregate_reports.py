@@ -621,7 +621,7 @@ def main():
             metadata_path = reports_dir / f"pipeline_{job_info.get('pipeline', {}).get('id', job_id)}_metadata.json"
             success = client.download_artifact(
                 int(job_id),
-                "tests/ai_eval_arh/report_metadata.json",
+                "tests/ai_eval_components/report_metadata.json",
                 metadata_path
             )
             
@@ -634,7 +634,7 @@ def main():
                 html_path = reports_dir / f"pipeline_{job_info.get('pipeline', {}).get('id', job_id)}.html"
                 html_success = client.download_artifact(
                     int(job_id),
-                    "tests/ai_eval_arh/arh_eval_report.html",
+                    "tests/ai_eval_components/gitlab_eval_report.html",
                     html_path
                 )
                 

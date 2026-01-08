@@ -64,7 +64,7 @@ complete_eval:
         echo "Please set: MODEL_API_URL, INFERENCE_MODEL, MODEL_API_KEY"
         exit 1
       fi
-    - echo "=== Using models.corp API at $MODEL_API_URL ==="
+    - echo "All required CI/CD variables are set"
   script:
     - echo "=== Running Movies/Subscriptions Tests ==="
     - >

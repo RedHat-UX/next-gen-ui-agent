@@ -265,6 +265,8 @@ This repository includes an **automated evaluation dashboard** for comparing mod
 
 # Set CI/CD variable: AGGREGATE_LIMIT=20 (optional, default: 10)
 
-# Run scheduled or manual pipelineView dashboard at: `https://gitlab.cee.redhat.com/next-gen-ui/next-gen-ui-agent-ci/`
+# Run scheduled or manual pipeline
+
+View dashboard at: `https://<your-gitlab-instance>/<your-project>/pages/`
 
 📚 **Detailed documentation**: See [`tests/ai_eval_components/README_DASHBOARD.md`](tests/ai_eval_components/README_DASHBOARD.md)

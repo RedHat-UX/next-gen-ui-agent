@@ -132,7 +132,7 @@ def create_metadata():
     judge_model = os.getenv("JUDGE_MODEL") if judge_enabled else None
     
     # Try to extract full statistics from generated HTML report
-    html_path = Path("gitlab_eval_report.html")
+    html_path = Path("tests/ai_eval_components/gitlab_eval_report.html")
     extracted = extract_full_metadata_from_html(html_path) if html_path.exists() else None
     
     if extracted:
@@ -191,8 +191,8 @@ def main():
     # Create metadata
     metadata = create_metadata()
     
-    # Save to file in current directory (tests/ai_eval_arh when running in CI)
-    metadata_file = Path("report_metadata.json")
+    # Save to file in tests/ai_eval_components/ directory
+    metadata_file = Path("tests/ai_eval_components/report_metadata.json")
     
     with metadata_file.open("w") as f:
         json.dump(metadata, f, indent=2)

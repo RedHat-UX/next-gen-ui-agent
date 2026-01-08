@@ -78,7 +78,7 @@ Set in GitLab: **Settings → CI/CD → Variables**
 After aggregation completes:
 
 ```
-https://gitlab.cee.redhat.com/next-gen-ui/next-gen-ui-agent-ci/pages/
+https://<your-gitlab-instance>/<your-project>/pages/
 ```
 
 ## Troubleshooting
