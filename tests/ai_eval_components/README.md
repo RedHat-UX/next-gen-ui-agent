@@ -240,3 +240,31 @@ This script reads from both `dataset/` and `dataset_k8s/` directories and genera
 2. Regenerate K8s datasets: `pants run tests/ai_eval_components/dataset_gen.py -- -s tests/ai_eval_components/dataset_src_k8s/ -d tests/ai_eval_components/dataset_k8s/`
 3. Sync to e2e client: `pants run tests/ai_eval_components/sync_datasets_to_e2e.py`
 4. Review and commit changes
+
+## Evaluation Dashboard
+
+This repository includes an **automated evaluation dashboard** for comparing model performance across multiple CI/CD pipeline runs.
+
+### Features
+
+- **Multi-model comparison** - Compare different LLM models side-by-side
+- **Trend analysis** - Visualize performance trends over time with Chart.js
+- **Auto-discovery** - Automatically aggregate recent evaluation runs
+- **GitLab Pages** - One-click deployment to GitLab Pages
+- **Judge mode support** - Visualize LLM judge scores and reasoning
+
+### Quick Start
+
+# Option 1: Aggregate specific runs
+
+# Set CI/CD variable: AGGREGATE_JOB_IDS=12345,12346,12347
+
+# Trigger pipeline
+
+# Option 2: Auto-aggregate last N runs
+
+# Set CI/CD variable: AGGREGATE_LIMIT=20 (optional, default: 10)
+
+# Run scheduled or manual pipelineView dashboard at: `https://gitlab.cee.redhat.com/next-gen-ui/next-gen-ui-agent-ci/`
+
+📚 **Detailed documentation**: See [`tests/ai_eval_components/README_DASHBOARD.md`](tests/ai_eval_components/README_DASHBOARD.md)

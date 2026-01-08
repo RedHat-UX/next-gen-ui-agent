@@ -26,6 +26,9 @@ variables:
 
 stages:
   - test
+  - report
+  - aggregate
+  - deploy
 
 complete_eval:
   stage: test
@@ -33,6 +36,10 @@ complete_eval:
   tags:
     - ${GITLAB_RUNNER_TAGS}
   timeout: 20 hours
+  rules:
+    - if: $AGGREGATE_JOB_IDS
+      when: never
+    - when: on_success
   before_script:
     - echo "=== Setting up environment ==="
     - apt-get update
@@ -87,3 +94,123 @@ complete_eval:
       - tests/ai_eval_components/perf_stats.json
       - tests/ai_eval_components/perf_stats_k8s.json
     expire_in: 30 days
+
+# ============================================
+# REPORT METADATA EXTRACTION
+# ============================================
+
+generate_report_metadata:
+  stage: report
+  image: python:3.13
+  rules:
+    - if: $AGGREGATE_JOB_IDS
+      when: never
+    - when: on_success
+  dependencies:
+    - complete_eval
+  script:
+    - cd tests/ai_eval_components
+    - python save_report_metadata.py
+  artifacts:
+    when: always
+    paths:
+      - tests/ai_eval_components/report_metadata.json
+    expire_in: 1 year
+
+# ============================================
+# DASHBOARD AGGREGATION (Manual Mode)
+# ============================================
+
+aggregate_dashboard:
+  stage: aggregate
+  image: python:3.13
+  rules:
+    - if: $AGGREGATE_JOB_IDS
+      when: always
+    - when: never
+  before_script:
+    - pip install requests
+  script:
+    - cd tests/ai_eval_components
+    - |
+      TOKEN="${AGGREGATION_TOKEN:-$CI_JOB_TOKEN}"
+      python aggregate_reports.py \
+        --project-id $CI_PROJECT_ID \
+        --gitlab-url $CI_SERVER_URL \
+        --token "$TOKEN" \
+        --job-ids "$AGGREGATE_JOB_IDS" \
+        --output ../../public
+    - python generate_dashboard.py --input ../../public --output ../../public/index.html
+    - |
+      cat > ../../public/_headers << 'EOF'
+      /*
+        Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+        Pragma: no-cache
+        Expires: 0
+      EOF
+  artifacts:
+    paths:
+      - public/
+
+# ============================================
+# DASHBOARD AGGREGATION (Auto-Discovery Mode)
+# ============================================
+
+aggregate_dashboard_auto:
+  stage: aggregate
+  image: python:3.13
+  rules:
+    - if: $AGGREGATE_JOB_IDS
+      when: never
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+      when: always
+    - if: '$CI_PIPELINE_SOURCE == "web"'
+      when: always
+  before_script:
+    - pip install requests
+  script:
+    - cd tests/ai_eval_components
+    - |
+      TOKEN="${AGGREGATION_TOKEN:-$CI_JOB_TOKEN}"
+      python aggregate_reports.py \
+        --project-id $CI_PROJECT_ID \
+        --gitlab-url $CI_SERVER_URL \
+        --token "$TOKEN" \
+        --limit ${AGGREGATE_LIMIT:-10} \
+        --output ../../public
+    - python generate_dashboard.py --input ../../public --output ../../public/index.html
+    - |
+      cat > ../../public/_headers << 'EOF'
+      /*
+        Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+        Pragma: no-cache
+        Expires: 0
+      EOF
+  artifacts:
+    paths:
+      - public/
+
+# ============================================
+# GITLAB PAGES DEPLOYMENT
+# ============================================
+
+pages:
+  stage: deploy
+  needs:
+    - job: aggregate_dashboard
+      optional: true
+    - job: aggregate_dashboard_auto
+      optional: true
+  rules:
+    - if: $AGGREGATE_JOB_IDS
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: always
+    - if: $CI_PIPELINE_SOURCE == "web"
+      when: always
+  script:
+    - echo "Deploying evaluation dashboard to GitLab Pages"
+    - ls -la public/ || echo "No public directory found"
+  artifacts:
+    paths:
+      - public/
