@@ -75,6 +75,8 @@ complete_eval:
       aiohttp.ClientSession.__init__=lambda s,*a,**k: orig_init(s,*a,**{**k,'connector':aiohttp.TCPConnector(ssl=False)});
       import runpy; runpy.run_module('ai_eval_components.eval', run_name='__main__')"
     - echo "=== Running Kubernetes Tests ==="
+    - export ERRORS_DIR=tests/ai_eval_components/errors_k8s
+    - export LLM_OUT_DIR=tests/ai_eval_components/llm_out_k8s
     - >
       python3.13 -c "import sys; sys.argv.extend(['-c', 'all', '-w']);
       import httpx; o=httpx.AsyncClient.__init__;
@@ -83,7 +85,7 @@ complete_eval:
       aiohttp.ClientSession.__init__=lambda s,*a,**k: orig_init(s,*a,**{**k,'connector':aiohttp.TCPConnector(ssl=False)});
       import runpy; runpy.run_module('ai_eval_components.eval_k8s', run_name='__main__')"
     - echo "=== Generating Report ==="
-    - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --llm-out-dirs llm_out,llm_out_k8s --title "GitLab CI Evaluation Report" --model "${INFERENCE_MODEL}" --output tests/ai_eval_components/gitlab_eval_report.html
+    - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --llm-out-dirs tests/ai_eval_components/llm_out,tests/ai_eval_components/llm_out_k8s --title "GitLab CI Evaluation Report" --model "${INFERENCE_MODEL}" --output tests/ai_eval_components/gitlab_eval_report.html
     - echo "=== Completed ==="
   artifacts:
     when: always
