@@ -68,7 +68,7 @@ complete_eval:
   script:
     - echo "=== Running Movies/Subscriptions Tests ==="
     - >
-      python3.13 -c "import sys; sys.argv.extend(['-c', 'all']);
+      python3.13 -c "import sys; sys.argv.extend(['-c', 'all', '-w']);
       import httpx; o=httpx.AsyncClient.__init__;
       httpx.AsyncClient.__init__=lambda s,*a,**k: o(s,*a,**{**k,'verify':False});
       import aiohttp; orig_init=aiohttp.ClientSession.__init__;
@@ -76,14 +76,14 @@ complete_eval:
       import runpy; runpy.run_module('ai_eval_components.eval', run_name='__main__')"
     - echo "=== Running Kubernetes Tests ==="
     - >
-      python3.13 -c "import sys; sys.argv.extend(['-c', 'all']);
+      python3.13 -c "import sys; sys.argv.extend(['-c', 'all', '-w']);
       import httpx; o=httpx.AsyncClient.__init__;
       httpx.AsyncClient.__init__=lambda s,*a,**k: o(s,*a,**{**k,'verify':False});
       import aiohttp; orig_init=aiohttp.ClientSession.__init__;
       aiohttp.ClientSession.__init__=lambda s,*a,**k: orig_init(s,*a,**{**k,'connector':aiohttp.TCPConnector(ssl=False)});
       import runpy; runpy.run_module('ai_eval_components.eval_k8s', run_name='__main__')"
     - echo "=== Generating Report ==="
-    - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --title "GitLab CI Evaluation Report" --model "${INFERENCE_MODEL}" --output tests/ai_eval_components/gitlab_eval_report.html
+    - python3.13 -m ai_eval_components.generate_report --datasets dataset,dataset_k8s --labels "Movies/Subscriptions,Kubernetes" --error-dirs errors,errors_k8s --llm-out-dirs llm_out,llm_out_k8s --title "GitLab CI Evaluation Report" --model "${INFERENCE_MODEL}" --output tests/ai_eval_components/gitlab_eval_report.html
     - echo "=== Completed ==="
   artifacts:
     when: always
@@ -91,6 +91,8 @@ complete_eval:
       - tests/ai_eval_components/gitlab_eval_report.html
       - tests/ai_eval_components/errors/
       - tests/ai_eval_components/errors_k8s/
+      - tests/ai_eval_components/llm_out/
+      - tests/ai_eval_components/llm_out_k8s/
       - tests/ai_eval_components/perf_stats.json
       - tests/ai_eval_components/perf_stats_k8s.json
     expire_in: 30 days

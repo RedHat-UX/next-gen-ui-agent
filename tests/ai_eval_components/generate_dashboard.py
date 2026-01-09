@@ -263,7 +263,7 @@ def generate_dashboard_html(aggregated_data: dict, reports: list) -> str:
 </head>
 <body>
     <div class="header">
-        <h1>Next Gen UI Agent Evaluation - Ask Red Hat</h1>
+        <h1>Next Gen UI Agent Evaluation Dashboard</h1>
         <div class="subtitle">Comprehensive Analysis Across {summary.get('total_pipelines', 0)} Pipeline Runs | Generated: {timestamp}</div>
     </div>
     
