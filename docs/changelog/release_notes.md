@@ -4,27 +4,39 @@
 
 ## Release Notes - Version 0.4.0
 
-This release marks a significant milestone in expanding Next Gen UI's integration capabilities and evaluation framework. The highlight is the **developer preview of Agent-to-Agent (A2A) protocol support**, enabling seamless agent interoperability. We've also introduced powerful LLM fine-tuning capabilities, enhanced our evaluation framework with LLM-as-a-Judge functionality and multi-provider support, and significantly improved configuration flexibility. This release continues our commitment to production readiness with Python 3.14 support, comprehensive configuration options, and streamlined component handling.
+This release marks a significant milestone in expanding Next Gen UI's visualisation and integration capabilities and maturing evaluation framework. The highlight is the **developer preview** of Agent-to-Agent (A2A) protocol support, enabling seamless integration into multi-agent architecture. We've also added comprehensive chart visualization support with five chart types (bar, line, pie, donut, and mirrored-bar), enabling AI-driven data visualization with intelligent chart usage. We've also enhanced our evaluation framework with LLM-as-a-Judge functionality and multi-provider support, and significantly improved customization flexibility. This release continues our commitment to enterprise production readiness with Python 3.14 support, comprehensive configuration options, and streamlined component handling.
+
 
 ### Key Features and Benefits
 
-* **Agent-to-Agent (A2A) Protocol Support (Developer Preview)**:
-    * **A2A Server Implementation**: Introduced comprehensive A2A protocol support with standalone server, package, and container image, enabling agents to communicate and collaborate with each other (NGUI-223).
-    * **Enhanced A2A Configuration**: A2A agent card and skill information can now be fine-tuned directly in YAML config files for better discoverability and documentation (NGUI-497).
-    * **Improved Input Processing**: Enhanced A2A agent input processing with comprehensive documentation for easier integration (NGUI-518).
-    * **Unified Configuration**: MCP and A2A server configurations have been unified for consistent deployment and management experience (NGUI-496).
+* **Chart UI Components**:
+    * **AI-Powered Selection**: Charts integrated into the agent’s component selection, enabling it to intelligently choose the appropriate chart type based on data structure, user context, and visualization requirements.
+    * **Five Chart Types**: Added comprehensive chart support with five distinct visualization components:
+        - **Bar Charts (`chart-bar`)**: Compare metrics across categories with support for both vertical and horizontal orientations, stacked bars, and automatic layout detection for long labels.
+        - **Line Charts (`chart-line`)**: Visualize trends over time or continuous data with support for multiple data series and time-series formats.
+        - **Pie Charts (`chart-pie`)**: Display proportions and data distribution with automatic legend positioning.
+        - **Donut Charts (`chart-donut`)**: Show proportions with a central metric display for total values.
+        - **Mirrored Bar Charts (`chart-mirrored-bar`)**: Enable side-by-side comparison of two metrics with mirrored visualization.
+    * **Intelligent Data Transformation**: Implemented sophisticated data transformation logic that automatically converts array-based input data into chart-ready data series, supporting multiple data structures including category frequency counting, standard time-series data, and series-oriented formats.
+    * **PatternFly React Rendering Implementation**: All chart components are supported in PatternFly React NPM v1.1.1 for consistent, production-ready visualizations that align with Red Hat design standards.
+    * **Comprehensive Documentation**: Added detailed guides for chart data structures, transformation patterns, and usage examples.
 
-* **LLM Fine-tuning and Evaluation Framework**:
-    * **Fine-tuning Pipeline**: Added Google Colab notebook with comprehensive LLM LoRA fine-tuning pipeline, enabling model customization for specific use cases (NGUI-507).
-    * **LLM-as-a-Judge Evaluation**: Introduced LLM-as-a-Judge evaluation methodology with categorical outputs and CLI flag support for automated quality assessment.
-    * **Multi-Provider Support**: Added Anthropic/Claude API support in both JUDGE_API_PROVIDER for evaluation and general agent operations, expanding model choice flexibility.
+* **Agent-to-Agent (A2A) Protocol Support (Developer Preview)**:
+    * **A2A Server Implementation**: Introduced comprehensive A2A protocol support with standalone server package, and container image, enabling the agent to be seamless integrated into multi-agent architecture (NGUI-223).
+    * **Enhanced A2A Configuration**: A2A agent card and skill information can be fine-tuned directly in agent’s YAML config file for better discoverability and documentation (NGUI-497).
+    * **Improved Input Processing**: Enhanced A2A agent input processing with comprehensive documentation for easier integration (NGUI-518).
+    * **Unified AI Protocol Servers Configuration**: MCP and A2A server configurations have been unified for consistent deployment and management experience (NGUI-496).
+
+* **Evaluations Enhancements**:
+    * **LLM-as-a-Judge Evaluation**: Introduced LLM-as-a-Judge into our evaluation framework to assess selected component and its configuration.
+    * **Multi-Provider Support**: Added Anthropic/Claude API support for both judge and agent operations inference in the evaluation framework, expanding model choice flexibility.
     * **GitLab CI/CD Integration**: Implemented GitLab CI/CD pipeline for automated LLM evaluation tests, ensuring continuous quality monitoring.
 
 * **Enhanced Configuration and Customization**:
     * **MCP Tools Fine-tuning**: Added ability to fine-tune MCP tool descriptions in agent config files, improving LLM tool selection accuracy (NGUI-509).
-    * **Component Configuration Enhancement**: Input data types now included in component JSON for better frontend customization support (NGUI-526).
-    * **Session Management**: Added `session_id` argument support in MCP tools for better session tracking and state management (NGUI-501).
-    * **Available Fields Metadata**: Agent output now includes list of all available fields for table and set-of-cards components, improving dynamic UI rendering (NGUI-446).
+    * **Component Configuration Enhancement**: Input data type was included into UI component JSON for better frontend customization support (NGUI-526).
+    * **MCP Session Management**: Added `session_id` argument support in MCP tools for better session tracking and state management (NGUI-501).
+    * **Available Fields Metadata**: Agent output now includes a list of all available fields for table and set-of-cards components, improving frontend customizability (NGUI-446).
 
 * **Technology Stack Modernization**:
     * **Python 3.14 Support**: Added official support for Python 3.14, staying current with the latest language features and improvements (NGUI-465).
@@ -41,9 +53,7 @@ This release marks a significant milestone in expanding Next Gen UI's integratio
 
 * **A2A Protocol Status**: The Agent-to-Agent (A2A) protocol support is currently in **Developer Preview** status. While functional, the API may evolve based on community feedback and real-world usage patterns. Production deployments should carefully evaluate stability requirements.
 
-* **LLM Fine-tuning Requirements**: The LLM fine-tuning pipeline requires Google Colab or equivalent environment with GPU support. Local execution may require significant computational resources.
-
-* **Multi-Provider Configuration**: When using multiple AI providers (e.g., different providers for agent operations vs. evaluation), ensure proper API key configuration for each provider to avoid authentication issues.
+* **Multi-Provider Support**: When using multiple AI providers (e.g., different providers for agent operations vs. evaluation), ensure proper API key configuration for each provider to avoid authentication issues.
 
 ---
 
