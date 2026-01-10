@@ -19,6 +19,8 @@ Usage:
         --limit 10
 """
 
+# Fix for types.py naming conflict: pre-import standard library modules
+import types  # noqa: F401 - import standard library types before local types.py is found
 import argparse
 import json
 import os
