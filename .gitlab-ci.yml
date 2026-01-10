@@ -135,16 +135,17 @@ aggregate_dashboard:
     - when: never
   before_script:
     - pip install requests
+    - export PYTHONPATH="tests:libs"
   script:
     - |
       TOKEN="${AGGREGATION_TOKEN:-$CI_JOB_TOKEN}"
-      python tests/ai_eval_components/aggregate_reports.py \
+      python -m ai_eval_components.aggregate_reports \
         --project-id $CI_PROJECT_ID \
         --gitlab-url $CI_SERVER_URL \
         --token "$TOKEN" \
         --job-ids "$AGGREGATE_JOB_IDS" \
         --output public
-    - python tests/ai_eval_components/generate_dashboard.py --input public --output public/index.html
+    - python -m ai_eval_components.generate_dashboard --input public --output public/index.html
     - |
       cat > public/_headers << 'EOF'
       /*
