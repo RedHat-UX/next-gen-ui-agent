@@ -120,6 +120,7 @@ generate_report_metadata:
     when: always
     paths:
       - tests/ai_eval_components/report_metadata.json
+      - tests/ai_eval_components/gitlab_eval_report.html
     expire_in: 1 year
 
 # ============================================
