@@ -76,7 +76,9 @@ def load_error_file(filepath: Path):
     return []
 
 
-def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_dirs=None):
+def analyze_results(
+    dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_dirs=None
+):
     """Analyze dataset files and their error reports from one or more datasets."""
     results = {
         "total_tests": 0,
@@ -92,13 +94,19 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
     # Convert dataset_dirs to list of Path objects
     if isinstance(dataset_dirs, str):
         # Check if path already includes full path or is relative
-        if dataset_dirs.startswith("tests/ai_eval_components/") or dataset_dirs.startswith("/"):
+        if dataset_dirs.startswith(
+            "tests/ai_eval_components/"
+        ) or dataset_dirs.startswith("/"):
             dataset_dirs = [Path(dataset_dirs)]
         else:
             dataset_dirs = [Path(f"tests/ai_eval_components/{dataset_dirs}")]
     else:
         dataset_dirs = [
-            Path(d) if (d.startswith("tests/ai_eval_components/") or d.startswith("/")) else Path(f"tests/ai_eval_components/{d}")
+            (
+                Path(d)
+                if (d.startswith("tests/ai_eval_components/") or d.startswith("/"))
+                else Path(f"tests/ai_eval_components/{d}")
+            )
             for d in dataset_dirs
         ]
 
@@ -111,13 +119,19 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
         error_dirs = [Path("tests/ai_eval_components/errors")]
     elif isinstance(error_dirs, str):
         # Check if path already includes full path or is relative
-        if error_dirs.startswith("tests/ai_eval_components/") or error_dirs.startswith("/"):
+        if error_dirs.startswith("tests/ai_eval_components/") or error_dirs.startswith(
+            "/"
+        ):
             error_dirs = [Path(error_dirs)]
         else:
             error_dirs = [Path(f"tests/ai_eval_components/{error_dirs}")]
     else:
         error_dirs = [
-            Path(d) if (d.startswith("tests/ai_eval_components/") or d.startswith("/")) else Path(f"tests/ai_eval_components/{d}")
+            (
+                Path(d)
+                if (d.startswith("tests/ai_eval_components/") or d.startswith("/"))
+                else Path(f"tests/ai_eval_components/{d}")
+            )
             for d in error_dirs
         ]
 
@@ -125,13 +139,19 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
     if llm_out_dirs is None:
         llm_out_dirs = [error_dir.parent / "llm_out" for error_dir in error_dirs]
     elif isinstance(llm_out_dirs, str):
-        if llm_out_dirs.startswith("tests/ai_eval_components/") or llm_out_dirs.startswith("/"):
+        if llm_out_dirs.startswith(
+            "tests/ai_eval_components/"
+        ) or llm_out_dirs.startswith("/"):
             llm_out_dirs = [Path(llm_out_dirs)]
         else:
             llm_out_dirs = [Path(f"tests/ai_eval_components/{llm_out_dirs}")]
     else:
         llm_out_dirs = [
-            Path(d) if (d.startswith("tests/ai_eval_components/") or d.startswith("/")) else Path(f"tests/ai_eval_components/{d}")
+            (
+                Path(d)
+                if (d.startswith("tests/ai_eval_components/") or d.startswith("/"))
+                else Path(f"tests/ai_eval_components/{d}")
+            )
             for d in llm_out_dirs
         ]
 
@@ -147,7 +167,9 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
         if i < len(llm_out_dirs):
             dataset_to_llm_out_dir[dataset_dir] = llm_out_dirs[i]
         else:
-            dataset_to_llm_out_dir[dataset_dir] = llm_out_dirs[0] if llm_out_dirs else None
+            dataset_to_llm_out_dir[dataset_dir] = (
+                llm_out_dirs[0] if llm_out_dirs else None
+            )
 
     # Iterate through ALL dataset files (not just error files)
     for i, dataset_dir in enumerate(dataset_dirs):
@@ -166,7 +188,11 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
 
             dataset = load_dataset_file(dataset_file)
             error_lines = load_error_file(error_file) if error_file.exists() else []
-            llm_out_lines = load_error_file(llm_out_file) if llm_out_file and llm_out_file.exists() else []
+            llm_out_lines = (
+                load_error_file(llm_out_file)
+                if llm_out_file and llm_out_file.exists()
+                else []
+            )
 
             # Parse errors to get failed test IDs (both AGENT and SYSTEM errors)
             failed_ids = set()
@@ -176,7 +202,9 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
                     if "==== AGENT " in line:
                         test_id = line.split("==== AGENT ")[1].split(" ====")[0].strip()
                     else:
-                        test_id = line.split("==== SYSTEM ")[1].split(" ====")[0].strip()
+                        test_id = (
+                            line.split("==== SYSTEM ")[1].split(" ====")[0].strip()
+                        )
                     failed_ids.add(test_id)
 
             # Initialize dataset stats if needed
@@ -195,7 +223,7 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
                 test_id = test["id"]
                 user_prompt = test["user_prompt"]
                 expected_component = test["expected_component"]
-                
+
                 # Normalize component name (replace spaces with hyphens)
                 expected_component = expected_component.replace(" ", "-")
 
@@ -216,58 +244,67 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
 
                 # Extract LLM selected component from error file OR llm_out file
                 llm_selected_component = None
-                
+
                 # Helper function to extract component from lines
                 def extract_llm_component(lines, test_id):
                     in_test_section = False
                     in_llm_outputs = False
                     llm_json_lines = []
-                    
+
                     for line in lines:
                         # Found the start of our specific test
-                        if f"==== DATASET ID {test_id} ====" in line or f"==== AGENT {test_id} ====" in line:
+                        if (
+                            f"==== DATASET ID {test_id} ====" in line
+                            or f"==== AGENT {test_id} ====" in line
+                        ):
                             in_test_section = True
                             in_llm_outputs = False
                             llm_json_lines = []
                             continue
-                        
+
                         # If we're in our test section
                         if in_test_section:
                             # Hit the start of a different test - stop here
-                            if line.startswith("==== DATASET ID") or line.startswith("==== AGENT"):
+                            if line.startswith("==== DATASET ID") or line.startswith(
+                                "==== AGENT"
+                            ):
                                 break
-                            
+
                             # Found LLM outputs section
                             if "LLM outputs:" in line:
                                 in_llm_outputs = True
                                 llm_json_lines = []
                                 continue
-                            
+
                             # Collecting LLM output JSON
                             if in_llm_outputs:
-                                if line.startswith("====") or line.startswith("===") or line.startswith("Data file"):
+                                if (
+                                    line.startswith("====")
+                                    or line.startswith("===")
+                                    or line.startswith("Data file")
+                                ):
                                     # End of LLM outputs, try to parse what we have
                                     break
                                 # Stop at blank line after we've started collecting JSON
                                 if llm_json_lines and not line.strip():
                                     break
                                 llm_json_lines.append(line)
-                    
+
                     # Try to parse LLM JSON to extract component
                     if llm_json_lines:
                         try:
                             llm_json_str = "".join(llm_json_lines)
                             llm_output = json.loads(llm_json_str)
                             return llm_output.get("component")
-                        except:
+                        except Exception:
                             pass
                     return None
-                
+
                 # Try llm_out file first (for passed tests), then error file (for failed tests)
                 llm_selected_component = extract_llm_component(llm_out_lines, test_id)
                 if not llm_selected_component:
                     llm_selected_component = extract_llm_component(error_lines, test_id)
-                
+
                 # Normalize LLM selected component name (replace spaces with hyphens)
                 if llm_selected_component:
                     llm_selected_component = llm_selected_component.replace(" ", "-")
@@ -278,20 +315,23 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
                     results["by_dataset"][dataset_label]["passed"] += 1
                     status = "PASS"
                     error_msg = None
-                    
+
                     # Check for warning: passed but selected different component
                     has_warning = False
-                    if llm_selected_component and llm_selected_component != expected_component:
+                    if (
+                        llm_selected_component
+                        and llm_selected_component != expected_component
+                    ):
                         has_warning = True
                         results["warnings"] += 1
-                    
+
                     # For ALL passed tests, extract component_choice judge reasoning
                     if llm_selected_component:
                         # Extract component_choice judge feedback from llm_out file (for passed tests)
                         judge_feedback = []
                         in_test_section = False
                         in_component_choice = False
-                        
+
                         for line in llm_out_lines:
                             # Start of this specific test
                             if f"==== DATASET ID {test_id} ====" in line:
@@ -299,11 +339,11 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
                                 in_component_choice = False
                                 judge_feedback = []  # Reset for this test
                                 continue
-                            
+
                             # End of this test (start of another test)
                             if in_test_section and line.startswith("==== DATASET ID"):
                                 break
-                            
+
                             # Only process lines within this test's section
                             if in_test_section:
                                 if "component_choice:" in line:
@@ -311,10 +351,15 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
                                     judge_feedback.append(line.strip())
                                 elif in_component_choice:
                                     # Continue collecting lines until we hit another judge category or section end
-                                    if line.strip().startswith("field_relevance:") or line.startswith("====") or line.startswith("===") or not line.strip():
+                                    if (
+                                        line.strip().startswith("field_relevance:")
+                                        or line.startswith("====")
+                                        or line.startswith("===")
+                                        or not line.strip()
+                                    ):
                                         break
                                     judge_feedback.append(line.strip())
-                        
+
                         if judge_feedback:
                             # Join the component_choice feedback
                             error_msg = " ".join(judge_feedback)
@@ -350,50 +395,63 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
 
                 # Extract backend_data and LLM output for expandable sections
                 backend_data = test.get("backend_data", "")
-                
+
                 # Extract full LLM output JSON
                 llm_output_json = None
                 in_test_section = False
                 in_llm_outputs = False
                 llm_json_lines = []
-                
+
                 # Search in llm_out first, then error files
                 search_lines = llm_out_lines if is_passed else error_lines
                 for line in search_lines:
-                    if f"==== DATASET ID {test_id} ====" in line or f"==== AGENT {test_id} ====" in line:
+                    if (
+                        f"==== DATASET ID {test_id} ====" in line
+                        or f"==== AGENT {test_id} ====" in line
+                    ):
                         in_test_section = True
                         in_llm_outputs = False
                         llm_json_lines = []
                         continue
-                    
+
                     if in_test_section:
-                        if line.startswith("==== DATASET ID") or line.startswith("==== AGENT"):
+                        if line.startswith("==== DATASET ID") or line.startswith(
+                            "==== AGENT"
+                        ):
                             break
-                        
+
                         if "LLM outputs:" in line:
                             in_llm_outputs = True
                             llm_json_lines = []
                             continue
-                        
+
                         if in_llm_outputs:
-                            if line.startswith("====") or line.startswith("===") or line.startswith("Data file"):
+                            if (
+                                line.startswith("====")
+                                or line.startswith("===")
+                                or line.startswith("Data file")
+                            ):
                                 break
                             # Stop at blank line after we've started collecting JSON
                             if llm_json_lines and not line.strip():
                                 break
                             llm_json_lines.append(line)
-                
+
                 if llm_json_lines:
                     try:
                         llm_output_json = json.loads("".join(llm_json_lines))
-                    except:
+                    except Exception:
                         llm_output_json = None
-                
+
                 test_detail = {
                     "id": test_id,
                     "prompt": user_prompt,
                     "component": expected_component,
-                    "llm_selected": llm_selected_component if llm_selected_component else expected_component,
+                    "llm_selected": (
+                        llm_selected_component
+                        if llm_selected_component
+                        else expected_component
+                    ),
                     "dataset": dataset_label,
                     "dataset_file": dataset_file.name,
                     "status": status,
@@ -402,9 +460,9 @@ def analyze_results(dataset_dirs, dataset_labels=None, error_dirs=None, llm_out_
                     "llm_output": llm_output_json,
                     "has_warning": has_warning,
                 }
-                
+
                 results["test_details"].append(test_detail)
-                
+
                 # Add to warning list if it has a warning
                 if has_warning:
                     results["warning_tests"].append(test_detail)
@@ -619,7 +677,7 @@ def generate_html_report(results, title="Evaluation Report", model=None):
         .pass-rate.low {{
             color: #e74c3c;
         }}
-        
+
         /* Expandable row styles */
         .test-row {{
             cursor: pointer;
@@ -707,7 +765,7 @@ def generate_html_report(results, title="Evaluation Report", model=None):
         .json-data::-webkit-scrollbar-thumb:hover {{
             background: #5c6370;
         }}
-        
+
         /* Responsive: Stack on smaller screens */
         @media (max-width: 1100px) {{
             .expandable-content {{
@@ -723,7 +781,7 @@ def generate_html_report(results, title="Evaluation Report", model=None):
         function toggleDetails(idx) {{
             const detailsRow = document.getElementById('details-' + idx);
             const toggleIcon = document.getElementById('toggle-' + idx);
-            
+
             if (detailsRow.style.display === 'none') {{
                 detailsRow.style.display = 'table-row';
                 toggleIcon.classList.add('expanded');
@@ -979,14 +1037,14 @@ def generate_html_report(results, title="Evaluation Report", model=None):
 
     for idx, test in enumerate(results["test_details"]):
         status_class = "pass" if test["status"] == "PASS" else "fail"
-        
+
         # Display status with warning indicator if applicable
         if test.get("has_warning"):
-            status_display = 'WARNING'
+            status_display = "WARNING"
             status_class = "warning"  # Orange color
         else:
             status_display = test["status"]
-        
+
         # Handle error/feedback cell
         if test["error"]:
             if test["status"] == "PASS" and "component_choice:" in test["error"]:
@@ -1002,22 +1060,32 @@ def generate_html_report(results, title="Evaluation Report", model=None):
                 error_cell = f'<td class="error">{test["error"]}</td>'
         else:
             error_cell = "<td>-</td>"
-        
+
         # Highlight LLM selected component if different from expected
         llm_selected = test["llm_selected"]
         if llm_selected != test["component"]:
-            llm_cell = f'<td style="color: #e74c3c; font-weight: bold;">{llm_selected}</td>'
+            llm_cell = (
+                f'<td style="color: #e74c3c; font-weight: bold;">{llm_selected}</td>'
+            )
         else:
             llm_cell = f'<td style="color: #27ae60;">{llm_selected}</td>'
-        
+
         # Prepare backend data and LLM output for expandable section
-        backend_data_json = json.dumps(json.loads(test.get("backend_data", "{}")), indent=2) if test.get("backend_data") else "N/A"
-        llm_output_json = json.dumps(test.get("llm_output", {}), indent=2) if test.get("llm_output") else "N/A"
+        backend_data_json = (
+            json.dumps(json.loads(test.get("backend_data", "{}")), indent=2)
+            if test.get("backend_data")
+            else "N/A"
+        )
+        llm_output_json = (
+            json.dumps(test.get("llm_output", {}), indent=2)
+            if test.get("llm_output")
+            else "N/A"
+        )
 
         # Escape HTML in JSON to prevent rendering issues
-        backend_data_json = backend_data_json.replace('<', '&lt;').replace('>', '&gt;')
-        llm_output_json = llm_output_json.replace('<', '&lt;').replace('>', '&gt;')
-        
+        backend_data_json = backend_data_json.replace("<", "&lt;").replace(">", "&gt;")
+        llm_output_json = llm_output_json.replace("<", "&lt;").replace(">", "&gt;")
+
         html += f"""
                     <tr class="test-row" onclick="toggleDetails({idx})">
                         <td><span class="toggle-icon" id="toggle-{idx}">▶</span> {test["id"]}</td>
@@ -1129,9 +1197,9 @@ Examples:
     if args.error_dirs:
         error_dirs = [d.strip() for d in args.error_dirs.split(",")]
 
-    # Parse llm_out directories  
+    # Parse llm_out directories
     llm_out_dirs = None
-    if hasattr(args, 'llm_out_dirs') and args.llm_out_dirs:
+    if hasattr(args, "llm_out_dirs") and args.llm_out_dirs:
         llm_out_dirs = [d.strip() for d in args.llm_out_dirs.split(",")]
 
     print(f"Analyzing evaluation results from {len(dataset_dirs)} dataset(s)...")
