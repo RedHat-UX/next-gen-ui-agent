@@ -105,7 +105,7 @@ complete_eval:
 
 generate_report_metadata:
   stage: report
-  image: python:3.13
+  image: ${REGISTRY_URL}/ubuntu:latest
   rules:
     - if: $AGGREGATE_JOB_IDS
       when: never
@@ -113,9 +113,14 @@ generate_report_metadata:
   dependencies:
     - complete_eval
   before_script:
+    - apt-get update
+    - apt-get install -y software-properties-common
+    - add-apt-repository -y ppa:deadsnakes/ppa
+    - apt-get update
+    - apt-get install -y python3.13 python3.13-venv python3-pip
     - export PYTHONPATH="tests:libs"
   script:
-    - python -m ai_eval_components.save_report_metadata
+    - python3.13 -m ai_eval_components.save_report_metadata
   artifacts:
     when: always
     paths:
@@ -129,24 +134,29 @@ generate_report_metadata:
 
 aggregate_dashboard:
   stage: aggregate
-  image: python:3.13
+  image: ${REGISTRY_URL}/ubuntu:latest
   rules:
     - if: $AGGREGATE_JOB_IDS
       when: always
     - when: never
   before_script:
-    - pip install requests
+    - apt-get update
+    - apt-get install -y software-properties-common
+    - add-apt-repository -y ppa:deadsnakes/ppa
+    - apt-get update
+    - apt-get install -y python3.13 python3.13-venv python3-pip
+    - python3.13 -m pip install --break-system-packages requests
     - export PYTHONPATH="tests:libs"
   script:
     - |
       TOKEN="${AGGREGATION_TOKEN:-$CI_JOB_TOKEN}"
-      python -m ai_eval_components.aggregate_reports \
+      python3.13 -m ai_eval_components.aggregate_reports \
         --project-id $CI_PROJECT_ID \
         --gitlab-url $CI_SERVER_URL \
         --token "$TOKEN" \
         --job-ids "$AGGREGATE_JOB_IDS" \
         --output public
-    - python -m ai_eval_components.generate_dashboard --input public --output public/index.html
+    - python3.13 -m ai_eval_components.generate_dashboard --input public --output public/index.html
     - |
       cat > public/_headers << 'EOF'
       /*
