@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from uuid import uuid4
 
 from jsonpath_ng import parse  # type: ignore
@@ -17,6 +17,15 @@ from next_gen_ui_agent.data_transform.validation.assertions import is_url_http
 from next_gen_ui_agent.types import DataField
 
 logger = logging.getLogger(__name__)
+
+
+def is_image_url_string(value: object) -> bool:
+    """Return True if value is a http(s) URL string ending with a known image suffix."""
+    return (
+        isinstance(value, str)
+        and is_url_http(value)
+        and value.lower().endswith(IMAGE_URL_SUFFIXES)
+    )
 
 
 def generate_field_id(data_path_sanitized: str | None) -> str:
@@ -320,5 +329,36 @@ def find_image(
         and is_url_http(str(field_name_like_url.data[0]))
     ):
         return str(field_name_like_url.data[0]), field_name_like_url
+
+    return None, None
+
+
+def find_image_array_field(
+    fields: list[DataFieldArrayValue],
+) -> tuple[int, list[Optional[str]]] | tuple[None, None]:
+    """
+    Find image field among array fields and build per-item images list.
+    Returns (field_index, images) or (None, None) if no image-like field found.
+    """
+    # Pass 1: detect by actual image values
+    for idx, field in enumerate(fields):
+        images: list[Optional[str]] = [
+            v if isinstance(v, str) and is_image_url_string(v) else None
+            for v in field.data
+        ]
+        if any(img is not None for img in images):
+            return idx, images
+
+    # Pass 2 (fallback): detect by field name suffix
+    for idx, field in enumerate(fields):
+        if field.data_path and field.data_path.lower().endswith(
+            IMAGE_DATA_PATH_SUFFIXES
+        ):
+            fallback_images: list[Optional[str]] = [
+                v if isinstance(v, str) and is_image_url_string(v) else None
+                for v in field.data
+            ]
+            if any(img is not None for img in fallback_images):
+                return idx, fallback_images
 
     return None, None
