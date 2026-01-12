@@ -23,6 +23,9 @@ Usage:
     # Run with MCP sampling and custom max tokens
     python -m next_gen_ui_mcp --sampling-max-tokens 4096
 
+    # Run with MCP sampling and model preferences
+    python -m next_gen_ui_mcp --provider mcp --sampling-hints claude-3-sonnet,claude --sampling-speed-priority 0.8 --sampling-intelligence-priority 0.7
+
     # Run with SSE transport (for HTTP clients)
     python -m next_gen_ui_mcp --transport sse --host 127.0.0.1 --port 8000
 
@@ -47,7 +50,11 @@ from next_gen_ui_agent.argparse_env_default_action import EnvDefault, EnvDefault
 from next_gen_ui_agent.inference.inference_builder import (
     add_inference_comandline_args,
     create_inference_from_arguments,
+    get_sampling_cost_priority_configuration,
+    get_sampling_hints_configuration,
+    get_sampling_intelligence_priority_configuration,
     get_sampling_max_tokens_configuration,
+    get_sampling_speed_priority_configuration,
 )
 from next_gen_ui_mcp.agent import MCP_ALL_TOOLS
 from next_gen_ui_mcp.agent_config import MCPAgentConfig
@@ -65,6 +72,10 @@ def create_server(
     config: MCPAgentConfig = MCPAgentConfig(component_system="json"),
     inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
+    sampling_model_hints: list[str] | None = None,
+    sampling_cost_priority: float | None = None,
+    sampling_speed_priority: float | None = None,
+    sampling_intelligence_priority: float | None = None,
     debug: bool = False,
     enabled_tools=None,
     structured_output_enabled=True,
@@ -74,6 +85,10 @@ def create_server(
     Args:
         config: AgentConfig to use for the agent
         sampling_max_tokens: Maximum tokens for MCP sampling inference
+        sampling_model_hints: Model hints for MCP sampling
+        sampling_cost_priority: Cost priority for MCP sampling (0.0-1.0)
+        sampling_speed_priority: Speed priority for MCP sampling (0.0-1.0)
+        sampling_intelligence_priority: Intelligence priority for MCP sampling (0.0-1.0)
 
     Returns:
         Configured NextGenUIMCPServer
@@ -85,6 +100,10 @@ def create_server(
         config=config,
         inference=inference,
         sampling_max_tokens=sampling_max_tokens,
+        sampling_model_hints=sampling_model_hints,
+        sampling_cost_priority=sampling_cost_priority,
+        sampling_speed_priority=sampling_speed_priority,
+        sampling_intelligence_priority=sampling_intelligence_priority,
         name="NextGenUI-MCP-Server",
         debug=debug,
         enabled_tools=enabled_tools,
@@ -136,6 +155,9 @@ Examples:
 
   # Run with MCP sampling and custom max tokens
   python -m next_gen_ui_mcp --sampling-max-tokens 4096
+
+  # Run with MCP sampling and model preferences
+  python -m next_gen_ui_mcp --sampling-hints claude-3-sonnet,claude --sampling-speed-priority 0.8 --sampling-intelligence-priority 0.7
 
   # Run with SSE transport (for web clients)
   python -m next_gen_ui_mcp --transport sse --host 127.0.0.1 --port 8000
@@ -244,11 +266,23 @@ Examples:
         else:
             inference = create_inference_from_arguments(parser, args, logger)
 
+        # Extract model preferences for MCP sampling
+        sampling_model_hints = get_sampling_hints_configuration(args)
+        sampling_cost_priority = get_sampling_cost_priority_configuration(args)
+        sampling_speed_priority = get_sampling_speed_priority_configuration(args)
+        sampling_intelligence_priority = (
+            get_sampling_intelligence_priority_configuration(args)
+        )
+
         # Create the agent
         agent = create_server(
             config=config,
             inference=inference,
             sampling_max_tokens=get_sampling_max_tokens_configuration(args, 2048),
+            sampling_model_hints=sampling_model_hints,
+            sampling_cost_priority=sampling_cost_priority,
+            sampling_speed_priority=sampling_speed_priority,
+            sampling_intelligence_priority=sampling_intelligence_priority,
             debug=args.debug,
             enabled_tools=enabled_tools,
             structured_output_enabled=args.structured_output_enabled == "true",

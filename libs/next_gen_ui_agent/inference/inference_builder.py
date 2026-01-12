@@ -6,7 +6,7 @@ Used by all AI protocol servers.
 import argparse
 import logging
 import os
-from typing import Optional
+from typing import Optional, cast
 
 from next_gen_ui_agent.argparse_env_default_action import EnvDefault
 from next_gen_ui_agent.inference.inference_base import InferenceBase
@@ -150,13 +150,44 @@ def add_inference_comandline_args(
         envvar="NGUI_SAMPLING_MAX_TOKENS",
         required=False,
     )
+    parser.add_argument(
+        "--sampling-hints",
+        help="Comma-separated list of model hint names (e.g., 'claude-3-sonnet,claude'). Env variable NGUI_SAMPLING_HINTS can be used.",
+        action=EnvDefault,
+        envvar="NGUI_SAMPLING_HINTS",
+        required=False,
+    )
+    parser.add_argument(
+        "--sampling-cost-priority",
+        type=float,
+        help="Cost priority (0.0-1.0). Higher values prefer cheaper models. Env variable NGUI_SAMPLING_COST_PRIORITY can be used.",
+        action=EnvDefault,
+        envvar="NGUI_SAMPLING_COST_PRIORITY",
+        required=False,
+    )
+    parser.add_argument(
+        "--sampling-speed-priority",
+        type=float,
+        help="Speed priority (0.0-1.0). Higher values prefer faster models. Env variable NGUI_SAMPLING_SPEED_PRIORITY can be used.",
+        action=EnvDefault,
+        envvar="NGUI_SAMPLING_SPEED_PRIORITY",
+        required=False,
+    )
+    parser.add_argument(
+        "--sampling-intelligence-priority",
+        type=float,
+        help="Intelligence priority (0.0-1.0). Higher values prefer more capable models. Env variable NGUI_SAMPLING_INTELLIGENCE_PRIORITY can be used.",
+        action=EnvDefault,
+        envvar="NGUI_SAMPLING_INTELLIGENCE_PRIORITY",
+        required=False,
+    )
 
 
 def get_sampling_max_tokens_configuration(
     args: argparse.Namespace, default_max_tokens: int
 ) -> int:
     """
-    Get maximum tokens produced by LLM configuration from commandline argument or environment variable.
+    Get maximum tokens produced by LLM configuration for use with MCP sampling from commandline argument or environment variable.
 
     Args:
         args: parsed commandline arguments to construct inference provider from
@@ -172,6 +203,95 @@ def get_sampling_max_tokens_configuration(
     if not max_tokens:
         max_tokens = default_max_tokens
     return max_tokens  # type: ignore
+
+
+def get_sampling_hints_configuration(
+    args: argparse.Namespace,
+) -> list[str] | None:
+    """
+    Get model hints configuration for use with MCP sampling from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments to construct inference provider from
+
+    Returns:
+        List of model hint names, or None if not provided
+    """
+    hints_env = os.getenv("NGUI_SAMPLING_HINTS")
+    hints_str = args.sampling_hints
+    if not hints_str and hints_env and hints_env.strip() != "":
+        hints_str = hints_env
+    if not hints_str:
+        return None
+    # Parse comma-separated string and strip whitespace
+    return [hint.strip() for hint in hints_str.split(",") if hint.strip()]
+
+
+def get_sampling_cost_priority_configuration(
+    args: argparse.Namespace,
+) -> float | None:
+    """
+    Get cost priority configuration for use with MCP sampling from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments to construct inference provider from
+
+    Returns:
+        Cost priority value (0.0-1.0), or None if not provided
+    """
+    cost_priority_env = os.getenv("NGUI_SAMPLING_COST_PRIORITY")
+    cost_priority: float | None = cast(float | None, args.sampling_cost_priority)
+    if cost_priority is None and cost_priority_env and cost_priority_env.strip() != "":
+        cost_priority = float(cost_priority_env)
+    return cost_priority
+
+
+def get_sampling_speed_priority_configuration(
+    args: argparse.Namespace,
+) -> float | None:
+    """
+    Get speed priority configuration for use with MCP sampling from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments to construct inference provider from
+
+    Returns:
+        Speed priority value (0.0-1.0), or None if not provided
+    """
+    speed_priority_env = os.getenv("NGUI_SAMPLING_SPEED_PRIORITY")
+    speed_priority: float | None = cast(float | None, args.sampling_speed_priority)
+    if (
+        speed_priority is None
+        and speed_priority_env
+        and speed_priority_env.strip() != ""
+    ):
+        speed_priority = float(speed_priority_env)
+    return speed_priority
+
+
+def get_sampling_intelligence_priority_configuration(
+    args: argparse.Namespace,
+) -> float | None:
+    """
+    Get intelligence priority configuration for use with MCP sampling from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments to construct inference provider from
+
+    Returns:
+        Intelligence priority value (0.0-1.0), or None if not provided
+    """
+    intelligence_priority_env = os.getenv("NGUI_SAMPLING_INTELLIGENCE_PRIORITY")
+    intelligence_priority: float | None = cast(
+        float | None, args.sampling_intelligence_priority
+    )
+    if (
+        intelligence_priority is None
+        and intelligence_priority_env
+        and intelligence_priority_env.strip() != ""
+    ):
+        intelligence_priority = float(intelligence_priority_env)
+    return intelligence_priority
 
 
 def create_inference_from_arguments(
