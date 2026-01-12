@@ -469,7 +469,9 @@ class ReportAggregator:
         for report in self.reports:
             for failed_test in report.get("failed_tests", []):
                 test_id = failed_test.get("id", "unknown")
-                test_data = failed_tests[test_id]
+                prompt = failed_test.get("prompt", "")
+                composite_key = f"{test_id}||{prompt}"
+                test_data = failed_tests[composite_key]
 
                 test_data["test_id"] = test_id
                 test_data["component"] = failed_test.get("component", "Unknown")
@@ -525,7 +527,9 @@ class ReportAggregator:
         for report in self.reports:
             for warning_test in report.get("warning_tests", []):
                 test_id = warning_test.get("id", "unknown")
-                test_data = warning_tests[test_id]
+                prompt = warning_test.get("prompt", "")
+                composite_key = f"{test_id}||{prompt}"
+                test_data = warning_tests[composite_key]
 
                 test_data["test_id"] = test_id
                 test_data["component"] = warning_test.get("component", "Unknown")
