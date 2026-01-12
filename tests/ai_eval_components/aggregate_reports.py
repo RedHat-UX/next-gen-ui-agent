@@ -640,6 +640,32 @@ def main():
                     html_path
                 )
                 
+                # If HTML not found in this job, try to find it in pipeline's complete_eval job
+                if not html_success and 'pipeline' in job_info:
+                    pipeline_id = job_info['pipeline'].get('id')
+                    if pipeline_id:
+                        print(f"  → HTML not in this job, searching pipeline #{pipeline_id} for complete_eval job...")
+                        try:
+                            # Get all jobs from this pipeline
+                            pipeline_jobs_url = f"{client.api_base}/pipelines/{pipeline_id}/jobs"
+                            response = requests.get(pipeline_jobs_url, headers=client.headers, timeout=30, verify=False)
+                            if response.status_code == 200:
+                                pipeline_jobs = response.json()
+                                # Find complete_eval job
+                                for pjob in pipeline_jobs:
+                                    if pjob.get('name') == 'complete_eval' and pjob.get('status') == 'success':
+                                        print(f"  → Found complete_eval job #{pjob.get('id')}, downloading HTML...")
+                                        html_success = client.download_artifact(
+                                            pjob.get('id'),
+                                            "tests/ai_eval_components/gitlab_eval_report.html",
+                                            html_path
+                                        )
+                                        if html_success:
+                                            print(f"  ✓ Downloaded HTML from complete_eval job")
+                                            break
+                        except Exception as e:
+                            print(f"  ⚠ Could not search pipeline jobs: {e}")
+                
                 # Extract backend_data and llm_output from HTML (always, for reliability)
                 if html_success and html_path.exists():
                     print(f"  → Extracting backend_data from HTML...")
