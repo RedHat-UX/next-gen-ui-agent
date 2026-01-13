@@ -300,22 +300,20 @@ def find_simple_data_value_in_field(
     )
 
 
-def find_image(
+def find_image_simple_field(
     fields: list[DataFieldSimpleValue],
 ) -> tuple[str, DataFieldSimpleValue] | tuple[None, None]:
     """Find image field with image. Return tuple with data value and DataField"""
     field_with_image_suffix = find_field_by_simple_data_value(
         fields,
-        lambda data: isinstance(data, str)
-        and data.lower().endswith(IMAGE_URL_SUFFIXES),
+        is_image_url_string,
     )
     if field_with_image_suffix:
         image = find_simple_data_value_in_field(
             field_with_image_suffix.data,
-            lambda value: isinstance(value, str)
-            and value.lower().endswith(IMAGE_URL_SUFFIXES),
+            is_image_url_string,
         )
-        if image and is_url_http(str(image)):
+        if image:
             return str(image), field_with_image_suffix
 
     # not found by image url, so try to find by field name suffix
@@ -326,7 +324,7 @@ def find_image(
     if (
         field_name_like_url
         and len(field_name_like_url.data) > 0
-        and is_url_http(str(field_name_like_url.data[0]))
+        and is_image_url_string(field_name_like_url.data[0])
     ):
         return str(field_name_like_url.data[0]), field_name_like_url
 

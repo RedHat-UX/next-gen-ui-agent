@@ -128,6 +128,11 @@ def test_process_with_images() -> None:
                     "year": 1995
                 },
                 {
+                    "title": "Toy Story (No Poster)",
+                    "posterUrl": null,
+                    "year": 1997
+                },
+                {
                     "title": "Toy Story 2",
                     "posterUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxac.jpg",
                     "year": 1999
@@ -140,12 +145,17 @@ def test_process_with_images() -> None:
     # image field should be extracted and removed from fields
     assert result.images == [
         "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+        None,
         "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxac.jpg",
     ]
     # Only 'Title' and 'Year' remain
     assert [f.name for f in result.fields] == ["Title", "Year"]
-    assert result.fields[0].data == ["Toy Story", "Toy Story 2"]
-    assert result.fields[1].data == [1995, 1999]
+    assert result.fields[0].data == [
+        "Toy Story",
+        "Toy Story (No Poster)",
+        "Toy Story 2",
+    ]
+    assert result.fields[1].data == [1995, 1997, 1999]
 
 
 def test_process_no_images() -> None:

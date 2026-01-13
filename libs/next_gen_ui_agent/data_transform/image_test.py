@@ -58,7 +58,7 @@ def test_field_path_url_like(data_path) -> None:
         get_data("_no_extension", image_field=data_path),
     )
     assert result.title == "Toy Story Details"
-    assert result.image == "https://image.tmdb.org/test_path_no_extension"
+    assert result.image is None
 
 
 def test_validate_OK() -> None:

@@ -3,7 +3,7 @@ import json
 from next_gen_ui_agent.data_transform.data_transformer_utils import (
     fill_fields_with_array_data,
     fill_fields_with_simple_data,
-    find_image,
+    find_image_simple_field,
     generate_field_id,
     get_data_value_for_path,
     sanitize_data_path,
@@ -884,13 +884,13 @@ def test_find_image_BY_image_url_suffix() -> None:
         ).fields
     )
 
-    image, field = find_image(fields)
+    image, field = find_image_simple_field(fields)
     assert image == "https://image.tmdb.org/test_path.jPg"
     assert field is not None
     assert field.name == "Image"
 
 
-def test_find_image_BY_field_name_suffix_link() -> None:
+def test_find_image_by_field_name_suffix_rejects_no_extension() -> None:
     # add some non-image url fields and mixed case to test correct selection
     fields: list[DataFieldSimpleValue] = (
         ComponentDataBaseWithSimpleValueFileds.model_validate(
@@ -919,13 +919,12 @@ def test_find_image_BY_field_name_suffix_link() -> None:
         ).fields
     )
 
-    image, field = find_image(fields)
-    assert image == "https://image.tmdb.org/aa"
-    assert field is not None
-    assert field.name == "Test"
+    image, field = find_image_simple_field(fields)
+    assert image is None
+    assert field is None
 
 
-def test_find_image_BY_field_name_suffix_url() -> None:
+def test_find_image_by_field_name_suffix_accepts_with_extension() -> None:
     # add some non-image url fields and mixed case to test correct selection
     fields: list[DataFieldSimpleValue] = (
         ComponentDataBaseWithSimpleValueFileds.model_validate(
@@ -942,7 +941,7 @@ def test_find_image_BY_field_name_suffix_url() -> None:
                     {
                         "name": "Test",
                         "data_path": "movies[*].posterUrL",
-                        "data": ["https://image.tmdb.org/aa"],
+                        "data": ["https://image.tmdb.org/aa.jpg"],
                     },
                     {
                         "name": "ImageLink",
@@ -954,7 +953,7 @@ def test_find_image_BY_field_name_suffix_url() -> None:
         ).fields
     )
 
-    image, field = find_image(fields)
-    assert image == "https://image.tmdb.org/aa"
+    image, field = find_image_simple_field(fields)
+    assert image == "https://image.tmdb.org/aa.jpg"
     assert field is not None
     assert field.name == "Test"

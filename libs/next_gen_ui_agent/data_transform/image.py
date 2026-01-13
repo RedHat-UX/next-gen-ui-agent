@@ -33,7 +33,7 @@ class ImageDataTransformer(DataTransformerBase[ComponentDataImage]):
         data_transformer_utils.fill_fields_with_simple_data(fields, json_data)
 
         # Trying to find field that would contain an image link
-        image, _f = data_transformer_utils.find_image(fields)
+        image, _f = data_transformer_utils.find_image_simple_field(fields)
         # If the image like URL is present, then set it, otherwise leave it blank
         if image:
             self._component_data.image = image
