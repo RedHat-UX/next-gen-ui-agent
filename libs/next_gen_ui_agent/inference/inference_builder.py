@@ -141,7 +141,6 @@ def add_inference_comandline_args(
         required=False,
     )
 
-    # MCP sampling specific arguments
     parser.add_argument(
         "--sampling-max-tokens",
         type=int,
@@ -150,44 +149,13 @@ def add_inference_comandline_args(
         envvar="NGUI_SAMPLING_MAX_TOKENS",
         required=False,
     )
-    parser.add_argument(
-        "--sampling-hints",
-        help="Comma-separated list of model hint names (e.g., 'claude-3-sonnet,claude'). Env variable NGUI_SAMPLING_HINTS can be used.",
-        action=EnvDefault,
-        envvar="NGUI_SAMPLING_HINTS",
-        required=False,
-    )
-    parser.add_argument(
-        "--sampling-cost-priority",
-        type=float,
-        help="Cost priority (0.0-1.0). Higher values prefer cheaper models. Env variable NGUI_SAMPLING_COST_PRIORITY can be used.",
-        action=EnvDefault,
-        envvar="NGUI_SAMPLING_COST_PRIORITY",
-        required=False,
-    )
-    parser.add_argument(
-        "--sampling-speed-priority",
-        type=float,
-        help="Speed priority (0.0-1.0). Higher values prefer faster models. Env variable NGUI_SAMPLING_SPEED_PRIORITY can be used.",
-        action=EnvDefault,
-        envvar="NGUI_SAMPLING_SPEED_PRIORITY",
-        required=False,
-    )
-    parser.add_argument(
-        "--sampling-intelligence-priority",
-        type=float,
-        help="Intelligence priority (0.0-1.0). Higher values prefer more capable models. Env variable NGUI_SAMPLING_INTELLIGENCE_PRIORITY can be used.",
-        action=EnvDefault,
-        envvar="NGUI_SAMPLING_INTELLIGENCE_PRIORITY",
-        required=False,
-    )
 
 
 def get_sampling_max_tokens_configuration(
     args: argparse.Namespace, default_max_tokens: int
 ) -> int:
     """
-    Get maximum tokens produced by LLM configuration for use with MCP sampling from commandline argument or environment variable.
+    Get maximum tokens produced by LLM configuration from commandline argument or environment variable.
 
     Args:
         args: parsed commandline arguments to construct inference provider from

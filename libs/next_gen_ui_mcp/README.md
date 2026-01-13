@@ -114,18 +114,16 @@ The Next Gen UI MCP server supports multiple inference providers, controlled by 
 
 #### Provider **`mcp`** 
 
-Uses [Model Context Protocol sampling](https://modelcontextprotocol.io/specification/2025-06-18/client/sampling) to leverage the client's LLM capabilities. 
-No additional configuration required as it uses the connected MCP client's model, only few optional options are available. 
+Uses [Model Context Protocol sampling](https://modelcontextprotocol.io/specification/2025-06-18/client/sampling) to leverage the client's LLM capabilities.
 
-**MCP client has to support Sampling feature and its optional options!**
+**⚠️ IMPORTANT: MCP client must support the Sampling feature!** Not all MCP clients implement this part of MCP specification yet. Also it's important to note that the client makes the final model selection and may ignore these preferences or interpret values in its own way.
 
-Requires:
-
+**Parameters:**
 - `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `2048`).
-- `NGUI_SAMPLING_HINTS` (optional): Comma-separated list of model hint names (e.g., "claude-3-sonnet,claude"). Hints are treated as substrings that can match model names flexibly. Multiple hints are evaluated in order of preference.
-- `NGUI_SAMPLING_COST_PRIORITY` (optional): Cost priority value (0.0-1.0). Higher values prefer cheaper models.
-- `NGUI_SAMPLING_SPEED_PRIORITY` (optional): Speed priority value (0.0-1.0). Higher values prefer faster models.
-- `NGUI_SAMPLING_INTELLIGENCE_PRIORITY` (optional): Intelligence priority value (0.0-1.0). Higher values prefer more capable models.
+- `NGUI_SAMPLING_HINTS` (optional): Comma-separated list of model hint names (e.g., "claude-3-sonnet,claude"). Hints are treated as substrings that can match model names flexibly. Multiple hints are evaluated in order of preference. Allows the server to suggest preferred models to the client.
+- `NGUI_SAMPLING_COST_PRIORITY` (optional): Cost priority value (0.0-1.0). Higher values indicate preference for cheaper models. Helps the client select more cost-effective models.
+- `NGUI_SAMPLING_SPEED_PRIORITY` (optional): Speed priority value (0.0-1.0). Higher values indicate preference for faster models. Guides the client toward lower-latency models.
+- `NGUI_SAMPLING_INTELLIGENCE_PRIORITY` (optional): Intelligence priority value (0.0-1.0). Higher values indicate preference for more capable models. Suggests the client should use more advanced reasoning models.
 
 #### Provider **`openai`**
 
