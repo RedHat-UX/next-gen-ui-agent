@@ -10,13 +10,14 @@ from next_gen_ui_agent.agent_config import (
     read_agent_config_dict_from_arguments,
     read_config_yaml_file,
 )
+from next_gen_ui_agent.types import AgentConfig
 from pydantic import ValidationError
 
 
 def test_config_yaml_str() -> None:
     config = parse_config_yaml("component_system: json")
     assert config.component_system == "json"
-    assert config.input_data_json_wrapping is None
+    assert config.input_data_json_wrapping is True
 
 
 def test_config_yamls_str() -> None:
@@ -29,7 +30,7 @@ component_system: json2
 """
     )
     assert config.component_system == "json2"
-    assert config.input_data_json_wrapping is None
+    assert config.input_data_json_wrapping is True
 
 
 def test_parse_config_yaml_str_INVALID() -> None:
@@ -45,8 +46,9 @@ def test_dir(request):
 def test_config_yaml_file(test_dir) -> None:
     config = read_config_yaml_file(os.path.join(test_dir, "agent_config_test.yaml"))
     assert config.component_system == "json"
-    assert config.component_selection_strategy is None
+    assert config.component_selection_strategy == "one_llm_call"
     assert config.input_data_json_wrapping is False
+    assert config.selectable_components == {"one-card", "table", "chart-bar"}
 
     assert config.data_types is not None
     dt = config.data_types["my:type"]
@@ -77,7 +79,7 @@ def test_config_yaml_file(test_dir) -> None:
 
 def test_config_yaml_file_empty_path() -> None:
     config = read_config_yaml_file("")
-    assert config.component_selection_strategy is None
+    assert config.component_selection_strategy == "one_llm_call"
     assert config.component_system == "json"
 
 
@@ -85,7 +87,7 @@ def test_config_yaml_files(test_dir) -> None:
     file_path = os.path.join(test_dir, "agent_config_test.yaml")
     config = read_config_yaml_file([file_path, file_path])
     assert config.component_system == "json"
-    assert config.component_selection_strategy is None
+    assert config.component_selection_strategy == "one_llm_call"
     assert config.input_data_json_wrapping is False
 
     assert config.data_types is not None
@@ -336,3 +338,58 @@ class TestReadAgentConfigDictFromArguments:
         config = read_agent_config_dict_from_arguments(args, logger)
         assert config["component_system"] == "json"
         assert "data_types" in config
+
+
+class TestAgentConfigSelectableComponents:
+    """Tests for AgentConfig.selectable_components validation."""
+
+    def test_valid_selectable_components(self) -> None:
+        """Test that valid component names are accepted."""
+        config = AgentConfig(selectable_components={"one-card", "table", "chart-bar"})
+        assert config.selectable_components == {"one-card", "table", "chart-bar"}
+
+    def test_none_selectable_components(self) -> None:
+        """Test that None is accepted (means all components allowed)."""
+        config = AgentConfig(selectable_components=None)
+        assert config.selectable_components is None
+
+    def test_empty_set_selectable_components_error(self) -> None:
+        """Test that empty set raises ValidationError."""
+        with pytest.raises(ValidationError) as exc_info:
+            AgentConfig(selectable_components={})  # type: ignore
+
+        error_msg = str(exc_info.value)
+        assert "Input should be" in error_msg
+
+    def test_invalid_component_name(self) -> None:
+        """Test that invalid component name raises ValidationError."""
+        with pytest.raises(ValidationError) as exc_info:
+            AgentConfig(selectable_components={"one-card", "invalid-component"})  # type: ignore
+
+        error_msg = str(exc_info.value)
+        assert "Input should be" in error_msg
+
+    def test_all_chart_components_are_valid(self) -> None:
+        """Test that all chart component names are valid."""
+        AgentConfig(
+            selectable_components={
+                "chart-bar",
+                "chart-line",
+                "chart-pie",
+                "chart-donut",
+                "chart-mirrored-bar",
+            }
+        )
+
+    def test_all_normal_components_are_valid(self) -> None:
+        """Test that all normal component names are valid."""
+        AgentConfig(
+            selectable_components={
+                "one-card",
+                "table",
+                "image",
+                "video-player",
+                "set-of-cards",
+                "table",
+            }
+        )

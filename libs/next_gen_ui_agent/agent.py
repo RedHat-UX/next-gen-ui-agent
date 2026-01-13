@@ -82,28 +82,11 @@ class NextGenUIAgent:
 
     def _create_component_selection_strategy(self) -> ComponentSelectionStrategy:
         """Create component selection strategy based on config."""
-        strategy_name = (
-            self.config.component_selection_strategy
-            if self.config.component_selection_strategy
-            else "default"
-        )
 
-        input_data_json_wrapping = self.config.input_data_json_wrapping
-        if input_data_json_wrapping is None:
-            input_data_json_wrapping = True
-
-        if strategy_name == "default" or strategy_name == "one_llm_call":
-            return OnestepLLMCallComponentSelectionStrategy(
-                input_data_json_wrapping=input_data_json_wrapping,
-            )
-        elif strategy_name == "two_llm_calls":
-            return TwostepLLMCallComponentSelectionStrategy(
-                input_data_json_wrapping=input_data_json_wrapping,
-            )
+        if self.config.component_selection_strategy == "two_llm_calls":
+            return TwostepLLMCallComponentSelectionStrategy(config=self.config)
         else:
-            raise ValueError(
-                f"Unknown component_selection_strategy in config: {strategy_name}"
-            )
+            return OnestepLLMCallComponentSelectionStrategy(config=self.config)
 
     async def select_component(
         self,

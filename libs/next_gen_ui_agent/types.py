@@ -16,6 +16,22 @@ CONFIG_OPTIONS_DATA_TRANSFORMER = Optional[
 ]
 """ data_transformer config option possibilities used on multiple levels """
 
+CONFIG_OPTIONS_ALL_COMPONETS = Optional[
+    set[
+        Literal["one-card"]
+        | Literal["image"]
+        | Literal["video-player"]
+        | Literal["table"]
+        | Literal["set-of-cards"]
+        | Literal["chart-bar"]
+        | Literal["chart-line"]
+        | Literal["chart-pie"]
+        | Literal["chart-donut"]
+        | Literal["chart-mirrored-bar"]
+    ]
+]
+"""Valid component names that can be selected by the agent's LLM for data visualization."""
+
 
 class DataField(BaseModel):
     """UI Component Field Metadata."""
@@ -114,9 +130,17 @@ class AgentConfig(BaseModel):
     Data transformer to use to transform the input data of this type.
     """
 
+    selectable_components: CONFIG_OPTIONS_ALL_COMPONETS = Field(
+        default=None,
+        description="List of components that can be selected by the agent's LLM for data visualization. If not set, all components are selectable.",
+    )
+    """
+    List of components that can be selected by the agent's LLM for data visualization. If not set, all components are selectable.
+    """
+
     component_selection_strategy: Optional[Literal["one_llm_call", "two_llm_calls"]] = (
         Field(
-            default=None,
+            default="one_llm_call",
             description="Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!",
         )
     )
@@ -136,7 +160,7 @@ class AgentConfig(BaseModel):
     """
 
     input_data_json_wrapping: Optional[bool] = Field(
-        default=None,
+        default=True,
         description="If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure. If `False`, the agent will never wrap the JSON input data into data type field.",
     )
     """

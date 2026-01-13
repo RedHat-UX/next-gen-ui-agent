@@ -2,6 +2,11 @@
 component_system: json
 input_data_json_wrapping: false
 
+selectable_components:
+  - one-card
+  - table
+  - chart-bar
+
 data_types:
   my:type:
     components:

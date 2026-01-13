@@ -186,7 +186,7 @@ def report_err_sys(
 
 def print_stats():
     """Print eval stats to the stdout"""
-    print(f"Dataset items evalueated: {eval_stats['num_evals']}")
+    print(f"Dataset items evaluated: {eval_stats['num_evals']}")
     print(f"Agent errors: {eval_stats['num_err_agent']}")
     print(f"Agent warnings: {eval_stats['num_warn_agent']}")
     print(f"System errors: {eval_stats['num_err_system']}")

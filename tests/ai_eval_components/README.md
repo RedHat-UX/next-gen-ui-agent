@@ -60,8 +60,9 @@ pants run tests/ai_eval_components/eval.py
 
 You can use these commandline argument:
 
-- `-c <ui-component-name>` to run evaluation for one named UI component only. If `all` is used then evaluation runs for all the components present in the evaluation dataset.
-- `-f <dataset-file-name>` to run only evaluations from the named dataset file (for any UI component present in the file)
+- `-c <ui-component-name>` evaluate only named UI component, can be specified multiple times, omit or use 'all' to evaluate all components in the dataset.
+- `-p` if present then UI Agent is configured to select only from components defined by `-c` argument, otherwise it selects from all supported components."
+- `-f <dataset-file-name>` to run only evaluations from the named dataset file (for any UI component present in the file, with respect to `-c` argument)
 - `-o` to also evaluate `warn_only` dataset items
 - `-w` to write Agent ouputs (LLM and Component data) with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
 - `-s` evaluate only selected component type, not it's configuration - usefull for component selection development/tuning
