@@ -19,8 +19,8 @@ dependencies = [
     "fire (>=0.7.0)",
     
     # Next Gen UI Agent dependencies
-    "next-gen-ui-llama-stack (>=0.3.0)",
-    "next-gen-ui-agent (>=0.3.0)",
+    "next-gen-ui-llama-stack (>=0.4.0)",
+    "next-gen-ui-agent (>=0.4.0)",
     "pydantic (>=2.0.0)",
 ]
 

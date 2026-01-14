@@ -1,29 +1,26 @@
 """Utilities for creating API responses."""
 
-from typing import Any, Optional
+from typing import Optional
+
+from app.models import ErrorCode, ErrorResponse
+from fastapi.responses import JSONResponse
 
 
 def create_error_response(
-    error: str,
-    details: str,
-    raw_response: Optional[Any] = None,
+    error_code: ErrorCode,
+    message: str,
+    status_code: int,
+    details: Optional[str] = None,
     suggestion: Optional[str] = None,
-    agent_messages: Optional[list] = None,
-) -> dict[str, Any]:
-    """Helper function to create standardized error responses."""
-    response: dict[str, Any] = {
-        "error": error,
-        "details": details,
-    }
+) -> JSONResponse:
+    """Helper function to create standardized error responses with proper HTTP status codes."""
+    error_response = ErrorResponse(
+        error_code=error_code,
+        message=message,
+        details=details,
+        suggestion=suggestion,
+    )
 
-    if raw_response is not None:
-        response["raw_response"] = str(raw_response)
-
-    if suggestion:
-        response["suggestion"] = suggestion
-
-    # Add agent messages to metadata for debugging
-    if agent_messages:
-        response["metadata"] = {"agentMessages": agent_messages}
-
-    return response
+    return JSONResponse(
+        status_code=status_code, content=error_response.model_dump(exclude_none=True)
+    )

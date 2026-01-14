@@ -1,39 +1,41 @@
-"""LLM client setup and connection testing."""
+"""LlamaStack client setup and connection testing."""
 
-import httpx
-import urllib3
-from config import API_KEY, BASE_URL, MODEL
-from langchain_openai import ChatOpenAI
-from pydantic import SecretStr
+import ssl
 
-# Suppress SSL warnings for internal corporate APIs
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# Create BOTH sync and async httpx clients with SSL verification disabled
-# (LangChain uses sync for invoke() and async for ainvoke())
-sync_client = httpx.Client(verify=False, timeout=60.0)
-async_client = httpx.AsyncClient(verify=False, timeout=60.0)
-
-# For Ollama and similar local LLMs, a dummy API key is acceptable
-api_key = API_KEY or "ollama"
-
-llm = ChatOpenAI(
-    model=MODEL,
-    base_url=BASE_URL,
-    api_key=SecretStr(api_key),
-    http_client=sync_client,
-    http_async_client=async_client,
+from app.config import (
+    LIGHTRAIL_LLAMA_STACK_BASE_URL,
+    LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH,
+    MYAPP_MODEL_ID,
 )
+from llama_stack_client import AsyncLlamaStackClient, DefaultAsyncHttpxClient
+from llama_stack_client.types import UserMessage
 
 
-def test_llm_connection():
-    """Test the LLM connection and print diagnostics."""
-    print("Testing LLM connection...")
+def get_llamastack_client():
+    """Create and return a configured LlamaStack client."""
+    ctx = ssl.create_default_context(
+        cafile=LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH,
+    )
+    return AsyncLlamaStackClient(
+        base_url=LIGHTRAIL_LLAMA_STACK_BASE_URL,
+        http_client=DefaultAsyncHttpxClient(verify=ctx),
+    )
+
+
+async def test_llm_connection():
+    """Test the LlamaStack connection and print diagnostics."""
+    print("Testing LlamaStack connection...")
     try:
-        test_response = llm.invoke("test")
-        print(f"✓ LLM connection successful! Response type: {type(test_response)}")
+        client = get_llamastack_client()
+        user_message = UserMessage(role="user", content="test")
+        response = await client.inference.chat_completion(
+            model_id=MYAPP_MODEL_ID,
+            messages=[user_message],
+        )
+        print(f"✓ LlamaStack connection successful! Response type: {type(response)}")
+        return True
     except Exception as e:
-        print("✗ LLM connection FAILED!")
+        print("✗ LlamaStack connection FAILED!")
         print(f"  Error type: {type(e).__name__}")
         print(f"  Error message: {str(e)}")
         print(f"  Full error: {repr(e)}")
@@ -48,15 +50,17 @@ def test_llm_connection():
         if hasattr(e, "__cause__") and e.__cause__:
             print(f"\nUnderlying cause: {type(e.__cause__).__name__}: {e.__cause__}")
 
-        # Check for response attribute
-        if hasattr(e, "response"):
-            print("\nHTTP Response details:")
-            print(f"  Status: {getattr(e.response, 'status_code', 'N/A')}")
-            print(f"  Headers: {getattr(e.response, 'headers', 'N/A')}")
-            print(f"  Body: {getattr(e.response, 'text', 'N/A')[:1000]}")
-
         print("\nThis may cause failures when processing requests.\n")
+        return False
 
 
-# Test the connection on module load
-test_llm_connection()
+# Singleton client instance
+_client_instance = None
+
+
+def get_llm_client():
+    """Get or create the singleton LlamaStack client."""
+    global _client_instance
+    if _client_instance is None:
+        _client_instance = get_llamastack_client()
+    return _client_instance

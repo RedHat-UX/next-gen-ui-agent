@@ -1,38 +1,45 @@
 """Health check and model info endpoints."""
 
-from config import BASE_URL, MODEL
-from fastapi import APIRouter
-from llm import llm
+from app.config import LIGHTRAIL_LLAMA_STACK_BASE_URL, MYAPP_MODEL_ID
+from app.llm import get_llm_client
+from app.models import ErrorCode
+from app.utils.response import create_error_response
+from fastapi import APIRouter, status
+from llama_stack_client.types import UserMessage
 
 router = APIRouter()
 
 
-@router.get("/health")
+@router.get("/api/v1/health")
 async def health_check():
-    """Health check endpoint to verify server and Ollama connectivity."""
+    """Health check endpoint to verify server connectivity."""
+    return {
+        "status": "ok",
+        "model": MYAPP_MODEL_ID,
+        "base_url": LIGHTRAIL_LLAMA_STACK_BASE_URL,
+    }
+
+
+@router.get("/api/v1/wdyk")
+async def wdyk():
+    """Test LLM connectivity endpoint."""
     try:
-        # Test Ollama connection
-        _ = llm.invoke("test")
+        question = "What do you know? Keep it VERY short."
+        client = get_llm_client()
+        user_message = UserMessage(role="user", content=question)
+        response = await client.inference.chat_completion(
+            model_id=MYAPP_MODEL_ID,
+            messages=[user_message],
+        )
         return {
-            "status": "healthy",
-            "ollama_connected": True,
-            "model": MODEL,
-            "base_url": BASE_URL,
+            "question": question,
+            "response": response.completion_message.content,
         }
     except Exception as e:
-        return {
-            "status": "unhealthy",
-            "ollama_connected": False,
-            "error": str(e),
-            "model": MODEL,
-            "base_url": BASE_URL,
-        }
-
-
-@router.get("/model-info")
-async def get_model_info():
-    """Get information about the connected LLM model."""
-    return {
-        "name": MODEL,
-        "baseUrl": BASE_URL,
-    }
+        return create_error_response(
+            error_code=ErrorCode.LLM_CONNECTION_ERROR,
+            message="Failed to connect to LLM",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            details=str(e),
+            suggestion="Check if LlamaStack is running and configured correctly",
+        )

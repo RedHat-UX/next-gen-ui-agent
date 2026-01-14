@@ -1,33 +1,19 @@
-"""NGUI agent setup with different strategies."""
+"""NGUI agent setup for LlamaStack."""
 
-from llm import llm
-from next_gen_ui_agent.agent_config import AgentConfig
-from next_gen_ui_langgraph.agent import NextGenUILangGraphAgent
+from app.config import MYAPP_MODEL_ID, NGUI_CONFIG
+from app.llm import get_llm_client
+from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 
-# One-step strategy agent
-config_onestep = AgentConfig(
-    component_selection_strategy="one_llm_call",
-    unsupported_components=True,
-)
-ngui_agent_onestep_instance = NextGenUILangGraphAgent(model=llm, config=config_onestep)
-ngui_agent_onestep = ngui_agent_onestep_instance.build_graph()
+# Singleton agent instance
+_ngui_agent_instance = None
 
-# Two-step strategy agent
-config_twostep = AgentConfig(
-    component_selection_strategy="two_llm_calls",
-    unsupported_components=True,
-)
-ngui_agent_twostep_instance = NextGenUILangGraphAgent(model=llm, config=config_twostep)
-ngui_agent_twostep = ngui_agent_twostep_instance.build_graph()
 
-# Store agents in a dictionary for easy access
-ngui_agents = {
-    "one-step": {
-        "instance": ngui_agent_onestep_instance,
-        "graph": ngui_agent_onestep,
-    },
-    "two-step": {
-        "instance": ngui_agent_twostep_instance,
-        "graph": ngui_agent_twostep,
-    },
-}
+async def get_ngui_agent():
+    """Get or create the NGUI agent."""
+    global _ngui_agent_instance
+    if _ngui_agent_instance is None:
+        client = get_llm_client()
+        _ngui_agent_instance = NextGenUILlamaStackAgent(
+            client, MYAPP_MODEL_ID, config=NGUI_CONFIG
+        )
+    return _ngui_agent_instance

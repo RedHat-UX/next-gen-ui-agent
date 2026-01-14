@@ -1,6 +1,5 @@
 """Agent initialization and setup."""
 
-from .movies import movies_agent
-from .ngui import ngui_agents
+from .ngui import get_ngui_agent
 
-__all__ = ["movies_agent", "ngui_agents"]
+__all__ = ["get_ngui_agent"]
