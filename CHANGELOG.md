@@ -1,3 +1,31 @@
+## 0.4.0 (2026-01-12)
+
+### Feat
+
+- **[NGUI-494](https://issues.redhat.com/browse/NGUI-494)**: Publish A2A to pypi and quay registry (#260) [fdb99](https://github.com//RedHat-UX/next-gen-ui-agent/commit/fdb99b23961269a168b270a1b6475935d0ce2f1f)
+- **[NGUI-507](https://issues.redhat.com/browse/NGUI-507)**: added Colab notebook with LLM LoRA finetuning pipeline (#257) [b68ff](https://github.com//RedHat-UX/next-gen-ui-agent/commit/b68ff0e4ded641709403e9372eeefd38d0c805f8)
+- **[NGUI-526](https://issues.redhat.com/browse/NGUI-526)**: input data type added to component json for frontend customization purposes (#255) [6daa5](https://github.com//RedHat-UX/next-gen-ui-agent/commit/6daa5e8fc46043339950cea13b456c67c2620e6a)
+- **[NGUI-518](https://issues.redhat.com/browse/NGUI-518)**: A2A agent input processing and its documentation improved (#252) [a0f15](https://github.com//RedHat-UX/next-gen-ui-agent/commit/a0f151e288fa0b9a28bd566675de10a373f841f4)
+- Add JUDGE_API_PROVIDER support for Anthropic/Claude agents (#246) [6754a](https://github.com//RedHat-UX/next-gen-ui-agent/commit/6754a2365e351761c721d67696c16c97d5db99e5)
+- Add LLM-as-a-Judge evaluation with categorical outputs and CLI flag (#239) [7dc8d](https://github.com//RedHat-UX/next-gen-ui-agent/commit/7dc8dd87f56c1b64668791de8f079034ddd321cf)
+- **[NGUI-499](https://issues.redhat.com/browse/NGUI-499)**: supported only/all components configuration removed (#243) [289cf](https://github.com//RedHat-UX/next-gen-ui-agent/commit/289cfae3376a8430676c6750892d2a5115ae56f6)
+- **[NGUI-509](https://issues.redhat.com/browse/NGUI-509)**: ability to finetune MCP tools descriptions in agent config file (#240) [5690e](https://github.com//RedHat-UX/next-gen-ui-agent/commit/5690ecc761b5322e3688bb532169343b8350387a)
+- **[NGUI-497](https://issues.redhat.com/browse/NGUI-497)**: A2A Agent card and skill info can be fine-tuned in the  yaml config file (#238) [f89ff](https://github.com//RedHat-UX/next-gen-ui-agent/commit/f89ff751b7b1e0389b156d1eb946905470762e1f)
+- **[NGUI-496](https://issues.redhat.com/browse/NGUI-496)**: MCP and A2A server's configuration unification (#237) [c70ab](https://github.com//RedHat-UX/next-gen-ui-agent/commit/c70ab9d4b0a70d9cbfb4369d5cf66e43d1a76fa8)
+- **[NGUI-501](https://issues.redhat.com/browse/NGUI-501)**: Add session_id argument in MCP tools (#236) [8ae53](https://github.com//RedHat-UX/next-gen-ui-agent/commit/8ae539be5691a30d38c6d6fd7c049452cbd0a2e3)
+- **[NGUI-467](https://issues.redhat.com/browse/NGUI-467)**: removed deprecated ACP agent (#235) [f8f81](https://github.com//RedHat-UX/next-gen-ui-agent/commit/f8f8164dcefc0f55ad9b273a431f4c04bba34fff)
+- **[NGUI-463](https://issues.redhat.com/browse/NGUI-463)**: Upgrade fastMCP to 2.13 (#234) [8a5d0](https://github.com//RedHat-UX/next-gen-ui-agent/commit/8a5d07f79d40ed07b3cf9df69e45ed4a419eced9)
+- **[NGUI-223](https://issues.redhat.com/browse/NGUI-223)**: A2A protocol support (dev preview) - package and container image (#149) [810a3](https://github.com//RedHat-UX/next-gen-ui-agent/commit/810a39fe4ba258c412c1f2ab39353ce12ccda244)
+- **[NGUI-446](https://issues.redhat.com/browse/NGUI-446)**: added list of all available fields for table and set-of-cards into agent output (#232) [84bd1](https://github.com//RedHat-UX/next-gen-ui-agent/commit/84bd1d0ff077b31c204200d126d482f6b5f4464a)
+- **[NGUI-486](https://issues.redhat.com/browse/NGUI-486)**: Anthropic API support in evaluation tool (#227) [ad0e2](https://github.com//RedHat-UX/next-gen-ui-agent/commit/ad0e2a9febc522a713a5b16367e4647980b42309)
+- Add GitLab CI/CD pipeline for LLM evaluation tests (#224) [f37df](https://github.com//RedHat-UX/next-gen-ui-agent/commit/f37df4ddf1b7374c04a64e28c5729693907d0327)
+- **[NGUI-465](https://issues.redhat.com/browse/NGUI-465)**: Python 3.14 support (#210) [059d1](https://github.com//RedHat-UX/next-gen-ui-agent/commit/059d177188a9d180fd0168fefe853437b2f6ecaf)
+
+### Fix
+
+- **[NGUI-490](https://issues.redhat.com/browse/NGUI-490)**: commitizent version upgrade and pinned GH action (#233) [dc2e1](https://github.com//RedHat-UX/next-gen-ui-agent/commit/dc2e18724cf2c045aded9aec611b49dcdab8fb6e)
+- pants deps cleanup for e2e-server (#219) [b17ed](https://github.com//RedHat-UX/next-gen-ui-agent/commit/b17ed068fa5a05158ba8602d05c78d8ed7db3150)
+
 ## 0.3.0 (2025-11-07)
 
 ### Feat

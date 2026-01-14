@@ -22,7 +22,6 @@ python_tests(
 #  which means we'll include all the non-test Python files in this directory, and any of
 #  their dependencies.
 
-# TODO: NGUI-494 Release
 python_distribution(
     name="dist",
     dependencies=[
