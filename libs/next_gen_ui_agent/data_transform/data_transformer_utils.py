@@ -324,7 +324,7 @@ def find_image_simple_field(
     if (
         field_name_like_url
         and len(field_name_like_url.data) > 0
-        and is_image_url_string(field_name_like_url.data[0])
+        and is_url_http(str(field_name_like_url.data[0]))
     ):
         return str(field_name_like_url.data[0]), field_name_like_url
 
@@ -353,8 +353,7 @@ def find_image_array_field(
             IMAGE_DATA_PATH_SUFFIXES
         ):
             fallback_images: list[Optional[str]] = [
-                v if isinstance(v, str) and is_image_url_string(v) else None
-                for v in field.data
+                v if isinstance(v, str) and is_url_http(v) else None for v in field.data
             ]
             if any(img is not None for img in fallback_images):
                 return idx, fallback_images

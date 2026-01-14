@@ -3,9 +3,11 @@ import json
 from next_gen_ui_agent.data_transform.data_transformer_utils import (
     fill_fields_with_array_data,
     fill_fields_with_simple_data,
+    find_image_array_field,
     find_image_simple_field,
     generate_field_id,
     get_data_value_for_path,
+    is_image_url_string,
     sanitize_data_path,
 )
 from next_gen_ui_agent.data_transform.types import (
@@ -890,7 +892,7 @@ def test_find_image_BY_image_url_suffix() -> None:
     assert field.name == "Image"
 
 
-def test_find_image_by_field_name_suffix_rejects_no_extension() -> None:
+def test_find_image_BY_field_name_suffix_link() -> None:
     # add some non-image url fields and mixed case to test correct selection
     fields: list[DataFieldSimpleValue] = (
         ComponentDataBaseWithSimpleValueFileds.model_validate(
@@ -920,11 +922,12 @@ def test_find_image_by_field_name_suffix_rejects_no_extension() -> None:
     )
 
     image, field = find_image_simple_field(fields)
-    assert image is None
-    assert field is None
+    assert image == "https://image.tmdb.org/aa"
+    assert field is not None
+    assert field.name == "Test"
 
 
-def test_find_image_by_field_name_suffix_accepts_with_extension() -> None:
+def test_find_image_BY_field_name_suffix_url() -> None:
     # add some non-image url fields and mixed case to test correct selection
     fields: list[DataFieldSimpleValue] = (
         ComponentDataBaseWithSimpleValueFileds.model_validate(
@@ -941,7 +944,7 @@ def test_find_image_by_field_name_suffix_accepts_with_extension() -> None:
                     {
                         "name": "Test",
                         "data_path": "movies[*].posterUrL",
-                        "data": ["https://image.tmdb.org/aa.jpg"],
+                        "data": ["https://image.tmdb.org/aa"],
                     },
                     {
                         "name": "ImageLink",
@@ -954,6 +957,97 @@ def test_find_image_by_field_name_suffix_accepts_with_extension() -> None:
     )
 
     image, field = find_image_simple_field(fields)
-    assert image == "https://image.tmdb.org/aa.jpg"
+    assert image == "https://image.tmdb.org/aa"
     assert field is not None
     assert field.name == "Test"
+
+
+def test_is_image_url_string() -> None:
+    # Accept http(s) URLs ending with known image extensions (case-insensitive)
+    assert is_image_url_string("https://example.com/a.jpg") is True
+    assert is_image_url_string("http://example.com/b.PNG") is True
+    assert is_image_url_string("https://example.com/c.WeBp") is True
+    # Reject http(s) URLs without image extension
+    assert is_image_url_string("https://example.com/noext") is False
+    # Reject non-http(s) schemes even with image extension
+    assert is_image_url_string("ftp://example.com/a.jpg") is False
+    # Reject non-strings
+    assert is_image_url_string(123) is False  # type: ignore[arg-type]
+    assert is_image_url_string(None) is False  # type: ignore[arg-type]
+
+
+def test_find_image_array_field_BY_values() -> None:
+    # Selects by actual values (http(s)+image extension) and preserves None alignment
+    fields = ComponentDataBaseWithArrayValueFileds.model_validate(
+        {
+            "id": "1",
+            "component": "set-of-cards",
+            "title": "t",
+            "fields": [
+                {
+                    "name": "Title",
+                    "data_path": "items[*].title",
+                    "data": ["A", "B", "C"],
+                },
+                {
+                    "name": "Poster",
+                    "data_path": "items[*].posterUrl",
+                    "data": ["https://img/x.jpg", None, "https://img/y.png"],
+                },
+            ],
+        }
+    ).fields
+    idx, images = find_image_array_field(fields)
+    assert idx == 1
+    assert images == ["https://img/x.jpg", None, "https://img/y.png"]
+
+
+def test_find_image_array_field_BY_field_name_suffix_link() -> None:
+    # Fallback by field-name suffix; accepts http(s) URLs without extension; keeps None alignment
+    fields = ComponentDataBaseWithArrayValueFileds.model_validate(
+        {
+            "id": "1",
+            "component": "set-of-cards",
+            "title": "t",
+            "fields": [
+                {
+                    "name": "Title",
+                    "data_path": "items[*].title",
+                    "data": ["A", "B", "C"],
+                },
+                {
+                    "name": "Poster",
+                    "data_path": "items[*].posterUrl",
+                    "data": ["https://img/noext", None, "http://img/noext2"],
+                },
+            ],
+        }
+    ).fields
+    idx, images = find_image_array_field(fields)
+    assert idx == 1
+    assert images == ["https://img/noext", None, "http://img/noext2"]
+
+
+def test_find_image_array_field_NO_match() -> None:
+    # No qualifying field; returns (None, None)
+    fields = ComponentDataBaseWithArrayValueFileds.model_validate(
+        {
+            "id": "1",
+            "component": "set-of-cards",
+            "title": "t",
+            "fields": [
+                {
+                    "name": "Foo",
+                    "data_path": "items[*].foo",
+                    "data": [123, None, False],
+                },
+                {
+                    "name": "Bar",
+                    "data_path": "items[*].bar",
+                    "data": [["x"], ["y"], ["z"]],
+                },
+            ],
+        }
+    ).fields
+    idx, images = find_image_array_field(fields)
+    assert idx is None and images is None
