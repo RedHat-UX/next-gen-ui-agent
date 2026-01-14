@@ -972,8 +972,8 @@ def test_is_image_url_string() -> None:
     # Reject non-http(s) schemes even with image extension
     assert is_image_url_string("ftp://example.com/a.jpg") is False
     # Reject non-strings
-    assert is_image_url_string(123) is False  # type: ignore[arg-type]
-    assert is_image_url_string(None) is False  # type: ignore[arg-type]
+    assert is_image_url_string(123) is False
+    assert is_image_url_string(None) is False
 
 
 def test_find_image_array_field_BY_values() -> None:
