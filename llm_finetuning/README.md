@@ -3,22 +3,28 @@
 This project provides a complete Google Colab notebook for fine-tuning Large Language Models (2B-3B parameters) for the UI Agent 
 using LoRA (Low-Rank Adaptation) and exporting them for use with Ollama.
 
-The included example training data teaches a model to recommend appropriate UI components (tables, cards, charts, image/video players) based on data structure and user intent. 
+The included example training data teaches a model to recommend appropriate UI components (tables, cards, charts, image/video players) 
+based on data structure and user intent. They are rudimentary only, AI generated and uncurrated.
 
-Final training dataset must be constructed still, it should contain examples for areas like:
+One approach to construct currated training dataset is to provide trainig data for distinct aspects touched by the UI Agent 
+inference, called "skills":
 
-* Understanding JSON data structures - array of objects vs. array of simple values vs. simple object, detecting the array size from UI Agent optimization, …
-* Generation of the valid JSONPaths for different data structures
-* Detecting field value types - image and video URLs, dates, numbers, …
-* UI component type selection for data structures and prompts
-* Visualized fields selection for data structures and prompts
-* UI component specific field rules, mainly for charts, image and video player. Rules not to visualize `id` fileds etc.
+* Understanding JSON data structures - array of objects vs. array of simple values vs. simple object, detecting the array size from UI Agent optimization, simple field value types - image and video URLs, dates, numbers, … ✅
+* Generation of the valid JSONPaths for different data structures ✅
+* UI component type selection for data structures and user needs ✅
+* Visualized fields selection for data structures and user needs
+* UI component specific field rules, mainly for charts, image and video player. Rules not to visualize technical `id` fileds etc.
+
+Skills covered in our currated dataset are marked by ✅
+
+Alternativelly, we can build training dataset mimicking real LLM calls performed by the UI Agent, containing exact user prompt and expected exact responses.
 
 ## Files
 
-- **`finetune_model.ipynb`** - Google Colab notebook with complete fine-tuning pipeline
-- **`training_data.json`** - Example training dataset with 30 Q&A pairs about UI component selection
 - **`README.md`** - This file
+- **`finetune_model.ipynb`** - Google Colab notebook with complete fine-tuning pipeline
+- **`training_data_example.json`** - Example training dataset with 30 Q&A pairs about UI component selection - AI generated, uncurrated
+- **`training_data/`** - folder with currated dataset files per aspect of the UI Agent functionality
 
 ## Features
 
