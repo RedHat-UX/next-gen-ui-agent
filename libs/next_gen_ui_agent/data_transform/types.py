@@ -243,6 +243,9 @@ class ComponentDataSetOfCards(ComponentDataBaseWithArrayValueFileds):
     """Component Data for SetOfCard."""
 
     component: Literal["set-of-cards"] = "set-of-cards"
+    images: Optional[list[Optional[str]]] = Field(
+        description="Main Image URLs for each card", default=None
+    )
 
 
 class ComponentDataTable(ComponentDataBaseWithArrayValueFileds):

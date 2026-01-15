@@ -23,7 +23,7 @@ class OneCardDataTransformer(DataTransformerBase[ComponentDataOneCard]):
         data_transformer_utils.fill_fields_with_simple_data(fields, json_data)
 
         # Trying to find field that would contain an image link
-        image, field = data_transformer_utils.find_image(fields)
+        image, field = data_transformer_utils.find_image_simple_field(fields)
         if image:
             self._component_data.image = image
         if field:
