@@ -15,7 +15,7 @@ providers:
         tls_verify: ${env.LIGHTRAIL_LLAMA_STACK_TLS_CA_CERT_PATH}
 models:
   - provider_id: vllm-inference
-    model_id: ${env.MYAPP_MODEL_ID}
+    model_id: ${env.NGUI_MODEL}
     model_type: llm
     metadata: {}
 

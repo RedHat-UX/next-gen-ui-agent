@@ -1,6 +1,6 @@
 """NGUI agent setup for LlamaStack."""
 
-from app.config import MYAPP_MODEL_ID, NGUI_CONFIG
+from app.config import NGUI_CONFIG, NGUI_MODEL
 from app.llm import get_llm_client
 from next_gen_ui_llama_stack import NextGenUILlamaStackAgent
 
@@ -14,6 +14,6 @@ async def get_ngui_agent():
     if _ngui_agent_instance is None:
         client = get_llm_client()
         _ngui_agent_instance = NextGenUILlamaStackAgent(
-            client, MYAPP_MODEL_ID, config=NGUI_CONFIG
+            client, NGUI_MODEL, config=NGUI_CONFIG
         )
     return _ngui_agent_instance

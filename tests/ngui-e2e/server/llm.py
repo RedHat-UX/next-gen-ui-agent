@@ -2,11 +2,7 @@
 
 import ssl
 
-from app.config import (
-    LIGHTRAIL_LLAMA_STACK_BASE_URL,
-    LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH,
-    MYAPP_MODEL_ID,
-)
+from app.config import LLAMA_STACK_BASE_URL, LLAMA_STACK_TLS_CA_CERT_PATH, NGUI_MODEL
 from llama_stack_client import AsyncLlamaStackClient, DefaultAsyncHttpxClient
 from llama_stack_client.types import UserMessage
 
@@ -14,10 +10,10 @@ from llama_stack_client.types import UserMessage
 def get_llamastack_client():
     """Create and return a configured LlamaStack client."""
     ctx = ssl.create_default_context(
-        cafile=LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH,
+        cafile=LLAMA_STACK_TLS_CA_CERT_PATH,
     )
     return AsyncLlamaStackClient(
-        base_url=LIGHTRAIL_LLAMA_STACK_BASE_URL,
+        base_url=LLAMA_STACK_BASE_URL,
         http_client=DefaultAsyncHttpxClient(verify=ctx),
     )
 
@@ -29,7 +25,7 @@ async def test_llm_connection():
         client = get_llamastack_client()
         user_message = UserMessage(role="user", content="test")
         response = await client.inference.chat_completion(
-            model_id=MYAPP_MODEL_ID,
+            model_id=NGUI_MODEL,
             messages=[user_message],
         )
         print(f"✓ LlamaStack connection successful! Response type: {type(response)}")

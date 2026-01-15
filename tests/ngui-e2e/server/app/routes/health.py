@@ -1,6 +1,6 @@
 """Health check and model info endpoints."""
 
-from app.config import LIGHTRAIL_LLAMA_STACK_BASE_URL, MYAPP_MODEL_ID
+from app.config import LLAMA_STACK_BASE_URL, NGUI_MODEL
 from app.llm import get_llm_client
 from app.models import ErrorCode
 from app.utils.response import create_error_response
@@ -15,8 +15,8 @@ async def health_check():
     """Health check endpoint to verify server connectivity."""
     return {
         "status": "ok",
-        "model": MYAPP_MODEL_ID,
-        "base_url": LIGHTRAIL_LLAMA_STACK_BASE_URL,
+        "model": NGUI_MODEL,
+        "base_url": LLAMA_STACK_BASE_URL,
     }
 
 
@@ -28,7 +28,7 @@ async def wdyk():
         client = get_llm_client()
         user_message = UserMessage(role="user", content=question)
         response = await client.inference.chat_completion(
-            model_id=MYAPP_MODEL_ID,
+            model_id=NGUI_MODEL,
             messages=[user_message],
         )
         return {

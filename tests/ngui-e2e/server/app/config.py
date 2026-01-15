@@ -12,21 +12,26 @@ logging.basicConfig(
 # Set next_gen_ui_agent logger to INFO level
 logging.getLogger("next_gen_ui_agent").setLevel(logging.INFO)
 
-# Lightrail/LlamaStack Configuration
-# These environment variables are injected by Lightrail Local or production environment
-LIGHTRAIL_LLAMA_STACK_BASE_URL = os.environ.get("LIGHTRAIL_LLAMA_STACK_BASE_URL")
-LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH = os.environ.get(
-    "LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH"
+# LlamaStack Configuration
+# Use LLAMA_STACK_BASE_URL as default, with LIGHTRAIL_LLAMA_STACK_BASE_URL as fallback
+# This makes it work for both Lightrail deployments and other environments
+LLAMA_STACK_BASE_URL = os.environ.get("LLAMA_STACK_BASE_URL") or os.environ.get(
+    "LIGHTRAIL_LLAMA_STACK_BASE_URL"
 )
-MYAPP_MODEL_ID = os.environ.get("MYAPP_MODEL_ID")
+LLAMA_STACK_TLS_CA_CERT_PATH = os.environ.get(
+    "LLAMA_STACK_TLS_CA_CERT_PATH"
+) or os.environ.get("LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH")
+
+# Use NGUI_MODEL to match naming convention in MCP and A2A servers
+NGUI_MODEL = os.environ.get("NGUI_MODEL")
 
 # Debug logging for LlamaStack configuration
 print("\n" + "=" * 60)
 print("LLAMASTACK CONFIGURATION DEBUG")
 print("=" * 60)
-print(f"Model ID: {MYAPP_MODEL_ID}")
-print(f"Base URL: {LIGHTRAIL_LLAMA_STACK_BASE_URL}")
-print(f"TLS Cert Path: {LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH}")
+print(f"Model ID: {NGUI_MODEL}")
+print(f"Base URL: {LLAMA_STACK_BASE_URL}")
+print(f"TLS Cert Path: {LLAMA_STACK_TLS_CA_CERT_PATH}")
 print("=" * 60 + "\n")
 
 # Data configuration

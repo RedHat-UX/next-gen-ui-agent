@@ -2,11 +2,26 @@
 
 This directory contains a complete end-to-end testing application for the Next Gen UI (NGUI) system, demonstrating AI-driven UI component generation with a split server/client architecture.
 
+## Technology Stack
+
+### Server
+- **Framework**: FastAPI
+- **AI Integration**: LlamaStack (via `next-gen-ui-llama-stack` 0.3.0+)
+- **Deployment**: Lightrail (Red Hat's AI platform)
+- **Model**: Llama 3.3 70B Instruct (FP8 dynamic)
+- **Language**: Python 3.12+
+
+### Client
+- **Framework**: React 18+ with TypeScript
+- **Build Tool**: Vite
+- **UI Components**: PatternFly / RHDS
+- **State Management**: React Hooks
+
 ## Structure
 
 ```
 ngui-e2e/
-├── server/           # FastAPI backend with NGUI agent (Lightrail/LlamaStack)
+├── server/           # FastAPI backend with NGUI agent (LlamaStack for LLM inference)
 └── client/           # React frontend application
 ```
 
@@ -75,21 +90,6 @@ The client will be available at `http://localhost:5173`
 - `POST /generate` - Generate UI components from prompts
 - `GET /api/v1/health` - Health check
 - `GET /api/v1/wdyk` - What Do You Know (available data sources)
-
-## Technology Stack
-
-### Server
-- **Framework**: FastAPI
-- **AI Integration**: LlamaStack (via `next-gen-ui-llama-stack` 0.3.0+)
-- **Deployment**: Lightrail (Red Hat's AI platform)
-- **Model**: Llama 3.3 70B Instruct (FP8 dynamic)
-- **Language**: Python 3.12+
-
-### Client
-- **Framework**: React 18+ with TypeScript
-- **Build Tool**: Vite
-- **UI Components**: PatternFly / RHDS
-- **State Management**: React Hooks
 
 ## Purpose
 

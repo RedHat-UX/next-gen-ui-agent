@@ -4,7 +4,7 @@ import json
 from typing import Any
 
 from app.agents import get_ngui_agent
-from app.config import LIGHTRAIL_LLAMA_STACK_BASE_URL, MAX_DATA_SIZE_MB, MYAPP_MODEL_ID
+from app.config import LLAMA_STACK_BASE_URL, MAX_DATA_SIZE_MB, NGUI_MODEL
 from app.data_sources import (
     DEFAULT_DATA,
     generic_data_filter_agent,
@@ -76,7 +76,7 @@ async def generate_response(request: GenerateRequest):
             if not request.skip_filtering:
                 log_info("Applying intelligent filtering to default data")
                 filtered_data = await generic_data_filter_agent(
-                    prompt, source_data, client, MYAPP_MODEL_ID
+                    prompt, source_data, client, NGUI_MODEL
                 )
                 if filtered_data:
                     source_data = filtered_data
@@ -90,7 +90,7 @@ async def generate_response(request: GenerateRequest):
             if not request.skip_filtering:
                 log_info("Applying intelligent filtering to user-provided data")
                 filtered_data = await generic_data_filter_agent(
-                    prompt, source_data, client, MYAPP_MODEL_ID
+                    prompt, source_data, client, NGUI_MODEL
                 )
                 if filtered_data:
                     source_data = filtered_data
@@ -243,8 +243,8 @@ async def generate_response(request: GenerateRequest):
             log_section("STEP 4: EXTRACTING METADATA")
             metadata = extract_component_metadata(
                 ngui_response=ngui_response,
-                model_id=MYAPP_MODEL_ID or "unknown",
-                base_url=LIGHTRAIL_LLAMA_STACK_BASE_URL or "unknown",
+                model_id=NGUI_MODEL or "unknown",
+                base_url=LLAMA_STACK_BASE_URL or "unknown",
                 tool_step=tool_step,
                 events=agent_events,
             )
