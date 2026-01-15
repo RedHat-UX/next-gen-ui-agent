@@ -90,6 +90,19 @@ podman run --rm -it -p 5000:5000 \
     quay.io/next-gen-ui/mcp
 ```
 
+#### MCP Sampling with Model Preferences
+
+```bash
+podman run --rm -it -p 5000:5000 \
+    --env MCP_PORT="5000" \
+    --env NGUI_PROVIDER="mcp" \
+    --env NGUI_SAMPLING_HINTS="claude-3-sonnet,claude" \
+    --env NGUI_SAMPLING_COST_PRIORITY="0.3" \
+    --env NGUI_SAMPLING_SPEED_PRIORITY="0.8" \
+    --env NGUI_SAMPLING_INTELLIGENCE_PRIORITY="0.5" \
+    quay.io/next-gen-ui/mcp
+```
+
 #### Configuration Using Environment File
 
 Create a `.env` file:
@@ -104,6 +117,12 @@ NGUI_COMPONENT_SYSTEM=json
 NGUI_PROVIDER=openai
 NGUI_MODEL=gpt-4o
 NGUI_PROVIDER_API_KEY=your-api-key-here
+
+# Example values if MCP sampling is used
+# NGUI_SAMPLING_HINTS=claude-3-sonnet,claude
+# NGUI_SAMPLING_COST_PRIORITY=0.3
+# NGUI_SAMPLING_SPEED_PRIORITY=0.8
+# NGUI_SAMPLING_INTELLIGENCE_PRIORITY=0.5
 ```
 
 Run with environment file:

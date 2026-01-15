@@ -23,6 +23,9 @@ Usage:
     # Run with MCP sampling and custom max tokens
     python -m next_gen_ui_mcp --sampling-max-tokens 4096
 
+    # Run with MCP sampling and model preferences
+    python -m next_gen_ui_mcp --provider mcp --sampling-hints claude-3-sonnet,claude --sampling-speed-priority 0.8 --sampling-intelligence-priority 0.7
+
     # Run with SSE transport (for HTTP clients)
     python -m next_gen_ui_mcp --transport sse --host 127.0.0.1 --port 8000
 
@@ -33,24 +36,25 @@ Usage:
     python -m next_gen_ui_mcp --component-system patternfly
 """
 
-import argparse
 import logging
 import sys
 from pathlib import Path
 
 from fastmcp import FastMCP
-from next_gen_ui_agent.agent_config import (
-    add_agent_config_comandline_args,
-    read_agent_config_dict_from_arguments,
-)
-from next_gen_ui_agent.argparse_env_default_action import EnvDefault, EnvDefaultExtend
+from next_gen_ui_agent.agent_config import read_agent_config_dict_from_arguments
 from next_gen_ui_agent.inference.inference_builder import (
-    add_inference_comandline_args,
     create_inference_from_arguments,
     get_sampling_max_tokens_configuration,
 )
 from next_gen_ui_mcp.agent import MCP_ALL_TOOLS
 from next_gen_ui_mcp.agent_config import MCPAgentConfig
+from next_gen_ui_mcp.main_args_handler import (
+    create_argument_parser,
+    get_sampling_cost_priority_configuration,
+    get_sampling_hints_configuration,
+    get_sampling_intelligence_priority_configuration,
+    get_sampling_speed_priority_configuration,
+)
 
 # Add libs to path for development
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -65,6 +69,10 @@ def create_server(
     config: MCPAgentConfig = MCPAgentConfig(component_system="json"),
     inference: InferenceBase | None = None,
     sampling_max_tokens: int = 2048,
+    sampling_model_hints: list[str] | None = None,
+    sampling_cost_priority: float | None = None,
+    sampling_speed_priority: float | None = None,
+    sampling_intelligence_priority: float | None = None,
     debug: bool = False,
     enabled_tools=None,
     structured_output_enabled=True,
@@ -74,6 +82,10 @@ def create_server(
     Args:
         config: AgentConfig to use for the agent
         sampling_max_tokens: Maximum tokens for MCP sampling inference
+        sampling_model_hints: Model hints for MCP sampling
+        sampling_cost_priority: Cost priority for MCP sampling (0.0-1.0)
+        sampling_speed_priority: Speed priority for MCP sampling (0.0-1.0)
+        sampling_intelligence_priority: Intelligence priority for MCP sampling (0.0-1.0)
 
     Returns:
         Configured NextGenUIMCPServer
@@ -85,6 +97,10 @@ def create_server(
         config=config,
         inference=inference,
         sampling_max_tokens=sampling_max_tokens,
+        sampling_model_hints=sampling_model_hints,
+        sampling_cost_priority=sampling_cost_priority,
+        sampling_speed_priority=sampling_speed_priority,
+        sampling_intelligence_priority=sampling_intelligence_priority,
         name="NextGenUI-MCP-Server",
         debug=debug,
         enabled_tools=enabled_tools,
@@ -108,106 +124,10 @@ def add_health_routes(mcp: FastMCP):
     logger.info("Health checks available under /liveness and /readiness.")
 
 
-PROVIDER_MCP = "mcp"
-
-
 def main():
     """Main entry point."""
 
-    parser = argparse.ArgumentParser(
-        description="Next Gen UI MCP Server with Sampling or External LLM Providers",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Run with MCP sampling (default - leverages client's LLM)
-  python -m next_gen_ui_mcp
-
-  # Run with YAML configurations
-  python -m next_gen_ui_mcp -c ngui_config.yaml
-
-  # Run with LlamaStack inference
-  python -m next_gen_ui_mcp --provider openai --model llama3.2-3b --base-url http://localhost:5001/v1
-
-  # Run with OpenAI inference
-  python -m next_gen_ui_mcp --provider openai --model gpt-3.5-turbo
-
-  # Run with OpenAI API of Ollama (local)
-  python -m next_gen_ui_mcp --provider openai --model llama3.2 --base-url http://localhost:11434/v1 --api-key ollama
-
-  # Run with MCP sampling and custom max tokens
-  python -m next_gen_ui_mcp --sampling-max-tokens 4096
-
-  # Run with SSE transport (for web clients)
-  python -m next_gen_ui_mcp --transport sse --host 127.0.0.1 --port 8000
-
-  # Run with streamable-http transport
-  python -m next_gen_ui_mcp --transport streamable-http --host 127.0.0.1 --port 8000
-
-  # Run with rhds component system
-  python -m next_gen_ui_mcp --component-system rhds
-
-  # Run with rhds component system via SSE transport
-  python -m next_gen_ui_mcp --transport sse --component-system rhds --port 8000
-        """,
-    )
-
-    add_agent_config_comandline_args(parser)
-
-    add_inference_comandline_args(
-        parser, default_provider=PROVIDER_MCP, additional_providers=[PROVIDER_MCP]
-    )
-
-    # MCP Server specific arguments
-    parser.add_argument(
-        "--transport",
-        choices=["stdio", "sse", "streamable-http"],
-        default="stdio",
-        required=True,
-        help="Transport protocol to use",
-        action=EnvDefault,
-        envvar="MCP_TRANSPORT",
-    )
-    parser.add_argument(
-        "--host",
-        default="127.0.0.1",
-        required=True,
-        help="Host to bind to",
-        action=EnvDefault,
-        envvar="MCP_HOST",
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=8000,
-        required=True,
-        help="Port to bind to",
-        action=EnvDefault,
-        envvar="MCP_PORT",
-    )
-
-    parser.add_argument(
-        "--tools",
-        action=EnvDefaultExtend,
-        nargs="+",
-        type=str,
-        help=(
-            "Control which tools should be enabled. "
-            "You can specify multiple values by repeating same parameter "
-            "or passing comma separated value. Value `all` means all tools are enabled, but you can simply omit this argument to enable all tools."
-        ),
-        envvar="MCP_TOOLS",
-        required=False,
-    )
-    parser.add_argument(
-        "--structured_output_enabled",
-        choices=["true", "false"],
-        default="true",
-        help="Control if structured output is used. If not enabled the ouput is serialized as JSON in content property only.",
-        action=EnvDefault,
-        envvar="MCP_STRUCTURED_OUTPUT_ENABLED",
-    )
-    parser.add_argument("--debug", action="store_true", help="Enable debug logging")
-
+    parser = create_argument_parser()
     args = parser.parse_args()
 
     # Configure logging
@@ -244,11 +164,23 @@ Examples:
         else:
             inference = create_inference_from_arguments(parser, args, logger)
 
+        # Extract model preferences for MCP sampling
+        sampling_model_hints = get_sampling_hints_configuration(args)
+        sampling_cost_priority = get_sampling_cost_priority_configuration(args)
+        sampling_speed_priority = get_sampling_speed_priority_configuration(args)
+        sampling_intelligence_priority = (
+            get_sampling_intelligence_priority_configuration(args)
+        )
+
         # Create the agent
         agent = create_server(
             config=config,
             inference=inference,
             sampling_max_tokens=get_sampling_max_tokens_configuration(args, 2048),
+            sampling_model_hints=sampling_model_hints,
+            sampling_cost_priority=sampling_cost_priority,
+            sampling_speed_priority=sampling_speed_priority,
+            sampling_intelligence_priority=sampling_intelligence_priority,
             debug=args.debug,
             enabled_tools=enabled_tools,
             structured_output_enabled=args.structured_output_enabled == "true",

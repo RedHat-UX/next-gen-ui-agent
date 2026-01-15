@@ -141,7 +141,6 @@ def add_inference_comandline_args(
         required=False,
     )
 
-    # MCP sampling specific arguments
     parser.add_argument(
         "--sampling-max-tokens",
         type=int,

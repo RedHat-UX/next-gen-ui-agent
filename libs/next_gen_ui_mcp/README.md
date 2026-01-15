@@ -59,6 +59,9 @@ Few examples:
   # Run with MCP sampling and custom max tokens
   python -m next_gen_ui_mcp --sampling-max-tokens 4096
 
+  # Run with MCP sampling and model preferences
+  python -m next_gen_ui_mcp --sampling-hints claude-3-sonnet,claude --sampling-speed-priority 0.8 --sampling-intelligence-priority 0.7
+
   # Run with SSE transport (for web clients)
   python -m next_gen_ui_mcp --transport sse --host 127.0.0.1 --port 8000
 
@@ -98,6 +101,10 @@ Server can be configured using commandline arguments, or environment variables. 
 | `--api-key`                   | `NGUI_PROVIDER_API_KEY`           | -             | API key for the LLM provider. Used by `openai`, `anthropic-vertexai`.                                                                 |
 | `--temperature`               | `NGUI_PROVIDER_TEMPERATURE`       | -             | Temperature for model inference, float value (defaults to `0.0` for deterministic responses). Used by `openai`, `anthropic-vertexai`. |
 | `--sampling-max-tokens`       | `NGUI_SAMPLING_MAX_TOKENS`        | -             | Maximum LLM generated tokens, integer value. Used by `mcp` (defaults to `2048`) and `anthropic-vertexai` (defaults to `4096`).        |
+| `--sampling-hints`            | `NGUI_SAMPLING_HINTS`             | -             | Comma-separated list of model hint names (e.g., "claude-3-sonnet,claude"). Used by `mcp` provider.                                      |
+| `--sampling-cost-priority`   | `NGUI_SAMPLING_COST_PRIORITY`     | -             | Cost priority (0.0-1.0). Higher values prefer cheaper models. Used by `mcp` provider.                                                 |
+| `--sampling-speed-priority`  | `NGUI_SAMPLING_SPEED_PRIORITY`    | -             | Speed priority (0.0-1.0). Higher values prefer faster models. Used by `mcp` provider.                                                   |
+| `--sampling-intelligence-priority` | `NGUI_SAMPLING_INTELLIGENCE_PRIORITY` | -         | Intelligence priority (0.0-1.0). Higher values prefer more capable models. Used by `mcp` provider.                                       |
 | `--anthropic-version`         | `NGUI_PROVIDER_ANTHROPIC_VERSION` | -             | Anthropic version value used in the API call (defaults to `vertex-2023-10-16`). Used by `anthropic-vertexai`.                         |
 | `--debug`                     | -                                 |               | Enable debug logging.                                                                                                                 |
 
@@ -107,14 +114,16 @@ The Next Gen UI MCP server supports multiple inference providers, controlled by 
 
 #### Provider **`mcp`** 
 
-Uses [Model Context Protocol sampling](https://modelcontextprotocol.io/specification/2025-06-18/client/sampling) to leverage the client's LLM capabilities. 
-No additional configuration required as it uses the connected MCP client's model, only few optional options are available. 
+Uses [Model Context Protocol sampling](https://modelcontextprotocol.io/specification/2025-06-18/client/sampling) to leverage the client's LLM capabilities.
 
-**MCP client has to support Sampling feature and its optional options!**
+**⚠️ IMPORTANT: MCP client must support the Sampling feature!** Not all MCP clients implement this part of MCP specification yet. Also it's important to note that the client makes the final model selection and may ignore these preferences or interpret values in its own way.
 
-Requires:
-
+**Parameters:**
 - `NGUI_SAMPLING_MAX_TOKENS` (optional): Maximum LLM generated tokens, integer value (defaults to `2048`).
+- `NGUI_SAMPLING_HINTS` (optional): Comma-separated list of model hint names (e.g., "claude-3-sonnet,claude"). Hints are treated as substrings that can match model names flexibly. Multiple hints are evaluated in order of preference. Allows the server to suggest preferred models to the client.
+- `NGUI_SAMPLING_COST_PRIORITY` (optional): Cost priority value (0.0-1.0). Higher values indicate preference for cheaper models. Helps the client select more cost-effective models.
+- `NGUI_SAMPLING_SPEED_PRIORITY` (optional): Speed priority value (0.0-1.0). Higher values indicate preference for faster models. Guides the client toward lower-latency models.
+- `NGUI_SAMPLING_INTELLIGENCE_PRIORITY` (optional): Intelligence priority value (0.0-1.0). Higher values indicate preference for more capable models. Suggests the client should use more advanced reasoning models.
 
 #### Provider **`openai`**
 

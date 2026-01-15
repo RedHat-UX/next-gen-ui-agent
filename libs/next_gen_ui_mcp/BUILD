@@ -32,7 +32,7 @@ python_sources(
 # This target sets the metadata for all the Python test files in this directory.
 python_tests(
     name="tests",
-    sources=["agent_test.py"],
+    sources=["agent_test.py", "main_args_handler_test.py"],
     dependencies=[
         "libs/3rdparty/python:pytest",
         "libs/3rdparty/python:mcp",
