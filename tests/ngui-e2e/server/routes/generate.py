@@ -97,33 +97,17 @@ async def generate_response(request: GenerateRequest):
             else:
                 log_info("Skipping filtering (skip_filtering=true)")
 
-        # Validate JSON serialization
+        # Check data size (without validation - accept arbitrary strings)
         if isinstance(source_data, str):
+            size_mb = len(source_data.encode("utf-8")) / 1024 / 1024
+        else:
+            # For non-string data, serialize for size check only
             try:
-                parsed_data = json.loads(source_data)
-                source_data = parsed_data
-                log_info("Parsed inline data as JSON")
-            except json.JSONDecodeError as e:
-                return create_error_response(
-                    error_code=ErrorCode.INVALID_JSON,
-                    message="Invalid JSON data",
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    details=f"Parse error: {str(e)}",
-                    suggestion="NGUI agent only supports JSON data. Please provide valid JSON as a string, dict, or list.",
-                )
-
-        try:
-            data_json = json.dumps(source_data)
-        except (TypeError, ValueError) as e:
-            return create_error_response(
-                error_code=ErrorCode.INVALID_JSON,
-                message="Invalid data format",
-                status_code=status.HTTP_400_BAD_REQUEST,
-                details=f"Data must be JSON-serializable: {str(e)}",
-            )
-
-        # Check data size
-        size_mb = len(data_json.encode("utf-8")) / 1024 / 1024
+                data_json = json.dumps(source_data)
+                size_mb = len(data_json.encode("utf-8")) / 1024 / 1024
+            except (TypeError, ValueError):
+                # If it can't be serialized, estimate size from string representation
+                size_mb = len(str(source_data).encode("utf-8")) / 1024 / 1024
         log_info(f"Data size: {size_mb:.2f} MB")
 
         if size_mb > MAX_DATA_SIZE_MB:
