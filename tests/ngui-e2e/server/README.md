@@ -48,7 +48,7 @@ Generate UI components from natural language.
 }
 ```
 
-**Request (with inline data):**
+**Request (with inline data as JSON):**
 ```json
 {
   "prompt": "Show revenue for Q1-Q4",
@@ -61,11 +61,20 @@ Generate UI components from natural language.
 }
 ```
 
+**Request (with inline data as string):**
+```json
+{
+  "prompt": "Show me the sales report",
+  "data": "{\"region\": \"US\", \"sales\": 150000, \"growth\": \"12%\"}",
+  "data_type": "sales.report"
+}
+```
+
 **Request Parameters:**
 - `prompt` (required): Natural language description of the desired UI
-- `data` (optional): JSON payload (dict, list, or string) to use instead of default movie data
+- `data` (optional): Data payload - can be a JSON object, array, or JSON string. The UI Agent Core accepts string data, which is useful for passing serialized JSON or other data formats.
 - `data_type` (optional): Identifier for the data type (e.g., `"movies.detail"`, `"revenue.quarterly"`)
-- `skip_filtering` (optional): Skip intelligent data filtering if `true` (default: `false`)
+- `skip_filtering` (optional): Skip intelligent data filtering if `true` (default: `false`). See "Intelligent Data Filtering" section below for details.
 
 **Response:**
 ```json
@@ -128,6 +137,53 @@ User Prompt → Movie Search → NGUI Agent + LLM → UI Component JSON
 - `search_movies()` - Simple JSON-based search
 - `NextGenUILlamaStackAgent` - LLM-powered component selection
 - Manual `ToolStep` creation - Simulates agent tool execution
+
+## Intelligent Data Filtering
+
+The server includes an optional **intelligent data filtering** feature that uses the LLM to analyze user queries and filter data before passing it to the UI generation agent.
+
+### How It Works
+
+1. **Query Analysis**: The LLM analyzes the user's prompt to understand their intent
+2. **Data Filtering**: Based on the analysis, it filters the data to return only relevant items
+3. **Optimization**: Reduces the amount of data sent to the UI agent, improving performance and accuracy
+
+### Example
+
+**Without filtering** (skip_filtering=true):
+- Query: "Show me action movies"
+- Data sent to UI agent: All 6 movies in the database
+
+**With filtering** (skip_filtering=false, default):
+- Query: "Show me action movies"
+- LLM analyzes query → identifies genre filter
+- Data sent to UI agent: Only action movies (filtered subset)
+
+### Implementation
+
+Located in `data_sources/filtering.py`, the `generic_data_filter_agent()` function:
+- Works with any JSON data structure (movies, cost data, RBAC permissions, etc.)
+- Uses LLM to make intelligent filtering decisions
+- Returns filtered data or all data if query is general
+- Can be disabled per-request with `skip_filtering: true` parameter
+
+### When to Use
+
+- **Enable (default)**: When you want relevant data based on user intent
+- **Disable**: When you need to show all data regardless of the prompt, or when working with small datasets
+
+## Configuration
+
+### UI Agent Configuration
+
+Currently configured in code via `config.py`:
+
+```python
+from next_gen_ui_agent.agent_config import AgentConfig
+NGUI_CONFIG = AgentConfig(unsupported_components=True)
+```
+
+**To customize:** Edit `config.py` and restart the server.
 
 ## Environment Variables
 
