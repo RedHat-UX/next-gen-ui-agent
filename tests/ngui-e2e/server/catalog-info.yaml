@@ -1,0 +1,56 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: next-gen-ui-agent-e2e-testing
+  title: Next Gen UI Agent e2e testing
+  namespace: uxe
+  description: "The Next Gen UI Agent development and testing environment\r\nhttps://spaces.redhat.com/spaces/NextGenUI/pages/669844131/Next+Gen+UI "
+  annotations:
+    servicenow.com/appcode: NGUI-001
+    # backstage.io/techdocs-ref: dir:./docs/index.md // TODO: add the actual docs for e2e testing and development environment
+    jira/project-key: NGUI
+    gitlab.com/instance: gitlab.cee.redhat.com
+    gitlab.com/project-slug: ngui-e2e-testing
+  tags:
+    - "next-gen-ui"
+    - "ai"
+    - "llm"
+    - "llama-stack"
+    - "python"
+    - "react"
+    - "javascript"
+    - "nodejs"
+    - "patternfly"
+    - "rhds"
+    - "components"
+  links:
+  - url: https://redhat.enterprise.slack.com/archives/C08C90R1H4H
+    title: '#team-uxe-nextgenui' 
+    icon: slack_contact
+  # - url: https://qa.ngui.redhat.com
+  #   title: QA // TODO: add the actual QA environment
+spec:
+  owner: group:redhat/next-gen-ui
+  lifecycle: Implementing
+  type: service
+  system: uxe/next-gen-ui-agent
+  dependsOn:
+    - component:uxe/lightrail
+  contacts:
+    - label: Developers
+      users:
+        - user:redhat/lkrzyzan
+        - user:redhat/velias
+        - user:redhat/rkozmik
+        - user:redhat/hgavanka
+        - user:redhat/arajak
+        - user:redhat/bepowers
+        - user:redhat/sgrant
+        - user:redhat/ivrodrig
+    - label: QEs
+      users:
+        - user:redhat/nzadap
+    - label: Program Manager
+      users:
+        - user:redhat/mecraft 
