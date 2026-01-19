@@ -112,6 +112,68 @@ class AgentConfigDataType(BaseModel):
     """
 
 
+class AgentConfigPromptComponent(BaseModel):
+    """Component metadata overrides for LLM prompts.
+
+    Allows overriding any field from COMPONENT_METADATA for a specific component.
+    Available fields depend on component type:
+    - All components: description, twostep_step2_example, twostep_step2_rules
+    - Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples
+    """
+
+    description: Optional[str] = Field(
+        default=None,
+        description="Override component description used in LLM prompts",
+    )
+    """Override component description used in LLM prompts."""
+
+    twostep_step2_example: Optional[str] = Field(
+        default=None,
+        description="Override example for two-step strategy field selection",
+    )
+    """Override example for two-step strategy field selection."""
+
+    twostep_step2_rules: Optional[str] = Field(
+        default=None,
+        description="Override rules for two-step strategy field selection",
+    )
+    """Override rules for two-step strategy field selection."""
+
+    chart_description: Optional[str] = Field(
+        default=None,
+        description="Override chart type description (chart components only)",
+    )
+    """Override chart type description (chart components only)."""
+
+    chart_fields_spec: Optional[str] = Field(
+        default=None,
+        description="Override chart fields specification (chart components only)",
+    )
+    """Override chart fields specification (chart components only)."""
+
+    chart_rules: Optional[str] = Field(
+        default=None,
+        description="Override chart-specific rules (chart components only)",
+    )
+    """Override chart-specific rules (chart components only)."""
+
+    chart_inline_examples: Optional[str] = Field(
+        default=None,
+        description="Override inline chart examples (chart components only)",
+    )
+    """Override inline chart examples (chart components only)."""
+
+
+class AgentConfigPrompt(BaseModel):
+    """Prompt-related configuration for LLM interactions."""
+
+    components: Optional[dict[str, AgentConfigPromptComponent]] = Field(
+        default=None,
+        description="Component metadata overrides. Keys are component names (e.g., 'table', 'chart-bar'), values are field overrides. Component names must match those in CONFIG_OPTIONS_ALL_COMPONETS.",
+    )
+    """Component metadata overrides. Keys are component names, values are field overrides."""
+
+
 # Intentionaly TypeDict because of passing ABC class InferenceBase
 class AgentConfig(BaseModel):
     """Next Gen UI Agent Configuration."""
@@ -177,6 +239,12 @@ class AgentConfig(BaseModel):
     If `False` then all fields aren't generated. Can be overriden for individual `data_types`.
     Supported only for `table` and `set-of-cards` components.
     """
+
+    prompt: Optional[AgentConfigPrompt] = Field(
+        default=None,
+        description="Prompt-related configuration for LLM interactions. Allows customizing component descriptions, rules, and examples used in agent prompts.",
+    )
+    """Prompt-related configuration for LLM interactions. Allows customizing component descriptions, rules, and examples used in agent prompts."""
 
 
 class InputData(TypedDict):

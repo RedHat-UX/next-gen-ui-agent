@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+from next_gen_ui_agent.component_metadata import get_component_metadata
 from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
     TWOSTEP_STEP1_PROMPT_RULES,
@@ -11,6 +12,7 @@ from next_gen_ui_agent.component_selection_common import (
     build_twostep_step2_example,
     build_twostep_step2_rules,
     normalize_allowed_components,
+    set_active_component_metadata,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
@@ -43,6 +45,11 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         """
         super().__init__(logger, config)
         self.select_component_only = select_component_only
+
+        # Get merged metadata with overrides and set it globally
+        merged_metadata = get_component_metadata(config)
+        set_active_component_metadata(merged_metadata)
+
         self._step1_system_prompt = self._build_step1_system_prompt(
             config.selectable_components
         )

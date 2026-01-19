@@ -107,6 +107,49 @@ Name of the field rendered in UI. Can be used as a name of column in the table, 
 JSON Path pointer to [Input Data structure](./input_data/structure.md) to pick up values for UI rendering.
 
 
+### `prompt` [`AgentConfigPrompt`, optional]
+
+Configuration for customizing LLM system prompts used by the agent.
+
+#### `components` [`dict[str, AgentConfigPromptComponent]`, optional]
+
+This allows you to override component related parts of the prompt.
+Dictionary mapping component names to their prompt part overrides. Keys must be valid component names, 
+identification of the supported [Dynamic Component](./data_ui_blocks/dynamic_components.md) can be used here, e.g., `table`, `chart-bar`, `one-card`.
+Only specified fields are overridden for the prompt, unspecified fields retain their default values.
+
+##### `description` [`str`, optional]
+
+Override the main component description for the component selection. This helps the LLM understand when to use this component.
+
+##### `twostep_step2_example` [`str`, optional]
+
+Override the example shown to the LLM during field selection when using `two_llm_calls` strategy. 
+Provide a JSON example showing how fields should be selected for this component.
+
+##### `twostep_step2_rules` [`str`, optional]
+
+Override additional rules for field selection when using `two_llm_calls` strategy. 
+Use this to provide component-specific guidance for field selection.
+
+##### `chart_description` [`str`, optional]
+
+Override the chart type description shown in chart selection prompts. Only applicable to chart components 
+(`chart-bar`, `chart-line`, `chart-pie`, `chart-donut`, `chart-mirrored-bar`).
+
+##### `chart_fields_spec` [`str`, optional]
+
+Override the fields specification for chart component. Describes what fields the chart expects (e.g., `[category, metric]`).
+
+##### `chart_rules` [`str`, optional]
+
+Override chart-specific rule. Use this to add domain-specific guidance for chart usage.
+
+##### `chart_inline_examples` [`str`, optional]
+
+Override inline JSON examples for chart components. Provide examples specific to your data domain.
+
+
 ## Programmatic Configuration
 
 ### Usage with Inference Configuration
@@ -124,6 +167,31 @@ config = {
     "component_system": "json",
     "component_selection_strategy": "default"
 }
+
+agent = NextGenUIAgent(config=config)
+```
+
+### With Prompt Customization
+
+```python
+from next_gen_ui_agent import NextGenUIAgent, AgentConfig
+from next_gen_ui_agent.types import AgentConfigPrompt, AgentConfigPromptComponent
+
+# Create configuration with customized prompts
+config = AgentConfig(
+    prompt=AgentConfigPrompt(
+        components={
+            "table": AgentConfigPromptComponent(
+                description="Display structured business data in tabular format",
+                twostep_step2_rules="Always include ID, name, and date fields"
+            ),
+            "chart-bar": AgentConfigPromptComponent(
+                chart_description="Compare sales metrics across products or regions",
+                chart_rules="Show values in thousands"
+            )
+        }
+    )
+)
 
 agent = NextGenUIAgent(config=config)
 ```
@@ -160,6 +228,30 @@ data_types:
   movies:movies-list:
     components:
       - component: movies:movies-list-view
+```
+
+### YAML with Prompt Customization
+
+Customize component descriptions and rules for your domain:
+
+```yaml
+---
+component_system: json
+
+prompt:
+  components:
+    table:
+      description: "Display structured business data in tabular format"
+      twostep_step2_rules: "Always include ID, name, and date fields"
+    
+    chart-bar:
+      description: "Bar chart is suitable for values comparison"
+      chart_description: "Compare sales metrics across products or regions"
+      chart_rules: "Show values in thousands"
+    
+    one-card:
+      description: "Show detailed information for a single business entity"
+      twostep_step2_rules: "Include key identifiers and status information"
 ```
 
 ### Loading YAML Configuration

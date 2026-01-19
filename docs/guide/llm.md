@@ -9,6 +9,8 @@ And that all `Input Data` pieces will be processed at once, to also select which
 
 To instruct LLM to produce structured output expected by the agent, we use prompt engineering technique.
 
+Parts of the LLM prompt used by the agent can be [customized in its configuration](configuration.md#prompt-agentconfigprompt-optional).
+
 ## LLM Evaluations
 
 To evaluate how well a particular LLM is performing on *UI Agent* component selection and configuration task, 
