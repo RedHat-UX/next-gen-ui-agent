@@ -1,0 +1,34 @@
+[project]
+name = "lightrail-starter-api"
+version = "0.1.0"
+description = "Starter pack for creating an LLM-enabled API with Lightrail."
+authors = [
+    {name = "Bobby Gryzynger", email = "bgryzyng@redhat.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12,<3.14"
+
+dependencies = [
+    "uvicorn (>=0.35.0,<0.36.0)",
+    "fastapi (>=0.116.2,<0.117.0)",
+
+    "llama-stack-client (>=0.2.15,<0.3.0)",
+    # requests and fire are required for llama-stack-client but are not in its dependencies list.
+    # See https://github.com/meta-llama/llama-stack-client-python/issues/233
+    "requests (>=2.31.0)",
+    "fire (>=0.7.0)",
+    
+    # Next Gen UI Agent dependencies
+    "next-gen-ui-llama-stack (>=0.4.0)",
+    "next-gen-ui-agent (>=0.4.0)",
+    "pydantic (>=2.0.0)",
+]
+
+[tool.poetry]
+package-mode = false
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
