@@ -1,9 +1,11 @@
 import json
+from typing import cast
 
 from jsonpath_ng import parse  # type: ignore
 from next_gen_ui_agent.input_data_transform.fwctable_input_data_transformer import (
     FwctableInputDataTransformer,
 )
+from next_gen_ui_agent.types import InputData
 from pydantic import BaseModel
 
 
@@ -380,3 +382,61 @@ Jane    25   Boston
         ]
         assert result == expected
         assert len(result) == 2  # Empty lines should be filtered out
+
+
+class TestFwctableInputDataTransformerDetectMyDataStructure:
+    """Test cases for FwctableInputDataTransformer.detect_my_data_structure()."""
+
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        self.transformer = FwctableInputDataTransformer()
+
+    def test_detect_valid_fwctable_with_multiple_spaces(self) -> None:
+        """Test detection returns True for valid FWCTABLE with 2+ spaces (covers: pattern match)."""
+        input_data = cast(
+            InputData,
+            {
+                "id": "test1",
+                "data": "name    age  city\nJohn    30   New York\nJane    25   Boston",
+            },
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_fwctable_with_tabs(self) -> None:
+        """Test detection returns True for FWCTABLE with tabs (covers: tabs = 2+ whitespace)."""
+        input_data = cast(
+            InputData,
+            {
+                "id": "test2",
+                "data": "name\t\tage\t\tcity\nJohn\t\t30\t\tNew York",
+            },
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_invalid_single_space(self) -> None:
+        """Test detection returns False for data with only single spaces (covers: pattern non-match)."""
+        input_data = cast(
+            InputData, {"id": "test3", "data": "name age city\nJohn 30 New York"}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_invalid_single_line(self) -> None:
+        """Test detection returns False for single line (covers: len(lines) < 2)."""
+        input_data = cast(InputData, {"id": "test4", "data": "name    age  city"})
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_empty_or_whitespace(self) -> None:
+        """Test detection returns False for empty data (covers: no data)."""
+        assert (
+            self.transformer.detect_my_data_structure(
+                cast(InputData, {"id": "test5", "data": ""})
+            )
+            is False
+        )
+
+    def test_detect_large_fwctable_samples_first_1kb(self) -> None:
+        """Test detection with large FWCTABLE (>1KB) uses sampling (covers: 1KB sampling)."""
+        header = "col1    col2    col3    col4\n"
+        rows = "\n".join([f"val{i}    val{i}    val{i}    val{i}" for i in range(100)])
+        input_data = cast(InputData, {"id": "test6", "data": header + rows})
+        assert self.transformer.detect_my_data_structure(input_data) is True

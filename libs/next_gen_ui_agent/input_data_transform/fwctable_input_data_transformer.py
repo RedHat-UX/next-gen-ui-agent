@@ -2,7 +2,7 @@ import re
 from typing import Any, Literal
 
 from next_gen_ui_agent.data_structure_tools import sanitize_field_name, transform_value
-from next_gen_ui_agent.types import InputDataTransformerBase
+from next_gen_ui_agent.types import InputData, InputDataTransformerBase
 
 # Regex pattern to find column separators in the header line. Indices are taken from it and used for further lines parsing
 COLUMN_SEPARATOR_PATTERN = re.compile(r"\s{2,}")
@@ -16,6 +16,23 @@ class FwctableInputDataTransformer(InputDataTransformerBase):
 
     def __init__(self) -> None:
         """Initialize the FWCTABLE transformer."""
+
+    def detect_my_data_structure(self, input_data: InputData) -> bool:
+        """
+        Detect if input data is valid FWCTABLE by checking header line.
+        For efficiency, only checks first 1KB to find header and verify pattern.
+        """
+        data_str = input_data["data"]
+        # Only check first 1KB to find header
+        sample = data_str[:1024]
+        lines = [line for line in sample.splitlines() if line.strip()]
+
+        if len(lines) < 2:
+            return False
+
+        # Check for 2+ whitespace separators in header (COLUMN_SEPARATOR_PATTERN)
+        header_line = lines[0]
+        return bool(COLUMN_SEPARATOR_PATTERN.search(header_line))
 
     def transform(self, input_data: str) -> Any:
         """

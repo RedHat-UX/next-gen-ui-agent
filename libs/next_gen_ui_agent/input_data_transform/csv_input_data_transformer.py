@@ -3,7 +3,7 @@ from io import StringIO
 from typing import Any, Literal
 
 from next_gen_ui_agent.data_structure_tools import sanitize_field_name, transform_value
-from next_gen_ui_agent.types import InputDataTransformerBase
+from next_gen_ui_agent.types import InputData, InputDataTransformerBase
 
 
 class CsvInputDataTransformer(InputDataTransformerBase):
@@ -50,6 +50,43 @@ class CsvInputDataTransformer(InputDataTransformerBase):
             raise ValueError(f"Invalid CSV format of the Input Data: {e}") from e
 
         return parsed_data
+
+    def detect_my_data_structure(self, input_data: InputData) -> bool:
+        """
+        Detect if input data looks like CSV using heuristics.
+        Checks first 1KB for delimiter patterns without parsing.
+        """
+        data_str = input_data["data"].strip()
+        if not data_str:
+            return False
+
+        # Should NOT look like JSON or YAML. Just basic checks to avoid false positives.
+        first_char = data_str[0]
+        if first_char in ("{", "["):  # JSON
+            return False
+        if data_str.startswith("---"):  # YAML document marker
+            return False
+
+        # Get first 1KB to check structure (should cover first few lines)
+        sample = data_str[:1024]
+        lines = [line for line in sample.splitlines() if line.strip()]
+
+        if len(lines) < 2:
+            return False
+
+        # CSV heuristics: check for consistent delimiter usage
+        first_line_delimiters = lines[0].count(self.delimiter)
+        second_line_delimiters = lines[1].count(self.delimiter)
+
+        # Must have at least one delimiter
+        if first_line_delimiters == 0:
+            return False
+
+        # Delimiters should be consistent across rows (allow ±1 for optional trailing fields)
+        if abs(first_line_delimiters - second_line_delimiters) > 1:
+            return False
+
+        return True
 
 
 class CsvCommaInputDataTransformer(CsvInputDataTransformer):

@@ -111,21 +111,21 @@ def get_auto_detected_transformer_name(input_data: InputData) -> Optional[str]:
     """Get the input data transformer name via auto-detection from data structure.
 
     Iterates through all available transformers (built-in first, then pluggable)
-    and returns the name of the first transformer that validates the data structure.
+    and returns the name of the first transformer that detects the data structure.
 
     Args:
-        input_data: InputData to validate
+        input_data: InputData to detect
     Returns:
         Transformer name if a compatible transformer is found, None otherwise
     """
     # Check built-in transformers first
     for name, transformer in BUILTIN_INPUT_DATA_TRANSFORMERS.items():
-        if transformer.validate_data_structure(input_data):
+        if transformer.detect_my_data_structure(input_data):
             return name
 
     # Check pluggable transformers
     for ext in input_data_transformer_extension_manager:
-        if ext.obj.validate_data_structure(input_data):
+        if ext.obj.detect_my_data_structure(input_data):
             return str(ext.name)
 
     return None

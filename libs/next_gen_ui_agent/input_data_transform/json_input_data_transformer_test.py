@@ -1,10 +1,12 @@
 import json
+from typing import cast
 
 import pytest
 from jsonpath_ng import parse  # type: ignore
 from next_gen_ui_agent.input_data_transform.json_input_data_transformer import (
     JsonInputDataTransformer,
 )
+from next_gen_ui_agent.types import InputData
 from pydantic import BaseModel
 
 
@@ -504,3 +506,51 @@ class TestJsonInputDataTransformer:
         assert len(engineering_matches) == 1
         assert engineering_matches[0]["name"] == "Engineering"
         assert len(engineering_matches[0]["employees"]) == 2
+
+
+class TestJsonInputDataTransformerDetectMyDataStructure:
+    """Test cases for JsonInputDataTransformer.detect_my_data_structure()."""
+
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        self.transformer = JsonInputDataTransformer()
+
+    def test_detect_valid_json_object(self) -> None:
+        """Test detection returns True for valid JSON object (covers: starts with {, has quotes/colons/structural chars)."""
+        input_data = cast(
+            InputData, {"id": "test1", "data": '{"name": "John", "age": 30}'}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_json_array(self) -> None:
+        """Test detection returns True for valid JSON array (covers: starts with [, has structural chars)."""
+        input_data = cast(InputData, {"id": "test2", "data": '[1, 2, 3, "hello"]'})
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_invalid_not_starts_with_bracket(self) -> None:
+        """Test detection returns False when data doesn't start with { or [ (covers: first char check)."""
+        input_data = cast(InputData, {"id": "test3", "data": '"hello world"'})
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_empty_or_whitespace(self) -> None:
+        """Test detection returns False for empty/whitespace-only data (covers: empty check after strip)."""
+        assert (
+            self.transformer.detect_my_data_structure(
+                cast(InputData, {"id": "test4", "data": ""})
+            )
+            is False
+        )
+        assert (
+            self.transformer.detect_my_data_structure(
+                cast(InputData, {"id": "test5", "data": "   \n\t  "})
+            )
+            is False
+        )
+
+    def test_detect_large_json_samples_first_1kb(self) -> None:
+        """Test detection with large JSON (>1KB) uses sampling (covers: 1KB sampling logic)."""
+        large_obj = {
+            "items": [{"id": i, "value": f"item_{i}" * 20} for i in range(100)]
+        }
+        input_data = cast(InputData, {"id": "test6", "data": json.dumps(large_obj)})
+        assert self.transformer.detect_my_data_structure(input_data) is True

@@ -453,15 +453,15 @@ class InputDataTransformerBase(ABC):
         """
         raise NotImplementedError("Subclasses must implement this method")
 
-    def validate_data_structure(self, input_data: InputData) -> bool:
+    def detect_my_data_structure(self, input_data: InputData) -> bool:
         """
-        Validate whether the input data structure is compatible with this transformer.
+        Detect whether the input data structure is compatible with this transformer.
 
         Default implementation returns False. Subclasses should override this method
-        to provide efficient validation logic specific to their format.
+        to provide efficient detection logic specific to their format.
 
         Args:
-            input_data: InputData to validate
+            input_data: InputData to detect
         Returns:
             True if the input data is compatible with this transformer, False otherwise
         """
