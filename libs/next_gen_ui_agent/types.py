@@ -246,6 +246,15 @@ class AgentConfig(BaseModel):
     )
     """Prompt-related configuration for LLM interactions. Allows customizing component descriptions, rules, and examples used in agent prompts."""
 
+    enable_input_data_type_detection: bool = Field(
+        default=True,
+        description="If `True` (default), the agent will attempt to auto-detect the appropriate input data transformer based on data structure when no transformer is explicitly configured for a data type. If `False`, auto-detection is disabled and the default transformer is always used.",
+    )
+    """
+    If `True` (default), the agent will attempt to auto-detect the appropriate input data transformer based on data structure when no transformer is explicitly configured for a data type.
+    If `False`, auto-detection is disabled and the default transformer is always used.
+    """
+
 
 class InputData(TypedDict):
     """Agent Input Data."""
@@ -443,3 +452,17 @@ class InputDataTransformerBase(ABC):
             ValueError: If the input data can't be parsed due to invalid format.
         """
         raise NotImplementedError("Subclasses must implement this method")
+
+    def validate_data_structure(self, input_data: InputData) -> bool:
+        """
+        Validate whether the input data structure is compatible with this transformer.
+
+        Default implementation returns False. Subclasses should override this method
+        to provide efficient validation logic specific to their format.
+
+        Args:
+            input_data: InputData to validate
+        Returns:
+            True if the input data is compatible with this transformer, False otherwise
+        """
+        return False
