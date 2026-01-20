@@ -171,6 +171,18 @@
           ],
           "default": null,
           "description": "Optional pre-configuration of the dynamic component to be used."
+        },
+        "llm_configure": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": true,
+          "description": "If True, LLM generates configuration. If False, pre-defined configuration must be provided and will be used. Only applicable to dynamic components, not hand-build components."
         }
       },
       "required": [

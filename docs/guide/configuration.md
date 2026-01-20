@@ -70,12 +70,14 @@ All fields are supported only for `table` and `set-of-cards` components.
 
 Optional list of components used to render this data type. See [description of the component selection process](data_ui_blocks/index.md#selection-and-configuration-process).
 
-For now only **one component** can be defined in this list, and it has to be:
+**Single component**: When one component is configured, it's used directly without the LLM processing. It has to be [Hand Build Component](./data_ui_blocks/hand_build_components.md) or [Dynamic component](./data_ui_blocks/dynamic_components.md) with pre-defined `configuration` provided.
 
-* [Dynamic component](./data_ui_blocks/dynamic_components.md) with pre-defined configuration
-* [Hand Build Component](./data_ui_blocks/hand_build_components.md)
+**Multiple components**: When multiple components are configured, LLM selects the best one based on user prompt and data. Each component can be:
 
-In the future, we plan plan to [implement additional component selection features](data_ui_blocks/index.md#selection-and-configuration-process) so this configuration will be extended.
+* [Dynamic component](./data_ui_blocks/dynamic_components.md) with pre-defined configuration (LLM selection only)
+* [Dynamic component](./data_ui_blocks/dynamic_components.md) without configuration (LLM selection and configuration)
+
+**Note**: [Hand Build Components](./data_ui_blocks/hand_build_components.md) cannot be mixed with other components now. This restriction will be removed in a future.
 
 
 ##### `component` [`str`, required]
@@ -84,9 +86,16 @@ Name of the UI component. Identification of the supported [Dynamic Component](./
 Other value is interpreted as [Hand Build Component](./data_ui_blocks/hand_build_components.md) name and HBC is rendered.
 
 
+##### `llm_configure` [`bool`, optional]
+
+Controls whether LLM generates component configuration. Defaults to `True`. Only applicable to Dynamic components.
+
+- `True` (default): LLM generates configuration (fields). Pre-defined `configuration` is optional and ignored if provided for now (will be used as a base for LLM generation in the future).
+- `False`: Pre-defined `configuration` must be provided and will be used. LLM only selects which component to use.
+
 ##### `configuration` [`AgentConfigDynamicComponentConfiguration`, optional]
 
-If `Dynamic Component` is named, then its pre-defined configuration has to be provided here.
+Pre-defined configuration for Dynamic components. Required when `llm_configure=False` or for single dynamic component, optional otherwise.
 
 ###### `title` [`str`, required]
 
@@ -253,6 +262,37 @@ prompt:
       description: "Show detailed information for a single business entity"
       twostep_step2_rules: "Include key identifiers and status information"
 ```
+
+### Multiple Component Configuration
+
+Configure multiple components per data type with LLM-based selection:
+
+```yaml
+---
+data_types:
+  product-list:
+    components:
+      # Option 1: LLM selects and configures
+      - component: table
+        llm_configure: true  # default, can be omitted
+      # Option 2: LLM selects, use pre-config
+      - component: set-of-cards
+        llm_configure: false
+        configuration:
+          title: "Products"
+          fields:
+            - name: "Name"
+              data_path: "products[*].name"
+            - name: "Price"
+              data_path: "products[*].price"
+  
+  custom-data:
+    components:
+      # Hand-Build Component (no llm_configure or configuration)
+      - component: my-custom-component
+```
+
+This configuration allows LLM to choose between table and cards for product lists based on user intent, while still controlling the exact fields shown in cards view.
 
 ### Loading YAML Configuration
 

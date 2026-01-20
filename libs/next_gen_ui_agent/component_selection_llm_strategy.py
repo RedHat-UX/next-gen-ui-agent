@@ -1,12 +1,17 @@
 import json
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, TypedDict
+from typing import Any, Optional, TypedDict
 
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data, wrap_string_as_json
-from next_gen_ui_agent.types import AgentConfig, InputDataInternal, UIComponentMetadata
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    AgentConfigComponent,
+    InputDataInternal,
+    UIComponentMetadata,
+)
 
 
 class LLMInteraction(TypedDict):
@@ -61,6 +66,8 @@ class ComponentSelectionStrategy(ABC):
         inference: InferenceBase,
         user_prompt: str,
         input_data: InputDataInternal,
+        allowed_components: Optional[set[str]] = None,
+        components_config: Optional[dict[str, AgentConfigComponent]] = None,
     ) -> UIComponentMetadata:
         """
         Select UI component based on input data and user prompt.
@@ -68,6 +75,9 @@ class ComponentSelectionStrategy(ABC):
             inference: Inference to use to call LLM by the agent
             user_prompt: User prompt to be processed
             input_data: Input data to be processed
+            allowed_components: Optional set of component names to filter selection to
+            components_config: Optional mapping of component names to their configs
+                               (used by two-step strategy to check llm_configure flag)
         Returns:
             Generated `UIComponentMetadata`
         Raises:
@@ -105,7 +115,12 @@ class ComponentSelectionStrategy(ABC):
             json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
 
         inference_result = await self.perform_inference(
-            inference, user_prompt, json_data_for_llm, input_data_id
+            inference,
+            user_prompt,
+            json_data_for_llm,
+            input_data_id,
+            allowed_components,
+            components_config,
         )
 
         try:
@@ -126,6 +141,8 @@ class ComponentSelectionStrategy(ABC):
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
+        allowed_components: Optional[set[str]] = None,
+        components_config: Optional[dict[str, AgentConfigComponent]] = None,
     ) -> InferenceResult:
         """
         Perform inference to select UI components and configure them.
@@ -136,6 +153,8 @@ class ComponentSelectionStrategy(ABC):
             user_prompt: User prompt to be processed
             json_data: JSON data parsed into python objects to be processed
             input_data_id: ID of the input data
+            allowed_components: Optional set of component names to filter selection to
+            components_config: Optional mapping of component names to their configs
 
         Returns:
             InferenceResult with outputs and llm_interactions

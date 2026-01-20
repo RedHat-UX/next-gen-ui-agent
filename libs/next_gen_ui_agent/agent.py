@@ -13,8 +13,10 @@ from next_gen_ui_agent.component_selection_llm_twostep import (
     TwostepLLMCallComponentSelectionStrategy,
 )
 from next_gen_ui_agent.component_selection_pertype import (
+    get_configured_components_for_type,
     init_pertype_components_mapping,
     select_component_per_type,
+    select_component_with_llm_async,
 )
 from next_gen_ui_agent.data_transform.data_transformer_utils import (
     generate_field_id,
@@ -101,13 +103,19 @@ class NextGenUIAgent:
             input_data
         )
 
-        # select component InputData.type or InputData.hand_build_component_type
+        # Try single-component or HBC selection first (no LLM needed)
         component = select_component_per_type(input_data, json_data)
         if component:
             component.input_data_transformer_name = input_data_transformer_name
             component.input_data_type = input_data.get("type")
             return component
-        else:
+
+        # Check if multiple components are configured for this data type
+        data_type = input_data.get("type")
+        configured_components = get_configured_components_for_type(data_type)
+
+        if configured_components:
+            # Multiple components configured - use LLM to select from them
             inference = inference if inference else self.inference
             if not inference:
                 raise ValueError(
@@ -115,6 +123,31 @@ class NextGenUIAgent:
                 )
 
             input_data_for_strategy: InputDataInternal = {
+                **input_data,
+                "json_data": json_data,
+                "input_data_transformer_name": input_data_transformer_name,
+            }
+
+            component = await select_component_with_llm_async(
+                data_type=data_type,  # type: ignore
+                components_list=configured_components,
+                user_prompt=user_prompt,
+                input_data=input_data_for_strategy,
+                inference=inference,
+                strategy=self._component_selection_strategy,
+            )
+            component.input_data_transformer_name = input_data_transformer_name
+            component.input_data_type = data_type
+            return component
+        else:
+            # No configured components - use full LLM selection from all components
+            inference = inference if inference else self.inference
+            if not inference:
+                raise ValueError(
+                    "Inference is not defined neither as an input parameter nor as an agent's config"
+                )
+
+            input_data_for_strategy = {
                 **input_data,
                 "json_data": json_data,
                 "input_data_transformer_name": input_data_transformer_name,
