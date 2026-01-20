@@ -16,9 +16,12 @@ def process_inline_data(
     """
     Process inline data provided in the request.
 
+    Accepts data in any format (JSON, CSV, plain text, XML, etc.).
+    The NGUI agent core handles the interpretation of the data format.
+
     Args:
         prompt: User prompt
-        data: Inline data payload
+        data: Inline data payload (can be any format)
         data_type: Optional data type identifier
 
     Returns:
@@ -28,12 +31,24 @@ def process_inline_data(
     """
     log_info("Processing inline data provided in request.")
 
-    inline_payload = data
+    # Handle empty data
+    if data is None:
+        return (
+            None,
+            create_error_response(
+                error_code=ErrorCode.INVALID_INPUT,
+                message="Invalid data",
+                status_code=status.HTTP_400_BAD_REQUEST,
+                details="Inline data cannot be empty",
+                suggestion="Provide data in any supported format (JSON, CSV, text, etc.).",
+            ),
+        )
 
-    # Handle string payload
-    if isinstance(inline_payload, str):
-        inline_payload = inline_payload.strip()
-        if not inline_payload:
+    # Convert data to string for tool response content
+    # Data can be in any format - JSON, CSV, plain text, XML, etc.
+    if isinstance(data, str):
+        inline_data_str = data.strip()
+        if not inline_data_str:
             return (
                 None,
                 create_error_response(
@@ -41,37 +56,15 @@ def process_inline_data(
                     message="Invalid data",
                     status_code=status.HTTP_400_BAD_REQUEST,
                     details="Inline data string cannot be empty",
-                    suggestion="Provide valid JSON data or omit the field.",
+                    suggestion="Provide data in any supported format (JSON, CSV, text, etc.).",
                 ),
             )
-        try:
-            inline_payload = json.loads(inline_payload)
-        except json.JSONDecodeError as e:
-            return (
-                None,
-                create_error_response(
-                    error_code=ErrorCode.INVALID_JSON,
-                    message="Invalid data",
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    details=f"Inline data must be valid JSON. Parse error: {str(e)}",
-                    suggestion="Provide JSON (object/array/string) that can be parsed.",
-                ),
-            )
-
-    # Serialize to JSON
-    try:
-        inline_data_json = json.dumps(inline_payload, default=str)
-    except (TypeError, ValueError) as e:
-        return (
-            None,
-            create_error_response(
-                error_code=ErrorCode.INVALID_JSON,
-                message="Invalid data",
-                status_code=status.HTTP_400_BAD_REQUEST,
-                details=f"Inline data is not JSON-serializable: {str(e)}",
-                suggestion="Ensure the payload only contains JSON-compatible values.",
-            ),
-        )
+    elif isinstance(data, (dict, list)):
+        # Already parsed structure (from JSON request body) - serialize back to JSON string
+        inline_data_str = json.dumps(data, default=str)
+    else:
+        # For other types, convert to string representation
+        inline_data_str = str(data)
 
     # Build tool call and response
     tool_name = data_type or "inline_data"
@@ -85,7 +78,7 @@ def process_inline_data(
     tool_call = ToolCall(call_id=call_id, tool_name=tool_name, arguments=tool_call_args)
 
     tool_response = ToolResponse(
-        call_id=call_id, tool_name=tool_name, content=inline_data_json
+        call_id=call_id, tool_name=tool_name, content=inline_data_str
     )
 
     tool_step = ToolExecutionStep(
@@ -97,6 +90,6 @@ def process_inline_data(
     )
 
     log_info(f"Tool call: {tool_name}")
-    log_info(f"Data size: {len(inline_data_json)} chars")
+    log_info(f"Data size: {len(inline_data_str)} chars")
 
     return tool_step, None

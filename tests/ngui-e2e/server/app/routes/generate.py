@@ -64,8 +64,8 @@ async def generate_response(request: GenerateRequest):
                     error_code=ErrorCode.NO_DATA_PROVIDED,
                     message="No data provided and default data is unavailable",
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    details="Please provide JSON data (dict, list, or JSON string), or ensure default movies data file is available",
-                    suggestion="Include 'data' field in your request with valid JSON data",
+                    details="Please provide data in any supported format (JSON, CSV, text, etc.), or ensure default movies data file is available",
+                    suggestion="Include 'data' field in your request with your data",
                 )
 
             log_info("Using default data")
@@ -97,14 +97,19 @@ async def generate_response(request: GenerateRequest):
             else:
                 log_info("Skipping filtering (skip_filtering=true)")
 
-        # Calculate data size for validation (JSON validation is handled by process_inline_data)
+        # Calculate data size for validation
+        # Convert to string to measure size - data can be any format
         try:
-            data_json = json.dumps(source_data, default=str)
+            data_str = (
+                json.dumps(source_data, default=str)
+                if isinstance(source_data, (dict, list))
+                else str(source_data)
+            )
         except (TypeError, ValueError):
-            data_json = str(source_data)
+            data_str = str(source_data)
 
         # Check data size
-        size_mb = len(data_json.encode("utf-8")) / 1024 / 1024
+        size_mb = len(data_str.encode("utf-8")) / 1024 / 1024
         log_info(f"Data size: {size_mb:.2f} MB")
 
         if size_mb > MAX_DATA_SIZE_MB:

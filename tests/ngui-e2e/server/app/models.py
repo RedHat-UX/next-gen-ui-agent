@@ -27,7 +27,7 @@ class GenerateRequest(BaseModel):
     prompt: str
     data: Optional[Any] = Field(
         default=None,
-        description="Optional JSON payload (dict/list/string). When provided, uses this data directly.",
+        description="Optional data payload in any format (JSON, CSV, plain text, XML, etc.). When provided, uses this data directly.",
     )
     data_type: Optional[str] = Field(
         default=None,
