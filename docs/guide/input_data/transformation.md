@@ -7,7 +7,13 @@ them to this format and related [data structures](structure.md).
 
 Default data transformer can be [configured for the UI Agent](../configuration.md#data_transformer-str-optional). 
 
-[JSON data](#json-transformer) are expected by default if not configured.
+If the transformer was not configured for a given data type, by default the system will try to auto detect the input type, unless this feature is [disabled through configuration](../configuration.md#enable_input_data_type_detection-bool-optional).
+
+## Configuring data transformation auto detection
+
+By default if no transformer is defined for a given data type the system will try to recognise the data structure and use it instead of the configured default transformer.
+
+For information how to disable this logic see our [configuration documentation](../configuration.md#enable_input_data_type_detection-bool-optional).
 
 ## Configuring data transformation for data type
 
