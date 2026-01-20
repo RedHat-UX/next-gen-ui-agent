@@ -3,6 +3,9 @@
 
 name: Mirror Server to GitLab
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
