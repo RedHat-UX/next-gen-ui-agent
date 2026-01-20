@@ -505,6 +505,11 @@
       "default": null,
       "description": "Prompt-related configuration for LLM interactions. Allows customizing component descriptions, rules, and examples used in agent prompts."
     },
+    "enable_input_data_type_detection": {
+      "default": true,
+      "description": "If `True` (default), the agent will attempt to auto-detect the appropriate input data transformer based on data structure when no transformer is explicitly configured for a data type. If `False`, auto-detection is disabled and the default transformer is always used.",
+      "type": "boolean"
+    },
     "mcp": {
       "anyOf": [
         {

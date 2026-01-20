@@ -278,7 +278,8 @@ class TestSelectComponent_InputDataTransformation:
                     "my.type": AgentConfigDataType(
                         components=[AgentConfigComponent(component="one-card-special")]
                     )
-                }
+                },
+                enable_input_data_type_detection=False,
             )
         )
         input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
