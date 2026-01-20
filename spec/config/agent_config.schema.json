@@ -118,6 +118,119 @@
       "title": "AgentConfigDynamicComponentConfiguration",
       "type": "object"
     },
+    "AgentConfigPrompt": {
+      "description": "Prompt-related configuration for LLM interactions.",
+      "properties": {
+        "components": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/AgentConfigPromptComponent"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Component metadata overrides. Keys are component names (e.g., 'table', 'chart-bar'), values are field overrides. Component names must match those in CONFIG_OPTIONS_ALL_COMPONETS."
+        }
+      },
+      "title": "AgentConfigPrompt",
+      "type": "object"
+    },
+    "AgentConfigPromptComponent": {
+      "description": "Component metadata overrides for LLM prompts.\n\nAllows overriding any field from COMPONENT_METADATA for a specific component.\nAvailable fields depend on component type:\n- All components: description, twostep_step2_example, twostep_step2_rules\n- Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override component description used in LLM prompts"
+        },
+        "twostep_step2_example": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override example for two-step strategy field selection"
+        },
+        "twostep_step2_rules": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override rules for two-step strategy field selection"
+        },
+        "chart_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart type description (chart components only)"
+        },
+        "chart_fields_spec": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart fields specification (chart components only)"
+        },
+        "chart_rules": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart-specific rules (chart components only)"
+        },
+        "chart_inline_examples": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override inline chart examples (chart components only)"
+        }
+      },
+      "title": "AgentConfigPromptComponent",
+      "type": "object"
+    },
     "DataField": {
       "description": "UI Component Field Metadata.",
       "properties": {
@@ -296,6 +409,18 @@
       "default": false,
       "description": "If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated. Can be overriden for individual `data_types`. Supported only for `table` and `set-of-cards` components.",
       "type": "boolean"
+    },
+    "prompt": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AgentConfigPrompt"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Prompt-related configuration for LLM interactions. Allows customizing component descriptions, rules, and examples used in agent prompts."
     }
   },
   "title": "AgentConfig",

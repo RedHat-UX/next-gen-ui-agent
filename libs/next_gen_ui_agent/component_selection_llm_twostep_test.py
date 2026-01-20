@@ -70,3 +70,38 @@ class TestBuildStep1SystemPrompt:
 
         # Should include examples
         assert "Response example" in prompt
+
+    def test_with_component_metadata_overrides(self):
+        """Test that component metadata overrides are applied to system prompt."""
+        from next_gen_ui_agent.types import (
+            AgentConfigPrompt,
+            AgentConfigPromptComponent,
+        )
+
+        # Create config with overrides
+        config = AgentConfig(
+            prompt=AgentConfigPrompt(
+                components={
+                    "table": AgentConfigPromptComponent(
+                        description="CUSTOM_TABLE_DESCRIPTION for twostep testing"
+                    ),
+                    "chart-bar": AgentConfigPromptComponent(
+                        chart_description="CUSTOM_BAR_CHART_DESCRIPTION for twostep testing"
+                    ),
+                }
+            )
+        )
+
+        # Create strategy with overrides
+        strategy = TwostepLLMCallComponentSelectionStrategy(config)
+
+        # Get the step 1 system prompt
+        prompt = strategy.get_system_prompt()
+
+        # Verify custom descriptions are in the prompt
+        assert "CUSTOM_TABLE_DESCRIPTION for twostep testing" in prompt
+        assert "CUSTOM_BAR_CHART_DESCRIPTION for twostep testing" in prompt
+
+        # Verify original descriptions are NOT in the prompt
+        assert COMPONENT_METADATA["table"]["description"] not in prompt
+        assert COMPONENT_METADATA["chart-bar"]["chart_description"] not in prompt

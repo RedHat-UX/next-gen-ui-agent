@@ -1,6 +1,7 @@
 import logging
 from typing import Any
 
+from next_gen_ui_agent.component_metadata import get_component_metadata
 from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
     ONESTEP_PROMPT_RULES,
@@ -8,6 +9,7 @@ from next_gen_ui_agent.component_selection_common import (
     build_components_description,
     build_onestep_examples,
     normalize_allowed_components,
+    set_active_component_metadata,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
@@ -41,6 +43,11 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             config: AgentConfig to get selectable components and input data json wrapping configuration from
         """
         super().__init__(logger, config)
+
+        # Get merged metadata with overrides and set it globally
+        merged_metadata = get_component_metadata(config)
+        set_active_component_metadata(merged_metadata)
+
         self._system_prompt = self._build_system_prompt(config.selectable_components)
 
     def get_system_prompt(self) -> str:

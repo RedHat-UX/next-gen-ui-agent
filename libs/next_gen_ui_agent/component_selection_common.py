@@ -195,6 +195,20 @@ COMPONENT_METADATA = {
     },
 }
 
+# Active component metadata used by all build functions
+# Can be overridden via set_active_component_metadata()
+_active_component_metadata = COMPONENT_METADATA
+
+
+def set_active_component_metadata(metadata: dict) -> None:
+    """Set the active component metadata used by all build functions.
+
+    Args:
+        metadata: Component metadata dictionary to use (typically from get_component_metadata())
+    """
+    global _active_component_metadata
+    _active_component_metadata = metadata
+
 
 def normalize_allowed_components(
     allowed_components: CONFIG_OPTIONS_ALL_COMPONETS,
@@ -209,7 +223,7 @@ def normalize_allowed_components(
         Set of allowed component names
     """
     if allowed_components is None:
-        return set(COMPONENT_METADATA.keys())
+        return set(_active_component_metadata.keys())
     return allowed_components  # type: ignore
 
 
@@ -256,7 +270,7 @@ def build_components_description(
     for component in ALL_COMPONENTS:
         if component in allowed_components:
             descriptions.append(
-                f"* {component} - {COMPONENT_METADATA[component]['description']}"
+                f"* {component} - {_active_component_metadata[component]['description']}"
             )
 
     return "\n".join(descriptions)
@@ -417,8 +431,8 @@ def build_twostep_step2_example(component: str) -> str:
     Returns:
         Field selection example string or empty string if not found
     """
-    if component in COMPONENT_METADATA:
-        return COMPONENT_METADATA[component].get("twostep_step2_example", "")
+    if component in _active_component_metadata:
+        return _active_component_metadata[component].get("twostep_step2_example", "")
     return ""
 
 
@@ -432,8 +446,8 @@ def build_twostep_step2_rules(component: str) -> str:
     Returns:
         Field selection extension string or empty string if not found
     """
-    if component in COMPONENT_METADATA:
-        return COMPONENT_METADATA[component].get("twostep_step2_rules", "")
+    if component in _active_component_metadata:
+        return _active_component_metadata[component].get("twostep_step2_rules", "")
     return ""
 
 
@@ -458,14 +472,14 @@ def build_chart_instructions(allowed_chart_components: set[str]) -> str:
     for chart_comp in chart_components_ordered:
         if chart_comp in allowed_chart_components:
             chart_types.append(
-                f"{chart_comp}: {COMPONENT_METADATA[chart_comp]['chart_description']}"
+                f"{chart_comp}: {_active_component_metadata[chart_comp]['chart_description']}"
             )
 
     # Build FIELDS BY TYPE section
     fields_by_type = []
     for chart_comp in chart_components_ordered:
         if chart_comp in allowed_chart_components:
-            fields_spec = COMPONENT_METADATA[chart_comp]["chart_fields_spec"]
+            fields_spec = _active_component_metadata[chart_comp]["chart_fields_spec"]
             if chart_comp == "chart-line":
                 # Special formatting for chart-line
                 fields_by_type.append(f"{chart_comp}: {fields_spec}")
@@ -480,7 +494,9 @@ def build_chart_instructions(allowed_chart_components: set[str]) -> str:
     examples = []
     for chart_comp in chart_components_ordered:
         if chart_comp in allowed_chart_components:
-            inline_examples = COMPONENT_METADATA[chart_comp]["chart_inline_examples"]
+            inline_examples = _active_component_metadata[chart_comp][
+                "chart_inline_examples"
+            ]
             examples.append(inline_examples)
 
     # Construct the full instruction string
