@@ -1,4 +1,5 @@
 import json
+import time
 from typing import cast
 
 import pytest
@@ -554,3 +555,22 @@ class TestJsonInputDataTransformerDetectMyDataStructure:
         }
         input_data = cast(InputData, {"id": "test6", "data": json.dumps(large_obj)})
         assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_performance_for_large_data(self) -> None:
+        """Test detection completes in <0.01s for large data (>1KB), verifying 1KB sampling works."""
+        # Create 100KB of JSON data (much larger than 1KB sample)
+        large_obj = {
+            "items": [
+                {"id": i, "name": f"item_{i}", "desc": "x" * 100} for i in range(1000)
+            ]
+        }
+        input_data = cast(InputData, {"id": "perf_test", "data": json.dumps(large_obj)})
+
+        start_time = time.perf_counter()
+        result = self.transformer.detect_my_data_structure(input_data)
+        elapsed_time = time.perf_counter() - start_time
+
+        assert result is True
+        assert (
+            elapsed_time < 0.01
+        ), f"Detection took {elapsed_time:.4f}s, expected <0.01s"

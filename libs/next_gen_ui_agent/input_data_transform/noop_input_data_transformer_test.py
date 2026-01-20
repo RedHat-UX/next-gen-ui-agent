@@ -1,9 +1,12 @@
 import json
+import time
+from typing import cast
 
 from jsonpath_ng import parse  # type: ignore
 from next_gen_ui_agent.input_data_transform.noop_input_data_transformer import (
     NoopInputDataTransformer,
 )
+from next_gen_ui_agent.types import InputData
 from pydantic import BaseModel
 
 
@@ -86,3 +89,31 @@ line 3
         data_path = parse("$.data")
         data_matches = [match.value for match in data_path.find(result_wrapped)]
         assert data_matches[0] == input_data
+
+
+class TestNoopInputDataTransformerDetectMyDataStructure:
+    """Test cases for NoopInputDataTransformer.detect_my_data_structure()."""
+
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        self.transformer = NoopInputDataTransformer()
+
+    def test_detect_always_returns_false(self) -> None:
+        """Test detection always returns False - NOOP should not be auto-detected."""
+        input_data = cast(InputData, {"id": "test1", "data": "any text"})
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_performance_for_large_data(self) -> None:
+        """Test detection completes in <0.01s for large data, always returns False instantly."""
+        # Create 100KB of data (NOOP should return False instantly regardless of size)
+        large_text = "line of text " * 10000
+        input_data = cast(InputData, {"id": "perf_test", "data": large_text})
+
+        start_time = time.perf_counter()
+        result = self.transformer.detect_my_data_structure(input_data)
+        elapsed_time = time.perf_counter() - start_time
+
+        assert result is False
+        assert (
+            elapsed_time < 0.01
+        ), f"Detection took {elapsed_time:.4f}s, expected <0.01s"

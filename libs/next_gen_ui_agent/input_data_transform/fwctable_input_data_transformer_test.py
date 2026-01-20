@@ -1,4 +1,5 @@
 import json
+import time
 from typing import cast
 
 from jsonpath_ng import parse  # type: ignore
@@ -440,3 +441,24 @@ class TestFwctableInputDataTransformerDetectMyDataStructure:
         rows = "\n".join([f"val{i}    val{i}    val{i}    val{i}" for i in range(100)])
         input_data = cast(InputData, {"id": "test6", "data": header + rows})
         assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_performance_for_large_data(self) -> None:
+        """Test detection completes in <0.01s for large data (>1KB), verifying 1KB sampling works."""
+        # Create 100KB of FWCTABLE data (much larger than 1KB sample)
+        header = "col1      col2      col3      col4      col5      col6      col7      col8\n"
+        rows = "\n".join(
+            [
+                f"val{i}      val{i}      val{i}      val{i}      val{i}      val{i}      val{i}      val{i}"
+                for i in range(1000)
+            ]
+        )
+        input_data = cast(InputData, {"id": "perf_test", "data": header + rows})
+
+        start_time = time.perf_counter()
+        result = self.transformer.detect_my_data_structure(input_data)
+        elapsed_time = time.perf_counter() - start_time
+
+        assert result is True
+        assert (
+            elapsed_time < 0.01
+        ), f"Detection took {elapsed_time:.4f}s, expected <0.01s"

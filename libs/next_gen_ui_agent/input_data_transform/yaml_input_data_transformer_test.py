@@ -1,4 +1,5 @@
 import json
+import time
 from typing import cast
 
 import pytest
@@ -542,3 +543,23 @@ class TestYamlInputDataTransformerDetectMyDataStructure:
         large_yaml = "---\n" + "\n".join([f"item_{i}: value_{i}" for i in range(100)])
         input_data = cast(InputData, {"id": "test9", "data": large_yaml})
         assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_performance_for_large_data(self) -> None:
+        """Test detection completes in <0.01s for large data (>1KB), verifying 1KB sampling works."""
+        # Create 100KB of YAML data (much larger than 1KB sample)
+        large_yaml = "---\n" + "\n".join(
+            [
+                f"item_{i}:\n  name: value_{i}\n  description: {'x' * 100}"
+                for i in range(500)
+            ]
+        )
+        input_data = cast(InputData, {"id": "perf_test", "data": large_yaml})
+
+        start_time = time.perf_counter()
+        result = self.transformer.detect_my_data_structure(input_data)
+        elapsed_time = time.perf_counter() - start_time
+
+        assert result is True
+        assert (
+            elapsed_time < 0.01
+        ), f"Detection took {elapsed_time:.4f}s, expected <0.01s"
