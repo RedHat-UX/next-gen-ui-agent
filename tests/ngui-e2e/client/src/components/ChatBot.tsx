@@ -11,6 +11,15 @@ import {
   type MessageProps,
 } from "@patternfly/chatbot";
 import React, { useRef, useState } from "react";
+import {
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  FormGroup,
+  TextArea,
+} from "@patternfly/react-core";
 
 import DynamicComponent from "./DynamicComponent";
 import { useFetch } from "../hooks/useFetch";
@@ -50,6 +59,10 @@ export default function ChatBotPage() {
   // Inline dataset (live mode) state
   const [inlineDataset, setInlineDataset] = useState('');
   const [inlineDatasetType, setInlineDatasetType] = useState('');
+  
+  // Attached data modal state
+  const [isDataModalOpen, setIsDataModalOpen] = useState(false);
+  const [attachedData, setAttachedData] = useState('');
   
   // Fetch model info on mount if in debug mode
   React.useEffect(() => {
@@ -204,6 +217,22 @@ export default function ChatBotPage() {
     };
   }, [isResizing]);
 
+  // Handle attach button click
+  const handleAttachClick = () => {
+    setIsDataModalOpen(true);
+  };
+
+  // Handle save data in modal
+  const handleSaveData = () => {
+    setIsDataModalOpen(false);
+  };
+
+  // Handle cancel in modal
+  const handleCancelData = () => {
+    setAttachedData('');
+    setIsDataModalOpen(false);
+  };
+
   const handleSend = async (message: string, datasetOverride?: string, datasetTypeOverride?: string) => {
     // Check if in mock mode
     if (isMockMode) {
@@ -265,7 +294,8 @@ export default function ChatBotPage() {
       body: { 
         prompt: message,
         strategy: selectedStrategy,
-        ...(datasetToUse.trim()
+        ...(attachedData.trim() ? { data: attachedData } : {}),
+        ...(datasetToUse.trim() && !attachedData.trim()
           ? {
               data: datasetToUse,
               data_type: datasetTypeToUse.trim() || undefined,
@@ -273,6 +303,11 @@ export default function ChatBotPage() {
           : {}),
       },
     });
+
+    // Clear attached data after API call
+    if (attachedData.trim()) {
+      setAttachedData('');
+    }
     newMessages.pop();
     
     // Extract model info from metadata if available
@@ -411,15 +446,50 @@ export default function ChatBotPage() {
         </ChatbotContent>
         <ChatbotFooter>
           <MessageBar
-            isAttachmentDisabled
             isSendButtonDisabled={loading}
             isCompact
             onSendMessage={(message: string | number) => handleSend(String(message))}
+            buttonProps={{
+              attach: {
+                tooltipContent: "Attach Data",
+                props: {
+                  onClick: handleAttachClick
+                }
+              }
+            }}
           />
           <ChatbotFootnote label="ChatBot uses AI. Check for mistakes." />
         </ChatbotFooter>
       </Chatbot>
       </div>
+
+      {/* Data Attachment Modal */}
+      <Modal
+        isOpen={isDataModalOpen}
+        onClose={handleCancelData}
+        variant="medium"
+      >
+        <ModalHeader title="Attach Data" labelId="attach-data-title" />
+        <ModalBody>
+          <FormGroup label="Data" fieldId="data-textarea">
+            <TextArea
+              id="data-textarea"
+              value={attachedData}
+              onChange={(_, value) => setAttachedData(value)}
+              rows={10}
+              aria-label="Data input"
+            />
+          </FormGroup>
+        </ModalBody>
+        <ModalFooter>
+          <Button key="save" variant="primary" onClick={handleSaveData}>
+            Save
+          </Button>
+          <Button key="cancel" variant="link" onClick={handleCancelData}>
+            Cancel
+          </Button>
+        </ModalFooter>
+      </Modal>
     </div>
   );
 }
