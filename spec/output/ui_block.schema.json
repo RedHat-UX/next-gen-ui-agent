@@ -14,6 +14,18 @@
         "data_path": {
           "description": "JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI.",
           "type": "string"
+        },
+        "formatter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional identifier for a formatter function to customize cell rendering. The formatter should be registered in the frontend component registry."
         }
       },
       "required": [

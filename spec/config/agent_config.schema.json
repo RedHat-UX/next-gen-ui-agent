@@ -77,6 +77,33 @@
           "default": null,
           "description": "If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated, if `None` then agent's default setting is used. Supported only for `table` and `set-of-cards` components."
         },
+        "formatter_overrides": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override formatter IDs for specific data keys. These override the automatic formatter detection from data keys. Example: {\"status\": \"node_status\", \"created\": \"date\"}"
+        },
+        "on_row_click": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional identifier for an onRowClick handler function for table components. Applied automatically when component type is 'table'."
+        },
         "components": {
           "anyOf": [
             {
@@ -132,6 +159,18 @@
         "data_path": {
           "description": "JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI.",
           "type": "string"
+        },
+        "formatter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional identifier for a formatter function to customize cell rendering. The formatter should be registered in the frontend component registry."
         }
       },
       "required": [

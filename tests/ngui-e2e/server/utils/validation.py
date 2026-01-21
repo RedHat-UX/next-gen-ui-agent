@@ -4,6 +4,7 @@ import json
 import re
 from typing import Any, Optional
 
+from config import SHARED_DATA_TYPES
 from utils.logging import log_error, log_info
 from utils.response import create_error_response
 
@@ -221,6 +222,16 @@ def extract_component_metadata(
 
         # Add data transformation information
         data_transform = {}
+        input_data_type = getattr(first_component, "input_data_type", None) or (
+            inline_data_context.get("source") if inline_data_context else None
+        )
+        if input_data_type:
+            data_transform["inputDataType"] = input_data_type
+            if input_data_type in SHARED_DATA_TYPES:
+                data_transform["configMappings"] = SHARED_DATA_TYPES[
+                    input_data_type
+                ].formatter_overrides
+
         if (
             hasattr(first_component, "input_data_transformer_name")
             and first_component.input_data_transformer_name
@@ -238,7 +249,11 @@ def extract_component_metadata(
         if hasattr(first_component, "fields") and first_component.fields:
             data_transform["fieldCount"] = len(first_component.fields)
             data_transform["fields"] = [
-                {"name": field.name, "dataPath": field.data_path}
+                {
+                    "name": field.name,
+                    "dataPath": field.data_path,
+                    "formatter": getattr(field, "formatter", None),
+                }
                 for field in first_component.fields
             ]
 

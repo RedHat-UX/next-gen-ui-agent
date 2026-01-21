@@ -12,6 +12,46 @@ export interface InlineDataset {
 
 export const INLINE_DATASETS: InlineDataset[] = [
   {
+    id: "table_products_with_formatters",
+    label: "Products With Formatters",
+    description: "Example: 'Show me a table of products with their prices and status...'",
+    dataType: "products",
+    payload: {
+      "products": [
+            {
+                  "name": "Laptop Pro",
+                  "price": 1299.99,
+                  "status": "Available"
+            },
+            {
+                  "name": "Wireless Mouse",
+                  "price": 29.99,
+                  "status": "In Stock"
+            },
+            {
+                  "name": "Mechanical Keyboard",
+                  "price": 149.99,
+                  "status": "Available"
+            },
+            {
+                  "name": "USB-C Hub",
+                  "price": 79.99,
+                  "status": "Low Stock"
+            },
+            {
+                  "name": "Monitor 27\"",
+                  "price": 399.99,
+                  "status": "Available"
+            },
+            {
+                  "name": "Webcam HD",
+                  "price": 89.99,
+                  "status": "Out of Stock"
+            }
+      ]
+},
+  },
+  {
     id: "table_array_subscription_direct_long",
     label: "Array Subscription Direct Long",
     description: "Example: 'What are my subscriptions?...'",
@@ -2979,6 +3019,28 @@ export const INLINE_DATASETS: InlineDataset[] = [
                   "mfa_enabled": false
             }
       ]
+},
+  },
+  {
+    id: "one-card_cluster_info_with_formatters",
+    label: "Cluster Info With Formatters",
+    description: "Example: 'Show me details about the prod-openshift-us-east cluster...'",
+    dataType: "cluster_info",
+    payload: {
+      "cluster": {
+            "name": "prod-openshift-us-east",
+            "status": "healthy",
+            "version": "4.14.8",
+            "nodes": 12,
+            "region": "us-east-1",
+            "cpu_usage_percent": 0.68,
+            "memory_usage_percent": 0.72,
+            "created": "2024-01-15T10:30:00Z",
+            "last_backup": "2024-10-03T02:30:00Z",
+            "url": "https://console-openshift-console.apps.prod.example.com",
+            "monitoring_dashboard_url": "https://console-openshift-console.apps.prod.example.com/monitoring",
+            "description": "Production OpenShift cluster running critical workloads"
+      }
 },
   },
   {

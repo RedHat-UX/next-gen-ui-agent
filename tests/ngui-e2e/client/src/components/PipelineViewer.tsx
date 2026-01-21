@@ -19,20 +19,69 @@ interface PipelineViewerProps {
     user_prompt: string;
     raw_response: string;
   }>;
+  inputDataType?: string;
+  configMappings?: Record<string, string>;
   messageId: string;
 }
 
 export function PipelineViewer({
   agentMessages,
   llmInteractions,
+  inputDataType,
+  configMappings,
   messageId,
 }: PipelineViewerProps) {
-  const [expandedMovies, setExpandedMovies] = React.useState(false);
+  const [expandedDataAgent, setExpandedDataAgent] = React.useState(false);
   const [expandedNgui, setExpandedNgui] = React.useState(false);
 
   if (!agentMessages && !llmInteractions) {
     return null;
   }
+
+  // Detect agent type from tool calls
+  const detectAgentType = () => {
+    if (!agentMessages || agentMessages.length === 0) {
+      return { name: 'Data Agent', emoji: '🔧', description: '(Agentic LLM fetching data)' };
+    }
+    
+    // Check for OpenShift tools
+    const hasOpenShiftTools = agentMessages.some(msg => 
+      msg.tool_calls?.some(tc => 
+        tc.name?.startsWith('get_openshift_')
+      ) || msg.name?.startsWith('get_openshift_')
+    );
+    
+    if (hasOpenShiftTools) {
+      return { name: 'OpenShift Agent', emoji: '☸️', description: '(Agentic LLM fetching OpenShift cluster data)' };
+    }
+    
+    // Check for movie tools
+    const hasMovieTools = agentMessages.some(msg => 
+      msg.tool_calls?.some(tc => 
+        tc.name === 'search_movie' || tc.name === 'get_all_movies'
+      ) || msg.name === 'search_movie' || msg.name === 'get_all_movies'
+    );
+    
+    if (hasMovieTools) {
+      return { name: 'Movies Agent', emoji: '🎬', description: '(Agentic LLM fetching data from database)' };
+    }
+    
+    // Default
+    return { name: 'Data Agent', emoji: '🔧', description: '(Agentic LLM fetching data)' };
+  };
+
+  const agentInfo = detectAgentType();
+
+  // Extract tool names from agent messages
+  const toolNames = new Set<string>();
+  agentMessages?.forEach(msg => {
+    if (msg.tool_calls) {
+      msg.tool_calls.forEach(tc => {
+        if (tc.name) toolNames.add(tc.name);
+      });
+    }
+    if (msg.name) toolNames.add(msg.name);
+  });
 
   return (
     <Card className="pipeline-viewer-card">
@@ -43,27 +92,79 @@ export function PipelineViewer({
         </div>
       </CardTitle>
       <CardBody className="pipeline-viewer-body">
-        {/* Movies Agent Stage */}
+        {/* Tool Name → InputData.type Mapping (for OpenShift/MCP queries) */}
+        {toolNames.size > 0 && inputDataType && (
+          <Card className="pipeline-stage-card-movies" style={{ marginBottom: '16px', backgroundColor: '#f0f0f0' }}>
+            <CardTitle className="pipeline-stage-title">
+              <div className="pipeline-viewer-title-wrapper">
+                <span className="pipeline-viewer-emoji">🔗</span>
+                <strong>Automatic Mapping</strong>
+                <span className="pipeline-stage-description">
+                  (Tool name → InputData.type)
+                </span>
+              </div>
+            </CardTitle>
+            <CardBody className="pipeline-stage-body">
+              <div style={{ padding: '8px 0' }}>
+                <div style={{ marginBottom: '8px' }}>
+                  <strong>Tool Name(s):</strong>{' '}
+                  <code style={{ backgroundColor: '#e8e8e8', padding: '2px 6px', borderRadius: '3px' }}>
+                    {Array.from(toolNames).join(', ')}
+                  </code>
+                </div>
+                <div>
+                  <strong>→ InputData.type:</strong>{' '}
+                  <code style={{ backgroundColor: '#e8e8e8', padding: '2px 6px', borderRadius: '3px', fontWeight: 'bold' }}>
+                    {inputDataType}
+                  </code>
+                </div>
+                {configMappings && Object.keys(configMappings).length > 0 && (
+                  <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #ddd' }}>
+                    <strong style={{ fontSize: '0.9em' }}>Formatter Config Applied:</strong>
+                    <div style={{ marginTop: '4px', fontSize: '0.85em' }}>
+                      {Object.entries(configMappings).map(([key, value]) => (
+                        <div key={key} style={{ marginTop: '4px' }}>
+                          <code style={{ backgroundColor: '#e8e8e8', padding: '2px 6px', borderRadius: '3px' }}>
+                            {key}
+                          </code>
+                          {' → '}
+                          <code style={{ backgroundColor: '#e8e8e8', padding: '2px 6px', borderRadius: '3px' }}>
+                            {value}
+                          </code>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div style={{ marginTop: '12px', fontSize: '0.9em', color: '#666', fontStyle: 'italic' }}>
+                  The <code>data_selection</code> node automatically maps <code>ToolMessage.name</code> to <code>InputData.type</code>,
+                  which determines which formatter configuration is applied.
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        )}
+        {/* Data Agent Stage (Movies, OpenShift, or generic) */}
         {agentMessages && agentMessages.length > 0 && (
         <Card className="pipeline-stage-card-movies">
           <CardTitle className="pipeline-stage-title">
             <div className="pipeline-viewer-title-wrapper">
-              <span className="pipeline-viewer-emoji">🎬</span>
-              <strong>Stage 1: Movies Agent</strong>
+              <span className="pipeline-viewer-emoji">{agentInfo.emoji}</span>
+              <strong>Stage 1: {agentInfo.name}</strong>
               <span className="pipeline-stage-description">
-                (Agentic LLM fetching data from database)
+                {agentInfo.description}
               </span>
             </div>
           </CardTitle>
           <CardBody className="pipeline-stage-body">
             <ExpandableSection
               toggleText={`View ${agentMessages.length} message(s)`}
-              onToggle={(_event, isExpanded) => setExpandedMovies(isExpanded)}
-              isExpanded={expandedMovies}
+              onToggle={(_event, isExpanded) => setExpandedDataAgent(isExpanded)}
+              isExpanded={expandedDataAgent}
             >
               {agentMessages.map((msg, idx) => (
                 <div 
-                  key={`${messageId}-movies-${idx}`}
+                  key={`${messageId}-data-agent-${idx}`}
                   className="pipeline-message-item"
                   style={{ marginBottom: idx < agentMessages.length - 1 ? '8px' : '0' }}
                 >

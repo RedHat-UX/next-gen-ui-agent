@@ -12,7 +12,7 @@ import {
   StackItem,
   Label
 } from '@patternfly/react-core';
-import { quickPrompts, groupedPrompts } from '../quickPrompts';
+import { groupedPrompts } from '../quickPrompts';
 import type { QuickPrompt, QuickPromptCategory } from '../quickPrompts';
 
 interface QuickPromptsProps {
@@ -47,9 +47,28 @@ export const QuickPrompts: React.FC<QuickPromptsProps> = ({
         className={`quick-prompt-card ${disabled ? 'quick-prompt-card-disabled' : 'quick-prompt-card-enabled'}`}
       >
         <CardTitle>
-          <Label color="blue" isCompact>
-            {prompt.expectedComponent === 'multiple' ? 'Multi' : prompt.expectedComponent}
-          </Label>
+          <Stack>
+            <StackItem>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <Label color="blue" isCompact>
+                  {prompt.expectedComponent === 'multiple' ? 'Multi' : prompt.expectedComponent}
+                </Label>
+                {prompt.tags && prompt.tags.length > 0 && (
+                  <>
+                    {prompt.tags.map((tag, index) => (
+                      <Label 
+                        key={index} 
+                        color={tag === "Styled" ? "green" : "purple"} 
+                        isCompact
+                      >
+                        {tag}
+                      </Label>
+                    ))}
+                  </>
+                )}
+              </div>
+            </StackItem>
+          </Stack>
         </CardTitle>
         <CardBody>
           <Stack hasGutter>

@@ -48,6 +48,11 @@ class DataFieldSimpleValue(DataFieldBase):
         default=[], description="Data matching `data_path` from `input_data`"
     )
     """Data matching `data_path` from `input_data`"""
+    formatter: Optional[str] = Field(
+        default=None,
+        description="Optional identifier for a formatter function to customize cell rendering. The formatter should be registered in the frontend component registry.",
+    )
+    """Optional identifier for a formatter function to customize cell rendering"""
 
 
 class ComponentDataBaseWithSimpleValueFileds(ComponentDataBaseWithTitle):
@@ -73,6 +78,11 @@ class DataFieldArrayValue(DataFieldBase):
         default=[], description="Data matching `data_path` from `input_data`"
     )
     """Data matching `data_path` from `input_data`"""
+    formatter: Optional[str] = Field(
+        default=None,
+        description="Optional identifier for a formatter function to customize cell rendering. The formatter should be registered in the frontend component registry.",
+    )
+    """Optional identifier for a formatter function to customize cell rendering"""
 
 
 # TODO do we really want data to be stored in fields, or in a complete separate field?
@@ -249,6 +259,11 @@ class ComponentDataTable(ComponentDataBaseWithArrayValueFileds):
     """Component Data for Table."""
 
     component: Literal["table"] = "table"
+    on_row_click: Optional[str] = Field(
+        default=None,
+        description="Optional identifier for an onRowClick handler function. The handler should be registered in the frontend component registry. When a row is clicked, the handler will be called with (event, rowData) where rowData contains all column values as key-value pairs.",
+    )
+    """Optional identifier for an onRowClick handler function"""
 
 
 class ComponentDataVideo(ComponentDataBaseWithTitle):

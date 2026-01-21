@@ -19,6 +19,42 @@ from next_gen_ui_agent.types import DataField
 logger = logging.getLogger(__name__)
 
 
+def extract_data_key_from_path(data_path: str | None) -> str | None:
+    """
+    Extract the original data key from a JSONPath data_path.
+
+    Examples:
+        "$.pods[*].cpu_usage" -> "cpu_usage"
+        "$.nodes[*].memory" -> "memory"
+        "$.products[*].name" -> "name"
+        "$.pods[0].status" -> "status"
+
+    Args:
+        data_path: The JSONPath string
+
+    Returns:
+        The original data key, or None if extraction fails
+    """
+    if not data_path:
+        return None
+
+    # Remove JSONPath prefix ($, $., $..)
+    path = data_path.lstrip("$").lstrip(".")
+
+    # Split by dots and get the last part
+    parts = path.split(".")
+    if not parts:
+        return None
+
+    # Get the last part (the actual field key)
+    last_part = parts[-1]
+
+    # Remove array indices like [*], [0], [1], etc.
+    last_part = re.sub(r"\[.*?\]", "", last_part)
+
+    return last_part if last_part else None
+
+
 def generate_field_id(data_path_sanitized: str | None) -> str:
     """
     Generate field ID from sanitized data_path

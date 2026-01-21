@@ -57,6 +57,18 @@
             ]
           },
           "type": "array"
+        },
+        "formatter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional identifier for a formatter function to customize cell rendering. The formatter should be registered in the frontend component registry."
         }
       },
       "required": [
@@ -99,6 +111,18 @@
         "$ref": "#/$defs/DataFieldArrayValue"
       },
       "type": "array"
+    },
+    "on_row_click": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Optional identifier for an onRowClick handler function. The handler should be registered in the frontend component registry. When a row is clicked, the handler will be called with (event, rowData) where rowData contains all column values as key-value pairs."
     }
   },
   "required": [

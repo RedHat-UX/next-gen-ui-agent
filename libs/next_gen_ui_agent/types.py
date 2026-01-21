@@ -34,6 +34,12 @@ class DataField(BaseModel):
     )
     """JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI."""
 
+    formatter: Optional[str] = Field(
+        default=None,
+        description="Optional identifier for a formatter function to customize cell rendering. The formatter should be registered in the frontend component registry.",
+    )
+    """Optional identifier for a formatter function to customize cell rendering."""
+
 
 class AgentConfigDynamicComponentConfiguration(BaseModel):
     """Agent Configuration - pre-configuration of the one dynamic component for data type."""
@@ -85,6 +91,36 @@ class AgentConfigDataType(BaseModel):
     If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`.
     If `False` then all fields aren't generated, if `None` then agent's default setting is used.
     Supported only for `table` and `set-of-cards` components.
+    """
+
+    formatter_overrides: Optional[dict[str, str]] = Field(
+        default=None,
+        description='Override formatter IDs for specific data keys. Supports exact matches, case-insensitive matches, and wildcard patterns. Example: {"status": "node_status", "created": "date", "*url*": "url"}',
+    )
+    """
+    Override formatter IDs for specific data keys.
+    When a field's data key (extracted from data_path) matches a key in this mapping, the corresponding formatter identifier is used instead of the auto-detected one.
+
+    Matching priority:
+    1. Exact match (case-sensitive)
+    2. Case-insensitive match
+    3. Wildcard pattern match:
+       - "*url*" matches any key containing "url" (e.g., "url", "api_url", "monitoring_dashboard_url")
+       - "url*" matches keys starting with "url" (e.g., "url", "url_path")
+       - "*url" matches keys ending with "url" (e.g., "url", "api_url")
+
+    Example: {"status": "node_status", "created": "date", "*url*": "url"}
+    """
+
+    on_row_click: Optional[str] = Field(
+        default=None,
+        description="Optional identifier for an onRowClick handler function for table components. Applied automatically when component type is 'table'.",
+    )
+    """
+    Optional identifier for an onRowClick handler function for table components.
+    Applied automatically when the component type is 'table'.
+    The handler should be registered in the frontend component registry.
+    Example: "get_openshift_pods.onRowClick"
     """
 
     components: Optional[list[AgentConfigComponent]] = Field(
@@ -241,6 +277,12 @@ class UIComponentMetadata(UIComponentMetadataBase):
     """
     Optional type of the input data. Can be used for frontend customization of the component for concrete data type, eg. by using it in CSS class names.
     """
+
+    on_row_click: Optional[str] = Field(
+        default=None,
+        description="Optional identifier for an onRowClick handler function for table components. The handler should be registered in the frontend component registry.",
+    )
+    """Optional identifier for an onRowClick handler function for table components."""
 
     # Debug information for LLM interactions
     llm_interactions: Optional[list[dict[str, Any]]] = None
