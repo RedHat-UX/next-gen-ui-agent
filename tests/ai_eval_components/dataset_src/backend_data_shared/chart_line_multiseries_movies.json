@@ -1,0 +1,39 @@
+{
+    "movies": [
+        {
+            "title": "Movie A",
+            "weeklyData": [
+                {
+                    "week": "W1",
+                    "revenue": 100
+                },
+                {
+                    "week": "W2",
+                    "revenue": 150
+                },
+                {
+                    "week": "W3",
+                    "revenue": 120
+                }
+            ]
+        },
+        {
+            "title": "Movie B",
+            "weeklyData": [
+                {
+                    "week": "W1",
+                    "revenue": 80
+                },
+                {
+                    "week": "W2",
+                    "revenue": 120
+                },
+                {
+                    "week": "W3",
+                    "revenue": 100
+                }
+            ]
+        }
+    ]
+}
+

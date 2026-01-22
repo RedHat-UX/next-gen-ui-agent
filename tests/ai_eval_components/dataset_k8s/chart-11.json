@@ -1,0 +1,57 @@
+[
+  {
+    "id": "chart-000044",
+    "user_prompt": "Show label distribution as donut chart",
+    "backend_data": "{\n  \"pods\": [\n    {\n      \"name\": \"frontend-app\",\n      \"labels\": [\"production\", \"web\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"backend-api\",\n      \"labels\": [\"production\", \"api\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"worker-queue\",\n      \"labels\": [\"production\", \"worker\", \"async\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"cache-redis\",\n      \"labels\": [\"production\", \"cache\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"monitoring-agent\",\n      \"labels\": [\"production\", \"monitoring\", \"critical\"],\n      \"namespace\": \"system\"\n    },\n    {\n      \"name\": \"test-runner\",\n      \"labels\": [\"staging\", \"testing\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"dev-postgres\",\n      \"labels\": [\"development\", \"database\"],\n      \"namespace\": \"development\"\n    },\n    {\n      \"name\": \"staging-nginx\",\n      \"labels\": [\"staging\", \"web\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"backup-service\",\n      \"labels\": [\"production\", \"backup\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"log-collector\",\n      \"labels\": [\"production\", \"logging\", \"system\"],\n      \"namespace\": \"system\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-donut",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_labels_frequency.json",
+      "prompt_file": "prompts_chart_donut_labels_frequency.json"
+    }
+  },
+  {
+    "id": "chart-000045",
+    "user_prompt": "Count pod labels across all pods",
+    "backend_data": "{\n  \"pods\": [\n    {\n      \"name\": \"frontend-app\",\n      \"labels\": [\"production\", \"web\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"backend-api\",\n      \"labels\": [\"production\", \"api\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"worker-queue\",\n      \"labels\": [\"production\", \"worker\", \"async\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"cache-redis\",\n      \"labels\": [\"production\", \"cache\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"monitoring-agent\",\n      \"labels\": [\"production\", \"monitoring\", \"critical\"],\n      \"namespace\": \"system\"\n    },\n    {\n      \"name\": \"test-runner\",\n      \"labels\": [\"staging\", \"testing\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"dev-postgres\",\n      \"labels\": [\"development\", \"database\"],\n      \"namespace\": \"development\"\n    },\n    {\n      \"name\": \"staging-nginx\",\n      \"labels\": [\"staging\", \"web\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"backup-service\",\n      \"labels\": [\"production\", \"backup\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"log-collector\",\n      \"labels\": [\"production\", \"logging\", \"system\"],\n      \"namespace\": \"system\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-donut",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_labels_frequency.json",
+      "prompt_file": "prompts_chart_donut_labels_frequency.json"
+    }
+  },
+  {
+    "id": "chart-000046",
+    "user_prompt": "What labels are most common?",
+    "backend_data": "{\n  \"pods\": [\n    {\n      \"name\": \"frontend-app\",\n      \"labels\": [\"production\", \"web\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"backend-api\",\n      \"labels\": [\"production\", \"api\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"worker-queue\",\n      \"labels\": [\"production\", \"worker\", \"async\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"cache-redis\",\n      \"labels\": [\"production\", \"cache\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"monitoring-agent\",\n      \"labels\": [\"production\", \"monitoring\", \"critical\"],\n      \"namespace\": \"system\"\n    },\n    {\n      \"name\": \"test-runner\",\n      \"labels\": [\"staging\", \"testing\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"dev-postgres\",\n      \"labels\": [\"development\", \"database\"],\n      \"namespace\": \"development\"\n    },\n    {\n      \"name\": \"staging-nginx\",\n      \"labels\": [\"staging\", \"web\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"backup-service\",\n      \"labels\": [\"production\", \"backup\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"log-collector\",\n      \"labels\": [\"production\", \"logging\", \"system\"],\n      \"namespace\": \"system\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-donut",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_labels_frequency.json",
+      "prompt_file": "prompts_chart_donut_labels_frequency.json"
+    }
+  },
+  {
+    "id": "chart-000047",
+    "user_prompt": "Display label frequency as donut",
+    "backend_data": "{\n  \"pods\": [\n    {\n      \"name\": \"frontend-app\",\n      \"labels\": [\"production\", \"web\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"backend-api\",\n      \"labels\": [\"production\", \"api\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"worker-queue\",\n      \"labels\": [\"production\", \"worker\", \"async\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"cache-redis\",\n      \"labels\": [\"production\", \"cache\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"monitoring-agent\",\n      \"labels\": [\"production\", \"monitoring\", \"critical\"],\n      \"namespace\": \"system\"\n    },\n    {\n      \"name\": \"test-runner\",\n      \"labels\": [\"staging\", \"testing\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"dev-postgres\",\n      \"labels\": [\"development\", \"database\"],\n      \"namespace\": \"development\"\n    },\n    {\n      \"name\": \"staging-nginx\",\n      \"labels\": [\"staging\", \"web\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"backup-service\",\n      \"labels\": [\"production\", \"backup\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"log-collector\",\n      \"labels\": [\"production\", \"logging\", \"system\"],\n      \"namespace\": \"system\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-donut",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_labels_frequency.json",
+      "prompt_file": "prompts_chart_donut_labels_frequency.json"
+    }
+  },
+  {
+    "id": "chart-000048",
+    "user_prompt": "Show label breakdown counting occurrences",
+    "backend_data": "{\n  \"pods\": [\n    {\n      \"name\": \"frontend-app\",\n      \"labels\": [\"production\", \"web\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"backend-api\",\n      \"labels\": [\"production\", \"api\", \"critical\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"worker-queue\",\n      \"labels\": [\"production\", \"worker\", \"async\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"cache-redis\",\n      \"labels\": [\"production\", \"cache\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"monitoring-agent\",\n      \"labels\": [\"production\", \"monitoring\", \"critical\"],\n      \"namespace\": \"system\"\n    },\n    {\n      \"name\": \"test-runner\",\n      \"labels\": [\"staging\", \"testing\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"dev-postgres\",\n      \"labels\": [\"development\", \"database\"],\n      \"namespace\": \"development\"\n    },\n    {\n      \"name\": \"staging-nginx\",\n      \"labels\": [\"staging\", \"web\"],\n      \"namespace\": \"staging\"\n    },\n    {\n      \"name\": \"backup-service\",\n      \"labels\": [\"production\", \"backup\"],\n      \"namespace\": \"production\"\n    },\n    {\n      \"name\": \"log-collector\",\n      \"labels\": [\"production\", \"logging\", \"system\"],\n      \"namespace\": \"system\"\n    }\n  ]\n}\n",
+    "expected_component": "chart-donut",
+    "warn_only": false,
+    "src": {
+      "data_file": "pods_labels_frequency.json",
+      "prompt_file": "prompts_chart_donut_labels_frequency.json"
+    }
+  }
+]

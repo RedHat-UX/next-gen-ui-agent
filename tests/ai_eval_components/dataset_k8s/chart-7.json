@@ -1,0 +1,46 @@
+[
+  {
+    "id": "chart-000027",
+    "user_prompt": "Compare available memory across nodes as a chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-01.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"25769803776\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-02.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"18253611008\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-03.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"52613349376\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-04.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"28991029248\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-05.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"41943040000\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
+    "expected_component": "chart-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "prometheus_memory_usage.json",
+      "prompt_file": "prompts_chart_prometheus_memory.json"
+    }
+  },
+  {
+    "id": "chart-000028",
+    "user_prompt": "Show node memory availability bar chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-01.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"25769803776\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-02.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"18253611008\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-03.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"52613349376\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-04.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"28991029248\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-05.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"41943040000\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
+    "expected_component": "chart-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "prometheus_memory_usage.json",
+      "prompt_file": "prompts_chart_prometheus_memory.json"
+    }
+  },
+  {
+    "id": "chart-000029",
+    "user_prompt": "Which nodes have the most available memory? Chart it",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-01.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"25769803776\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-02.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"18253611008\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-03.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"52613349376\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-04.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"28991029248\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-05.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"41943040000\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
+    "expected_component": "chart-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "prometheus_memory_usage.json",
+      "prompt_file": "prompts_chart_prometheus_memory.json"
+    }
+  },
+  {
+    "id": "chart-000030",
+    "user_prompt": "Display memory metrics by node in a bar chart",
+    "backend_data": "{\n  \"items\": [\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-01.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"25769803776\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-02.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"18253611008\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-03.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"52613349376\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-04.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"28991029248\"]\n    },\n    {\n      \"metric\": {\n        \"__name__\": \"node_memory_MemAvailable_bytes\",\n        \"instance\": \"worker-node-05.cluster.local\",\n        \"job\": \"node-exporter\",\n        \"namespace\": \"openshift-monitoring\"\n      },\n      \"value\": [1763034271, \"41943040000\"]\n    }\n  ],\n  \"resultType\": \"vector\"\n}\n",
+    "expected_component": "chart-bar",
+    "warn_only": false,
+    "src": {
+      "data_file": "prometheus_memory_usage.json",
+      "prompt_file": "prompts_chart_prometheus_memory.json"
+    }
+  }
+]

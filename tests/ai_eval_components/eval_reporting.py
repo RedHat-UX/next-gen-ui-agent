@@ -186,7 +186,7 @@ def report_err_sys(
 
 def print_stats():
     """Print eval stats to the stdout"""
-    print(f"Dataset items evalueated: {eval_stats['num_evals']}")
+    print(f"Dataset items evaluated: {eval_stats['num_evals']}")
     print(f"Agent errors: {eval_stats['num_err_agent']}")
     print(f"Agent warnings: {eval_stats['num_warn_agent']}")
     print(f"System errors: {eval_stats['num_err_system']}")
@@ -257,7 +257,11 @@ def get_llm_output_dir(arg_write_llm_output: bool):
     if not arg_write_llm_output:
         return None
 
-    llm_output_dir_path = Path.cwd() / (BASE_MODULE_PATH + "llm_out/")
+    llm_output_dir_path_config = os.getenv("LLM_OUT_DIR")
+    if llm_output_dir_path_config:
+        llm_output_dir_path = Path(llm_output_dir_path_config)
+    else:
+        llm_output_dir_path = Path.cwd() / (BASE_MODULE_PATH + "llm_out/")
     if not llm_output_dir_path.exists():
         llm_output_dir_path.mkdir(parents=True)
     else:
