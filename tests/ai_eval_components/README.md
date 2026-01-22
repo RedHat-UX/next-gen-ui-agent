@@ -60,9 +60,8 @@ pants run tests/ai_eval_components/eval.py
 
 You can use these commandline argument:
 
-- `-c <ui-component-name>` evaluate only named UI component, can be specified multiple times, omit or use 'all' to evaluate all components in the dataset.
-- `-p` if present then UI Agent is configured to select only from components defined by `-c` argument, otherwise it selects from all supported components."
-- `-f <dataset-file-name>` to run only evaluations from the named dataset file (for any UI component present in the file, with respect to `-c` argument)
+- `-c <ui-component-name>` to run evaluation for one named UI component only. If `all` is used then evaluation runs for all the components present in the evaluation dataset.
+- `-f <dataset-file-name>` to run only evaluations from the named dataset file (for any UI component present in the file)
 - `-o` to also evaluate `warn_only` dataset items
 - `-w` to write Agent ouputs (LLM and Component data) with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results
 - `-s` evaluate only selected component type, not it's configuration - usefull for component selection development/tuning
@@ -72,10 +71,6 @@ You can use these commandline argument:
 
 ```sh
 pants run tests/ai_eval_components/eval.py -- -c one-card
-
-# For chart components, use specific chart type (e.g., chart-bar, chart-donut)
-python -m ai_eval_components.eval_k8s -c chart-bar
-python -m ai_eval_components.eval_k8s -c chart-donut
 ```
 
 ### LLM-as-a-Judge Evaluation
@@ -231,43 +226,11 @@ pants run tests/ai_eval_components/sync_datasets_to_e2e.py
 ```
 
 This script reads from both `dataset/` and `dataset_k8s/` directories and generates:
-
 - `tests/ngui-e2e/client/src/data/inlineDatasets.ts` - Inline datasets for testing
 - `tests/ngui-e2e/client/src/quickPrompts.ts` - Quick prompt suggestions with attached data
 
 **Recommended workflow:**
-
 1. Regenerate datasets: `pants run tests/ai_eval_components/dataset_gen.py`
 2. Regenerate K8s datasets: `pants run tests/ai_eval_components/dataset_gen.py -- -s tests/ai_eval_components/dataset_src_k8s/ -d tests/ai_eval_components/dataset_k8s/`
 3. Sync to e2e client: `pants run tests/ai_eval_components/sync_datasets_to_e2e.py`
 4. Review and commit changes
-
-## Evaluation Dashboard
-
-This repository includes an **automated evaluation dashboard** for comparing model performance across multiple CI/CD pipeline runs.
-
-### Features
-
-- **Multi-model comparison** - Compare different LLM models side-by-side
-- **Trend analysis** - Visualize performance trends over time with Chart.js
-- **Auto-discovery** - Automatically aggregate recent evaluation runs
-- **GitLab Pages** - One-click deployment to GitLab Pages
-- **Judge mode support** - Visualize LLM judge scores and reasoning
-
-### Quick Start
-
-# Option 1: Aggregate specific runs
-
-# Set CI/CD variable: AGGREGATE_JOB_IDS=12345,12346,12347
-
-# Trigger pipeline
-
-# Option 2: Auto-aggregate last N runs
-
-# Set CI/CD variable: AGGREGATE_LIMIT=20 (optional, default: 10)
-
-# Run scheduled or manual pipeline
-
-View dashboard at: `https://<your-gitlab-instance>/<your-project>/pages/`
-
-📚 **Detailed documentation**: See [`tests/ai_eval_components/README_DASHBOARD.md`](tests/ai_eval_components/README_DASHBOARD.md)

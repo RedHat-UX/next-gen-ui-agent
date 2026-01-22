@@ -13,25 +13,19 @@ from next_gen_ui_agent.data_transform.validation.types import (
 
 def load_args():
     """Load commandline arguments for the eval tool"""
-    arg_ui_components = []
+    arg_ui_component = None
     arg_dataset_file = None
     arg_write_llm_output = False
     arg_vague_component_check = False
     arg_also_warn_only = False
     arg_selected_component_type_check_only = False
     arg_judge_enabled = False
-    arg_select_only_from_enabled_components = False
-    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:jp")
+    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:j")
     for opt, arg in opts:
         if opt == "-h":
             print("eval.py <arguments>")
             print("\nArguments:")
-            print(
-                " -c <ui-component-name> - evaluate only named UI component, can be specified multiple times, omit or use 'all' to evaluate all components in the dataset."
-            )
-            print(
-                " -p - if present then UI Agent is configured to select only from components defined by '-c' argument, otherwise it selects from all supported components."
-            )
+            print(" -c <ui-component-name> - evaluate only named UI component")
             print(
                 " -f <dataset-file-name> - run only evaluations from the named dataset file"
             )
@@ -51,7 +45,7 @@ def load_args():
             print(" -h - help")
             sys.exit()
         elif opt in ("-c"):
-            arg_ui_components.append(arg)
+            arg_ui_component = arg
         elif opt in ("-w"):
             arg_write_llm_output = True
         elif opt in ("-o"):
@@ -64,8 +58,6 @@ def load_args():
             arg_dataset_file = arg
         elif opt in ("-j"):
             arg_judge_enabled = True
-        elif opt in ("-p"):
-            arg_select_only_from_enabled_components = True
 
     if not arg_also_warn_only:
         print("Skipping `warn_only` dataset items ...")
@@ -73,37 +65,24 @@ def load_args():
         print("Evaluating `warn_only` dataset items also ...")
 
     return (
-        arg_ui_components if arg_ui_components else None,
+        arg_ui_component,
         arg_write_llm_output,
         arg_dataset_file,
         arg_vague_component_check,
         arg_also_warn_only,
         arg_selected_component_type_check_only,
         arg_judge_enabled,
-        arg_select_only_from_enabled_components,
     )
 
 
-def select_run_components(
-    arg_ui_component: list[str] | None, arg_dataset_file: str
-) -> list[str] | None:
-    """
-    Select UI components to run evaluation for, based on configuration
-
-    Parameters:
-    * `arg_ui_component` - list of UI components to run evaluation for, if provided, only these components are evaluated
-    * `arg_dataset_file` - dataset file name to run evaluation for, if provided, only components present in the file are evaluated, with respect to `arg_ui_component` argument
-
-    Returns:
-    * list of UI components to run evaluation for
-    * None to run evaluations for all components
-    """
+def select_run_components(arg_ui_component, arg_dataset_file):
+    """Select UI components to run for based on configuration"""
 
     run_components = None
-    if arg_ui_component and len(arg_ui_component) > 0:
-        if "all" not in arg_ui_component:
-            run_components = arg_ui_component
-            print(f"Running evaluations for defined UI components {run_components} ...")
+    if arg_ui_component:
+        if arg_ui_component != "all":
+            run_components = [arg_ui_component]
+            print(f"Running evaluations for defined UI component {run_components} ...")
         else:
             print(
                 "Running evaluations for all UI components present in the dataset ..."

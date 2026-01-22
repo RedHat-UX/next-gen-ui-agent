@@ -36,7 +36,6 @@ from ai_eval_components.types import (
 )
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
-from next_gen_ui_agent import AgentConfig
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
@@ -144,7 +143,6 @@ def check_result_explicit(
 def evaluate_agent_for_dataset_row(
     dsr: DatasetRow,
     inference: InferenceBase,
-    component_selection_strategy: ComponentSelectionStrategy,
     arg_vague_component_check: bool,
     arg_selected_component_type_check_only: bool = False,
     judge_inference: InferenceBase | None = None,
@@ -163,11 +161,19 @@ def evaluate_agent_for_dataset_row(
     # we have to reduce arrays size to avoid LLM context window limit as in ComponentSelectionStrategy
     json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
 
+    component_selection: ComponentSelectionStrategy
+    if not TWO_STEP_COMPONENT_SELECTION:
+        component_selection = OnestepLLMCallComponentSelectionStrategy()
+    else:
+        component_selection = TwostepLLMCallComponentSelectionStrategy(
+            arg_selected_component_type_check_only
+        )
+
     # separate steps so we can see LLM response even if it is invalid JSON
     time_start = round(time.time() * 1000)
 
     inference_result: InferenceResult = asyncio.run(
-        component_selection_strategy.perform_inference(
+        component_selection.perform_inference(
             inference, dsr["user_prompt"], json_data_for_llm, input_data_id
         )
     )
@@ -175,7 +181,7 @@ def evaluate_agent_for_dataset_row(
 
     component: UIComponentMetadata | None = None
     try:
-        component = component_selection_strategy.parse_infernce_output(
+        component = component_selection.parse_infernce_output(
             inference_result, input_data_id
         )
         component.json_data = json_data
@@ -242,7 +248,6 @@ def init_direct_api_inference_from_env(
     override_model: str | None = None,
     override_api_url: str | None = None,
     override_api_key: str | None = None,
-    override_provider: str | None = None,
 ) -> InferenceBase | None:
     """
     Initialize OpenAI compatible API inference from environment variables if at least one `MODEL_API_xy` env variable is set.
@@ -252,7 +257,6 @@ def init_direct_api_inference_from_env(
     * `override_model` - if provided, use this model instead of env vars
     * `override_api_url` - if provided, use this URL instead of MODEL_API_URL
     * `override_api_key` - if provided, use this key instead of MODEL_API_KEY
-    * `override_provider` - if provided, use this provider instead of MODEL_API_PROVIDER
 
     Environment variables:
     * `INFERENCE_MODEL` - LLM model to use - inference is not created if undefined, default value can be provided as method argument
@@ -271,7 +275,7 @@ def init_direct_api_inference_from_env(
         if not model:
             return None
 
-        provider = override_provider or os.getenv("MODEL_API_PROVIDER", "openai")
+        provider = os.getenv("MODEL_API_PROVIDER", "openai")
 
         print(
             f"Creating UI Agent with {provider} API inference model={model} base_url={base_url} temperature={temperature}"
@@ -313,7 +317,6 @@ if __name__ == "__main__":
         arg_also_warn_only,
         arg_selected_component_type_check_only,
         arg_judge_enabled,
-        arg_select_only_from_enabled_components,
     ) = load_args()
     errors_dir_path = get_errors_dir()
     llm_output_dir_path = get_llm_output_dir(arg_write_llm_output)
@@ -345,9 +348,6 @@ if __name__ == "__main__":
         judge_model_name = os.getenv("JUDGE_MODEL")
         judge_api_url = os.getenv("JUDGE_API_URL")
         judge_api_key = os.getenv("JUDGE_API_KEY")
-        judge_api_provider = os.getenv(
-            "JUDGE_API_PROVIDER", "openai"
-        )  # Default to openai for judge
 
         if not judge_model_name or not judge_api_url or not judge_api_key:
             print(
@@ -363,7 +363,6 @@ if __name__ == "__main__":
             override_model=judge_model_name,
             override_api_url=judge_api_url,
             override_api_key=judge_api_key,
-            override_provider=judge_api_provider,
         )
         if not judge_inference:
             # Temporarily set INFERENCE_MODEL to judge model for initialization
@@ -387,31 +386,6 @@ if __name__ == "__main__":
             exit(1)
 
     run_components = select_run_components(arg_ui_component, arg_dataset_file)
-    selectable_components = None
-    if arg_select_only_from_enabled_components and run_components:
-        print(f"UI Agent selects only from enabled components: {run_components}")
-        selectable_components = set(run_components)
-    else:
-        print("UI Agent selects from all supported components")
-
-    component_selection_strategy: ComponentSelectionStrategy
-    if not TWO_STEP_COMPONENT_SELECTION:
-        component_selection_strategy = OnestepLLMCallComponentSelectionStrategy(
-            config=AgentConfig(selectable_components=selectable_components)  # type: ignore
-        )
-        print(
-            "=== System prompt from the OnestepLLMCallComponentSelectionStrategy ===\n"
-            + component_selection_strategy.get_system_prompt()
-        )
-    else:
-        component_selection_strategy = TwostepLLMCallComponentSelectionStrategy(
-            config=AgentConfig(selectable_components=selectable_components),  # type: ignore
-            select_component_only=arg_selected_component_type_check_only,
-        )
-        print(
-            "=== System prompt from the TwostepLLMCallComponentSelectionStrategy ===\n"
-            + component_selection_strategy.get_system_prompt()
-        )
 
     for dataset_file in dataset_files:
         dataset = load_dataset_file(dataset_file)
@@ -452,7 +426,6 @@ if __name__ == "__main__":
                         eval_result = evaluate_agent_for_dataset_row(
                             dsr,
                             inference,
-                            component_selection_strategy,
                             arg_vague_component_check,
                             arg_selected_component_type_check_only,
                             judge_inference,
