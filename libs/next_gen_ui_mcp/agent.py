@@ -40,7 +40,7 @@ class MCPSamplingInference(InferenceBase):
         """Extract client identification information from the MCP context.
 
         Returns:
-            A string identifying the client, formatted as "name vversion" or "Unknown Client"
+            A string identifying the client, formatted as "<name> v<version>" or "Unknown Client"
         """
         try:
             # Access client_params from session which contains client info
