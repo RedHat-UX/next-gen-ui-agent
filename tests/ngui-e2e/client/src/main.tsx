@@ -5,7 +5,6 @@ import App from "./App.tsx";
 import "@patternfly/react-core/dist/styles/base.css";
 import "@patternfly/chatbot/dist/css/main.css";
 import "./styles.css";
-import "./styles/field-styles.css";
 
 // Ensure no default margins/padding on body and root
 const style = document.createElement('style');

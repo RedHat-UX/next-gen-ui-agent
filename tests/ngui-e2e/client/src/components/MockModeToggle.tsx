@@ -100,7 +100,8 @@ export const MockModeToggle: React.FC<MockModeToggleProps> = ({
             <StackItem>
               <Switch
                 id="mock-mode-switch"
-                label={isMockMode ? "Mock Mode (Test UI without Agent)" : "Live Agent Mode"}
+                label="Mock Mode (Test UI without Agent)"
+                labelOff="Live Agent Mode"
                 isChecked={isMockMode}
                 onChange={(_event, checked) => onMockModeChange(checked)}
               />

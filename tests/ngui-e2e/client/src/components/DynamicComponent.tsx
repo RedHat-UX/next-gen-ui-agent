@@ -1,16 +1,17 @@
 import React from 'react';
 import { Alert, EmptyState, EmptyStateBody, Title } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+// @ts-ignore - dynamicui module doesn't have type definitions
 import DynamicUILibrary from '@rhngui/patternfly-react-renderer';
 import ErrorBoundary from './ErrorBoundary';
 
 interface DynamicComponentProps {
-  config: Record<string, unknown>;
+  config: any;
   showRawConfig?: boolean; // For debugging
 }
 
 // Component validation functions
-const validateConfig = (config: Record<string, unknown>): { isValid: boolean; errors: string[] } => {
+const validateConfig = (config: any): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
   
   if (!config) {
@@ -34,7 +35,7 @@ const validateConfig = (config: Record<string, unknown>): { isValid: boolean; er
   return { isValid: errors.length === 0, errors };
 };
 
-const ComponentNotAvailableMessage: React.FC<{ errors: string[]; config?: Record<string, unknown>; showRawConfig?: boolean }> = ({ 
+const ComponentNotAvailableMessage: React.FC<{ errors: string[]; config?: any; showRawConfig?: boolean }> = ({ 
   errors, 
   config, 
   showRawConfig 
@@ -68,19 +69,8 @@ const ComponentNotAvailableMessage: React.FC<{ errors: string[]; config?: Record
 
 const DynamicComponent: React.FC<DynamicComponentProps> = ({ 
   config, 
-  showRawConfig = false,
+  showRawConfig = false 
 }) => {
-
-  // Prepare config - map "table" to "data-view" for compatibility
-  // Note: The renderer supports both, but "data-view" is the canonical name
-  const preparedConfig = React.useMemo(() => {
-    const componentType = typeof config.component === 'string' ? config.component : '';
-    if (componentType === 'table') {
-      return { ...config, component: 'data-view' };
-    }
-    return config;
-  }, [config]);
-
   // Validate the config
   const { isValid, errors } = validateConfig(config);
 
@@ -109,37 +99,28 @@ const DynamicComponent: React.FC<DynamicComponentProps> = ({
         <details className="dynamic-loading-details">
           <summary>Component Config</summary>
           <pre className="dynamic-loading-pre">
-            {JSON.stringify(preparedConfig, null, 2)}
+            {JSON.stringify(config, null, 2)}
           </pre>
         </details>
       )}
     </Alert>
   );
 
-  // Pass config to the renderer
-  // The renderer (DataViewWrapper) automatically uses ComponentHandlerRegistry from context
-  // if available, so no need to manually create handlerResolver
-  const renderProps: Record<string, unknown> = { 
-    config: preparedConfig,
-  };
-
   return (
-    <div className="dynamic-component-container">
-      <ErrorBoundary 
-        fallback={DynamicComponentErrorFallback}
-        onError={(error, errorInfo) => {
-          // Log error details for debugging
-          console.error('SafeDynamicComponent Error:', {
-            error: error.message,
-            stack: error.stack,
-            componentStack: errorInfo.componentStack,
-            config: preparedConfig
-          });
-        }}
-      >
-        <DynamicUILibrary {...renderProps} />
-      </ErrorBoundary>
-    </div>
+    <ErrorBoundary 
+      fallback={DynamicComponentErrorFallback}
+      onError={(error, errorInfo) => {
+        // Log error details for debugging
+        console.error('SafeDynamicComponent Error:', {
+          error: error.message,
+          stack: error.stack,
+          componentStack: errorInfo.componentStack,
+          config: config
+        });
+      }}
+    >
+      <DynamicUILibrary config={config} />
+    </ErrorBoundary>
   );
 };
 
