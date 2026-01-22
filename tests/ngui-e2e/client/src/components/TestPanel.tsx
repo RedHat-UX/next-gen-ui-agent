@@ -12,8 +12,10 @@ import {
   TextArea,
   TextInput,
   FormSelect,
-  FormSelectOption
+  FormSelectOption,
+  Button
 } from '@patternfly/react-core';
+import { AngleLeftIcon, AngleRightIcon } from '@patternfly/react-icons';
 import { MockModeToggle } from './MockModeToggle';
 import { QuickPrompts } from './QuickPrompts';
 import { INLINE_DATASETS } from '../data/inlineDatasets';
@@ -47,6 +49,8 @@ interface TestPanelProps {
   onInlineDatasetChange: (value: string) => void;
   inlineDatasetType: string;
   onInlineDatasetTypeChange: (value: string) => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 export const TestPanel: React.FC<TestPanelProps> = ({
@@ -67,6 +71,8 @@ export const TestPanel: React.FC<TestPanelProps> = ({
   onInlineDatasetChange,
   inlineDatasetType,
   onInlineDatasetTypeChange,
+  isCollapsed = false,
+  onToggleCollapse,
 }) => {
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
   const [selectedDatasetId, setSelectedDatasetId] = useState<string>('');
@@ -93,17 +99,29 @@ export const TestPanel: React.FC<TestPanelProps> = ({
   };
 
   return (
-    <div className="test-panel-container">
+    <div className={`test-panel-container ${isCollapsed ? 'collapsed' : ''}`}>
       <div className="test-panel-header">
-        <h2 className="test-panel-title">
-          🧪 Test & Debug Panel
-        </h2>
-        <p className="test-panel-subtitle">
-          Test components with live agent or mock data
-        </p>
+        {!isCollapsed && (
+          <>
+            <h2 className="test-panel-title">
+              🧪 Test & Debug Panel
+            </h2>
+          </>
+        )}
+        {onToggleCollapse && (
+          <Button
+            variant="plain"
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+            className="test-panel-collapse-button"
+          >
+            {isCollapsed ? <AngleRightIcon /> : <AngleLeftIcon />}
+          </Button>
+        )}
       </div>
       
-      <Panel variant="bordered" className="test-panel-flex">
+      {!isCollapsed && (
+        <Panel variant="bordered" className="test-panel-flex">
         <PanelMain className="test-panel-flex">
           <PanelMainBody className="test-panel-body">
             <Tabs 
@@ -315,6 +333,7 @@ export const TestPanel: React.FC<TestPanelProps> = ({
           </PanelMainBody>
         </PanelMain>
       </Panel>
+      )}
     </div>
   );
 };

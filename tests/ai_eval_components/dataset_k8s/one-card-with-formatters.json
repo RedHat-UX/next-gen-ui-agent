@@ -1,0 +1,14 @@
+[
+  {
+    "id": "one-card-000100",
+    "user_prompt": "Show me details about the prod-openshift-us-east cluster",
+    "backend_data": "{\"cluster\": {\"name\": \"prod-openshift-us-east\", \"status\": \"healthy\", \"version\": \"4.14.8\", \"nodes\": 12, \"region\": \"us-east-1\", \"cpu_usage_percent\": 0.68, \"memory_usage_percent\": 0.72, \"created\": \"2024-01-15T10:30:00Z\", \"last_backup\": \"2024-10-03T02:30:00Z\", \"url\": \"https://console-openshift-console.apps.prod.example.com\", \"monitoring_dashboard_url\": \"https://console-openshift-console.apps.prod.example.com/monitoring\", \"description\": \"Production OpenShift cluster running critical workloads\"}}",
+    "expected_component": "one-card",
+    "data_type_override": "cluster_info",
+    "warn_only": false,
+    "tags": ["Formatters"],
+    "src": {
+      "data_file": "cluster_info_with_formatters.json"
+    }
+  }
+]

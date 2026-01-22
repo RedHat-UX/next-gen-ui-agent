@@ -10,7 +10,7 @@ import {
   MessageBox,
   type MessageProps,
 } from "@patternfly/chatbot";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 
 import DynamicComponent from "./DynamicComponent";
 import { useFetch } from "../hooks/useFetch";
@@ -19,6 +19,9 @@ import { TestPanel } from "./TestPanel";
 import { DebugSection } from "./DebugSection";
 import type { QuickPrompt } from "../quickPrompts";
 import { INLINE_DATASETS } from "../data/inlineDatasets";
+import { useComponentHandlerRegistry } from '@rhngui/patternfly-react-renderer';
+import { registerFormatters } from '../formatters/registerFormatters';
+import { registerPromptTrigger } from '../handlers/promptTrigger';
 
 export default function ChatBotPage() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
@@ -29,6 +32,12 @@ export default function ChatBotPage() {
   const position = "top";
 
   const { loading, fetchData } = useFetch();
+  const registry = useComponentHandlerRegistry();
+
+  // Register formatters for all data types
+  React.useEffect(() => {
+    return registerFormatters(registry);
+  }, [registry]);
 
   // Check if debug mode is enabled via URL parameter
   const isDebugMode = React.useMemo(() => {
@@ -47,9 +56,48 @@ export default function ChatBotPage() {
   // Strategy selection state
   const [selectedStrategy, setSelectedStrategy] = useState<'one-step' | 'two-step'>('one-step');
 
-  // Inline dataset (live mode) state
-  const [inlineDataset, setInlineDataset] = useState('');
-  const [inlineDatasetType, setInlineDatasetType] = useState('');
+  // Inline dataset (live mode) state - load from localStorage on mount
+  const [inlineDataset, setInlineDataset] = useState(() => {
+    try {
+      return localStorage.getItem('ngui_inline_dataset') || '';
+    } catch (e) {
+      console.warn('Failed to load inline dataset from localStorage:', e);
+      return '';
+    }
+  });
+  const [inlineDatasetType, setInlineDatasetType] = useState(() => {
+    try {
+      return localStorage.getItem('ngui_inline_dataset_type') || '';
+    } catch (e) {
+      console.warn('Failed to load inline dataset type from localStorage:', e);
+      return '';
+    }
+  });
+
+  // Save to localStorage whenever values change
+  React.useEffect(() => {
+    try {
+      if (inlineDataset) {
+        localStorage.setItem('ngui_inline_dataset', inlineDataset);
+      } else {
+        localStorage.removeItem('ngui_inline_dataset');
+      }
+    } catch (e) {
+      console.warn('Failed to save inline dataset to localStorage:', e);
+    }
+  }, [inlineDataset]);
+
+  React.useEffect(() => {
+    try {
+      if (inlineDatasetType) {
+        localStorage.setItem('ngui_inline_dataset_type', inlineDatasetType);
+      } else {
+        localStorage.removeItem('ngui_inline_dataset_type');
+      }
+    } catch (e) {
+      console.warn('Failed to save inline dataset type to localStorage:', e);
+    }
+  }, [inlineDatasetType]);
   
   // Fetch model info on mount if in debug mode
   React.useEffect(() => {
@@ -65,12 +113,13 @@ export default function ChatBotPage() {
   const [panelWidth, setPanelWidth] = useState(600);
   const [isResizing, setIsResizing] = useState(false);
   const [isHoveringHandle, setIsHoveringHandle] = useState(false);
+  const [isPanelCollapsed, setIsPanelCollapsed] = useState(false);
 
   // you will likely want to come up with your own unique id function; this is for demo purposes only
-  const generateId = () => {
+  const generateId = useCallback(() => {
     const id = Date.now() + Math.random();
     return id.toString();
-  };
+  }, []);
 
   // Mock mode handlers
   const handleMockSend = (mockConfig: any, mockName: string) => {
@@ -138,6 +187,7 @@ export default function ChatBotPage() {
     // If the prompt has a dataset, look it up by ID and attach it
     const dataset = prompt.dataset;
     if (dataset?.datasetId) {
+      // Has a dataset ID - use inline data
       const inlineDataset = INLINE_DATASETS.find(d => d.id === dataset.datasetId);
       if (inlineDataset) {
         const datasetJson = JSON.stringify(inlineDataset.payload, null, 2);
@@ -155,7 +205,8 @@ export default function ChatBotPage() {
         handleSend(prompt.prompt);
       }
     } else {
-      // Clear dataset if prompt doesn't have one
+      // No dataset (e.g., OpenShift queries using mock MCP server)
+      // Tool names will automatically map to InputData.type
       setInlineDataset('');
       setInlineDatasetType('');
       // Send the prompt through normal flow
@@ -204,7 +255,7 @@ export default function ChatBotPage() {
     };
   }, [isResizing]);
 
-  const handleSend = async (message: string, datasetOverride?: string, datasetTypeOverride?: string) => {
+  const handleSend = useCallback(async (message: string, datasetOverride?: string, datasetTypeOverride?: string, toolNameOverride?: string) => {
     // Check if in mock mode
     if (isMockMode) {
       const newMessages: MessageProps[] = [...messages];
@@ -259,16 +310,24 @@ export default function ChatBotPage() {
     // Use override dataset if provided, otherwise use state
     const datasetToUse = datasetOverride !== undefined ? datasetOverride : inlineDataset;
     const datasetTypeToUse = datasetTypeOverride !== undefined ? datasetTypeOverride : inlineDatasetType;
+    // Use tool name override if provided, otherwise use dataset type
+    const dataTypeToUse = toolNameOverride || datasetTypeToUse.trim() || undefined;
+
+    // For OpenShift queries, don't send inline data - let the mock MCP server provide it
+    // Tool names will automatically map to InputData.type via data_selection node
+    const messageLower = message.toLowerCase();
+    const isOpenShiftQuery = messageLower.includes("pod") || messageLower.includes("node");
+    const shouldSendData = !isOpenShiftQuery && datasetToUse.trim();
 
     const res = await fetchData(import.meta.env.VITE_API_ENDPOINT, {
       method: "POST",
       body: { 
         prompt: message,
         strategy: selectedStrategy,
-        ...(datasetToUse.trim()
+        ...(shouldSendData
           ? {
               data: datasetToUse,
-              data_type: datasetTypeToUse.trim() || undefined,
+              data_type: dataTypeToUse,
             }
           : {}),
       },
@@ -279,6 +338,7 @@ export default function ChatBotPage() {
     if (res?.metadata?.model) {
       setModelInfo(res.metadata.model);
     }
+    
     
     const botMessageId = generateId();
     newMessages.push({
@@ -312,7 +372,10 @@ export default function ChatBotPage() {
             extraContent: {
               afterMainContent: (
                 <>
-                  <DynamicComponent config={res.response} showRawConfig={false} />
+                  <DynamicComponent 
+                    config={res.response} 
+                    showRawConfig={false}
+                  />
                   {isDebugMode && (res.metadata || res.metadata?.llmInteractions || res.metadata?.agentMessages || res.metadata?.dataTransform || res.metadata?.dataset) && (
                     <DebugSection
                       metadata={res.metadata}
@@ -331,16 +394,28 @@ export default function ChatBotPage() {
     });
     console.log(newMessages);
     setMessages(newMessages);
-  };
+  }, [isMockMode, messages, inlineDataset, inlineDatasetType, selectedStrategy, fetchData, isDebugMode, generateId]);
+
+  // Register prompt trigger callback so handlers can send prompts
+  // This must be after handleSend is defined
+  // Pass the current dataset and dataset type so the new prompt has access to the same data
+  React.useEffect(() => {
+    return registerPromptTrigger((prompt: string, dataset?: string, datasetType?: string, toolName?: string) => {
+      // Use provided dataset/type if available, otherwise use current state
+      const datasetToUse = dataset !== undefined ? dataset : inlineDataset;
+      const datasetTypeToUse = datasetType !== undefined ? datasetType : inlineDatasetType;
+      handleSend(prompt, datasetToUse, datasetTypeToUse, toolName);
+    });
+  }, [handleSend, inlineDataset, inlineDatasetType]);
 
   return (
     <div className="chatbot-layout">
       {/* Test Panel - Left Side (only shown when debug=true) */}
       {isDebugMode && (
         <div 
-          className="chatbot-panel"
+          className={`chatbot-panel ${isPanelCollapsed ? 'collapsed' : ''}`}
           style={{
-            '--panel-width': `${panelWidth}px`
+            '--panel-width': isPanelCollapsed ? '60px' : `${panelWidth}px`
           } as React.CSSProperties}
         >
           <TestPanel
@@ -361,12 +436,14 @@ export default function ChatBotPage() {
             onInlineDatasetChange={setInlineDataset}
             inlineDatasetType={inlineDatasetType}
             onInlineDatasetTypeChange={setInlineDatasetType}
+            isCollapsed={isPanelCollapsed}
+            onToggleCollapse={() => setIsPanelCollapsed(!isPanelCollapsed)}
           />
         </div>
       )}
 
-      {/* Resize Handle (only shown when debug=true) */}
-      {isDebugMode && (
+      {/* Resize Handle (only shown when debug=true and panel not collapsed) */}
+      {isDebugMode && !isPanelCollapsed && (
         <div
           className={`chatbot-resize-handle ${isResizing ? 'is-dragging' : ''}`}
           onMouseDown={handleMouseDown}

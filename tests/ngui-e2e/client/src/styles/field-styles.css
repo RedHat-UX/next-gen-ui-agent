@@ -1,0 +1,197 @@
+/**
+ * CSS styles for components using input_data_type
+ * 
+ * Component-level classes: data-view-{input_data_type}
+ * Field-level classes: field-id-{field.id}
+ */
+
+/* ===== Component-level styling ===== */
+
+/* Products table styling */
+.data-view-products {
+  border: 2px solid #0066cc;
+  border-radius: 8px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+  box-shadow: 0 4px 6px rgba(0, 102, 204, 0.1);
+}
+
+.data-view-products:hover {
+  box-shadow: 0 6px 12px rgba(0, 102, 204, 0.15);
+  transition: box-shadow 0.3s ease;
+}
+
+/* ===== Field-level styling ===== */
+
+/* Price field - currency styling (generic and products-specific) */
+.field-id-price,
+.field-id-products-price {
+  font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
+  text-align: right;
+  font-weight: 600;
+  color: #0066cc;
+  font-size: 1.05em;
+  letter-spacing: 0.5px;
+  position: relative;
+  padding-right: 8px;
+}
+
+.field-id-price::before,
+.field-id-products-price::before {
+  content: '$';
+  color: #004080;
+  font-size: 0.9em;
+  margin-right: 2px;
+  opacity: 0.7;
+}
+
+/* Products-specific price styling */
+.data-view-products .field-id-price,
+.data-view-products .field-id-products-price {
+  background: linear-gradient(135deg, #e6f2ff 0%, #ffffff 100%);
+  padding: 4px 12px;
+  border-radius: 4px;
+  border-left: 3px solid #0066cc;
+}
+
+.data-view-products .field-id-price:hover,
+.data-view-products .field-id-products-price:hover {
+  background: linear-gradient(135deg, #cce6ff 0%, #e6f2ff 100%);
+  transform: translateX(-2px);
+  transition: all 0.2s ease;
+}
+
+/* Status field - badge/pill styling */
+.field-id-status,
+.field-id-products-status {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  background-color: #e0e0e0;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+/* Status field will be styled by formatters, but we provide a nice base style */
+.field-id-status[data-status="available"],
+.field-id-status[data-status="in-stock"],
+.field-id-status[data-status="running"],
+.field-id-products-status[data-status="available"],
+.field-id-products-status[data-status="in-stock"],
+.field-id-products-status[data-status="running"] {
+  background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.field-id-status[data-status="low-stock"],
+.field-id-status[data-status="pending"],
+.field-id-products-status[data-status="low-stock"],
+.field-id-products-status[data-status="pending"] {
+  background: linear-gradient(135deg, #ff9800 0%, #ffb74d 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+}
+
+.field-id-status[data-status="out-of-stock"],
+.field-id-status[data-status="error"],
+.field-id-products-status[data-status="out-of-stock"],
+.field-id-products-status[data-status="error"] {
+  background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+  color: white;
+  box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+}
+
+/* Products-specific status styling */
+.data-view-products .field-id-status,
+.data-view-products .field-id-products-status {
+  text-align: center;
+  min-width: 100px;
+}
+
+.data-view-products .field-id-status:hover,
+.data-view-products .field-id-products-status:hover {
+  transform: scale(1.05);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Name fields - enhanced typography */
+.field-id-name,
+.field-id-product-name,
+.field-id-products-name {
+  font-weight: 700;
+  font-size: 1.1em;
+  color: #1a1a1a;
+  letter-spacing: -0.3px;
+  position: relative;
+  padding-left: 8px;
+}
+
+.field-id-name::before,
+.field-id-product-name::before,
+.field-id-products-name::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #0066cc;
+  opacity: 0.5;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+
+.field-id-name:hover::before,
+.field-id-product-name:hover::before,
+.field-id-products-name:hover::before {
+  opacity: 1;
+  transform: translateX(2px);
+}
+
+/* Products-specific name styling */
+.data-view-products .field-id-name,
+.data-view-products .field-id-product-name,
+.data-view-products .field-id-products-name {
+  color: #0066cc;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.data-view-products .field-id-name:hover,
+.data-view-products .field-id-product-name:hover,
+.data-view-products .field-id-products-name:hover {
+  border-bottom-color: #0066cc;
+}
+
+/* Generic field hover effects */
+[class^="field-id-"] {
+  transition: all 0.2s ease;
+}
+
+[class^="field-id-"]:hover {
+  cursor: default;
+}
+
+/* Table row hover effects (if supported by renderer) */
+.data-view-products tbody tr:hover {
+  background-color: rgba(0, 102, 204, 0.05);
+  transition: background-color 0.2s ease;
+}
+
+/* Fix ellipsis in first and last column headers */
+.data-view-products th:first-child,
+.data-view-products th:last-child {
+  text-overflow: clip !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}
+
+/* Alternative: If the ellipsis is from PatternFly's DataView default styles */
+[class*="data-view-"] th:first-child,
+[class*="data-view-"] th:last-child {
+  text-overflow: clip !important;
+  overflow: visible !important;
+  white-space: normal !important;
+}

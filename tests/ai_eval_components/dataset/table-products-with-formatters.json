@@ -1,0 +1,14 @@
+[
+  {
+    "id": "table-000024",
+    "user_prompt": "Show me a table of products with their prices and status",
+    "backend_data": "{\"products\": [{\"name\": \"Laptop Pro\", \"price\": 1299.99, \"status\": \"Available\"}, {\"name\": \"Wireless Mouse\", \"price\": 29.99, \"status\": \"In Stock\"}, {\"name\": \"Mechanical Keyboard\", \"price\": 149.99, \"status\": \"Available\"}, {\"name\": \"USB-C Hub\", \"price\": 79.99, \"status\": \"Low Stock\"}, {\"name\": \"Monitor 27\\\"\", \"price\": 399.99, \"status\": \"Available\"}, {\"name\": \"Webcam HD\", \"price\": 89.99, \"status\": \"Out of Stock\"}]}",
+    "expected_component": "table",
+    "data_type_override": "products",
+    "warn_only": false,
+    "tags": ["Styled", "Formatters"],
+    "src": {
+      "data_file": "products_with_formatters.json"
+    }
+  }
+]

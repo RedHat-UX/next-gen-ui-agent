@@ -52,6 +52,14 @@ def extract_inline_datasets(dataset_dirs):
                             if unique_key in all_datasets:
                                 continue
 
+                            # For OpenShift queries, data comes from the mock MCP server, not inline data
+                            # Detect by absence of backend_data (OpenShift queries don't need it)
+                            if "backend_data" not in item:
+                                # OpenShift query - tool names automatically map to InputData.type
+                                # No need to create dataset entry or mapping
+                                continue
+
+                            # For non-OpenShift queries, parse backend_data and create inline dataset
                             # Parse backend_data string into a JSON object
                             payload_obj = json.loads(item["backend_data"])
 
@@ -74,9 +82,16 @@ def extract_inline_datasets(dataset_dirs):
                             # Get first prompt as description
                             prompt_snippet = item["user_prompt"].split("\n")[0].strip()
                             description = f"Example: '{prompt_snippet}...'"
-                            data_type = (
-                                f"{component_type}.dataset" if component_type else None
-                            )
+
+                            # Support custom data_type_override for formatter examples
+                            # Otherwise default to component_type.dataset
+                            data_type = item.get("data_type_override")
+                            if not data_type:
+                                data_type = (
+                                    f"{component_type}.dataset"
+                                    if component_type
+                                    else None
+                                )
 
                             all_datasets[unique_key] = {
                                 "id": dataset_id,
@@ -86,7 +101,8 @@ def extract_inline_datasets(dataset_dirs):
                                 "payload": payload_obj,
                             }
                             # Store mapping for quick prompts to reference
-                            dataset_id_map[unique_key] = dataset_id
+                            # Also store the data_type for use in quick prompts
+                            dataset_id_map[unique_key] = (dataset_id, data_type)
 
     return list(all_datasets.values()), dataset_id_map
 
@@ -133,7 +149,7 @@ def extract_quick_prompts(dataset_dirs, dataset_id_map):
                             src = item.get("src", {})
                             data_file = src.get("data_file", "")
                             unique_key = (expected_component, data_file)
-                            dataset_id = dataset_id_map.get(unique_key)
+                            dataset_info = dataset_id_map.get(unique_key)
 
                             prompt = {
                                 "id": prompt_id,
@@ -143,17 +159,27 @@ def extract_quick_prompts(dataset_dirs, dataset_id_map):
                                 "source": source,
                             }
 
-                            # Only add dataset reference if we found a matching dataset ID
-                            if dataset_id:
+                            # Add tags if present in the dataset item
+                            if "tags" in item and item["tags"]:
+                                prompt["tags"] = item["tags"]
+
+                            # Check if we have dataset info
+                            if dataset_info:
+                                # dataset_info is a tuple: (dataset_id, data_type)
+                                dataset_id, default_data_type = dataset_info
+
+                                # Use data_type_override from the prompt item if present, otherwise use default
                                 data_type = (
-                                    f"{expected_component}.dataset"
-                                    if expected_component
-                                    else None
+                                    item.get("data_type_override") or default_data_type
                                 )
+
+                                # Include both dataset_id and data_type for inline data queries
                                 prompt["dataset"] = {
                                     "datasetId": dataset_id,
                                     "dataType": data_type,
                                 }
+                            # For OpenShift queries (no dataset_info), don't add dataset reference
+                            # Tool names will automatically map to InputData.type
 
                             all_prompts.append(prompt)
 
@@ -211,7 +237,7 @@ export type QuickPromptCategory = 'one-card' | 'set-of-cards' | 'tables' | 'char
 export type QuickPromptSource = 'general' | 'k8s';
 
 export interface QuickPromptDataset {
-  datasetId: string;
+  datasetId?: string;
   dataType: string | null;
 }
 
@@ -222,6 +248,7 @@ export interface QuickPrompt {
   expectedComponent: string;
   source: QuickPromptSource;
   dataset?: QuickPromptDataset;
+  tags?: string[];
 }
 
 export const quickPrompts: QuickPrompt[] = [
@@ -255,7 +282,7 @@ export const quickPrompts: QuickPrompt[] = [
     expectedComponent: "{prompt["expectedComponent"]}",
     source: "{source_value}\""""
 
-        # Add dataset reference if present
+        # Add dataset reference if present (only for non-OpenShift queries)
         if "dataset" in prompt and prompt["dataset"]:
             dataset_id = prompt["dataset"]["datasetId"]
             data_type = prompt["dataset"]["dataType"]
@@ -264,9 +291,12 @@ export const quickPrompts: QuickPrompt[] = [
       datasetId: "{dataset_id}",
       dataType: {json.dumps(data_type)},
     }}"""
-        else:
-            # No dataset, just close the object
-            prompts_ts += ""
+
+        # Add tags if present
+        if "tags" in prompt and prompt["tags"]:
+            tags_json = json.dumps(prompt["tags"])
+            prompts_ts += f""",
+    tags: {tags_json}"""
 
         prompts_ts += "\n  },\n"
 

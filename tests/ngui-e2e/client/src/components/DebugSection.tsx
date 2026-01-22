@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Button } from '@patternfly/react-core';
 import { MetadataViewer } from './MetadataViewer';
 import { PipelineViewer } from './PipelineViewer';
@@ -29,13 +29,14 @@ interface DebugSectionProps {
     transformerName?: string;
     jsonWrappingField?: string;
     fieldCount?: number;
+    inputDataType?: string;
     fields?: Array<{
       name: string;
       dataPath: string;
     }>;
   };
-  dataset?: any;
-  config?: any;
+  dataset?: Record<string, unknown>;
+  config?: Record<string, unknown>;
   messageId: string;
 }
 
@@ -88,10 +89,21 @@ export function DebugSection({
             <PipelineViewer 
               llmInteractions={llmInteractions} 
               agentMessages={agentMessages}
+              inputDataType={dataTransform?.inputDataType}
+              configMappings={dataTransform?.configMappings}
               messageId={messageId} 
             />
           )}
-          {dataTransform && <DataTransformationViewer dataTransform={dataTransform} messageId={messageId} />}
+          {dataTransform && (
+            <DataTransformationViewer 
+              dataTransform={{
+                ...dataTransform,
+                // Extract input_data_type from config if available
+                inputDataType: config?.input_data_type as string | undefined || dataTransform.inputDataType
+              }}
+              messageId={messageId} 
+            />
+          )}
         </>
       )}
       {openSection === 'dataset' && dataset && (
