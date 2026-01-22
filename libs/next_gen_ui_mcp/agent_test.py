@@ -6,6 +6,7 @@ import pytest
 from fastmcp import Client, Context
 from fastmcp.exceptions import ToolError
 from mcp import CreateMessageResult, types
+from mcp.types import ModelPreferences
 from next_gen_ui_agent.data_transform.types import ComponentDataBaseWithArrayValueFileds
 from next_gen_ui_agent.types import InputData, UIComponentMetadata
 from next_gen_ui_mcp import MCPGenerateUIOutput, NextGenUIMCPServer
@@ -1133,3 +1134,233 @@ class TestHealthRoutes:
         assert mcp_server._additional_http_routes[0].path == "/liveness"
         assert isinstance(mcp_server._additional_http_routes[1], Route)
         assert mcp_server._additional_http_routes[1].path == "/readiness"
+
+
+class TestMCPModelPreferences:
+    """Tests for MCP sampling model preferences (hints and priorities)."""
+
+    @pytest.mark.asyncio
+    async def test_sampling_with_model_hints(self) -> None:
+        """Test that model hints are passed correctly to MCP sampling."""
+        # Setup mocked component response
+        mocked_llm_response: UIComponentMetadata = UIComponentMetadata.model_validate(
+            {
+                "title": "Toy Story",
+                "reasonForTheComponentSelection": "One item available in the data",
+                "confidenceScore": "100%",
+                "component": "one-card",
+                "fields": [
+                    {"name": "Title", "data_path": "movie.title"},
+                ],
+                "id": "test-id",
+            }
+        )
+
+        # Capture model preferences from the sampling request
+        captured_preferences: ModelPreferences | None = None
+
+        async def sampling_handler(_messages, params, _context):
+            # Capture model preferences if present
+            if hasattr(params, "modelPreferences"):
+                nonlocal captured_preferences
+                captured_preferences = params.modelPreferences
+            # Return mocked response
+            return CreateMessageResult(
+                content=types.TextContent(
+                    type="text", text=mocked_llm_response.model_dump_json()
+                ),
+                role="assistant",
+                model="claude-3-sonnet",
+            )
+
+        # Create server with model hints
+        ngui_agent = NextGenUIMCPServer(
+            config=MCPAgentConfig(component_system="json"),
+            sampling_model_hints=["claude-3-sonnet", "claude"],
+        )
+
+        movies_data = find_movie("Toy Story")
+
+        with patch.object(Context, "info", new_callable=AsyncMock):
+            async with Client(
+                ngui_agent.get_mcp_server(), sampling_handler=sampling_handler
+            ) as client:
+                await client.call_tool(
+                    "generate_ui_component",
+                    {
+                        "user_prompt": "Tell me about Toy Story",
+                        "data": json.dumps(movies_data, default=str),
+                        "data_type": "movie_detail",
+                    },
+                )
+
+        # Verify hints were passed
+        assert captured_preferences is not None
+        assert captured_preferences.hints is not None
+        assert len(captured_preferences.hints) == 2
+        assert captured_preferences.hints[0].name == "claude-3-sonnet"
+        assert captured_preferences.hints[1].name == "claude"
+
+    @pytest.mark.asyncio
+    async def test_sampling_with_priorities(self) -> None:
+        """Test that priority values are passed correctly to MCP sampling."""
+        mocked_llm_response: UIComponentMetadata = UIComponentMetadata.model_validate(
+            {
+                "title": "Toy Story",
+                "reasonForTheComponentSelection": "Test",
+                "confidenceScore": "100%",
+                "component": "one-card",
+                "fields": [{"name": "Title", "data_path": "movie.title"}],
+                "id": "test-id",
+            }
+        )
+
+        captured_preferences: ModelPreferences | None = None
+
+        async def sampling_handler(_messages, params, _context):
+            if hasattr(params, "modelPreferences"):
+                nonlocal captured_preferences
+                captured_preferences = params.modelPreferences
+            return CreateMessageResult(
+                content=types.TextContent(
+                    type="text", text=mocked_llm_response.model_dump_json()
+                ),
+                role="assistant",
+                model="test-model",
+            )
+
+        # Create server with priority values
+        ngui_agent = NextGenUIMCPServer(
+            config=MCPAgentConfig(component_system="json"),
+            sampling_cost_priority=0.8,
+            sampling_speed_priority=0.5,
+            sampling_intelligence_priority=0.7,
+        )
+
+        movies_data = find_movie("Toy Story")
+
+        with patch.object(Context, "info", new_callable=AsyncMock):
+            async with Client(
+                ngui_agent.get_mcp_server(), sampling_handler=sampling_handler
+            ) as client:
+                await client.call_tool(
+                    "generate_ui_component",
+                    {
+                        "user_prompt": "Tell me about Toy Story",
+                        "data": json.dumps(movies_data, default=str),
+                        "data_type": "movie_detail",
+                    },
+                )
+
+        # Verify priorities were passed
+        assert captured_preferences is not None
+        assert captured_preferences.costPriority == 0.8
+        assert captured_preferences.speedPriority == 0.5
+        assert captured_preferences.intelligencePriority == 0.7
+
+    @pytest.mark.asyncio
+    async def test_sampling_without_preferences(self) -> None:
+        """Test backward compatibility - no preferences should work as before."""
+        mocked_llm_response: UIComponentMetadata = UIComponentMetadata.model_validate(
+            {
+                "title": "Toy Story",
+                "reasonForTheComponentSelection": "Test",
+                "confidenceScore": "100%",
+                "component": "one-card",
+                "fields": [{"name": "Title", "data_path": "movie.title"}],
+                "id": "test-id",
+            }
+        )
+
+        captured_preferences: ModelPreferences | None = None
+
+        async def sampling_handler(_messages, params, _context):
+            # Check if modelPreferences is present (should be None or not present)
+            if hasattr(params, "modelPreferences"):
+                nonlocal captured_preferences
+                captured_preferences = params.modelPreferences
+            return CreateMessageResult(
+                content=types.TextContent(
+                    type="text", text=mocked_llm_response.model_dump_json()
+                ),
+                role="assistant",
+                model="test-model",
+            )
+
+        # Create server without any preferences
+        ngui_agent = NextGenUIMCPServer(config=MCPAgentConfig(component_system="json"))
+
+        movies_data = find_movie("Toy Story")
+
+        with patch.object(Context, "info", new_callable=AsyncMock):
+            async with Client(
+                ngui_agent.get_mcp_server(), sampling_handler=sampling_handler
+            ) as client:
+                await client.call_tool(
+                    "generate_ui_component",
+                    {
+                        "user_prompt": "Tell me about Toy Story",
+                        "data": json.dumps(movies_data, default=str),
+                        "data_type": "movie_detail",
+                    },
+                )
+
+        # Verify modelPreferences is None (backward compatibility - no preferences)
+        assert captured_preferences is None
+
+    @pytest.mark.asyncio
+    async def test_sampling_preferences_multiple_components(self) -> None:
+        """Test that preferences work with generate_ui_multiple_components."""
+        mocked_llm_response: UIComponentMetadata = UIComponentMetadata.model_validate(
+            {
+                "title": "Toy Story",
+                "reasonForTheComponentSelection": "Test",
+                "confidenceScore": "100%",
+                "component": "one-card",
+                "fields": [{"name": "Title", "data_path": "movie.title"}],
+                "id": "test-id",
+            }
+        )
+
+        captured_preferences: ModelPreferences | None = None
+
+        async def sampling_handler(_messages, params, _context):
+            if hasattr(params, "modelPreferences"):
+                nonlocal captured_preferences
+                captured_preferences = params.modelPreferences
+            return CreateMessageResult(
+                content=types.TextContent(
+                    type="text", text=mocked_llm_response.model_dump_json()
+                ),
+                role="assistant",
+                model="claude-3-sonnet",
+            )
+
+        ngui_agent = NextGenUIMCPServer(
+            config=MCPAgentConfig(component_system="json"),
+            sampling_model_hints=["claude-3-sonnet"],
+            sampling_intelligence_priority=0.9,
+        )
+
+        movies_data = find_movie("Toy Story")
+        input_data: List[InputData] = [
+            {"id": "test_id", "data": json.dumps(movies_data, default=str)}
+        ]
+
+        with patch.object(Context, "info", new_callable=AsyncMock):
+            async with Client(
+                ngui_agent.get_mcp_server(), sampling_handler=sampling_handler
+            ) as client:
+                await client.call_tool(
+                    "generate_ui_multiple_components",
+                    {
+                        "user_prompt": "Tell me about Toy Story",
+                        "structured_data": input_data,
+                    },
+                )
+
+        # Verify preferences were passed
+        assert captured_preferences is not None
+        assert captured_preferences.hints is not None
+        assert captured_preferences.hints[0].name == "claude-3-sonnet"
+        assert captured_preferences.intelligencePriority == 0.9

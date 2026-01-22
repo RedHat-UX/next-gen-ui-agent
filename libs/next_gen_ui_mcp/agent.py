@@ -1,12 +1,12 @@
 import asyncio
 import logging
 import uuid
-from typing import Annotated, List, Literal, Optional
+from typing import Annotated, Any, List, Literal, Optional
 
 from fastmcp import Context, FastMCP
 from fastmcp.tools.tool import ToolResult
 from mcp import types
-from mcp.types import TextContent
+from mcp.types import ModelPreferences, TextContent
 from next_gen_ui_agent.agent import NextGenUIAgent
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import InputData, UIBlock
@@ -20,9 +20,21 @@ logger = logging.getLogger(__name__)
 class MCPSamplingInference(InferenceBase):
     """Inference implementation that uses MCP sampling for LLM calls."""
 
-    def __init__(self, ctx: Context, max_tokens: int = 2048):
+    def __init__(
+        self,
+        ctx: Context,
+        max_tokens: int = 2048,
+        model_hints: list[str] | None = None,
+        cost_priority: float | None = None,
+        speed_priority: float | None = None,
+        intelligence_priority: float | None = None,
+    ):
         self.ctx = ctx
         self.max_tokens = max_tokens
+        self.model_hints = model_hints
+        self.cost_priority = cost_priority
+        self.speed_priority = speed_priority
+        self.intelligence_priority = intelligence_priority
 
     async def call_model(self, system_msg: str, prompt: str) -> str:
         """Call the LLM model using MCP sampling.
@@ -40,12 +52,34 @@ class MCPSamplingInference(InferenceBase):
                 role="user", content=types.TextContent(type="text", text=prompt)
             )
 
+            # Build model preferences if any are provided
+            model_preferences: ModelPreferences | None = None
+            if (
+                self.model_hints
+                or self.cost_priority is not None
+                or self.speed_priority is not None
+                or self.intelligence_priority is not None
+            ):
+                # Build model preferences dict according to MCP spec
+                prefs_dict: dict[str, Any] = {}
+                if self.model_hints:
+                    prefs_dict["hints"] = [{"name": hint} for hint in self.model_hints]
+                if self.cost_priority is not None:
+                    prefs_dict["costPriority"] = self.cost_priority
+                if self.speed_priority is not None:
+                    prefs_dict["speedPriority"] = self.speed_priority
+                if self.intelligence_priority is not None:
+                    prefs_dict["intelligencePriority"] = self.intelligence_priority
+                # Construct ModelPreferences from dict
+                model_preferences = ModelPreferences(**prefs_dict)
+
             # Use the MCP session to make a sampling request
             result = await self.ctx.session.create_message(
                 messages=[user_message],
                 system_prompt=system_msg,
                 temperature=0.0,  # Deterministic responses as required
                 max_tokens=self.max_tokens,  # Use configurable max_tokens parameter
+                model_preferences=model_preferences,
             )
 
             # Extract the text content from the response
@@ -75,6 +109,10 @@ class NextGenUIMCPServer:
         config: MCPAgentConfig = MCPAgentConfig(component_system="json"),
         name: str = "NextGenUIMCPServer",
         sampling_max_tokens: int = 2048,
+        sampling_model_hints: list[str] | None = None,
+        sampling_cost_priority: float | None = None,
+        sampling_speed_priority: float | None = None,
+        sampling_intelligence_priority: float | None = None,
         inference: InferenceBase | None = None,
         debug: bool = False,
         enabled_tools=None,
@@ -83,6 +121,10 @@ class NextGenUIMCPServer:
         self.debug = debug
         self.config = config
         self.sampling_max_tokens = sampling_max_tokens
+        self.sampling_model_hints = sampling_model_hints
+        self.sampling_cost_priority = sampling_cost_priority
+        self.sampling_speed_priority = sampling_speed_priority
+        self.sampling_intelligence_priority = sampling_intelligence_priority
         self.structured_output_enabled = structured_output_enabled
         self.mcp: FastMCP = FastMCP(
             name,
@@ -369,7 +411,14 @@ class NextGenUIMCPServer:
         # Choose inference provider based on configuration
         if not self.inference:
             # Create sampling-based inference using the MCP context
-            inference = MCPSamplingInference(ctx, max_tokens=self.sampling_max_tokens)
+            inference = MCPSamplingInference(
+                ctx,
+                max_tokens=self.sampling_max_tokens,
+                model_hints=self.sampling_model_hints,
+                cost_priority=self.sampling_cost_priority,
+                speed_priority=self.sampling_speed_priority,
+                intelligence_priority=self.sampling_intelligence_priority,
+            )
             await ctx.info("Using MCP sampling to leverage client's LLM...")
             return inference
         else:

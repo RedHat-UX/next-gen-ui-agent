@@ -102,3 +102,78 @@ def test_validate_INVALID() -> None:
         errors[3].message
         == "No value found in input data for data_path='$..movies[*].unknown'"
     )
+
+
+def test_process_with_images() -> None:
+    c = UIComponentMetadata.model_validate(
+        {
+            "id": "test_id_2",
+            "title": "Movies",
+            "component": "set-of-cards",
+            "fields": [
+                {"name": "Title", "data_path": "movies[*].title"},
+                {"name": "Poster", "data_path": "movies[*].posterUrl"},
+                {"name": "Year", "data_path": "movies[*].year"},
+            ],
+        }
+    )
+    data = InputData(
+        id="test_id_2",
+        data="""[
+            {
+                "movies":[
+                {
+                    "title": "Toy Story",
+                    "posterUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+                    "year": 1995
+                },
+                {
+                    "title": "Toy Story (No Poster)",
+                    "posterUrl": null,
+                    "year": 1997
+                },
+                {
+                    "title": "Toy Story 2",
+                    "posterUrl": "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxac.jpg",
+                    "year": 1999
+                }
+                ]
+            }
+        ]""",
+    )
+    result = SetOfCardsDataTransformer().process(c, data)
+    # image field should be extracted and removed from fields
+    assert result.images == [
+        "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+        None,
+        "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxac.jpg",
+    ]
+    # Only 'Title' and 'Year' remain
+    assert [f.name for f in result.fields] == ["Title", "Year"]
+    assert result.fields[0].data == [
+        "Toy Story",
+        "Toy Story (No Poster)",
+        "Toy Story 2",
+    ]
+    assert result.fields[1].data == [1995, 1997, 1999]
+
+
+def test_process_no_images() -> None:
+    c = UIComponentMetadata.model_validate(
+        {
+            "id": "test_id_3",
+            "title": "Movies",
+            "component": "set-of-cards",
+            "fields": [
+                {"name": "Title", "data_path": "movies[*].title"},
+                {"name": "Year", "data_path": "movies[*].year"},
+            ],
+        }
+    )
+    data = InputData(
+        id="test_id_3",
+        data='{"movies": [{"title": "Toy Story", "year": 1995}, {"title": "Toy Story 2", "year": 1999}]}',
+    )
+    result = SetOfCardsDataTransformer().process(c, data)
+    assert result.images is None
+    assert [f.name for f in result.fields] == ["Title", "Year"]

@@ -1,0 +1,226 @@
+[
+    {
+        "question": "I have a JSON field `name` with value \"John Doe\". What data type is this?",
+        "answer": "This is a `short text` data type. It's a simple string field under 40 characters used for names, titles, or brief labels."
+    },
+    {
+        "question": "Given this JSON structure: `{\"id\": 123, \"title\": \"Product Name\"}`. What is the data type of the `id` field?",
+        "answer": "The `id` field is a `number` data type. It's a numeric value directly represented in JSON without quotes."
+    },
+    {
+        "question": "I have a JSON structure: `{\"products\": [{\"name\": \"Laptop\", \"price\": 999}, {\"name\": \"Mouse\", \"price\": 25}]}`. What data type is the `products` field?",
+        "answer": "The `products` field is an `array of objects` data type also called `multi item`. It contains multiple structured items, each with their own properties (name and price)."
+    },
+    {
+        "question": "I have a JSON structure: `{\"goods\": [{\"name\": \"Laptop\", \"price\": 999}, {\"name\": \"Mouse\", \"price\": 25}, {\"name\": \"Keyboard\", \"price\": 100}]}`. What is the size of `goods` array?",
+        "answer": "There is no explicit information about the size of the `goods` array in the field name, so we have to look at actual data. The size of the array is 3 items."
+    },
+    {
+        "question": "I have a JSON structure: `{\"goods[size: 6]\": [{\"name\": \"Laptop\", \"price\": 999}, {\"name\": \"Mouse\", \"price\": 25}]}`. What is the size of `goods` array?",
+        "answer": "The size of the `goods` array is 6 items, as specified in the field name in the [ ] brackets."
+    },
+    {
+        "question": "I have a JSON structure: `{\"things[size over 8]\": [{\"name\": \"Laptop\", \"price\": 999}, {\"name\": \"Mouse\", \"price\": 25}]}`. What is the size of `things` array?",
+        "answer": "The size of the `things` array is more than 8 items, as specified in the field name in the [ ] brackets."
+    },
+    {
+        "question": "I have a JSON structure: `{\"items[up to 5]\": [{\"name\": \"Laptop\", \"price\": 999}, {\"name\": \"Mouse\", \"price\": 25}]}`. What is the size of `items` array?",
+        "answer": "The size of the `items` array is less than or equal to 5 items, as specified in the field name in the [ ] brackets."
+    },
+    {
+        "question": "In this JSON: `{\"tags\": [\"electronics\", \"computers\", \"accessories\"]}`, what is the data type of `tags`?",
+        "answer": "The `tags` field is an `array of strings` data type (or `array of simple values`). It contains a list of simple string values rather than complex objects."
+    },
+    {
+        "question": "Given `{\"description\": \"This is a very long product description that explains all the features, benefits, and specifications in great detail.\"}`, what is the data type of `description`?",
+        "answer": "This is a `long text` data type. It's a string field exceeding 40 characters, typically used for descriptions, paragraphs, or detailed content."
+    },
+    {
+        "question": "I have `{\"active\": true}`. What is the data type of `active`?",
+        "answer": "The `active` field is a `boolean` data type. It's a native JSON boolean value (true or false) used for binary states."
+    },
+    {
+        "question": "In this structure: `{\"createdAt\": \"2024-01-15T10:30:00Z\"}`, what data type is `createdAt`?",
+        "answer": "The `createdAt` field is a `date` (or `datetime`) data type. It's an ISO 8601 formatted string representing a date and time, commonly used for timestamps."
+    },
+    {
+        "question": "Given `{\"birthDate\": \"2024-01-15\"}`, what is the data type?",
+        "answer": "The `birthDate` field is a `date` data type. It's an ISO 8601 formatted date string (YYYY-MM-DD format)."
+    },
+    {
+        "question": "I have `{\"count\": \"42\"}`. What data type is `count`?",
+        "answer": "The `count` field is a `number` data type. Although it contains a numeric value, it's stored as a string."
+    },
+    {
+        "question": "In `{\"enabled\": \"true\"}`, what is the data type of `enabled`?",
+        "answer": "The `enabled` field is a `boolean` data type. The boolean value is stored as a string rather than a native JSON boolean."
+    },
+    {
+        "question": "Given `{\"profilePicture\": \"https://example.com/images/avatar.jpg\"}`, what is the data type of `profilePicture`?",
+        "answer": "The `profilePicture` field is an `image url` data type. It's a URL string pointing to an image resource, identified by the common image file extension (.jpg)."
+    },
+    {
+        "question": "I have `{\"thumbnail\": \"https://cdn.example.com/thumb.png\"}`. What data type is this?",
+        "answer": "The `thumbnail` field is an `image url` data type. The URL ends with a common image extension (.png), indicating it points to an image resource."
+    },
+    {
+        "question": "In this JSON: `{\"logo\": \"https://website.com/logo.gif\"}`, what is the data type?",
+        "answer": "The `logo` field is an `image url` data type. The .gif extension indicates this URL points to an image file."
+    },
+    {
+        "question": "Given `{\"banner\": \"https://site.com/images/header.webp\"}`, what is the data type of `banner`?",
+        "answer": "The `banner` field is an `image url` data type. The .webp extension is a modern image format, so this is clearly an image URL."
+    },
+    {
+        "question": "I have `{\"tutorial\": \"https://www.youtube.com/watch?v=dQw4w9WgXcQ\"}`. What data type is `tutorial`?",
+        "answer": "The `tutorial` field is a `video url` data type. The URL is from YouTube, which is a video hosting platform."
+    },
+    {
+        "question": "In `{\"demo\": \"https://vimeo.com/123456789\"}`, what is the data type of `demo`?",
+        "answer": "The `demo` field is a `video url` data type. Vimeo is a video hosting platform, so this URL points to a video resource."
+    },
+    {
+        "question": "Given `{\"presentation\": \"https://example.com/video.mp4\"}`, what is the data type?",
+        "answer": "The `presentation` field is a `video url` data type. The .mp4 extension is a browser-supported video format."
+    },
+    {
+        "question": "I have `{\"clip\": \"https://site.com/media/movie.webm\"}`. What data type is this?",
+        "answer": "The `clip` field is a `video url` data type. The .webm extension indicates a browser-supported video format."
+    },
+    {
+        "question": "In this JSON: `{\"recording\": \"https://media.example.com/video.mov\"}`, what is the data type?",
+        "answer": "The `recording` field is a `video url` data type. The .mov extension indicates a video file format."
+    },
+    {
+        "question": "Given `{\"website\": \"https://www.example.com\"}`, what is the data type of `website`?",
+        "answer": "The `website` field is a `url` data type. It's a standard HTTP/HTTPS URL that doesn't point to a specific image or video resource."
+    },
+    {
+        "question": "I have `{\"documentation\": \"https://docs.example.com/api/reference\"}`. What data type is this?",
+        "answer": "The `documentation` field is a `url` data type. It's a standard HTTPS URL pointing to a web page or resource."
+    },
+    {
+        "question": "In `{\"api\": \"http://api.example.com/v1/users\"}`, what is the data type of `api`?",
+        "answer": "The `api` field is a `url` data type. It's an HTTP URL that doesn't have image or video extensions."
+    },
+    {
+        "question": "Given this structure: `{\"scores\": [95, 87, 92, 88]}`, what is the data type of `scores`?",
+        "answer": "The `scores` field is an `array of numbers` data type (or `array of simple values`). It contains a list of numeric values."
+    },
+    {
+        "question": "I have `{\"flags\": [true, false, true, true]}`. What data type is `flags`?",
+        "answer": "The `flags` field is an `array of booleans` data type (or `array of simple values`). It contains a list of boolean values."
+    },
+    {
+        "question": "In this JSON: `{\"price\": 29.99}`, what is the data type of `price`?",
+        "answer": "The `price` field is a `number` data type. It's a numeric value with decimal precision, directly represented in JSON."
+    },
+    {
+        "question": "Given `{\"quantity\": 100}`, what is the data type?",
+        "answer": "The `quantity` field is a `number` data type. It's a whole number directly represented in JSON without quotes."
+    },
+    {
+        "question": "I have `{\"code\": \"ABC123\"}`. What data type is this?",
+        "answer": "The `code` field is a `short text` data type. It's a brief string under 40 characters, suitable for codes or identifiers."
+    },
+    {
+        "question": "In `{\"email\": \"user@example.com\"}`, what is the data type of `email`?",
+        "answer": "The `email` field is a `short text` data type. While it represents an email address, it's stored as a string."
+    },
+    {
+        "question": "Given `{\"timestamps\": [\"2024-01-01T00:00:00Z\", \"2024-02-01T00:00:00Z\", \"2024-03-01T00:00:00Z\"]}`, what is the data type of `timestamps`?",
+        "answer": "The `timestamps` field is an `array of dates` data type (or `array of simple values`). It contains multiple ISO 8601 formatted date-time strings."
+    },
+    {
+        "question": "I have `{\"metadata\": {\"author\": \"John\", \"version\": \"1.0\"}}`. What data type is `metadata`?",
+        "answer": "The `metadata` field is an `object` data type, also called `one-item` or `single item`. It's a single nested object with its own fields."
+    },
+    {
+        "question": "In this structure: `{\"images\": [\"https://example.com/1.jpg\", \"https://example.com/2.png\", \"https://example.com/3.gif\"]}`, what is the data type of `images`?",
+        "answer": "The `images` field is an `array of image urls` data type. It contains multiple URLs that all point to image resources based on their file extensions."
+    },
+    {
+        "question": "Given `{\"videos\": [\"https://youtube.com/watch?v=abc\", \"https://example.com/video.mp4\"]}`, what is the data type?",
+        "answer": "The `videos` field is an `array of video urls` data type. It contains multiple URLs pointing to video resources (YouTube and MP4 file)."
+    },
+    {
+        "question": "I have `{\"links\": [\"https://example.com\", \"https://docs.site.org\", \"http://blog.example.net\"]}`. What data type is this?",
+        "answer": "The `links` field is an `array of urls` data type (or `array of common urls`). It contains multiple standard HTTP/HTTPS URLs without specific image or video indicators."
+    },
+    {
+        "question": "In `{\"status\": null}`, what is the data type of `status`?",
+        "answer": "The `status` field has a `null` data type. It's a native JSON null value indicating the absence of a value."
+    },
+    {
+        "question": "Given `{\"config\": {}}`, what is the data type of `config`?",
+        "answer": "The `config` field is an `object` data type, specifically an empty object. It's a valid JSON object with no properties."
+    },
+    {
+        "question": "I have `{\"items\": []}`. What data type is `items`?",
+        "answer": "The `items` field is an `array` data type, specifically an empty array. It's a valid JSON array with no elements."
+    },
+    {
+        "question": "In this JSON: `{\"biography\": \"Born in 1990, Jane Doe is an acclaimed author who has written numerous bestselling novels spanning multiple genres including mystery, thriller, and historical fiction.\"}`, what is the data type?",
+        "answer": "The `biography` field is a `long text` data type. It's a string significantly exceeding 40 characters, containing multiple sentences suitable for detailed descriptions."
+    },
+    {
+        "question": "Given `{\"lastModified\": \"2024-12-25T15:45:30.123Z\"}`, what is the data type of `lastModified`?",
+        "answer": "The `lastModified` field is a `date` (or `datetime`) data type. It's an ISO 8601 formatted string with milliseconds precision."
+    },
+    {
+        "question": "I have `{\"icon\": \"https://example.com/favicon.svg\"}`. What data type is this?",
+        "answer": "The `icon` field is an `image url` data type. The .svg extension indicates a scalable vector graphics image format."
+    },
+    {
+        "question": "In `{\"avatar\": \"https://cdn.example.com/user-photo.jpeg\"}`, what is the data type?",
+        "answer": "The `avatar` field is an `image url` data type. The .jpeg extension clearly identifies this as an image URL."
+    },
+    {
+        "question": "Given `{\"stream\": \"https://example.com/live.m3u8\"}`, what is the data type of `stream`?",
+        "answer": "The `stream` field is a `video url` data type. The .m3u8 extension is used for HTTP Live Streaming (HLS) video streams."
+    },
+    {
+        "question": "I have `{\"percent\": \"85.5\"}`. What data type is `percent`?",
+        "answer": "The `percent` field is a `number` data type. The numeric value with decimal precision is stored as a string."
+    },
+    {
+        "question": "In this JSON: `{\"isActive\": \"false\"}`, what is the data type of `isActive`?",
+        "answer": "The `isActive` field is a `boolean` data type. The boolean value false is stored as a string rather than a native JSON boolean."
+    },
+    {
+        "question": "Given `{\"categories\": [{\"id\": 1, \"name\": \"Electronics\"}, {\"id\": 2, \"name\": \"Books\"}, {\"id\": 3, \"name\": \"Clothing\"}]}`, what is the data type of `categories`?",
+        "answer": "The `categories` field is an `array of objects` data type. It contains multiple structured items, each representing a category with id and name properties."
+    },
+    {
+        "question": "I have `{\"temperature\": -5.2}`. What data type is this?",
+        "answer": "The `temperature` field is a `number` data type. It's a numeric value with decimal precision, including negative numbers."
+    },
+    {
+        "question": "In `{\"zipCode\": \"12345\"}`, what is the data type of `zipCode`?",
+        "answer": "The `zipCode` field is a `short text` data type. Although it contains digits, it's stored as a string and represents a ZIP code rather than a numeric value for calculations."
+    },
+    {
+        "question": "Given `{\"phone\": \"+1-555-0123\"}`, what is the data type?",
+        "answer": "The `phone` field is a `short text` data type. Phone numbers are typically stored as strings to preserve formatting and leading zeros."
+    },
+    {
+        "question": "I have `{\"hexColor\": \"#FF5733\"}`. What data type is this?",
+        "answer": "The `hexColor` field is a `short text` data type. It's a string under 40 characters representing a color in hexadecimal format."
+    },
+    {
+        "question": "In this JSON: `{\"uuid\": \"550e8400-e29b-41d4-a716-446655440000\"}`, what is the data type?",
+        "answer": "The `uuid` field is a `short text` data type. UUIDs are stored as strings to maintain their standard format."
+    },
+    {
+        "question": "Given `{\"content\": \"<p>This is HTML content with <strong>bold</strong> and <em>italic</em> text.</p>\"}`, what is the data type of `content`?",
+        "answer": "The `content` field is a `long text` data type. It contains HTML markup and exceeds 40 characters, suitable for rich text content."
+    },
+    {
+        "question": "I have `{\"user\": {\"name\": \"Alice\", \"age\": 30, \"email\": \"alice@example.com\"}}`. What is the data type of `user`?",
+        "answer": "The `user` field is an `object` data type. It's a single nested object containing multiple properties (name, age, email) rather than an array of objects."
+    },
+    {
+        "question": "Given this JSON structure: `{\"company\": {\"name\": \"TechCorp\", \"address\": {\"street\": \"123 Main St\", \"city\": \"Boston\", \"location\": {\"lat\": 42.3601, \"lng\": -71.0589}}, \"employees\": 500}}`, what is the data type of `company`?",
+        "answer": "The `company` field is an `object` data type with deep nesting. It contains multiple levels: the company object has an address object, which itself contains a location object with coordinates. This demonstrates a hierarchical structure with multiple nested levels."
+    }
+]

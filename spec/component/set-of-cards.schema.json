@@ -111,6 +111,28 @@
         "$ref": "#/$defs/DataFieldArrayValue"
       },
       "type": "array"
+    },
+    "images": {
+      "anyOf": [
+        {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Main Image URLs for each card"
     }
   },
   "required": [

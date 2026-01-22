@@ -105,6 +105,10 @@ Example JSON output:
   "component": "set-of-cards",
   "id": "test-id",
   "title": "My Favorite Movies",
+  "images": [
+    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+    "https://image.tmdb.org/t/p/w440_and_h660_face/gFjfjYbdU5ijQ5haSBrtTlLpiar.jpg"
+  ],
   "fields": [
     {
       "data": [

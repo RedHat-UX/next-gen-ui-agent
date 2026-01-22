@@ -17,3 +17,9 @@ class SetOfCardsDataTransformer(DataTransformerBase[ComponentDataSetOfCards]):
     def main_processing(self, data: Any, component: UIComponentMetadata):
         fields = self._component_data.fields
         data_transformer_utils.fill_fields_with_array_data(fields, data)
+
+        image_field_idx, images = data_transformer_utils.find_image_array_field(fields)
+        if image_field_idx is not None and images is not None:
+            if any(img is not None for img in images):
+                self._component_data.images = images
+                fields.pop(image_field_idx)

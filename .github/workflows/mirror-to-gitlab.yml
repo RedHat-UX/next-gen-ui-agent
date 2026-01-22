@@ -1,0 +1,111 @@
+# Mirror tests/ngui-e2e/server folder to GitLab
+# This workflow syncs the server folder to the separate GitLab deployment repo
+
+name: Mirror Server to GitLab
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'tests/ngui-e2e/server/**'  # Only trigger when server folder changes
+  
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Force sync even if no changes detected'
+        required: false
+        default: 'true'
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for proper mirroring
+
+      - name: Setup Git
+        run: |
+          git config --global user.email "github-actions@redhat.com"
+          git config --global user.name "GitHub Actions Mirror Bot"
+
+      - name: Mirror server folder to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+        run: |
+          # Clone the GitLab repo
+          git clone https://oauth2:${GITLAB_TOKEN}@gitlab.cee.redhat.com/next-gen-ui/ngui-e2e-testing.git gitlab-repo
+          cd gitlab-repo
+          
+          # ===========================================
+          # PRESERVE GitLab-managed files before sync
+          # ===========================================
+          # Environment-specific configs are managed on GitLab/Lightrail
+          # and should NOT be overwritten by the mirror
+          # 
+          # SYNC from GitHub:     .light/light.yaml (app config)
+          # PRESERVE from GitLab: .light/local/, .light/preview/, .light/qa/ (env configs)
+          
+          PRESERVE_DIR="../.gitlab-preserve"
+          mkdir -p "$PRESERVE_DIR/.light"
+          
+          # Backup environment-specific folders (NOT light.yaml)
+          for env_dir in local preview qa prod; do
+            if [ -d ".light/$env_dir" ]; then
+              cp -r ".light/$env_dir" "$PRESERVE_DIR/.light/"
+              echo "Preserved: .light/$env_dir/"
+            fi
+          done
+          
+          # Backup .gitlab-ci.yml (GitLab CI pipeline)
+          if [ -f ".gitlab-ci.yml" ]; then
+            cp .gitlab-ci.yml "$PRESERVE_DIR/"
+            echo "Preserved: .gitlab-ci.yml"
+          fi
+          
+          # ===========================================
+          # Remove old content and copy from GitHub
+          # ===========================================
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          
+          # Copy server folder contents to GitLab repo root
+          cp -r ../tests/ngui-e2e/server/* .
+          cp -r ../tests/ngui-e2e/server/.gitignore . 2>/dev/null || true
+          
+          # ===========================================
+          # RESTORE preserved GitLab-managed files
+          # ===========================================
+          # Restore environment-specific folders into .light/
+          # (light.yaml comes from GitHub, env folders from GitLab)
+          for env_dir in local preview qa prod; do
+            if [ -d "$PRESERVE_DIR/.light/$env_dir" ]; then
+              cp -r "$PRESERVE_DIR/.light/$env_dir" .light/
+              echo "Restored: .light/$env_dir/"
+            fi
+          done
+          
+          if [ -f "$PRESERVE_DIR/.gitlab-ci.yml" ]; then
+            cp "$PRESERVE_DIR/.gitlab-ci.yml" .
+            echo "Restored: .gitlab-ci.yml"
+          fi
+          
+          # Cleanup preserve directory
+          rm -rf "$PRESERVE_DIR"
+          
+          # ===========================================
+          # Commit and push if there are changes
+          # ===========================================
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes to mirror"
+          else
+            git commit -m "Mirror from GitHub: $(git -C .. rev-parse --short HEAD)"
+            git push origin main
+            echo "Successfully mirrored to GitLab"
+          fi

@@ -108,7 +108,7 @@ These modules provide way to integrate protocol into your AI application, server
 and even container images to run it easily.
 
 1. [MCP](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_mcp)
-3. A2A - [WIP](https://github.com/RedHat-UX/next-gen-ui-agent/pull/149)
+2. [A2A](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_a2a)
 
 
 ## UI Frameworks

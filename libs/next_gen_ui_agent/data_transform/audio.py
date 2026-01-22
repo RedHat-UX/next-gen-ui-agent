@@ -25,7 +25,7 @@ class AudioPlayerDataTransformer(DataTransformerBase[ComponentDataAudio]):
         )
         data_transformer_utils.fill_fields_with_simple_data(fields, json_data)
 
-        image, _f = data_transformer_utils.find_image(fields)
+        image, _f = data_transformer_utils.find_image_simple_field(fields)
         if image:
             self._component_data.image = str(image)
 

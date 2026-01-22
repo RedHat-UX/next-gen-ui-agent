@@ -145,6 +145,119 @@
       "title": "AgentConfigDynamicComponentConfiguration",
       "type": "object"
     },
+    "AgentConfigPrompt": {
+      "description": "Prompt-related configuration for LLM interactions.",
+      "properties": {
+        "components": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/AgentConfigPromptComponent"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Component metadata overrides. Keys are component names (e.g., 'table', 'chart-bar'), values are field overrides. Component names must match those in CONFIG_OPTIONS_ALL_COMPONETS."
+        }
+      },
+      "title": "AgentConfigPrompt",
+      "type": "object"
+    },
+    "AgentConfigPromptComponent": {
+      "description": "Component metadata overrides for LLM prompts.\n\nAllows overriding any field from COMPONENT_METADATA for a specific component.\nAvailable fields depend on component type:\n- All components: description, twostep_step2_example, twostep_step2_rules\n- Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples",
+      "properties": {
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override component description used in LLM prompts"
+        },
+        "twostep_step2_example": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override example for two-step strategy field selection"
+        },
+        "twostep_step2_rules": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override rules for two-step strategy field selection"
+        },
+        "chart_description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart type description (chart components only)"
+        },
+        "chart_fields_spec": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart fields specification (chart components only)"
+        },
+        "chart_rules": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart-specific rules (chart components only)"
+        },
+        "chart_inline_examples": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override inline chart examples (chart components only)"
+        }
+      },
+      "title": "AgentConfigPromptComponent",
+      "type": "object"
+    },
     "DataField": {
       "description": "UI Component Field Metadata.",
       "properties": {
@@ -231,6 +344,63 @@
       "default": "json",
       "description": "Transformer used to parse the input data (can be overriden on 'data type' level). Default `json`, available transformers: `yaml`, `csv-comma`, `csv-semicolon`, `csv-tab`. Other transformers can be installed, see docs."
     },
+    "selectable_components": {
+      "anyOf": [
+        {
+          "items": {
+            "anyOf": [
+              {
+                "const": "one-card",
+                "type": "string"
+              },
+              {
+                "const": "image",
+                "type": "string"
+              },
+              {
+                "const": "video-player",
+                "type": "string"
+              },
+              {
+                "const": "table",
+                "type": "string"
+              },
+              {
+                "const": "set-of-cards",
+                "type": "string"
+              },
+              {
+                "const": "chart-bar",
+                "type": "string"
+              },
+              {
+                "const": "chart-line",
+                "type": "string"
+              },
+              {
+                "const": "chart-pie",
+                "type": "string"
+              },
+              {
+                "const": "chart-donut",
+                "type": "string"
+              },
+              {
+                "const": "chart-mirrored-bar",
+                "type": "string"
+              }
+            ]
+          },
+          "type": "array",
+          "uniqueItems": true
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "List of components that can be selected by the agent's LLM for data visualization. If not set, all components are selectable."
+    },
     "component_selection_strategy": {
       "anyOf": [
         {
@@ -244,7 +414,7 @@
           "type": "null"
         }
       ],
-      "default": null,
+      "default": "one_llm_call",
       "description": "Strategy for LLM powered component selection and configuration step. Possible values: `one_llm_call` (default) - uses one LLM call, `two_llm_calls` - use two LLM calls - experimental!"
     },
     "data_types": {
@@ -271,13 +441,25 @@
           "type": "null"
         }
       ],
-      "default": null,
+      "default": true,
       "description": "If `True` (default), the agent will wrap the JSON input data into data type field if necessary due to its structure. If `False`, the agent will never wrap the JSON input data into data type field."
     },
     "generate_all_fields": {
       "default": false,
       "description": "If `True`, the agent will generate all possible view Fields for the UI component into its output configuration `UIBlockComponentMetadata.fields_all`, if `False` then all fields aren't generated. Can be overriden for individual `data_types`. Supported only for `table` and `set-of-cards` components.",
       "type": "boolean"
+    },
+    "prompt": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AgentConfigPrompt"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Prompt-related configuration for LLM interactions. Allows customizing component descriptions, rules, and examples used in agent prompts."
     }
   },
   "title": "AgentConfig",
