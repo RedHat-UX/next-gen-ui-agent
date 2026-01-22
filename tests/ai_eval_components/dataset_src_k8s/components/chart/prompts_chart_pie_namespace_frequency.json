@@ -1,7 +1,0 @@
-[
-  "Count pods per namespace",
-  "How many pods in each namespace?",
-  "Show namespace distribution",
-  "Display pod count by namespace as pie chart",
-  "Which namespaces have the most pods?"
-]
