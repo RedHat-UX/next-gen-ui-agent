@@ -57,6 +57,18 @@
             ]
           },
           "type": "array"
+        },
+        "formatter": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional identifier for a formatter function to customize cell rendering. The formatter should be registered in the frontend component registry."
         }
       },
       "required": [
