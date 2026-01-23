@@ -36,6 +36,49 @@ class MCPSamplingInference(InferenceBase):
         self.speed_priority = speed_priority
         self.intelligence_priority = intelligence_priority
 
+    def _get_client_identification(self) -> str:
+        """Extract client identification information from the MCP context.
+
+        Returns:
+            A string identifying the client, formatted as "<name> v<version>" or "Unknown Client"
+        """
+        try:
+            # Access client_params from session which contains client info
+            client_params = self.ctx.session.client_params
+
+            if client_params and hasattr(client_params, "clientInfo"):
+                client_info = client_params.clientInfo
+                if client_info:
+                    name = client_info.name
+                    version = getattr(client_info, "version", None)
+                    if version:
+                        return f"{name} v{version}"
+                    return name
+
+            # Fallback to unknown
+            return "Unknown Client"
+
+        except Exception as e:
+            logger.debug("Could not extract client identification: %s", e)
+            return "Unknown Client"
+
+    def _check_sampling_capability(self) -> bool:
+        """Check if the MCP client supports sampling capability.
+
+        Returns:
+            True if sampling is supported or cannot be determined, False if explicitly not supported
+        """
+        try:
+
+            return (
+                self.ctx.session.client_params is not None
+                and self.ctx.session.client_params.capabilities.sampling is not None
+            )
+
+        except Exception as e:
+            logger.debug("Sampling capability information not available: %s", e)
+            return False
+
     async def call_model(self, system_msg: str, prompt: str) -> str:
         """Call the LLM model using MCP sampling.
 
@@ -46,6 +89,27 @@ class MCPSamplingInference(InferenceBase):
         Returns:
             The LLM response as a string
         """
+        # Check if the MCP client supports sampling capability before attempting to use it
+        if not self._check_sampling_capability():
+            client_id = self._get_client_identification()
+            request_id = self.ctx.request_id or "unknown"
+
+            # Log warning with client identification
+            logger.warning(
+                "MCP Sampling Not Available - Client: %s (Request: %s) does not support 'sampling' capability",
+                client_id,
+                request_id,
+            )
+
+            # Raise descriptive error
+            raise RuntimeError(
+                f"MCP sampling is not available. The calling MCP client '{client_id}' does not support "
+                f"the 'sampling' capability required for using the client's LLM to generate UI components.\n\n"
+                f"Please either:\n"
+                f"1. Use an MCP client that supports sampling (e.g., Claude Desktop, Cline, etc.)\n"
+                f"2. Configure UI Agent to use an external inference provider (`--provider openai` or `--provider anthropic`)"
+            )
+
         try:
             # Create sampling message for the LLM call
             user_message = types.SamplingMessage(

@@ -111,7 +111,8 @@ class TestGenerateUIComponent:
 
         # Mock the context methods to avoid the "context not available" error during testing
         async with Client(
-            mcp_server, sampling_handler=sampling_handler_image
+            mcp_server,
+            sampling_handler=sampling_handler_image,
         ) as client:
             # Test the generate_ui tool through the MCP server
             with pytest.raises(Exception) as excinfo:
@@ -128,6 +129,34 @@ class TestGenerateUIComponent:
                 str(excinfo.value)
                 == "Error calling tool 'generate_ui_component': Failed to call model via MCP sampling: Sample Response returned unknown type: image"
             )
+
+    @pytest.mark.asyncio
+    async def test_sampling_not_available(self) -> None:
+        """Test error handling when MCP sampling is needed but client doesn't support it."""
+        # Create agent configured for MCP sampling (no external inference)
+        ngui_agent = NextGenUIMCPServer(
+            config=MCPAgentConfig(component_system="json"),
+            # NOTE: No inference parameter = expects to use MCP sampling
+        )
+
+        movies_data = find_movie("Toy Story")
+
+        # Create client WITHOUT sampling_handler - this client won't support sampling
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            with pytest.raises(ToolError) as excinfo:
+                await client.call_tool(
+                    "generate_ui_component",
+                    {
+                        "user_prompt": "Tell me brief details of Toy Story",
+                        "data": json.dumps(movies_data, default=str),
+                        "data_type": "movie_detail",
+                    },
+                )
+
+            # Verify the error message indicates sampling is not available
+            error_msg = str(excinfo.value)
+            assert "MCP sampling is not available" in error_msg
+            assert "does not support the 'sampling' capability" in error_msg
 
     @pytest.mark.asyncio
     async def test_session_id(self, external_inference) -> None:
