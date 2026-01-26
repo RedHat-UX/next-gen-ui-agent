@@ -518,8 +518,19 @@ class TestJsonInputDataTransformerDetectMyDataStructure:
 
     def test_detect_valid_json_object(self) -> None:
         """Test detection returns True for valid JSON object (covers: starts with {, has quotes/colons/structural chars)."""
+        # Single line
         input_data = cast(
             InputData, {"id": "test1", "data": '{"name": "John", "age": 30}'}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+        # Multi-line with indentation (using \n)
+        input_data = cast(
+            InputData,
+            {
+                "id": "test1_multiline",
+                "data": '{\n    "name": "John",\n    "age": 30\n}',
+            },
         )
         assert self.transformer.detect_my_data_structure(input_data) is True
 
@@ -527,6 +538,116 @@ class TestJsonInputDataTransformerDetectMyDataStructure:
         """Test detection returns True for valid JSON array (covers: starts with [, has structural chars)."""
         input_data = cast(InputData, {"id": "test2", "data": '[1, 2, 3, "hello"]'})
         assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_json_array_of_numbers(self) -> None:
+        """Test detection returns True for JSON array containing only numbers."""
+        # Single line
+        input_data = cast(
+            InputData, {"id": "test_numbers", "data": "[1, 2, 3, 42, 100]"}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+        # Multi-line with indentation (using \n)
+        input_data = cast(
+            InputData,
+            {
+                "id": "test_numbers_multiline",
+                "data": "[\n    1,\n    2,\n    3,\n    42,\n    100\n]",
+            },
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_json_array_of_booleans(self) -> None:
+        """Test detection returns True for JSON array containing only booleans."""
+        input_data = cast(
+            InputData, {"id": "test_booleans", "data": "[true, false, true, false]"}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_json_array_of_mixed_primitives(self) -> None:
+        """Test detection returns True for JSON array with mixed primitives (numbers, booleans, null)."""
+        input_data = cast(
+            InputData, {"id": "test_mixed", "data": "[1, true, null, 3.14, false]"}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_json_array_with_objects(self) -> None:
+        """Test detection returns True for array containing objects (requires quotes and colons)."""
+        input_data = cast(
+            InputData,
+            {"id": "test_objects", "data": '[{"name": "Alice"}, {"name": "Bob"}]'},
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_json_array_of_strings(self) -> None:
+        """Test detection returns True for array of strings (has quotes and commas)."""
+        input_data = cast(
+            InputData, {"id": "test_strings", "data": '["hello", "world", "test"]'}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+        # Multi-line (using \n)
+        input_data = cast(
+            InputData,
+            {
+                "id": "test_strings_multiline",
+                "data": '[\n    "hello",\n    "world",\n    "test"\n]',
+            },
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_empty_array_not_detected(self) -> None:
+        """Test that empty arrays are not detected by heuristics (acceptable trade-off)."""
+        input_data = cast(InputData, {"id": "test_empty", "data": "[]"})
+        # Empty array only has 2 brackets, no quotes/commas/keywords/nested arrays
+        # Heuristic returns False to avoid false positives
+        # Note: transform() will still work correctly if data is passed to it
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_single_element_arrays(self) -> None:
+        """Test detection behavior for single-element arrays.
+
+        Numbers: Not detected (acceptable trade-off to avoid false positives)
+        Booleans/null: Detected (has JSON keywords)
+        """
+        # Single number - not detected (no commas, quotes, keywords, or nesting)
+        input_data = cast(InputData, {"id": "test_single_number", "data": "[42]"})
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+        # Single boolean - detected (has JSON keyword "true")
+        input_data = cast(InputData, {"id": "test_single_bool", "data": "[true]"})
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+        # Single null - detected (has JSON keyword "null")
+        input_data = cast(InputData, {"id": "test_single_null", "data": "[null]"})
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_json_nested_arrays(self) -> None:
+        """Test detection returns True for nested arrays."""
+        # Single line
+        input_data = cast(
+            InputData, {"id": "test_nested", "data": "[[1, 2], [3, 4], [5, 6]]"}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+        # Multi-line with nested indentation (using \n)
+        input_data = cast(
+            InputData,
+            {
+                "id": "test_nested_multiline",
+                "data": "[\n    [1, 2],\n    [3, 4],\n    [5, 6]\n]",
+            },
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_invalid_not_json_array_like(self) -> None:
+        """Test detection returns False for bracket-enclosed non-JSON content."""
+        # Some text that starts with [ but isn't JSON
+        input_data = cast(
+            InputData, {"id": "test_invalid", "data": "[This is not JSON at all]"}
+        )
+        # Should fail because no quotes/commas/keywords
+        assert self.transformer.detect_my_data_structure(input_data) is False
 
     def test_detect_invalid_not_starts_with_bracket(self) -> None:
         """Test detection returns False when data doesn't start with { or [ (covers: first char check)."""

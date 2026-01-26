@@ -950,7 +950,7 @@ class TestCsvInputDataTransformerDetectMyDataStructure:
     def test_detect_csv_allows_optional_trailing_field(self) -> None:
         """Test detection allows ±1 delimiter difference (covers: tolerance for trailing commas)."""
         transformer = CsvCommaInputDataTransformer()
-        input_data = cast(InputData, {"id": "test4", "data": "a,b,c\n1,2,3,\n5,6,7"})
+        input_data = cast(InputData, {"id": "test4", "data": "a,b,c\n1,2,3,\n5,6,7\n"})
         assert transformer.detect_my_data_structure(input_data) is True
 
     def test_detect_invalid_no_delimiter(self) -> None:

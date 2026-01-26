@@ -21,27 +21,7 @@ Can be overriden [per data type](#data_transformer-str-optional_1). Defaults to 
 
 Controls whether the agent automatically detects the appropriate [Input Data Transformer](./input_data/transformation.md) based on data structure when no transformer is explicitly configured (default: `True`).
 
-When enabled (`True`), the agent will run through detection methods provided in transformers' code trying to find one that confirms the input data structure matches particular transformer type. In case none will be matched the default data transformer will be used as configured in the above `data_transformer` setting.
-
-If you disable this setting (`False`), the code will directly rely on what was configured for particular `data_type` or the default `data_transformer`.
-
-**Example - Disabling auto-detection:**
-
-```python
-config = {
-    "enable_input_data_type_detection": False,
-    "data_transformer": "json"  # Always use JSON
-}
-```
-
-**Example - Enabling auto-detection (default):**
-
-```python
-config = {
-    "enable_input_data_type_detection": True  # Optional, True by default
-    # No data_transformer specified - will be auto-detected or fallback to the default JSON transformer will happen
-}
-```
+More detailed information can be found in [Configuring data transformation auto detection](./input_data/transformation.md#configuring-data-transformation-auto-detection) section of our Input Data Transformation guide.
 
 
 ### `selectable_components` [`set[str]`, optional]

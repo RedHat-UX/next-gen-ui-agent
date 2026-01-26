@@ -462,3 +462,51 @@ class TestFwctableInputDataTransformerDetectMyDataStructure:
         assert (
             elapsed_time < 0.01
         ), f"Detection took {elapsed_time:.4f}s, expected <0.01s"
+
+    def test_detect_invalid_column_count_mismatch_fewer_data_columns(self) -> None:
+        """Test detection returns False when data line has fewer columns than header."""
+        input_data = cast(
+            InputData,
+            {
+                "id": "test7",
+                "data": "name    age  city\nJohn    30",
+            },
+        )
+        # Header has 3 columns but data line has only 2 columns
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_invalid_column_count_mismatch_more_data_columns(self) -> None:
+        """Test detection returns False when data line has more columns than header."""
+        input_data = cast(
+            InputData,
+            {
+                "id": "test8",
+                "data": "name    age\nJohn    30   New York",
+            },
+        )
+        # Header has 2 columns but data line has 3 columns
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_invalid_single_space_delimited_data(self) -> None:
+        """Test detection returns False when data rows use single spaces instead of 2+ whitespace."""
+        input_data = cast(
+            InputData,
+            {
+                "id": "test9",
+                "data": "name    age  city\nJohn 30 New York\nJane 25 Boston",
+            },
+        )
+        # Header has multiple spaces, but data rows use single spaces
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_valid_when_data_aligns_with_header_columns(self) -> None:
+        """Test detection returns True when data aligns with header column positions."""
+        input_data = cast(
+            InputData,
+            {
+                "id": "test10",
+                "data": "name    age  city\nJohn    30   New York\nJane    25   Boston",
+            },
+        )
+        # Both header and data rows have proper alignment with matching column counts
+        assert self.transformer.detect_my_data_structure(input_data) is True

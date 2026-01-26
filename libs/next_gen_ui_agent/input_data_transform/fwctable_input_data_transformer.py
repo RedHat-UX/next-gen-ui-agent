@@ -19,8 +19,8 @@ class FwctableInputDataTransformer(InputDataTransformerBase):
 
     def detect_my_data_structure(self, input_data: InputData) -> bool:
         """
-        Detect if input data is valid FWCTABLE by checking header line.
-        For efficiency, only checks first 1KB to find header and verify pattern.
+        Detect if input data is valid FWCTABLE by checking header line and data line patterns.
+        For efficiency, only checks first 1KB and uses simple pattern matching.
         """
         data_str = input_data["data"]
         # Only check first 1KB to find header
@@ -32,7 +32,20 @@ class FwctableInputDataTransformer(InputDataTransformerBase):
 
         # Check for 2+ whitespace separators in header (COLUMN_SEPARATOR_PATTERN)
         header_line = lines[0]
-        return bool(COLUMN_SEPARATOR_PATTERN.search(header_line))
+        if not COLUMN_SEPARATOR_PATTERN.search(header_line):
+            return False
+
+        # Check that first data line also has 2+ whitespace separators
+        # This simple check distinguishes fixed-width tables from single-space delimited data
+        data_line = lines[1]
+        if not COLUMN_SEPARATOR_PATTERN.search(data_line):
+            return False
+
+        # Compare column counts: split by 2+ whitespace and count fields
+        header_columns = COLUMN_SEPARATOR_PATTERN.split(header_line.strip())
+        data_columns = COLUMN_SEPARATOR_PATTERN.split(data_line.strip())
+
+        return len(header_columns) == len(data_columns)
 
     def transform(self, input_data: str) -> Any:
         """

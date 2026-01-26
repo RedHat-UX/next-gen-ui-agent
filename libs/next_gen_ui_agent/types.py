@@ -252,7 +252,7 @@ class AgentConfig(BaseModel):
     )
     """
     If `True` (default), the agent will attempt to auto-detect the appropriate input data transformer based on data structure when no transformer is explicitly configured for a data type.
-    If `False`, auto-detection is disabled and the default transformer is always used.
+    If `False`, auto-detection is disabled and the default transformer is always used unless explicitly configured for a data type.
     """
 
 
