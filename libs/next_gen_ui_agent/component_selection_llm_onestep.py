@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Optional, cast
 
 from next_gen_ui_agent.component_metadata import get_component_metadata
 from next_gen_ui_agent.component_selection_common import (
@@ -48,7 +48,14 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         merged_metadata = get_component_metadata(config)
         set_active_component_metadata(merged_metadata)
 
-        self._system_prompt = self._build_system_prompt(config.selectable_components)
+        # Cache for system prompts by component set (for performance)
+        self._system_prompt_cache: dict[frozenset[str], str] = {}
+
+        # Build and cache default system prompt for backward compatibility
+        self._config_selectable_components = config.selectable_components
+        self._system_prompt = self._get_or_build_system_prompt(
+            config.selectable_components
+        )
 
     def get_system_prompt(self) -> str:
         """
@@ -101,14 +108,52 @@ AVAILABLE UI COMPONENTS:
 
         return system_prompt
 
+    def _get_or_build_system_prompt(
+        self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
+    ) -> str:
+        """
+        Get or build system prompt with caching.
+
+        Args:
+            allowed_components_config: Set of allowed component names, or None for all components
+
+        Returns:
+            Cached or newly built system prompt string
+        """
+        # Normalize components
+        allowed_components = normalize_allowed_components(allowed_components_config)
+
+        # Use frozenset as cache key
+        cache_key = frozenset(allowed_components)
+
+        # Check cache
+        if cache_key not in self._system_prompt_cache:
+            # Build and cache
+            self._system_prompt_cache[cache_key] = self._build_system_prompt(
+                allowed_components_config
+            )
+
+        return self._system_prompt_cache[cache_key]
+
     async def perform_inference(
         self,
         inference: InferenceBase,
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
+        allowed_components: Optional[set[str]] = None,
+        components_config: Optional[dict[str, Any]] = None,
     ) -> InferenceResult:
-        """Run Component Selection inference."""
+        """Run Component Selection inference.
+
+        Args:
+            inference: Inference to use to call LLM
+            user_prompt: User prompt to be processed
+            json_data: JSON data parsed into python objects
+            input_data_id: ID of the input data
+            allowed_components: Optional set of component names to filter selection to
+            components_config: Optional mapping (not actively used in onestep, for API consistency)
+        """
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(
@@ -117,8 +162,16 @@ AVAILABLE UI COMPONENTS:
             # logger.debug(user_prompt)
             # logger.debug(input_data)
 
-        # Use pre-constructed system prompt
-        sys_msg_content = self._system_prompt
+        # Get or build cached system prompt
+        components_to_use = cast(
+            CONFIG_OPTIONS_ALL_COMPONETS,
+            (
+                allowed_components
+                if allowed_components is not None
+                else self._config_selectable_components
+            ),
+        )
+        sys_msg_content = self._get_or_build_system_prompt(components_to_use)
 
         prompt = f"""=== User query ===
     {user_prompt}

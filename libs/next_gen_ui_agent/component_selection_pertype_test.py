@@ -225,15 +225,180 @@ def test_init_pertype_components_mapping_DYNAMIC_COMPONENT_WITHOUT_CONFIGURATION
         )
 
 
-def test_init_pertype_components_mapping_MULTIPLE_COMPONENT_PER_TYPE_ERROR() -> None:
-    with pytest.raises(ValueError):
+def test_init_pertype_components_mapping_MULTIPLE_COMPONENTS_PER_TYPE() -> None:
+    """Test that multiple components per type are now allowed and stored correctly."""
+    init_pertype_components_mapping(
+        AgentConfig(
+            data_types={
+                "my.type": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(
+                            component="table",
+                            configuration=AgentConfigDynamicComponentConfiguration(
+                                title="Table View",
+                                fields=[DataField(name="Name", data_path="$..name")],
+                            ),
+                        ),
+                        AgentConfigComponent(
+                            component="set-of-cards",
+                            configuration=AgentConfigDynamicComponentConfiguration(
+                                title="Cards View",
+                                fields=[DataField(name="Name", data_path="$..name")],
+                            ),
+                        ),
+                    ]
+                )
+            }
+        )
+    )
+    # Should store list of components
+    assert "my.type" in components_mapping
+    assert isinstance(components_mapping["my.type"], list)
+    assert len(components_mapping["my.type"]) == 2
+
+
+def test_llm_configure_false_without_config_error() -> None:
+    """Test that llm_configure=False without configuration raises ValueError."""
+    with pytest.raises(
+        ValueError, match="has llm_configure=False but no configuration provided"
+    ):
         init_pertype_components_mapping(
             AgentConfig(
                 data_types={
                     "my.type": AgentConfigDataType(
                         components=[
-                            AgentConfigComponent(component="one-card"),
-                            AgentConfigComponent(component="one-card-special"),
+                            AgentConfigComponent(
+                                component="table",
+                                llm_configure=False,
+                                # Missing configuration!
+                            )
+                        ]
+                    )
+                }
+            )
+        )
+
+
+def test_llm_configure_true_without_config_ok() -> None:
+    """Test that llm_configure=True (default) without configuration is OK for multi-component."""
+    # This should not raise error for multi-component config
+    init_pertype_components_mapping(
+        AgentConfig(
+            data_types={
+                "my.type": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(
+                            component="table",
+                            llm_configure=True,
+                            # No configuration - LLM will generate
+                        ),
+                        AgentConfigComponent(
+                            component="set-of-cards",
+                            llm_configure=True,
+                            # No configuration - LLM will generate
+                        ),
+                    ]
+                )
+            }
+        )
+    )
+    assert "my.type" in components_mapping
+    assert isinstance(components_mapping["my.type"], list)
+
+
+def test_hbc_with_llm_configure_error() -> None:
+    """Test that HBC with llm_configure flag raises ValueError."""
+    with pytest.raises(
+        ValueError,
+        match="is a hand-build component and cannot use llm_configure option",
+    ):
+        init_pertype_components_mapping(
+            AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[
+                            AgentConfigComponent(
+                                component="my-custom-hbc",
+                                llm_configure=False,  # ERROR: HBC can't use this
+                            )
+                        ]
+                    )
+                }
+            )
+        )
+
+
+def test_hbc_with_configuration_error() -> None:
+    """Test that HBC with configuration raises ValueError."""
+    with pytest.raises(
+        ValueError, match="is a hand-build component and cannot have configuration"
+    ):
+        init_pertype_components_mapping(
+            AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[
+                            AgentConfigComponent(
+                                component="my-custom-hbc",
+                                configuration=AgentConfigDynamicComponentConfiguration(
+                                    title="Test",
+                                    fields=[
+                                        DataField(name="Name", data_path="$..name")
+                                    ],
+                                ),  # ERROR: HBC can't have configuration
+                            )
+                        ]
+                    )
+                }
+            )
+        )
+
+
+def test_hbc_without_llm_configure_ok() -> None:
+    """Test that HBC works correctly without llm_configure or configuration."""
+    init_pertype_components_mapping(
+        AgentConfig(
+            data_types={
+                "my.type": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(
+                            component="my-custom-hbc",
+                            # No llm_configure, no configuration - correct for HBC
+                        )
+                    ]
+                )
+            }
+        )
+    )
+    assert "my.type" in components_mapping
+    assert isinstance(
+        components_mapping["my.type"], UIComponentMetadataHandBuildComponent
+    )
+
+
+def test_hbc_must_be_only_component() -> None:
+    """Test that HBC cannot be mixed with other components (temporary restriction)."""
+    with pytest.raises(
+        ValueError,
+        match="Hand-build components must be the only component configured for a data type",
+    ):
+        init_pertype_components_mapping(
+            AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[
+                            AgentConfigComponent(
+                                component="my-custom-hbc",
+                            ),
+                            AgentConfigComponent(
+                                component="table",
+                                configuration=AgentConfigDynamicComponentConfiguration(
+                                    title="Table View",
+                                    fields=[
+                                        DataField(name="Name", data_path="$..name")
+                                    ],
+                                ),
+                            ),
                         ]
                     )
                 }

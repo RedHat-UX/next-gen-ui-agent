@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Optional, cast
 
 from next_gen_ui_agent.component_metadata import get_component_metadata
 from next_gen_ui_agent.component_selection_common import (
@@ -25,6 +25,7 @@ from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import (
     CONFIG_OPTIONS_ALL_COMPONETS,
     AgentConfig,
+    AgentConfigComponent,
     UIComponentMetadata,
 )
 from pydantic_core import from_json
@@ -50,7 +51,12 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         merged_metadata = get_component_metadata(config)
         set_active_component_metadata(merged_metadata)
 
-        self._step1_system_prompt = self._build_step1_system_prompt(
+        # Cache for step 1 system prompts by component set (for performance)
+        self._system_prompt_step1_cache: dict[frozenset[str], str] = {}
+
+        # Build and cache default step 1 system prompt for backward compatibility
+        self._config_selectable_components = config.selectable_components
+        self._step1_system_prompt = self._get_or_build_step1_system_prompt(
             config.selectable_components
         )
 
@@ -104,6 +110,33 @@ AVAILABLE UI COMPONENTS:
 
         return system_prompt
 
+    def _get_or_build_step1_system_prompt(
+        self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
+    ) -> str:
+        """
+        Get or build step 1 system prompt with caching.
+
+        Args:
+            allowed_components_config: Set of allowed component names, or None for all components
+
+        Returns:
+            Cached or newly built system prompt string for step 1
+        """
+        # Normalize components
+        allowed_components = normalize_allowed_components(allowed_components_config)
+
+        # Use frozenset as cache key
+        cache_key = frozenset(allowed_components)
+
+        # Check cache
+        if cache_key not in self._system_prompt_step1_cache:
+            # Build and cache
+            self._system_prompt_step1_cache[cache_key] = (
+                self._build_step1_system_prompt(allowed_components_config)
+            )
+
+        return self._system_prompt_step1_cache[cache_key]
+
     def parse_infernce_output(
         self, inference_result: InferenceResult, input_data_id: str
     ) -> UIComponentMetadata:
@@ -153,8 +186,20 @@ AVAILABLE UI COMPONENTS:
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
+        allowed_components: Optional[set[str]] = None,
+        components_config: Optional[dict[str, AgentConfigComponent]] = None,
     ) -> InferenceResult:
-        """Run Component Selection inference."""
+        """Run Component Selection inference.
+
+        Args:
+            inference: Inference to use to call LLM
+            user_prompt: User prompt to be processed
+            json_data: JSON data parsed into python objects
+            input_data_id: ID of the input data
+            allowed_components: Optional set of component names to filter selection to
+            components_config: Optional mapping of component names to their configs
+                               (used to check llm_configure flag and skip step 2 if needed)
+        """
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(
@@ -167,11 +212,33 @@ AVAILABLE UI COMPONENTS:
         llm_interactions: list[LLMInteraction] = []
 
         raw_response_1 = await self.inference_step_1(
-            inference, user_prompt, data_for_llm, llm_interactions
+            inference, user_prompt, data_for_llm, llm_interactions, allowed_components
         )
         response_1 = trim_to_json(raw_response_1)
 
         if self.select_component_only:
+            return InferenceResult(
+                outputs=[response_1], llm_interactions=llm_interactions
+            )
+
+        # Check if we should skip step 2 (for llm_configure=False components)
+        skip_step_2 = False
+        if components_config:
+            # Parse step 1 response to get selected component name
+            try:
+                step1_data = from_json(response_1, allow_partial=True)
+                selected_component = step1_data.get("component")
+                if selected_component and selected_component in components_config:
+                    component_config = components_config[selected_component]
+                    if component_config.llm_configure is False:
+                        # Skip step 2 for pre-configured components
+                        skip_step_2 = True
+            except Exception:
+                # If parsing fails, continue with step 2 (safe default)
+                pass
+
+        if skip_step_2:
+            # Return only step 1 result (caller will merge with pre-config)
             return InferenceResult(
                 outputs=[response_1], llm_interactions=llm_interactions
             )
@@ -191,11 +258,28 @@ AVAILABLE UI COMPONENTS:
         user_prompt,
         json_data_for_llm: str,
         llm_interactions: list[LLMInteraction],
+        allowed_components: Optional[set[str]] = None,
     ):
-        """Run Component Selection inference."""
+        """Run Component Selection inference (step 1).
 
-        # Use pre-constructed system prompt
-        sys_msg_content = self._step1_system_prompt
+        Args:
+            inference: Inference to use
+            user_prompt: User prompt
+            json_data_for_llm: JSON data as string
+            llm_interactions: List to append interaction metadata to
+            allowed_components: Optional set of component names to filter to
+        """
+
+        # Get or build cached system prompt
+        components_to_use = cast(
+            CONFIG_OPTIONS_ALL_COMPONETS,
+            (
+                allowed_components
+                if allowed_components is not None
+                else self._config_selectable_components
+            ),
+        )
+        sys_msg_content = self._get_or_build_step1_system_prompt(components_to_use)
 
         prompt = f"""=== User query ===
 {user_prompt}

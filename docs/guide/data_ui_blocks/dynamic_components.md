@@ -1,12 +1,11 @@
 # Dynamic Components
 
-These fully AI/LLM selected and configured dynamic *Data UI Blocks* are now supported by *UI Agent*. UI Agent selects UI 
+These fully AI/LLM selected and configured dynamic *Data UI Blocks* are supported by *UI Agent*. UI Agent selects UI 
 component which matches best the current user prompt and [input data structure](../input_data/structure.md).
 *UI Agent* selects from all the supported components by default, but you can narrow choice to the components suitable for your application
 [in the configuration](../configuration.md#selectable_components-setstr-optional).
 
-Optionally, this components can be [mapped per `InputData.type` and pre-configured in this mapping](../configuration.md#components-listagentconfigcomponent-optional),
-LLM is not used/necessary in this case.
+Optionally, this components can be [mapped per `InputData.type` and optionally pre-configured in this mapping](../configuration.md#components-listagentconfigcomponent-optional).
 
 See details about [component selection and configuration process](index.md#selection-and-configuration-process).
 

@@ -81,6 +81,15 @@ class AgentConfigComponent(BaseModel):
     )
     """Optional pre-configuration of the dynamic component to be used."""
 
+    llm_configure: Optional[bool] = Field(
+        default=True,
+        description="If True, LLM generates configuration. If False, pre-defined configuration must be provided and will be used. Only applicable to dynamic components, not hand-build components.",
+    )
+    """
+    If True, LLM generates configuration (fields). If False, pre-defined configuration from `configuration` field is used.
+    Only applicable to dynamic components. Hand-build components must not use this field.
+    """
+
 
 class AgentConfigDataType(BaseModel):
     """Agent Configuration for the Data Type."""
