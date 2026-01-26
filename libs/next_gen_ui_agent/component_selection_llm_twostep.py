@@ -1,7 +1,10 @@
 import logging
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
-from next_gen_ui_agent.component_metadata import get_component_metadata
+from next_gen_ui_agent.component_metadata import (
+    get_component_metadata,
+    merge_per_component_prompt_overrides,
+)
 from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
     TWOSTEP_STEP1_PROMPT_RULES,
@@ -12,7 +15,6 @@ from next_gen_ui_agent.component_selection_common import (
     build_twostep_step2_example,
     build_twostep_step2_rules,
     normalize_allowed_components,
-    set_active_component_metadata,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
@@ -21,9 +23,9 @@ from next_gen_ui_agent.component_selection_llm_strategy import (
     trim_to_json,
     validate_and_correct_chart_type,
 )
+from next_gen_ui_agent.component_selection_pertype import DYNAMIC_COMPONENT_NAMES
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import (
-    CONFIG_OPTIONS_ALL_COMPONETS,
     AgentConfig,
     AgentConfigComponent,
     UIComponentMetadata,
@@ -47,17 +49,18 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         super().__init__(logger, config)
         self.select_component_only = select_component_only
 
-        # Get merged metadata with overrides and set it globally
-        merged_metadata = get_component_metadata(config)
-        set_active_component_metadata(merged_metadata)
+        # Store full config for data_type lookups
+        self.config = config
 
-        # Cache for step 1 system prompts by component set (for performance)
-        self._system_prompt_step1_cache: dict[frozenset[str], str] = {}
+        # Get merged metadata with global overrides
+        self._base_metadata = get_component_metadata(config)
+
+        # Cache for step 1 system prompts by data_type (for performance)
+        self._system_prompt_step1_cache: dict[str | None, str] = {}
 
         # Build and cache default step 1 system prompt for backward compatibility
-        self._config_selectable_components = config.selectable_components
         self._step1_system_prompt = self._get_or_build_step1_system_prompt(
-            config.selectable_components
+            data_type=None
         )
 
     def get_system_prompt(self) -> str:
@@ -67,21 +70,26 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         return self._step1_system_prompt
 
     def _build_step1_system_prompt(
-        self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
+        self, allowed_components_config: set[str] | None, metadata: dict
     ) -> str:
         """
         Build complete step 1 system prompt based on allowed components.
 
         Args:
             allowed_components_config: Set of allowed component names, or None for all components
+            metadata: Component metadata dictionary to use
 
         Returns:
             Complete system prompt string for step 1
         """
-        allowed_components = normalize_allowed_components(allowed_components_config)
+        allowed_components = normalize_allowed_components(
+            allowed_components_config, metadata
+        )
 
         # Get filtered component descriptions
-        components_description = build_components_description(allowed_components)
+        components_description = build_components_description(
+            allowed_components, metadata
+        )
 
         # Get filtered examples
         response_examples = build_twostep_step1_examples(allowed_components)
@@ -90,7 +98,7 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         allowed_charts = allowed_components & CHART_COMPONENTS
 
         # Get chart instructions (empty if no charts)
-        chart_instructions = build_chart_instructions(allowed_charts)
+        chart_instructions = build_chart_instructions(allowed_charts, metadata)
 
         # Build the complete system prompt
         system_prompt = f"""You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
@@ -110,29 +118,54 @@ AVAILABLE UI COMPONENTS:
 
         return system_prompt
 
-    def _get_or_build_step1_system_prompt(
-        self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
-    ) -> str:
+    def _get_or_build_step1_system_prompt(self, data_type: str | None) -> str:
         """
         Get or build step 1 system prompt with caching.
 
         Args:
-            allowed_components_config: Set of allowed component names, or None for all components
+            data_type: Data type identifier (or None for global selection)
 
         Returns:
             Cached or newly built system prompt string for step 1
         """
-        # Normalize components
-        allowed_components = normalize_allowed_components(allowed_components_config)
-
-        # Use frozenset as cache key
-        cache_key = frozenset(allowed_components)
+        # Use data_type as cache key
+        cache_key = data_type
 
         # Check cache
         if cache_key not in self._system_prompt_step1_cache:
+            # Determine allowed components and metadata based on data_type
+            if (
+                data_type
+                and self.config.data_types
+                and data_type in self.config.data_types
+            ):
+                # Extract component names from data_type configuration
+                components_list = self.config.data_types[data_type].components
+                if components_list:
+                    allowed_components_set = {
+                        comp.component for comp in components_list
+                    }
+
+                    # Merge per-component prompt overrides
+                    merged_metadata = merge_per_component_prompt_overrides(
+                        self._base_metadata, components_list
+                    )
+                else:
+                    allowed_components_set = set(self._base_metadata.keys())
+                    merged_metadata = self._base_metadata
+            else:
+                # Global selection - use selectable_components
+                allowed_components_set = (
+                    set(self.config.selectable_components)
+                    if self.config.selectable_components
+                    else set(self._base_metadata.keys())
+                )
+                # Use base metadata for global selection
+                merged_metadata = self._base_metadata
+
             # Build and cache
             self._system_prompt_step1_cache[cache_key] = (
-                self._build_step1_system_prompt(allowed_components_config)
+                self._build_step1_system_prompt(allowed_components_set, merged_metadata)
             )
 
         return self._system_prompt_step1_cache[cache_key]
@@ -186,8 +219,7 @@ AVAILABLE UI COMPONENTS:
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
-        allowed_components: Optional[set[str]] = None,
-        components_config: Optional[dict[str, AgentConfigComponent]] = None,
+        data_type: Optional[str] = None,
     ) -> InferenceResult:
         """Run Component Selection inference.
 
@@ -196,14 +228,14 @@ AVAILABLE UI COMPONENTS:
             user_prompt: User prompt to be processed
             json_data: JSON data parsed into python objects
             input_data_id: ID of the input data
-            allowed_components: Optional set of component names to filter selection to
-            components_config: Optional mapping of component names to their configs
-                               (used to check llm_configure flag and skip step 2 if needed)
+            data_type: Optional data type identifier for data_type-specific prompt customization
         """
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(
-                "---CALL component_selection_inference--- id: %s", {input_data_id}
+                "---CALL component_selection_inference--- id: %s, data_type: %s",
+                input_data_id,
+                data_type,
             )
 
         data_for_llm = str(json_data)
@@ -211,8 +243,20 @@ AVAILABLE UI COMPONENTS:
         # Initialize LLM interactions list
         llm_interactions: list[LLMInteraction] = []
 
+        # Determine metadata based on data_type (for step 2)
+        metadata_for_step2 = self._base_metadata
+        components_config: Optional[dict[str, AgentConfigComponent]] = None
+        if data_type and self.config.data_types and data_type in self.config.data_types:
+            components_list = self.config.data_types[data_type].components
+            if components_list:
+                components_config = {comp.component: comp for comp in components_list}
+                # Merge per-component prompt overrides for step 2
+                metadata_for_step2 = merge_per_component_prompt_overrides(
+                    self._base_metadata, components_list
+                )
+
         raw_response_1 = await self.inference_step_1(
-            inference, user_prompt, data_for_llm, llm_interactions, allowed_components
+            inference, user_prompt, data_for_llm, llm_interactions, data_type
         )
         response_1 = trim_to_json(raw_response_1)
 
@@ -221,30 +265,40 @@ AVAILABLE UI COMPONENTS:
                 outputs=[response_1], llm_interactions=llm_interactions
             )
 
-        # Check if we should skip step 2 (for llm_configure=False components)
+        # Check if we should skip step 2
         skip_step_2 = False
-        if components_config:
-            # Parse step 1 response to get selected component name
-            try:
-                step1_data = from_json(response_1, allow_partial=True)
-                selected_component = step1_data.get("component")
-                if selected_component and selected_component in components_config:
-                    component_config = components_config[selected_component]
-                    if component_config.llm_configure is False:
-                        # Skip step 2 for pre-configured components
-                        skip_step_2 = True
-            except Exception:
-                # If parsing fails, continue with step 2 (safe default)
-                pass
+        # Parse step 1 response to get selected component name
+        try:
+            step1_data = from_json(response_1, allow_partial=True)
+            selected_component = step1_data.get("component")
+            if selected_component:
+                # Skip step 2 for HBCs (hand-build components don't need field selection)
+                if selected_component not in DYNAMIC_COMPONENT_NAMES:
+                    skip_step_2 = True
+                # Skip step 2 for pre-configured dynamic components
+                elif (
+                    components_config
+                    and selected_component in components_config
+                    and components_config[selected_component].llm_configure is False
+                ):
+                    skip_step_2 = True
+        except Exception:
+            # If parsing fails, continue with step 2 (safe default)
+            pass
 
         if skip_step_2:
-            # Return only step 1 result (caller will merge with pre-config)
+            # Return only step 1 result (for HBCs or pre-configured components)
             return InferenceResult(
                 outputs=[response_1], llm_interactions=llm_interactions
             )
 
         raw_response_2 = await self.inference_step_2(
-            inference, response_1, user_prompt, data_for_llm, llm_interactions
+            inference,
+            response_1,
+            user_prompt,
+            data_for_llm,
+            llm_interactions,
+            metadata_for_step2,
         )
         response_2 = trim_to_json(raw_response_2)
 
@@ -258,7 +312,7 @@ AVAILABLE UI COMPONENTS:
         user_prompt,
         json_data_for_llm: str,
         llm_interactions: list[LLMInteraction],
-        allowed_components: Optional[set[str]] = None,
+        data_type: Optional[str] = None,
     ):
         """Run Component Selection inference (step 1).
 
@@ -267,19 +321,11 @@ AVAILABLE UI COMPONENTS:
             user_prompt: User prompt
             json_data_for_llm: JSON data as string
             llm_interactions: List to append interaction metadata to
-            allowed_components: Optional set of component names to filter to
+            data_type: Optional data type identifier for data_type-specific prompt customization
         """
 
-        # Get or build cached system prompt
-        components_to_use = cast(
-            CONFIG_OPTIONS_ALL_COMPONETS,
-            (
-                allowed_components
-                if allowed_components is not None
-                else self._config_selectable_components
-            ),
-        )
-        sys_msg_content = self._get_or_build_step1_system_prompt(components_to_use)
+        # Get or build cached system prompt using data_type
+        sys_msg_content = self._get_or_build_step1_system_prompt(data_type)
 
         prompt = f"""=== User query ===
 {user_prompt}
@@ -312,6 +358,7 @@ AVAILABLE UI COMPONENTS:
         user_prompt,
         json_data_for_llm: str,
         llm_interactions: list[LLMInteraction],
+        metadata: dict,
     ):
         component = from_json(component_selection_response, allow_partial=True)[
             "component"
@@ -323,9 +370,9 @@ AVAILABLE UI COMPONENTS:
 
 {TWOSTEP_STEP2_PROMPT_RULES}
 
-{build_twostep_step2_rules(component)}
+{build_twostep_step2_rules(component, metadata)}
 
-{build_twostep_step2_example(component)}
+{build_twostep_step2_example(component, metadata)}
 """
 
         prompt = f"""=== User query ===

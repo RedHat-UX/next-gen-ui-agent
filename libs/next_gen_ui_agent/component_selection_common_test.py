@@ -85,7 +85,7 @@ class TestNormalizeAllowedComponents:
 
     def test_none_returns_all_components(self):
         """Test that None returns all components from COMPONENT_METADATA."""
-        result = normalize_allowed_components(None)
+        result = normalize_allowed_components(None, COMPONENT_METADATA)
         expected = set(COMPONENT_METADATA.keys())
         assert result == expected
         assert len(result) == 10  # All 10 components
@@ -93,27 +93,27 @@ class TestNormalizeAllowedComponents:
     def test_valid_set_returns_same_set(self):
         """Test that a valid set is returned unchanged."""
         allowed = {"one-card", "table", "chart-bar"}
-        result = normalize_allowed_components(allowed)
+        result = normalize_allowed_components(allowed, COMPONENT_METADATA)
         assert result == {"one-card", "table", "chart-bar"}
         assert result is allowed  # Should return the same object
 
     def test_empty_set_returns_empty_set(self):
         """Test that empty set is returned unchanged."""
         allowed = set()
-        result = normalize_allowed_components(allowed)
+        result = normalize_allowed_components(allowed, COMPONENT_METADATA)
         assert result == set()
         assert len(result) == 0
 
     def test_single_component(self):
         """Test with single component."""
         allowed = {"image"}
-        result = normalize_allowed_components(allowed)
+        result = normalize_allowed_components(allowed, COMPONENT_METADATA)
         assert result == {"image"}
 
     def test_chart_components_only(self):
         """Test with only chart components."""
         allowed = CHART_COMPONENTS.copy()
-        result = normalize_allowed_components(allowed)
+        result = normalize_allowed_components(allowed, COMPONENT_METADATA)
         assert result == allowed
         assert len(result) == 5
 
@@ -172,7 +172,7 @@ class TestBuildComponentsDescription:
     def test_all_components(self):
         """Test with all components."""
         allowed = set(COMPONENT_METADATA.keys())
-        result = build_components_description(allowed)
+        result = build_components_description(allowed, COMPONENT_METADATA)
         # All components should be included
         for component in ALL_COMPONENTS:
             assert f"* {component} -" in result
@@ -180,7 +180,7 @@ class TestBuildComponentsDescription:
     def test_filtered_components(self):
         """Test that only allowed components are included."""
         allowed = {"one-card", "table"}
-        result = build_components_description(allowed)
+        result = build_components_description(allowed, COMPONENT_METADATA)
         assert "* one-card -" in result
         assert "* table -" in result
         assert "* image -" not in result
@@ -188,12 +188,12 @@ class TestBuildComponentsDescription:
 
     def test_empty_set(self):
         """Test with empty set of allowed components."""
-        result = build_components_description(set())
+        result = build_components_description(set(), COMPONENT_METADATA)
         assert result == ""
 
     def test_single_component(self):
         """Test with single component."""
-        result = build_components_description({"image"})
+        result = build_components_description({"image"}, COMPONENT_METADATA)
         assert "* image -" in result
         assert "* one-card -" not in result
 
@@ -283,19 +283,19 @@ class TestBuildTwostepStep2Example:
 
     def test_valid_component(self):
         """Test getting example for valid component."""
-        result = build_twostep_step2_example("one-card")
+        result = build_twostep_step2_example("one-card", COMPONENT_METADATA)
         assert result
         assert "data_path" in result
 
     def test_chart_component(self):
         """Test getting example for chart component."""
-        result = build_twostep_step2_example("chart-bar")
+        result = build_twostep_step2_example("chart-bar", COMPONENT_METADATA)
         assert result
         assert "data_path" in result
 
     def test_invalid_component(self):
         """Test getting example for non-existent component."""
-        result = build_twostep_step2_example("non-existent")
+        result = build_twostep_step2_example("non-existent", COMPONENT_METADATA)
         assert result == ""
 
 
@@ -304,19 +304,19 @@ class TestBuildTwostepStep2Rules:
 
     def test_component_with_extension(self):
         """Test getting extension for component that has one."""
-        result = build_twostep_step2_rules("one-card")
+        result = build_twostep_step2_rules("one-card", COMPONENT_METADATA)
         assert result
         assert "data_path" in result
 
     def test_component_without_extension(self):
         """Test getting extension for component without one."""
-        result = build_twostep_step2_rules("table")
+        result = build_twostep_step2_rules("table", COMPONENT_METADATA)
         # table doesn't have extension in metadata
         assert result == ""
 
     def test_invalid_component(self):
         """Test getting extension for non-existent component."""
-        result = build_twostep_step2_rules("non-existent")
+        result = build_twostep_step2_rules("non-existent", COMPONENT_METADATA)
         assert result == ""
 
 
@@ -325,12 +325,12 @@ class TestBuildChartInstructions:
 
     def test_empty_set(self):
         """Test that empty set returns empty string."""
-        result = build_chart_instructions(set())
+        result = build_chart_instructions(set(), COMPONENT_METADATA)
         assert result == ""
 
     def test_all_chart_types(self):
         """Test with all chart components."""
-        result = build_chart_instructions(CHART_COMPONENTS)
+        result = build_chart_instructions(CHART_COMPONENTS, COMPONENT_METADATA)
         assert "CHART TYPES" in result
         assert "FIELDS BY CHART TYPE" in result
         assert "CHART RULES" in result
@@ -343,7 +343,7 @@ class TestBuildChartInstructions:
 
     def test_single_chart_type(self):
         """Test with single chart type."""
-        result = build_chart_instructions({"chart-bar"})
+        result = build_chart_instructions({"chart-bar"}, COMPONENT_METADATA)
         assert "CHART TYPES" in result
         assert "chart-bar" in result
         assert "chart-line" not in result
@@ -352,7 +352,7 @@ class TestBuildChartInstructions:
     def test_subset_of_charts(self):
         """Test with subset of chart types."""
         allowed = {"chart-bar", "chart-line"}
-        result = build_chart_instructions(allowed)
+        result = build_chart_instructions(allowed, COMPONENT_METADATA)
         assert "chart-bar" in result
         assert "chart-line" in result
         assert "chart-pie" not in result
@@ -361,5 +361,5 @@ class TestBuildChartInstructions:
 
     def test_common_rules_included(self):
         """Test that common rules are always included when charts are present."""
-        result = build_chart_instructions({"chart-bar"})
+        result = build_chart_instructions({"chart-bar"}, COMPONENT_METADATA)
         assert "Don't add unrequested metrics" in result

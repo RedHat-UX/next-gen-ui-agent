@@ -1,4 +1,7 @@
 ---
+description: 
 alwaysApply: true
 ---
-run tests using pants configured in the project
+
+- run tests using pants configured in the project
+- run pants in the project/repository root

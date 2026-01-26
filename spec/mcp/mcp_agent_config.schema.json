@@ -30,6 +30,18 @@
           ],
           "default": true,
           "description": "If True, LLM generates configuration. If False, pre-defined configuration must be provided and will be used. Only applicable to dynamic components, not hand-build components."
+        },
+        "prompt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AgentConfigPromptComponent"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional prompt customization for this component. Overrides global `prompt.components` configuration for this component in this data_type context. Has the same fields as `prompt.components`. For HBCs in multi-component scenarios, at least 'description' field is required."
         }
       },
       "required": [

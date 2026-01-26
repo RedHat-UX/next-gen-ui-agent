@@ -12,7 +12,7 @@ from next_gen_ui_agent.component_selection_llm_strategy import (
 )
 from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.json_data_wrapper import wrap_string_as_json
-from next_gen_ui_agent.types import InputDataInternal
+from next_gen_ui_agent.types import AgentConfigComponent, InputDataInternal
 from pytest import fail
 
 from .component_selection_llm_onestep import OnestepLLMCallComponentSelectionStrategy
@@ -226,7 +226,7 @@ class TestBuildSystemPrompt:
         """Test that all components are included when selectable_components is None."""
         config = AgentConfig(selectable_components=None)
         strategy = OnestepLLMCallComponentSelectionStrategy(config)
-        prompt = strategy._build_system_prompt(None)
+        prompt = strategy._build_system_prompt(None, strategy._base_metadata)
 
         # Should include all components
         for component in COMPONENT_METADATA.keys():
@@ -243,7 +243,9 @@ class TestBuildSystemPrompt:
         basic_components = {"one-card", "table", "set-of-cards"}
         config = AgentConfig(selectable_components=basic_components)
         strategy = OnestepLLMCallComponentSelectionStrategy(config)
-        prompt = strategy._build_system_prompt(basic_components)
+        prompt = strategy._build_system_prompt(
+            basic_components, strategy._base_metadata
+        )
 
         # Should include selected basic components
         assert "one-card" in prompt
@@ -265,7 +267,9 @@ class TestBuildSystemPrompt:
         components_with_charts = {"table", "chart-bar", "chart-line"}
         config = AgentConfig(selectable_components=components_with_charts)
         strategy = OnestepLLMCallComponentSelectionStrategy(config)
-        prompt = strategy._build_system_prompt(components_with_charts)
+        prompt = strategy._build_system_prompt(
+            components_with_charts, strategy._base_metadata
+        )
 
         # Should include selected components
         assert "table" in prompt
@@ -315,3 +319,175 @@ def test_onestep_with_component_metadata_overrides() -> None:
     # Verify original descriptions are NOT in the prompt
     assert COMPONENT_METADATA["table"]["description"] not in prompt
     assert COMPONENT_METADATA["chart-bar"]["chart_description"] not in prompt
+
+
+class TestSystemPromptCaching:
+    """Tests for system prompt caching mechanism."""
+
+    def test_cache_hit_for_same_data_type(self):
+        """Test that cache is used for repeated calls with same data_type."""
+        from unittest.mock import patch
+
+        from next_gen_ui_agent.types import (
+            AgentConfigDataType,
+            AgentConfigPromptComponent,
+        )
+
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(
+                            component="table",
+                            prompt=AgentConfigPromptComponent(
+                                description="Movies table"
+                            ),
+                        )
+                    ]
+                )
+            }
+        )
+
+        strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
+
+        # Cache starts with one entry (None) from __init__
+        initial_cache_size = len(strategy._system_prompt_cache)
+        assert None in strategy._system_prompt_cache
+
+        # Spy on _build_system_prompt
+        with patch.object(
+            strategy, "_build_system_prompt", wraps=strategy._build_system_prompt
+        ) as mock_build:
+            # Call twice with same data_type
+            prompt1 = strategy._get_or_build_system_prompt("movies")
+            prompt2 = strategy._get_or_build_system_prompt("movies")
+
+            # Build should only be called once (for "movies")
+            assert mock_build.call_count == 1
+
+            # Should return same object (not just equal)
+            assert prompt1 is prompt2
+
+            # Cache should have "movies" entry plus initial None
+            assert "movies" in strategy._system_prompt_cache
+            assert len(strategy._system_prompt_cache) == initial_cache_size + 1
+
+    def test_different_cache_entries_per_data_type(self):
+        """Test that different data_types get different cache entries."""
+        from next_gen_ui_agent.types import (
+            AgentConfigDataType,
+            AgentConfigPromptComponent,
+        )
+
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(
+                            component="table",
+                            prompt=AgentConfigPromptComponent(
+                                description="MOVIES_TABLE_DESC"
+                            ),
+                        )
+                    ]
+                ),
+                "products": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(
+                            component="table",
+                            prompt=AgentConfigPromptComponent(
+                                description="PRODUCTS_TABLE_DESC"
+                            ),
+                        )
+                    ]
+                ),
+            }
+        )
+
+        strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
+
+        # Cache starts with one entry (None) from __init__
+        initial_cache_size = len(strategy._system_prompt_cache)
+
+        # Call with different data_types
+        prompt_movies = strategy._get_or_build_system_prompt("movies")
+        prompt_products = strategy._get_or_build_system_prompt("products")
+
+        # Cache should have 2 new entries plus initial None
+        assert "movies" in strategy._system_prompt_cache
+        assert "products" in strategy._system_prompt_cache
+        assert len(strategy._system_prompt_cache) == initial_cache_size + 2
+
+        # Prompts should be different
+        assert prompt_movies != prompt_products
+
+        # Verify prompts contain respective custom descriptions
+        assert "MOVIES_TABLE_DESC" in prompt_movies
+        assert "MOVIES_TABLE_DESC" not in prompt_products
+        assert "PRODUCTS_TABLE_DESC" in prompt_products
+        assert "PRODUCTS_TABLE_DESC" not in prompt_movies
+
+    def test_global_selection_uses_none_key(self):
+        """Test that global selection uses None as cache key."""
+        config = AgentConfig(selectable_components={"table", "chart-bar"})
+
+        strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
+
+        # Call with None (global selection)
+        prompt1 = strategy._get_or_build_system_prompt(None)
+        prompt2 = strategy._get_or_build_system_prompt(None)
+
+        # Should use None as cache key
+        assert None in strategy._system_prompt_cache
+
+        # Should return same object
+        assert prompt1 is prompt2
+
+    def test_cache_isolation_data_type_vs_global(self):
+        """Test that data_type-specific and global caches are separate."""
+        from next_gen_ui_agent.types import (
+            AgentConfigDataType,
+            AgentConfigPromptComponent,
+        )
+
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(
+                            component="table",
+                            prompt=AgentConfigPromptComponent(
+                                description="CUSTOM_MOVIES_TABLE"
+                            ),
+                        )
+                    ]
+                )
+            }
+        )
+
+        strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
+
+        # Cache already has None entry from __init__
+        assert None in strategy._system_prompt_cache
+        initial_global_prompt = strategy._system_prompt_cache[None]
+
+        # Call with data_type
+        prompt_movies = strategy._get_or_build_system_prompt("movies")
+
+        # Call without data_type (global) - should return cached
+        prompt_global = strategy._get_or_build_system_prompt(None)
+
+        # Cache should have 2 entries: None and "movies"
+        assert "movies" in strategy._system_prompt_cache
+        assert None in strategy._system_prompt_cache
+        assert len(strategy._system_prompt_cache) == 2
+
+        # Global prompt should be the same object as initial
+        assert prompt_global is initial_global_prompt
+
+        # Prompts should be different
+        assert prompt_movies != prompt_global
+
+        # Movies prompt has custom description, global doesn't
+        assert "CUSTOM_MOVIES_TABLE" in prompt_movies
+        assert "CUSTOM_MOVIES_TABLE" not in prompt_global
