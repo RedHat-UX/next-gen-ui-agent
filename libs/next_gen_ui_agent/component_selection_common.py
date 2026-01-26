@@ -16,7 +16,6 @@ from next_gen_ui_agent.data_transform.one_card import OneCardDataTransformer
 from next_gen_ui_agent.data_transform.set_of_cards import SetOfCardsDataTransformer
 from next_gen_ui_agent.data_transform.table import TableDataTransformer
 from next_gen_ui_agent.data_transform.video import VideoPlayerDataTransformer
-from next_gen_ui_agent.types import CONFIG_OPTIONS_ALL_COMPONETS
 
 # ============================================================================
 # SECTION 1: Shared Utilities (Public API)
@@ -33,7 +32,9 @@ def get_all_components_description() -> str:
     Returns:
         Formatted string with all component descriptions
     """
-    return build_components_description(set(COMPONENT_METADATA.keys()))
+    return build_components_description(
+        set(COMPONENT_METADATA.keys()), COMPONENT_METADATA
+    )
 
 
 def get_all_chart_instructions() -> str:
@@ -46,7 +47,7 @@ def get_all_chart_instructions() -> str:
     Returns:
         Formatted string with chart instructions for all chart types
     """
-    return build_chart_instructions(CHART_COMPONENTS)
+    return build_chart_instructions(CHART_COMPONENTS, COMPONENT_METADATA)
 
 
 # ============================================================================
@@ -195,36 +196,24 @@ COMPONENT_METADATA = {
     },
 }
 
-# Active component metadata used by all build functions
-# Can be overridden via set_active_component_metadata()
-_active_component_metadata = COMPONENT_METADATA
-
-
-def set_active_component_metadata(metadata: dict) -> None:
-    """Set the active component metadata used by all build functions.
-
-    Args:
-        metadata: Component metadata dictionary to use (typically from get_component_metadata())
-    """
-    global _active_component_metadata
-    _active_component_metadata = metadata
-
 
 def normalize_allowed_components(
-    allowed_components: CONFIG_OPTIONS_ALL_COMPONETS,
+    allowed_components: set[str] | None,
+    metadata: dict,
 ) -> set[str]:
     """
     Normalize allowed_components to a set of strings.
 
     Args:
         allowed_components: Set of allowed component names, or None for all components
+        metadata: Component metadata dictionary
 
     Returns:
         Set of allowed component names
     """
     if allowed_components is None:
-        return set(_active_component_metadata.keys())
-    return allowed_components  # type: ignore
+        return set(metadata.keys())
+    return allowed_components
 
 
 def has_chart_components(allowed_components: set[str]) -> bool:
@@ -255,12 +244,14 @@ def has_non_chart_components(allowed_components: set[str]) -> bool:
 
 def build_components_description(
     allowed_components: set[str],
+    metadata: dict,
 ) -> str:
     """
     Build filtered component descriptions based on allowed components.
 
     Args:
-        allowed_components: Set of allowed component names, or None for all components
+        allowed_components: Set of allowed component names
+        metadata: Component metadata dictionary
 
     Returns:
         Formatted string with component descriptions
@@ -269,9 +260,7 @@ def build_components_description(
     descriptions = []
     for component in ALL_COMPONENTS:
         if component in allowed_components:
-            descriptions.append(
-                f"* {component} - {_active_component_metadata[component]['description']}"
-            )
+            descriptions.append(f"* {component} - {metadata[component]['description']}")
 
     return "\n".join(descriptions)
 
@@ -421,42 +410,45 @@ Response example for multi-item data when mirrored-bar chart is suitable (compar
     return "\n\n".join(examples)
 
 
-def build_twostep_step2_example(component: str) -> str:
+def build_twostep_step2_example(component: str, metadata: dict) -> str:
     """
     Get step-2 field example for the selected component.
 
     Args:
         component: Component name
+        metadata: Component metadata dictionary
 
     Returns:
         Field selection example string or empty string if not found
     """
-    if component in _active_component_metadata:
-        return _active_component_metadata[component].get("twostep_step2_example", "")
+    if component in metadata:
+        return str(metadata[component].get("twostep_step2_example", ""))
     return ""
 
 
-def build_twostep_step2_rules(component: str) -> str:
+def build_twostep_step2_rules(component: str, metadata: dict) -> str:
     """
     Get step-2 additional field selection rules for the component.
 
     Args:
         component: Component name
+        metadata: Component metadata dictionary
 
     Returns:
         Field selection extension string or empty string if not found
     """
-    if component in _active_component_metadata:
-        return _active_component_metadata[component].get("twostep_step2_rules", "")
+    if component in metadata:
+        return str(metadata[component].get("twostep_step2_rules", ""))
     return ""
 
 
-def build_chart_instructions(allowed_chart_components: set[str]) -> str:
+def build_chart_instructions(allowed_chart_components: set[str], metadata: dict) -> str:
     """
     Build filtered chart instructions for component selection based on allowed chart components.
 
     Args:
         allowed_chart_components: Set of allowed chart component names
+        metadata: Component metadata dictionary
 
     Returns:
         Formatted string with chart instructions or empty string if no charts
@@ -472,14 +464,14 @@ def build_chart_instructions(allowed_chart_components: set[str]) -> str:
     for chart_comp in chart_components_ordered:
         if chart_comp in allowed_chart_components:
             chart_types.append(
-                f"{chart_comp}: {_active_component_metadata[chart_comp]['chart_description']}"
+                f"{chart_comp}: {metadata[chart_comp]['chart_description']}"
             )
 
     # Build FIELDS BY TYPE section
     fields_by_type = []
     for chart_comp in chart_components_ordered:
         if chart_comp in allowed_chart_components:
-            fields_spec = _active_component_metadata[chart_comp]["chart_fields_spec"]
+            fields_spec = metadata[chart_comp]["chart_fields_spec"]
             if chart_comp == "chart-line":
                 # Special formatting for chart-line
                 fields_by_type.append(f"{chart_comp}: {fields_spec}")
@@ -494,9 +486,7 @@ def build_chart_instructions(allowed_chart_components: set[str]) -> str:
     examples = []
     for chart_comp in chart_components_ordered:
         if chart_comp in allowed_chart_components:
-            inline_examples = _active_component_metadata[chart_comp][
-                "chart_inline_examples"
-            ]
+            inline_examples = metadata[chart_comp]["chart_inline_examples"]
             examples.append(inline_examples)
 
     # Construct the full instruction string

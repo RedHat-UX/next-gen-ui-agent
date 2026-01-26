@@ -4,11 +4,13 @@ import pytest
 from next_gen_ui_agent.component_metadata import (
     get_component_metadata,
     merge_component_metadata,
+    merge_per_component_prompt_overrides,
     validate_component_overrides,
 )
 from next_gen_ui_agent.component_selection_common import COMPONENT_METADATA
 from next_gen_ui_agent.types import (
     AgentConfig,
+    AgentConfigComponent,
     AgentConfigPrompt,
     AgentConfigPromptComponent,
 )
@@ -310,3 +312,126 @@ def test_get_component_metadata_multiple_components():
 
     # Check unmodified components remain unchanged
     assert metadata["image"] == COMPONENT_METADATA["image"]
+
+
+def test_merge_per_component_prompt_overrides_single_component():
+    """Test merging per-component prompt overrides for single component."""
+    base = COMPONENT_METADATA
+    components_list = [
+        AgentConfigComponent(
+            component="table",
+            prompt=AgentConfigPromptComponent(
+                description="Custom table description for this data_type"
+            ),
+        )
+    ]
+
+    merged = merge_per_component_prompt_overrides(base, components_list)
+
+    # Check that override was applied
+    assert (
+        merged["table"]["description"] == "Custom table description for this data_type"
+    )
+
+    # Check that other fields remain unchanged
+    assert (
+        merged["table"]["twostep_step2_example"]
+        == base["table"]["twostep_step2_example"]
+    )
+
+    # Ensure base was not modified
+    assert base["table"]["description"] != "Custom table description for this data_type"
+
+
+def test_merge_per_component_prompt_overrides_multiple_components():
+    """Test merging per-component prompt overrides for multiple components."""
+    base = COMPONENT_METADATA
+    components_list = [
+        AgentConfigComponent(
+            component="table",
+            prompt=AgentConfigPromptComponent(
+                description="Custom table",
+                twostep_step2_rules="Custom rules",
+            ),
+        ),
+        AgentConfigComponent(
+            component="chart-bar",
+            prompt=AgentConfigPromptComponent(
+                chart_description="Custom bar chart",
+            ),
+        ),
+    ]
+
+    merged = merge_per_component_prompt_overrides(base, components_list)
+
+    # Check both overrides were applied
+    assert merged["table"]["description"] == "Custom table"
+    assert merged["table"]["twostep_step2_rules"] == "Custom rules"
+    assert merged["chart-bar"]["chart_description"] == "Custom bar chart"
+
+    # Check unmodified fields remain
+    assert (
+        merged["chart-bar"]["chart_fields_spec"]
+        == base["chart-bar"]["chart_fields_spec"]
+    )
+
+
+def test_merge_per_component_prompt_overrides_no_prompt():
+    """Test that components without prompt field don't affect metadata."""
+    base = COMPONENT_METADATA
+    components_list = [
+        AgentConfigComponent(component="table"),  # No prompt field
+        AgentConfigComponent(component="set-of-cards"),  # No prompt field
+    ]
+
+    merged = merge_per_component_prompt_overrides(base, components_list)
+
+    # Should return unchanged metadata
+    assert merged["table"] == base["table"]
+    assert merged["set-of-cards"] == base["set-of-cards"]
+
+
+def test_merge_per_component_prompt_overrides_precedence():
+    """Test that per-component overrides take precedence over base."""
+    # Start with base that has global override
+    base_with_global = merge_component_metadata(
+        COMPONENT_METADATA,
+        {"table": {"description": "Global table description"}},
+    )
+
+    # Apply per-component override
+    components_list = [
+        AgentConfigComponent(
+            component="table",
+            prompt=AgentConfigPromptComponent(
+                description="Per-component table description"
+            ),
+        )
+    ]
+
+    merged = merge_per_component_prompt_overrides(base_with_global, components_list)
+
+    # Per-component should override global
+    assert merged["table"]["description"] == "Per-component table description"
+
+
+def test_merge_per_component_prompt_overrides_hbc_with_all_fields():
+    """Test that HBC with chart and twostep fields works (not validated)."""
+    base = COMPONENT_METADATA
+    components_list = [
+        AgentConfigComponent(
+            component="custom:hbc",
+            prompt=AgentConfigPromptComponent(
+                description="HBC description",
+                chart_description="Accepted but not used",
+                twostep_step2_example="Also accepted",
+            ),
+        )
+    ]
+
+    # Should not raise any exception
+    merged = merge_per_component_prompt_overrides(base, components_list)
+
+    # HBC not in base metadata, so no merge happens (HBC doesn't use these prompts anyway)
+    # This is expected - per-component overrides only affect components in COMPONENT_METADATA
+    assert "custom:hbc" not in merged

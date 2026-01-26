@@ -74,10 +74,10 @@ Optional list of components used to render this data type. See [description of t
 
 **Multiple components**: When multiple components are configured, LLM selects the best one based on user prompt and data. Each component can be:
 
-* [Dynamic component](./data_ui_blocks/dynamic_components.md) with pre-defined configuration (LLM selection only)
-* [Dynamic component](./data_ui_blocks/dynamic_components.md) without configuration (LLM selection and configuration)
+* [Dynamic component](./data_ui_blocks/dynamic_components.md) with or without pre-defined configuration 
+* [Hand Build Component](./data_ui_blocks/hand_build_components.md) with `prompt.description` defined
 
-**Note**: [Hand Build Components](./data_ui_blocks/hand_build_components.md) cannot be mixed with other components now. This restriction will be removed in a future.
+**Note**: When using [Hand Build Components](./data_ui_blocks/hand_build_components.md) in multi-component configuration, each HBC must have `prompt.description` defined for LLM selection. HBCs can be mixed with dynamic components.
 
 
 ##### `component` [`str`, required]
@@ -114,6 +114,23 @@ Name of the field rendered in UI. Can be used as a name of column in the table, 
 ####### `data_path` [`str`, required]
 
 JSON Path pointer to [Input Data structure](./input_data/structure.md) to pick up values for UI rendering.
+
+
+##### `prompt` [`AgentConfigPromptComponent`, optional]
+
+Customize LLM prompts for this specific component when it's used in multi-component selection.
+Has the same fields as global [`prompt.components`](#components-dictstr-agentconfigpromptcomponent-optional).
+Overrides global prompt configuration for this component in this data_type context.
+
+Per-component prompt overrides take the highest precedence during prompt construction. This allows you to provide data_type-specific guidance for component selection.
+
+For detailed explanation of how prompt construction works and field descriptions, see [Data UI Blocks - Prompt Customization](data_ui_blocks/index.md#prompt-customization-for-component-selection).
+
+**Note for Hand-Build Components (HBCs)**: 
+- **Required in multi-component**: At least `description` field must be defined when multiple components are configured
+- **Used fields**: Only `description` is used for LLM component selection
+- **Accepted but not used**: `chart_*` and `twostep_step2_*` fields are accepted in configuration but not used for HBCs
+
 
 
 ### `prompt` [`AgentConfigPrompt`, optional]
@@ -288,11 +305,55 @@ data_types:
   
   custom-data:
     components:
-      # Hand-Build Component (no llm_configure or configuration)
+      # Hand-Build Component with required description
       - component: my-custom-component
+        prompt:
+          description: "Use custom component for special data format"
 ```
 
 This configuration allows LLM to choose between table and cards for product lists based on user intent, while still controlling the exact fields shown in cards view.
+
+### Per-Component Prompt Customization
+
+Customize LLM prompts at the component level within data_types for fine-grained control:
+
+```yaml
+---
+# Global prompt (applies to all data types by default)
+prompt:
+  components:
+    table:
+      description: "Generic table description"
+
+data_types:
+  product-data:
+    components:
+      # Dynamic component with per-component prompt override
+      - component: table
+        prompt:
+          description: "Use table for structured product listings with many items"
+      
+      # HBC with required description (multi-component scenario)
+      - component: products:listing-with-parameters
+        prompt:
+          description: "Use this listing if user also wants to see products parameters"
+      
+      # Chart with custom prompt
+      - component: chart-bar
+        llm_configure: true
+        prompt:
+          description: "Use bar chart for product category comparisons"
+          chart_description: "Product sales by category"
+  
+  movie-data:
+    components:
+      # Same table component, different prompt for movies
+      - component: table
+        prompt:
+          description: "Use table for movie listings with ratings and genres"
+```
+
+Per-component prompts override global prompts, allowing different selection behavior per data_type.
 
 ### Loading YAML Configuration
 
