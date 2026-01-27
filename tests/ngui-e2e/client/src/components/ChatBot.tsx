@@ -17,6 +17,7 @@ import {
   TextArea,
   TextInput,
   Button,
+  Switch,
 } from "@patternfly/react-core";
 
 import DynamicComponent from "./DynamicComponent";
@@ -37,11 +38,11 @@ export default function ChatBotPage() {
 
   const { loading, fetchData } = useFetch();
 
-  // Check if debug mode is enabled via URL parameter
-  const isDebugMode = React.useMemo(() => {
+  // Debug mode state - initialized from URL parameter, can be toggled
+  const [isDebugMode, setIsDebugMode] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('debug') === 'true';
-  }, []);
+  });
 
   // Mock mode state
   const [isMockMode, setIsMockMode] = useState(false);
@@ -359,6 +360,15 @@ export default function ChatBotPage() {
 
   return (
     <div className="chatbot-layout">
+      {/* Debug Mode Toggle - Top Right Corner */}
+      <div className="debug-mode-toggle">
+        <Switch
+          id="debug-mode-switch"
+          label="Debug Mode"
+          isChecked={isDebugMode}
+          onChange={(_event, checked) => setIsDebugMode(checked)}
+        />
+      </div>
       {/* Test Panel - Left Side (only shown when debug=true) */}
       {isDebugMode && (
         <div 
