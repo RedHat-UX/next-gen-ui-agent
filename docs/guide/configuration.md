@@ -17,6 +17,13 @@ Optional name of the [Input Data Transformer](input_data/transformation.md) used
 Can be overriden [per data type](#data_transformer-str-optional_1). Defaults to [JSON](./input_data/transformation.md#json-transformer).
 
 
+### `enable_input_data_type_detection` [`bool`, optional]
+
+Controls whether the agent automatically detects the appropriate [Input Data Transformer](./input_data/transformation.md) based on data structure when no transformer is explicitly configured (default: `True`).
+
+More detailed information can be found in [Configuring data transformation auto detection](./input_data/transformation.md#configuring-data-transformation-auto-detection) section of our Input Data Transformation guide.
+
+
 ### `selectable_components` [`set[str]`, optional]
 
 Set of components that can be selected by the agent's LLM for the input data visualization. If not set, all the components supported by the agent can be selected.
@@ -174,7 +181,8 @@ inference = LangChainModelInference(llm)
 # Create configuration
 config = {
     "component_system": "json",
-    "component_selection_strategy": "default"
+    "component_selection_strategy": "default",
+    "enable_input_data_type_detection": True  # Auto-detect input format (default)
 }
 
 agent = NextGenUIAgent(config=config)
@@ -229,6 +237,9 @@ Create a YAML configuration file:
 ---
 component_system: json
 component_selection_strategy: default
+
+# Auto-detect input data format (enabled by default)
+enable_input_data_type_detection: true
 
 data_types:
   movies:movie-detail: 

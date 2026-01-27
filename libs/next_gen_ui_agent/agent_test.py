@@ -278,7 +278,8 @@ class TestSelectComponent_InputDataTransformation:
                     "my.type": AgentConfigDataType(
                         components=[AgentConfigComponent(component="one-card-special")]
                     )
-                }
+                },
+                enable_input_data_type_detection=False,
             )
         )
         input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
@@ -312,6 +313,192 @@ class TestSelectComponent_InputDataTransformation:
         assert component.component == "hand-build-component"
         assert component.json_data is not None
         assert component.json_data == [{"name": "MYNAME"}]
+
+
+class TestSelectComponent_InputDataAutoDetection:
+    """Test suite for input data auto-detection in select_component step."""
+
+    @pytest.mark.asyncio
+    async def test_select_component_AUTO_DETECT_YAML(self) -> None:
+        """Test that agent auto-detects YAML data without explicit configuration."""
+        # No data_transformer configured, auto-detection should kick in
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        # YAML data - should be auto-detected
+        input_data = InputData(id="1", data="name: John\nage: 30", type="my.type")
+
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        assert component.json_data == {"name": "John", "age": 30}
+        assert component.input_data_transformer_name == "yaml"
+
+    @pytest.mark.asyncio
+    async def test_select_component_AUTO_DETECT_CSV_COMMA(self) -> None:
+        """Test that agent auto-detects CSV (comma) data without explicit configuration."""
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        # CSV data with comma delimiter
+        csv_data = """name,age,city
+John,30,NYC
+Jane,25,LA"""
+        input_data = InputData(id="1", data=csv_data, type="my.type")
+
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        assert len(component.json_data) == 2
+        assert component.json_data[0] == {"name": "John", "age": 30, "city": "NYC"}
+        assert component.json_data[1] == {"name": "Jane", "age": 25, "city": "LA"}
+        assert component.input_data_transformer_name == "csv-comma"
+
+    @pytest.mark.asyncio
+    async def test_select_component_AUTO_DETECT_FWCTABLE(self) -> None:
+        """Test that agent auto-detects FWCTABLE data without explicit configuration."""
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        # Fixed-width column table data
+        fwctable_data = """Name    Age  City
+John    30   NYC
+Jane    25   LA"""
+        input_data = InputData(id="1", data=fwctable_data, type="my.type")
+
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        assert len(component.json_data) == 2
+        assert component.json_data[0] == {"Name": "John", "Age": 30, "City": "NYC"}
+        assert component.json_data[1] == {"Name": "Jane", "Age": 25, "City": "LA"}
+        assert component.input_data_transformer_name == "fwctable"
+
+    @pytest.mark.asyncio
+    async def test_select_component_AUTO_DETECT_JSON_BY_DEFAULT(self) -> None:
+        """Test that agent auto-detects JSON data (default case)."""
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        # JSON data
+        input_data = InputData(
+            id="1", data='{"name": "John", "age": 30}', type="my.type"
+        )
+
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        assert component.json_data == {"name": "John", "age": 30}
+        assert component.input_data_transformer_name == "json"
+
+    @pytest.mark.asyncio
+    async def test_select_component_AUTO_DETECT_DISABLED_USES_DEFAULT(self) -> None:
+        """Test that with auto-detection disabled, agent uses default transformer even for YAML data."""
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                enable_input_data_type_detection=False,
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                },
+            )
+        )
+        # YAML data, but auto-detection is disabled so it should try JSON and fail
+        input_data = InputData(id="1", data="name: John\nage: 30", type="my.type")
+
+        with pytest.raises(ValueError, match="Invalid JSON format of the Input Data: "):
+            await agent.select_component(
+                user_prompt="Test prompt", input_data=input_data
+            )
+
+    @pytest.mark.asyncio
+    async def test_select_component_AUTO_DETECT_ENABLED_BY_DEFAULT(self) -> None:
+        """Test that auto-detection is enabled by default (no explicit config)."""
+        # Create agent with minimal config - should enable auto-detection by default
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        components=[AgentConfigComponent(component="one-card-special")]
+                    )
+                }
+            )
+        )
+        # YAML data should be auto-detected since auto-detection is on by default
+        input_data = InputData(id="1", data="- name: MYNAME", type="my.type")
+
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        assert component.json_data == [{"name": "MYNAME"}]
+        assert component.input_data_transformer_name == "yaml"
+
+    @pytest.mark.asyncio
+    async def test_select_component_EXPLICIT_CONFIG_OVERRIDES_AUTO_DETECT(self) -> None:
+        """Test that explicit transformer configuration takes precedence over auto-detection."""
+        agent = NextGenUIAgent(
+            config=AgentConfig(
+                enable_input_data_type_detection=True,
+                data_types={
+                    "my.type": AgentConfigDataType(
+                        data_transformer="noop",  # Explicit config
+                        components=[AgentConfigComponent(component="one-card-special")],
+                    )
+                },
+            )
+        )
+        # YAML data, but explicit config says use NOOP
+        input_data = InputData(id="1", data="name: John\nage: 30", type="my.type")
+
+        component = await agent.select_component(
+            user_prompt="Test prompt", input_data=input_data
+        )
+        assert component is not None
+        assert component.component == "hand-build-component"
+        assert component.json_data is not None
+        # NOOP transformer returns the raw string
+        assert component.json_data == "name: John\nage: 30"
+        assert component.input_data_transformer_name == "noop"
 
 
 class TestSelectComponent_InputDataJsonWrapping:

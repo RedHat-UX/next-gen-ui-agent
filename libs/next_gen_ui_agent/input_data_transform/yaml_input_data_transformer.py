@@ -1,7 +1,7 @@
 from typing import Any, Literal
 
 import yaml  # type: ignore[import-untyped]
-from next_gen_ui_agent.types import InputDataTransformerBase
+from next_gen_ui_agent.types import InputData, InputDataTransformerBase
 
 
 class YamlInputDataTransformer(InputDataTransformerBase):
@@ -34,3 +34,30 @@ class YamlInputDataTransformer(InputDataTransformerBase):
             )
 
         return parsed_data
+
+    def detect_my_data_structure(self, input_data: InputData) -> bool:
+        """
+        Detect if input data looks like YAML using heuristics.
+        Checks first 1KB for YAML-like patterns without actual parsing.
+        """
+        data_str = input_data["data"].strip()
+        if not data_str:
+            return False
+
+        # Check first 1KB for YAML patterns
+        sample = data_str[:1024] if len(data_str) > 1024 else data_str
+
+        # YAML heuristics - check for common YAML patterns:
+        # - Starts with document marker (---)
+        # - Has key: value patterns (colon followed by space or newline)
+        # - Has list markers (- followed by space)
+        has_yaml_separator = sample.startswith("---")
+        has_key_value = ": " in sample or ":\n" in sample
+        has_list_marker = "\n- " in sample or sample.startswith("- ")
+
+        # Should NOT look like JSON (starts with { or [)
+        looks_like_json = data_str[0] in ("{", "[")
+
+        return (
+            has_yaml_separator or has_key_value or has_list_marker
+        ) and not looks_like_json

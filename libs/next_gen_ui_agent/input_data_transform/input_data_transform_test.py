@@ -10,6 +10,7 @@ from next_gen_ui_agent.input_data_transform.input_data_transform import (
     BUILTIN_INPUT_DATA_TRANSFORMERS,
     PLUGGABLE_INPUT_DATA_TRANSFORMERS_NAMESPACE,
     c,
+    get_auto_detected_transformer_name,
     get_input_data_transformer,
     get_input_data_transformer_name,
     init_input_data_transformers,
@@ -440,3 +441,189 @@ class TestConstantsAndGlobals:
             ].__class__.__name__
             == "NoopInputDataTransformer"
         )
+
+
+class TestGetAutoDetectedTransformerName:
+    """Test cases for get_auto_detected_transformer_name()."""
+
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        init_input_data_transformers(AgentConfig())
+
+    def test_detect_json_object(self) -> None:
+        """Test auto-detection returns 'json' for JSON object data."""
+        input_data = InputData(id="test1", data='{"name": "John", "age": 30}')
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "json"
+
+    def test_detect_json_array(self) -> None:
+        """Test auto-detection returns 'json' for JSON array data."""
+        input_data = InputData(id="test2", data='[1, 2, 3, "hello"]')
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "json"
+
+    def test_detect_yaml_with_key_value(self) -> None:
+        """Test auto-detection returns 'yaml' for YAML with key-value pairs."""
+        input_data = InputData(id="test3", data="name: John\nage: 30")
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "yaml"
+
+    def test_detect_yaml_with_document_marker(self) -> None:
+        """Test auto-detection returns 'yaml' for YAML with document marker."""
+        input_data = InputData(id="test4", data="---\nname: John\nage: 30")
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "yaml"
+
+    def test_detect_yaml_with_list(self) -> None:
+        """Test auto-detection returns 'yaml' for YAML list."""
+        input_data = InputData(id="test5", data="- item1\n- item2\n- item3")
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "yaml"
+
+    def test_detect_csv_comma(self) -> None:
+        """Test auto-detection returns 'csv-comma' for CSV with comma delimiter."""
+        input_data = InputData(
+            id="test6", data="name,age,city\nJohn,30,New York\nJane,25,Boston"
+        )
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "csv-comma"
+
+    def test_detect_csv_semicolon(self) -> None:
+        """Test auto-detection returns 'csv-semicolon' for CSV with semicolon delimiter."""
+        input_data = InputData(
+            id="test7", data="name;age;city\nJohn;30;New York\nJane;25;Boston"
+        )
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "csv-semicolon"
+
+    def test_detect_csv_tab(self) -> None:
+        """Test auto-detection returns 'csv-tab' for CSV with tab delimiter."""
+        input_data = InputData(
+            id="test8", data="name\tage\tcity\nJohn\t30\tNew York\nJane\t25\tBoston"
+        )
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "csv-tab"
+
+    def test_detect_fwctable(self) -> None:
+        """Test auto-detection returns 'fwctable' for fixed-width column table."""
+        input_data = InputData(
+            id="test9",
+            data="name    age  city\nJohn    30   New York\nJane    25   Boston",
+        )
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "fwctable"
+
+    def test_detect_no_match(self) -> None:
+        """Test auto-detection returns None when no transformer matches."""
+        input_data = InputData(id="test10", data="random unstructured text")
+        result = get_auto_detected_transformer_name(input_data)
+        assert result is None
+
+    def test_detect_empty_string(self) -> None:
+        """Test auto-detection returns None for empty string."""
+        input_data = InputData(id="test11", data="")
+        result = get_auto_detected_transformer_name(input_data)
+        assert result is None
+
+    def test_detect_priority_order_json_before_yaml(self) -> None:
+        """Test that JSON is detected before YAML (first match wins)."""
+        # This is JSON, not YAML
+        input_data = InputData(id="test12", data='{"key": "value"}')
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "json"
+
+    def test_detect_large_json(self) -> None:
+        """Test auto-detection with large JSON data (>1KB)."""
+        large_json = (
+            '{"items": [' + ",".join([f'{{"id": {i}}}' for i in range(200)]) + "]}"
+        )
+        input_data = InputData(id="test13", data=large_json)
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "json"
+
+    def test_detect_large_csv(self) -> None:
+        """Test auto-detection with large CSV data (>1KB)."""
+        header = "col1,col2,col3,col4,col5\n"
+        rows = "\n".join([f"val{i},val{i},val{i},val{i},val{i}" for i in range(100)])
+        input_data = InputData(id="test14", data=header + rows)
+        result = get_auto_detected_transformer_name(input_data)
+        assert result == "csv-comma"
+
+
+class TestAutoDetectionWithConfiguration:
+    """Test cases for auto-detection with configuration enabled/disabled."""
+
+    def test_auto_detection_enabled_by_default(self) -> None:
+        """Test that auto-detection is enabled by default."""
+        config = AgentConfig()
+        init_input_data_transformers(config)
+
+        assert c.enable_auto_detection is True
+
+    def test_auto_detection_can_be_disabled(self) -> None:
+        """Test that auto-detection can be disabled."""
+        config = AgentConfig(enable_input_data_type_detection=False)
+        init_input_data_transformers(config)
+
+        assert c.enable_auto_detection is False
+
+    def test_auto_detection_disabled_uses_default_transformer(self) -> None:
+        """Test that when auto-detection is disabled, default transformer is used."""
+        config = AgentConfig(
+            enable_input_data_type_detection=False,
+            data_types={"special_type": AgentConfigDataType(data_transformer=None)},
+        )
+        init_input_data_transformers(config)
+
+        # This is YAML data, but with auto-detection disabled, should use default JSON
+        input_data = InputData(
+            id="test1", data="name: John\nage: 30", type="special_type"
+        )
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "json"
+
+    def test_auto_detection_enabled_detects_transformer(self) -> None:
+        """Test that when auto-detection is enabled, correct transformer is detected."""
+        config = AgentConfig(
+            enable_input_data_type_detection=True,
+            data_types={"special_type": AgentConfigDataType(data_transformer=None)},
+        )
+        init_input_data_transformers(config)
+
+        # This is YAML data, should auto-detect yaml
+        input_data = InputData(
+            id="test2", data="name: John\nage: 30", type="special_type"
+        )
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "yaml"
+
+    def test_explicit_transformer_config_overrides_auto_detection(self) -> None:
+        """Test that explicit transformer config takes precedence over auto-detection."""
+        config = AgentConfig(
+            enable_input_data_type_detection=True,
+            data_types={"special_type": AgentConfigDataType(data_transformer="json")},
+        )
+        init_input_data_transformers(config)
+
+        # This is YAML data, but explicit config says use JSON
+        input_data = InputData(
+            id="test3", data="name: John\nage: 30", type="special_type"
+        )
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "json"
+
+    def test_auto_detection_fallback_to_default_when_no_match(self) -> None:
+        """Test that auto-detection falls back to default when no transformer matches."""
+        config = AgentConfig(
+            enable_input_data_type_detection=True,
+            data_transformer="yaml",
+            data_types={"special_type": AgentConfigDataType(data_transformer=None)},
+        )
+        init_input_data_transformers(config)
+
+        # Random text that won't match any transformer
+        input_data = InputData(
+            id="test4", data="random unstructured text", type="special_type"
+        )
+        transformer_name = get_input_data_transformer_name(input_data)
+        assert transformer_name == "yaml"  # Falls back to default

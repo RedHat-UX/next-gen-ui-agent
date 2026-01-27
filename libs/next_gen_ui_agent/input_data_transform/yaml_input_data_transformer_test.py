@@ -1,10 +1,13 @@
 import json
+import time
+from typing import cast
 
 import pytest
 from jsonpath_ng import parse  # type: ignore
 from next_gen_ui_agent.input_data_transform.yaml_input_data_transformer import (
     YamlInputDataTransformer,
 )
+from next_gen_ui_agent.types import InputData
 from pydantic import BaseModel
 
 
@@ -471,3 +474,92 @@ company:
         assert len(engineering_matches) == 1
         assert engineering_matches[0]["name"] == "Engineering"
         assert len(engineering_matches[0]["employees"]) == 2
+
+
+class TestYamlInputDataTransformerDetectMyDataStructure:
+    """Test cases for YamlInputDataTransformer.detect_my_data_structure()."""
+
+    def setup_method(self) -> None:
+        """Set up test fixtures."""
+        self.transformer = YamlInputDataTransformer()
+
+    def test_detect_valid_yaml_with_document_marker(self) -> None:
+        """Test detection returns True for YAML with document marker (covers: --- pattern)."""
+        input_data = cast(
+            InputData, {"id": "test1", "data": "---\nname: John\nage: 30"}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_yaml_with_colon_space(self) -> None:
+        """Test detection returns True for YAML with key: value (covers: ': ' pattern)."""
+        input_data = cast(InputData, {"id": "test2", "data": "name: John\nage: 30"})
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_yaml_with_colon_newline(self) -> None:
+        """Test detection returns True for YAML with key:\\n (covers: ':\\n' pattern)."""
+        input_data = cast(
+            InputData, {"id": "test3", "data": "key:\n  - value1\n  - value2"}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_yaml_with_list_marker(self) -> None:
+        """Test detection returns True for YAML with list markers (covers: '\\n- ' or starts with '- ')."""
+        input_data = cast(
+            InputData, {"id": "test4", "data": "- item1\n- item2\n- item3"}
+        )
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_invalid_json_exclusion(self) -> None:
+        """Test detection returns False for JSON (covers: starts with { or [ exclusion)."""
+        assert (
+            self.transformer.detect_my_data_structure(
+                cast(InputData, {"id": "test5", "data": '{"name": "John"}'})
+            )
+            is False
+        )
+        assert (
+            self.transformer.detect_my_data_structure(
+                cast(InputData, {"id": "test6", "data": "[1, 2, 3]"})
+            )
+            is False
+        )
+
+    def test_detect_invalid_no_yaml_patterns(self) -> None:
+        """Test detection returns False when no YAML patterns found (covers: no match case)."""
+        input_data = cast(InputData, {"id": "test7", "data": "This is just plain text"})
+        assert self.transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_empty_or_whitespace(self) -> None:
+        """Test detection returns False for empty/whitespace data (covers: empty check)."""
+        assert (
+            self.transformer.detect_my_data_structure(
+                cast(InputData, {"id": "test8", "data": ""})
+            )
+            is False
+        )
+
+    def test_detect_large_yaml_samples_first_1kb(self) -> None:
+        """Test detection with large YAML (>1KB) uses sampling (covers: 1KB sampling)."""
+        large_yaml = "---\n" + "\n".join([f"item_{i}: value_{i}" for i in range(100)])
+        input_data = cast(InputData, {"id": "test9", "data": large_yaml})
+        assert self.transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_performance_for_large_data(self) -> None:
+        """Test detection completes in <0.01s for large data (>1KB), verifying 1KB sampling works."""
+        # Create 100KB of YAML data (much larger than 1KB sample)
+        large_yaml = "---\n" + "\n".join(
+            [
+                f"item_{i}:\n  name: value_{i}\n  description: {'x' * 100}"
+                for i in range(500)
+            ]
+        )
+        input_data = cast(InputData, {"id": "perf_test", "data": large_yaml})
+
+        start_time = time.perf_counter()
+        result = self.transformer.detect_my_data_structure(input_data)
+        elapsed_time = time.perf_counter() - start_time
+
+        assert result is True
+        assert (
+            elapsed_time < 0.01
+        ), f"Detection took {elapsed_time:.4f}s, expected <0.01s"

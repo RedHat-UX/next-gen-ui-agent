@@ -1,4 +1,6 @@
 import json
+import time
+from typing import cast
 
 from jsonpath_ng import parse  # type: ignore
 from next_gen_ui_agent.input_data_transform.csv_input_data_transformer import (
@@ -7,6 +9,7 @@ from next_gen_ui_agent.input_data_transform.csv_input_data_transformer import (
     CsvSemicolonInputDataTransformer,
     CsvTabInputDataTransformer,
 )
+from next_gen_ui_agent.types import InputData
 from pydantic import BaseModel
 
 
@@ -903,3 +906,127 @@ C03\tItem Gamma\t150"""
         third_value_path = parse("$[2].value")
         third_value = [match.value for match in third_value_path.find(result)]
         assert third_value[0] == 150
+
+
+class TestCsvInputDataTransformerDetectMyDataStructure:
+    """Test cases for CsvInputDataTransformer.detect_my_data_structure()."""
+
+    def test_detect_valid_csv_comma(self) -> None:
+        """Test detection returns True for valid CSV with comma delimiter."""
+        transformer = CsvCommaInputDataTransformer()
+        input_data = cast(
+            InputData,
+            {
+                "id": "test1",
+                "data": "name,age,city\nJohn,30,New York\nJane,25,Boston",
+            },
+        )
+        assert transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_csv_semicolon(self) -> None:
+        """Test detection returns True for valid CSV with semicolon delimiter."""
+        transformer = CsvSemicolonInputDataTransformer()
+        input_data = cast(
+            InputData,
+            {
+                "id": "test2",
+                "data": "name;age;city\nJohn;30;New York\nJane;25;Boston",
+            },
+        )
+        assert transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_valid_csv_tab(self) -> None:
+        """Test detection returns True for valid CSV with tab delimiter."""
+        transformer = CsvTabInputDataTransformer()
+        input_data = cast(
+            InputData,
+            {
+                "id": "test3",
+                "data": "name\tage\tcity\nJohn\t30\tNew York\nJane\t25\tBoston",
+            },
+        )
+        assert transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_csv_allows_optional_trailing_field(self) -> None:
+        """Test detection allows ±1 delimiter difference (covers: tolerance for trailing commas)."""
+        transformer = CsvCommaInputDataTransformer()
+        input_data = cast(InputData, {"id": "test4", "data": "a,b,c\n1,2,3,\n5,6,7\n"})
+        assert transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_invalid_no_delimiter(self) -> None:
+        """Test detection returns False when delimiter count is 0 (covers: first_line_delimiters == 0)."""
+        transformer = CsvCommaInputDataTransformer()
+        input_data = cast(
+            InputData, {"id": "test5", "data": "name age city\nJohn 30 New York"}
+        )
+        assert transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_invalid_inconsistent_delimiters(self) -> None:
+        """Test detection returns False for inconsistent delimiters >1 (covers: abs difference > 1)."""
+        transformer = CsvCommaInputDataTransformer()
+        input_data = cast(InputData, {"id": "test6", "data": "a,b,c\n123\n5,6,7"})
+        assert transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_invalid_json_exclusion(self) -> None:
+        """Test detection returns False for JSON (covers: starts with { or [ exclusion)."""
+        transformer = CsvCommaInputDataTransformer()
+        assert (
+            transformer.detect_my_data_structure(
+                cast(InputData, {"id": "test7", "data": '{"name": "John"}'})
+            )
+            is False
+        )
+
+    def test_detect_invalid_yaml_exclusion(self) -> None:
+        """Test detection returns False for YAML (covers: starts with --- exclusion)."""
+        transformer = CsvCommaInputDataTransformer()
+        input_data = cast(
+            InputData, {"id": "test8", "data": "---\nname: John\nage: 30"}
+        )
+        assert transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_invalid_single_line(self) -> None:
+        """Test detection returns False for single line (covers: len(lines) < 2 check)."""
+        transformer = CsvCommaInputDataTransformer()
+        input_data = cast(InputData, {"id": "test9", "data": "name,age,city"})
+        assert transformer.detect_my_data_structure(input_data) is False
+
+    def test_detect_empty_or_whitespace(self) -> None:
+        """Test detection returns False for empty data (covers: empty check)."""
+        transformer = CsvCommaInputDataTransformer()
+        assert (
+            transformer.detect_my_data_structure(
+                cast(InputData, {"id": "test10", "data": ""})
+            )
+            is False
+        )
+
+    def test_detect_large_csv_samples_first_1kb(self) -> None:
+        """Test detection with large CSV (>1KB) uses sampling (covers: 1KB sampling)."""
+        transformer = CsvCommaInputDataTransformer()
+        header = "col1,col2,col3,col4,col5\n"
+        rows = "\n".join([f"val{i},val{i},val{i},val{i},val{i}" for i in range(100)])
+        input_data = cast(InputData, {"id": "test11", "data": header + rows})
+        assert transformer.detect_my_data_structure(input_data) is True
+
+    def test_detect_performance_for_large_data(self) -> None:
+        """Test detection completes in <0.01s for large data (>1KB), verifying 1KB sampling works."""
+        transformer = CsvCommaInputDataTransformer()
+        # Create 100KB of CSV data (much larger than 1KB sample)
+        header = "col1,col2,col3,col4,col5,col6,col7,col8,col9,col10\n"
+        rows = "\n".join(
+            [
+                f"val{i},val{i},val{i},val{i},val{i},val{i},val{i},val{i},val{i},val{i}"
+                for i in range(1000)
+            ]
+        )
+        input_data = cast(InputData, {"id": "perf_test", "data": header + rows})
+
+        start_time = time.perf_counter()
+        result = transformer.detect_my_data_structure(input_data)
+        elapsed_time = time.perf_counter() - start_time
+
+        assert result is True
+        assert (
+            elapsed_time < 0.01
+        ), f"Detection took {elapsed_time:.4f}s, expected <0.01s"
