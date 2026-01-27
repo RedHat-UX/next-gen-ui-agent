@@ -12,13 +12,11 @@ import {
 } from "@patternfly/chatbot";
 import React, { useRef, useState } from "react";
 import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
+  ExpandableSection,
   FormGroup,
   TextArea,
+  TextInput,
+  Button,
 } from "@patternfly/react-core";
 
 import DynamicComponent from "./DynamicComponent";
@@ -60,9 +58,10 @@ export default function ChatBotPage() {
   const [inlineDataset, setInlineDataset] = useState('');
   const [inlineDatasetType, setInlineDatasetType] = useState('');
   
-  // Attached data modal state
-  const [isDataModalOpen, setIsDataModalOpen] = useState(false);
+  // Attached data state
+  const [isDataSectionExpanded, setIsDataSectionExpanded] = useState(false);
   const [attachedData, setAttachedData] = useState('');
+  const [attachedDataType, setAttachedDataType] = useState('');
   
   // Fetch model info on mount if in debug mode
   React.useEffect(() => {
@@ -217,20 +216,10 @@ export default function ChatBotPage() {
     };
   }, [isResizing]);
 
-  // Handle attach button click
-  const handleAttachClick = () => {
-    setIsDataModalOpen(true);
-  };
-
-  // Handle save data in modal
-  const handleSaveData = () => {
-    setIsDataModalOpen(false);
-  };
-
-  // Handle cancel in modal
-  const handleCancelData = () => {
+  // Handle clear data
+  const handleClearData = () => {
     setAttachedData('');
-    setIsDataModalOpen(false);
+    setAttachedDataType('');
   };
 
   const handleSend = async (message: string, datasetOverride?: string, datasetTypeOverride?: string) => {
@@ -294,7 +283,12 @@ export default function ChatBotPage() {
       body: { 
         prompt: message,
         strategy: selectedStrategy,
-        ...(attachedData.trim() ? { data: attachedData } : {}),
+        ...(attachedData.trim() 
+          ? { 
+              data: attachedData,
+              ...(attachedDataType.trim() ? { data_type: attachedDataType.trim() } : {})
+            } 
+          : {}),
         ...(datasetToUse.trim() && !attachedData.trim()
           ? {
               data: datasetToUse,
@@ -303,11 +297,6 @@ export default function ChatBotPage() {
           : {}),
       },
     });
-
-    // Clear attached data after API call
-    if (attachedData.trim()) {
-      setAttachedData('');
-    }
     newMessages.pop();
     
     // Extract model info from metadata if available
@@ -446,50 +435,49 @@ export default function ChatBotPage() {
         </ChatbotContent>
         <ChatbotFooter>
           <MessageBar
+            isAttachmentDisabled
             isSendButtonDisabled={loading}
             isCompact
             onSendMessage={(message: string | number) => handleSend(String(message))}
-            buttonProps={{
-              attach: {
-                tooltipContent: "Attach Data",
-                props: {
-                  onClick: handleAttachClick
-                }
-              }
-            }}
           />
+          <ExpandableSection
+            toggleText={isDataSectionExpanded ? "Hide data attachment" : "Attach data"}
+            onToggle={(_event, isExpanded) => setIsDataSectionExpanded(isExpanded)}
+            isExpanded={isDataSectionExpanded}
+            className="data-attachment-section"
+          >
+            <div className="data-attachment-content">
+              <FormGroup label="Data type" fieldId="data-type-input" className="data-attachment-form-group">
+                <TextInput
+                  id="data-type-input"
+                  value={attachedDataType}
+                  onChange={(_, value) => setAttachedDataType(value)}
+                  placeholder="Optional data type (e.g., json)"
+                  aria-label="Data type input"
+                />
+              </FormGroup>
+              <FormGroup label="Data" fieldId="data-textarea">
+                <TextArea
+                  id="data-textarea"
+                  value={attachedData}
+                  onChange={(_, value) => setAttachedData(value)}
+                  rows={8}
+                  aria-label="Data input"
+                />
+              </FormGroup>
+              {(attachedData.trim() || attachedDataType.trim()) && (
+                <div className="data-attachment-clear-wrapper">
+                  <Button variant="link" onClick={handleClearData} isInline>
+                    Clear
+                  </Button>
+                </div>
+              )}
+            </div>
+          </ExpandableSection>
           <ChatbotFootnote label="ChatBot uses AI. Check for mistakes." />
         </ChatbotFooter>
       </Chatbot>
       </div>
-
-      {/* Data Attachment Modal */}
-      <Modal
-        isOpen={isDataModalOpen}
-        onClose={handleCancelData}
-        variant="medium"
-      >
-        <ModalHeader title="Attach Data" labelId="attach-data-title" />
-        <ModalBody>
-          <FormGroup label="Data" fieldId="data-textarea">
-            <TextArea
-              id="data-textarea"
-              value={attachedData}
-              onChange={(_, value) => setAttachedData(value)}
-              rows={10}
-              aria-label="Data input"
-            />
-          </FormGroup>
-        </ModalBody>
-        <ModalFooter>
-          <Button key="save" variant="primary" onClick={handleSaveData}>
-            Save
-          </Button>
-          <Button key="cancel" variant="link" onClick={handleCancelData}>
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
     </div>
   );
 }
