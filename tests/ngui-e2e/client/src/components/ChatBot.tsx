@@ -11,6 +11,14 @@ import {
   type MessageProps,
 } from "@patternfly/chatbot";
 import React, { useRef, useState } from "react";
+import {
+  ExpandableSection,
+  FormGroup,
+  TextArea,
+  TextInput,
+  Button,
+  Switch,
+} from "@patternfly/react-core";
 
 import DynamicComponent from "./DynamicComponent";
 import { useFetch } from "../hooks/useFetch";
@@ -30,11 +38,11 @@ export default function ChatBotPage() {
 
   const { loading, fetchData } = useFetch();
 
-  // Check if debug mode is enabled via URL parameter
-  const isDebugMode = React.useMemo(() => {
+  // Debug mode state - initialized from URL parameter, can be toggled
+  const [isDebugMode, setIsDebugMode] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('debug') === 'true';
-  }, []);
+  });
 
   // Mock mode state
   const [isMockMode, setIsMockMode] = useState(false);
@@ -50,6 +58,11 @@ export default function ChatBotPage() {
   // Inline dataset (live mode) state
   const [inlineDataset, setInlineDataset] = useState('');
   const [inlineDatasetType, setInlineDatasetType] = useState('');
+  
+  // Attached data state
+  const [isDataSectionExpanded, setIsDataSectionExpanded] = useState(false);
+  const [attachedData, setAttachedData] = useState('');
+  const [attachedDataType, setAttachedDataType] = useState('');
   
   // Fetch model info on mount if in debug mode
   React.useEffect(() => {
@@ -204,6 +217,12 @@ export default function ChatBotPage() {
     };
   }, [isResizing]);
 
+  // Handle clear data
+  const handleClearData = () => {
+    setAttachedData('');
+    setAttachedDataType('');
+  };
+
   const handleSend = async (message: string, datasetOverride?: string, datasetTypeOverride?: string) => {
     // Check if in mock mode
     if (isMockMode) {
@@ -265,7 +284,13 @@ export default function ChatBotPage() {
       body: { 
         prompt: message,
         strategy: selectedStrategy,
-        ...(datasetToUse.trim()
+        ...(attachedData.trim() 
+          ? { 
+              data: attachedData,
+              ...(attachedDataType.trim() ? { data_type: attachedDataType.trim() } : {})
+            } 
+          : {}),
+        ...(datasetToUse.trim() && !attachedData.trim()
           ? {
               data: datasetToUse,
               data_type: datasetTypeToUse.trim() || undefined,
@@ -335,6 +360,15 @@ export default function ChatBotPage() {
 
   return (
     <div className="chatbot-layout">
+      {/* Debug Mode Toggle - Top Right Corner */}
+      <div className="debug-mode-toggle">
+        <Switch
+          id="debug-mode-switch"
+          label="Debug Mode"
+          isChecked={isDebugMode}
+          onChange={(_event, checked) => setIsDebugMode(checked)}
+        />
+      </div>
       {/* Test Panel - Left Side (only shown when debug=true) */}
       {isDebugMode && (
         <div 
@@ -416,6 +450,40 @@ export default function ChatBotPage() {
             isCompact
             onSendMessage={(message: string | number) => handleSend(String(message))}
           />
+          <ExpandableSection
+            toggleText={isDataSectionExpanded ? "Hide data attachment" : "Attach data"}
+            onToggle={(_event, isExpanded) => setIsDataSectionExpanded(isExpanded)}
+            isExpanded={isDataSectionExpanded}
+            className="data-attachment-section"
+          >
+            <div className="data-attachment-content">
+              <FormGroup label="Data type" fieldId="data-type-input" className="data-attachment-form-group">
+                <TextInput
+                  id="data-type-input"
+                  value={attachedDataType}
+                  onChange={(_, value) => setAttachedDataType(value)}
+                  placeholder="Optional data type (e.g., json)"
+                  aria-label="Data type input"
+                />
+              </FormGroup>
+              <FormGroup label="Data" fieldId="data-textarea">
+                <TextArea
+                  id="data-textarea"
+                  value={attachedData}
+                  onChange={(_, value) => setAttachedData(value)}
+                  rows={8}
+                  aria-label="Data input"
+                />
+              </FormGroup>
+              {(attachedData.trim() || attachedDataType.trim()) && (
+                <div className="data-attachment-clear-wrapper">
+                  <Button variant="link" onClick={handleClearData} isInline>
+                    Clear
+                  </Button>
+                </div>
+              )}
+            </div>
+          </ExpandableSection>
           <ChatbotFootnote label="ChatBot uses AI. Check for mistakes." />
         </ChatbotFooter>
       </Chatbot>
