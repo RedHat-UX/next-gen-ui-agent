@@ -98,7 +98,7 @@ Prompts are constructed by merging overrides in this order (later overrides repl
 
 !!!warning
     Please be aware that one large system prompt is constructed by the UI Agent using these per-component overrides, but also common parts. 
-    Final inference results heavily depend on used LLM type, for some change of one component system prompt may also affect other components or overal agent's performance. Mainly smaller LLMs are more sensible on system prompt changes and interdependencies in it.
+    Final inference results heavily depend on used LLM type, for some change of one component system prompt may also affect other components or overal agent's performance. Mainly smaller LLMs are more sensitive on system prompt changes and interdependencies in it.
     Always use the [evaluation tool](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ai_eval_components), and ideally your project specific evaluation dataset, to measure agent's performance when tuning system prompt this way.
     It is always a good idea to start with default prompts fields from [`COMPONENT_METADATA`](https://github.com/RedHat-UX/next-gen-ui-agent/blob/cf80d1c49f49d1eca282fc656db4afaa6a5eeea2/libs/next_gen_ui_agent/component_selection_common.py#L127C1-L127C19) and gradually fine-tune them while measuring agent's performance.
 
