@@ -19,6 +19,16 @@
             }
           ]
         },
+        "type_metadata": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "hand_build_component_type": {
           "anyOf": [
             {

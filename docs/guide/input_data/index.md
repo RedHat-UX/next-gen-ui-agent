@@ -19,6 +19,8 @@ Results for unrelated data are not guaranteed.
    to define and use these types, but it might be a good idea to use tree like hierarchy here, and descriebe business meaning of the data. Other option is 
    to use name of the LLM tool used to load backend data, as implemented in some of our AI framework bindings.
    It is used to identify data type for multiple features like configurable component selection, input data transformation, input data JSON wrapping etc.
+* `type_metadata` - optional string with type specific metadata passed to the renderer. Example use case: JSON-serialized tool call arguments used to load the data, 
+   enabling frontend to refresh data with same parameters. For example: `{"title": "Toy Story"}`.
 
 There are additional optional fields controlling additional features:
 

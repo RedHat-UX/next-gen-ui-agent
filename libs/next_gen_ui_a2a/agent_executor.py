@@ -41,11 +41,16 @@ class NextGenUIAgentExecutor(AgentExecutor):
                     if metadata.get("type"):
                         data_type = str(metadata.get("type"))
 
+                    type_metadata = None
+                    if metadata.get("type_metadata"):
+                        type_metadata = str(metadata.get("type_metadata"))
+
                     input_data_list.append(
                         InputData(
                             id=id,
                             data=data,
                             type=data_type,
+                            type_metadata=type_metadata,
                         )
                     )
 
@@ -54,8 +59,17 @@ class NextGenUIAgentExecutor(AgentExecutor):
                 if part_root.metadata and part_root.metadata.get("type"):
                     data_type = str(part_root.metadata.get("type"))
 
+                type_metadata = None
+                if part_root.metadata and part_root.metadata.get("type_metadata"):
+                    type_metadata = str(part_root.metadata.get("type_metadata"))
+
                 input_data_list.append(
-                    InputData(id=id, data=json.dumps(part_root.data), type=data_type)
+                    InputData(
+                        id=id,
+                        data=json.dumps(part_root.data),
+                        type=data_type,
+                        type_metadata=type_metadata,
+                    )
                 )
 
         return user_prompt, input_data_list

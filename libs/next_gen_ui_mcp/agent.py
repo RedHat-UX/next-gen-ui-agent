@@ -300,6 +300,16 @@ class NextGenUIMCPServer:
                     )
                 ),
             ],
+            data_type_metadata: Annotated[
+                str | None,
+                Field(
+                    description=self._get_argument_description(
+                        tool_config,
+                        "data_type_metadata",
+                        "Arguments of tool call used for 'data' argument. COPY of tool arguments. Do not change anything! NEVER generate this.",
+                    )
+                ),
+            ] = None,
             data_id: Annotated[
                 str | None,
                 Field(
@@ -326,7 +336,12 @@ class NextGenUIMCPServer:
             await ctx.info("Starting UI generation...")
             logger.debug("generate_ui_component invoked with session_id=%s", session_id)
             try:
-                input_data = InputData(data=data, type=data_type, id=data_id)
+                input_data = InputData(
+                    data=data,
+                    type=data_type,
+                    type_metadata=data_type_metadata,
+                    id=data_id,
+                )
                 inference = await self.get_ngui_inference(ctx)
                 ui_block = await self.generate_ui_block(
                     ctx=ctx,

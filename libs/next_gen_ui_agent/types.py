@@ -286,6 +286,10 @@ class InputData(TypedDict):
     Optional type identification of the input data. Used for processing (see `AgentConfig.data_types`) and frontend visualization customizations.
     Name of Tool used to load data from backend is typically put into this field.
     """
+    type_metadata: NotRequired[str | None]
+    """
+    Optional type specific metadata, passed to the renderer. For example Tool call arguments used to load these data can be passed this way.
+    """
     hand_build_component_type: NotRequired[str | None]
     """
     Optional `component_type` of the "hand-build component" to be used for UI rendering.
@@ -407,6 +411,11 @@ class UIBlockConfiguration(BaseModel):
 
     data_type: Optional[str] = Field(default=None, description="Input data type.")
     "Input data type"
+    data_type_metadata: Optional[str] = Field(
+        default=None,
+        description="Optional type specific metadata from InputData, passed to the renderer. For example Tool call arguments used to load the data can be used by frontend to refresh data.",
+    )
+    "Optional type specific metadata from InputData, passed to the renderer."
     input_data_transformer_name: Optional[str] = Field(
         default=None,
         description="Name of the input data transformer used to transform the input data.",

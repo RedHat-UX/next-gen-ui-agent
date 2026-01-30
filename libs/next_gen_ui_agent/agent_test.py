@@ -619,7 +619,12 @@ class TestConstructUIBlockConfiguration:
 
     def test_construct_UIBlockConfiguration_all_info(self) -> None:
         agent = NextGenUIAgent(config=AgentConfig())
-        input_data = InputData(id="1", data='[{"title": "Toy Story"}]', type="my_type")
+        input_data = InputData(
+            id="1",
+            data='[{"title": "Toy Story"}]',
+            type="my_type",
+            type_metadata='{"tool": "search_movie", "args": {"title": "Toy Story"}}',
+        )
         component_metadata = UIComponentMetadata(
             component="one-card",
             id="1",
@@ -638,6 +643,10 @@ class TestConstructUIBlockConfiguration:
             input_data, component_metadata
         )
         assert configuration.data_type == "my_type"
+        assert (
+            configuration.data_type_metadata
+            == '{"tool": "search_movie", "args": {"title": "Toy Story"}}'
+        )
         assert configuration.input_data_transformer_name == "json"
         assert configuration.json_wrapping_field_name == "my_type"
         assert configuration.component_metadata is not None
@@ -884,6 +893,59 @@ class TestConstructUIBlockConfiguration:
         assert configuration.component_metadata.fields_all[1].id == generate_field_id(
             configuration.component_metadata.fields_all[1].data_path
         )
+
+    def test_construct_UIBlockConfiguration_with_type_metadata(self) -> None:
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(
+            id="1",
+            data='{"title": "Toy Story"}',
+            type="movie_detail",
+            type_metadata='{"arg1": "value1", "arg2": "value2"}',
+        )
+        component_metadata = UIComponentMetadata(
+            component="one-card",
+            id="1",
+            title="Toy Story",
+            fields=[DataField(name="Title", data_path="title")],
+            input_data_transformer_name="json",
+            json_wrapping_field_name=None,
+            json_data={"title": "Toy Story"},
+        )
+        configuration = agent.construct_UIBlockConfiguration(
+            input_data, component_metadata
+        )
+        assert configuration.data_type == "movie_detail"
+        assert (
+            configuration.data_type_metadata == '{"arg1": "value1", "arg2": "value2"}'
+        )
+        assert configuration.input_data_transformer_name == "json"
+        assert configuration.json_wrapping_field_name is None
+        assert configuration.component_metadata is not None
+        assert configuration.component_metadata.component == "one-card"
+
+    def test_construct_UIBlockConfiguration_without_type_metadata(self) -> None:
+        """Test that type_metadata is optional and defaults to None."""
+        agent = NextGenUIAgent(config=AgentConfig())
+        input_data = InputData(
+            id="1",
+            data='{"title": "Toy Story"}',
+            type="movie_detail",
+        )
+        component_metadata = UIComponentMetadata(
+            component="one-card",
+            id="1",
+            title="Toy Story",
+            fields=[DataField(name="Title", data_path="title")],
+            input_data_transformer_name="json",
+            json_wrapping_field_name=None,
+            json_data={"title": "Toy Story"},
+        )
+        configuration = agent.construct_UIBlockConfiguration(
+            input_data, component_metadata
+        )
+        assert configuration.data_type == "movie_detail"
+        assert configuration.data_type_metadata is None
+        assert configuration.component_metadata is not None
 
 
 class TestTransformData:
