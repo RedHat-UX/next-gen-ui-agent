@@ -6,12 +6,7 @@ from typing import Any, Optional, TypedDict
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data, wrap_string_as_json
-from next_gen_ui_agent.types import (
-    AgentConfig,
-    AgentConfigComponent,
-    InputDataInternal,
-    UIComponentMetadata,
-)
+from next_gen_ui_agent.types import AgentConfig, InputDataInternal, UIComponentMetadata
 
 
 class LLMInteraction(TypedDict):
@@ -66,18 +61,13 @@ class ComponentSelectionStrategy(ABC):
         inference: InferenceBase,
         user_prompt: str,
         input_data: InputDataInternal,
-        allowed_components: Optional[set[str]] = None,
-        components_config: Optional[dict[str, AgentConfigComponent]] = None,
     ) -> UIComponentMetadata:
         """
         Select UI component based on input data and user prompt.
         Args:
             inference: Inference to use to call LLM by the agent
             user_prompt: User prompt to be processed
-            input_data: Input data to be processed
-            allowed_components: Optional set of component names to filter selection to
-            components_config: Optional mapping of component names to their configs
-                               (used by two-step strategy to check llm_configure flag)
+            input_data: Input data to be processed (contains optional 'type' field for data_type-specific prompt customization)
         Returns:
             Generated `UIComponentMetadata`
         Raises:
@@ -85,7 +75,12 @@ class ComponentSelectionStrategy(ABC):
         """
 
         input_data_id = input_data["id"]
-        self.logger.debug("---CALL component_selection_run--- id: %s", {input_data_id})
+        data_type = input_data.get("type")
+        self.logger.debug(
+            "---CALL component_selection_run--- id: %s, data_type: %s",
+            input_data_id,
+            data_type,
+        )
 
         json_data = input_data.get("json_data")
         input_data_transformer_name: str | None = input_data.get(
@@ -119,8 +114,7 @@ class ComponentSelectionStrategy(ABC):
             user_prompt,
             json_data_for_llm,
             input_data_id,
-            allowed_components,
-            components_config,
+            data_type,
         )
 
         try:
@@ -129,10 +123,63 @@ class ComponentSelectionStrategy(ABC):
             result.input_data_transformer_name = input_data_transformer_name
             result.json_wrapping_field_name = json_wrapping_field_name
             result.input_data_type = input_data.get("type")
+
+            # Handle llm_configure=False merging for data_type-specific components
+            if data_type and not result.fields:
+                result = self._merge_with_preconfig_if_needed(data_type, result)
+
             return result
         except Exception as e:
             self.logger.exception("Cannot decode the json from LLM response")
             raise e
+
+    def _merge_with_preconfig_if_needed(
+        self, data_type: str, result: UIComponentMetadata
+    ) -> UIComponentMetadata:
+        """Merge LLM selection with pre-configuration if llm_configure=False.
+
+        Args:
+            data_type: Data type identifier
+            result: Partial result from LLM (component selected, but no fields)
+
+        Returns:
+            Complete UIComponentMetadata with fields from pre-configuration
+        """
+        # Import here to avoid circular dependency
+        from next_gen_ui_agent.types import AgentConfig
+
+        # Get config (must be set in subclass __init__)
+        if not hasattr(self, "config"):
+            return result
+
+        config: AgentConfig = self.config
+
+        # No fields means pre-configuration should be used
+        if config.data_types and data_type in config.data_types:
+            data_type_config = config.data_types[data_type]
+            if data_type_config.components:
+                # Find the selected component in the config
+                selected_component_name = result.component
+                for comp in data_type_config.components:
+                    if comp.component == selected_component_name:
+                        if comp.llm_configure is False and comp.configuration:
+                            # Merge LLM selection metadata with pre-configured fields
+                            result = UIComponentMetadata(
+                                id=result.id,
+                                component=selected_component_name,
+                                title=comp.configuration.title,
+                                fields=comp.configuration.fields,
+                                reasonForTheComponentSelection=result.reasonForTheComponentSelection,
+                                confidenceScore=result.confidenceScore,
+                                json_data=result.json_data,
+                                input_data_transformer_name=result.input_data_transformer_name,
+                                json_wrapping_field_name=result.json_wrapping_field_name,
+                                input_data_type=result.input_data_type,
+                                llm_interactions=result.llm_interactions,
+                            )
+                        break
+
+        return result
 
     @abstractmethod
     async def perform_inference(
@@ -141,12 +188,18 @@ class ComponentSelectionStrategy(ABC):
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
-        allowed_components: Optional[set[str]] = None,
-        components_config: Optional[dict[str, AgentConfigComponent]] = None,
+        data_type: Optional[str] = None,
     ) -> InferenceResult:
         """
         Perform inference to select UI components and configure them.
         Multiple LLM calls can be performed and inference results can be returned along with metadata.
+
+        Args:
+            inference: Inference to use to call LLM
+            user_prompt: User prompt to be processed
+            json_data: JSON data parsed into python objects
+            input_data_id: ID of the input data
+            data_type: Optional data type identifier for data_type-specific prompt customization
 
         Args:
             inference: Inference to use to call LLM by the agent

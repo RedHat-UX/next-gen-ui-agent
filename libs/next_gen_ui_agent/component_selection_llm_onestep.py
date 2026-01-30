@@ -1,7 +1,10 @@
 import logging
-from typing import Any, Optional, cast
+from typing import Any, Optional
 
-from next_gen_ui_agent.component_metadata import get_component_metadata
+from next_gen_ui_agent.component_metadata import (
+    get_component_metadata,
+    merge_per_component_prompt_overrides,
+)
 from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
     ONESTEP_PROMPT_RULES,
@@ -9,7 +12,6 @@ from next_gen_ui_agent.component_selection_common import (
     build_components_description,
     build_onestep_examples,
     normalize_allowed_components,
-    set_active_component_metadata,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
@@ -19,11 +21,7 @@ from next_gen_ui_agent.component_selection_llm_strategy import (
     validate_and_correct_chart_type,
 )
 from next_gen_ui_agent.inference.inference_base import InferenceBase
-from next_gen_ui_agent.types import (
-    CONFIG_OPTIONS_ALL_COMPONETS,
-    AgentConfig,
-    UIComponentMetadata,
-)
+from next_gen_ui_agent.types import AgentConfig, UIComponentMetadata
 from pydantic_core import from_json
 
 logger = logging.getLogger(__name__)
@@ -44,18 +42,17 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         """
         super().__init__(logger, config)
 
-        # Get merged metadata with overrides and set it globally
-        merged_metadata = get_component_metadata(config)
-        set_active_component_metadata(merged_metadata)
+        # Store full config for data_type lookups
+        self.config = config
 
-        # Cache for system prompts by component set (for performance)
-        self._system_prompt_cache: dict[frozenset[str], str] = {}
+        # Get merged metadata with global overrides
+        self._base_metadata = get_component_metadata(config)
+
+        # Cache for system prompts by data_type (for performance)
+        self._system_prompt_cache: dict[str | None, str] = {}
 
         # Build and cache default system prompt for backward compatibility
-        self._config_selectable_components = config.selectable_components
-        self._system_prompt = self._get_or_build_system_prompt(
-            config.selectable_components
-        )
+        self._system_prompt = self._get_or_build_system_prompt(data_type=None)
 
     def get_system_prompt(self) -> str:
         """
@@ -64,22 +61,27 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         return self._system_prompt
 
     def _build_system_prompt(
-        self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
+        self, allowed_components_config: set[str] | None, metadata: dict
     ) -> str:
         """
         Build complete system prompt based on allowed components.
 
         Args:
             allowed_components_config: Set of allowed component names, or None for all components
+            metadata: Component metadata dictionary to use
 
         Returns:
             Complete system prompt string
         """
 
-        allowed_components = normalize_allowed_components(allowed_components_config)
+        allowed_components = normalize_allowed_components(
+            allowed_components_config, metadata
+        )
 
         # Get filtered component descriptions
-        components_description = build_components_description(allowed_components)
+        components_description = build_components_description(
+            allowed_components, metadata
+        )
 
         # Get filtered examples
         response_examples = build_onestep_examples(allowed_components)
@@ -88,7 +90,7 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         allowed_charts = allowed_components & CHART_COMPONENTS
 
         # Get chart instructions (empty if no charts)
-        chart_instructions = build_chart_instructions(allowed_charts)
+        chart_instructions = build_chart_instructions(allowed_charts, metadata)
 
         # Build the complete system prompt
         system_prompt = f"""You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
@@ -108,29 +110,54 @@ AVAILABLE UI COMPONENTS:
 
         return system_prompt
 
-    def _get_or_build_system_prompt(
-        self, allowed_components_config: CONFIG_OPTIONS_ALL_COMPONETS
-    ) -> str:
+    def _get_or_build_system_prompt(self, data_type: str | None) -> str:
         """
         Get or build system prompt with caching.
 
         Args:
-            allowed_components_config: Set of allowed component names, or None for all components
+            data_type: Data type identifier (or None for global selection)
 
         Returns:
             Cached or newly built system prompt string
         """
-        # Normalize components
-        allowed_components = normalize_allowed_components(allowed_components_config)
-
-        # Use frozenset as cache key
-        cache_key = frozenset(allowed_components)
+        # Use data_type as cache key
+        cache_key = data_type
 
         # Check cache
         if cache_key not in self._system_prompt_cache:
+            # Determine allowed components and metadata based on data_type
+            if (
+                data_type
+                and self.config.data_types
+                and data_type in self.config.data_types
+            ):
+                # Extract component names from data_type configuration
+                components_list = self.config.data_types[data_type].components
+                if components_list:
+                    allowed_components_set = {
+                        comp.component for comp in components_list
+                    }
+
+                    # Merge per-component prompt overrides
+                    merged_metadata = merge_per_component_prompt_overrides(
+                        self._base_metadata, components_list
+                    )
+                else:
+                    allowed_components_set = set(self._base_metadata.keys())
+                    merged_metadata = self._base_metadata
+            else:
+                # Global selection - use selectable_components
+                allowed_components_set = (
+                    set(self.config.selectable_components)
+                    if self.config.selectable_components
+                    else set(self._base_metadata.keys())
+                )
+                # Use base metadata for global selection
+                merged_metadata = self._base_metadata
+
             # Build and cache
             self._system_prompt_cache[cache_key] = self._build_system_prompt(
-                allowed_components_config
+                allowed_components_set, merged_metadata
             )
 
         return self._system_prompt_cache[cache_key]
@@ -141,8 +168,7 @@ AVAILABLE UI COMPONENTS:
         user_prompt: str,
         json_data: Any,
         input_data_id: str,
-        allowed_components: Optional[set[str]] = None,
-        components_config: Optional[dict[str, Any]] = None,
+        data_type: Optional[str] = None,
     ) -> InferenceResult:
         """Run Component Selection inference.
 
@@ -151,27 +177,20 @@ AVAILABLE UI COMPONENTS:
             user_prompt: User prompt to be processed
             json_data: JSON data parsed into python objects
             input_data_id: ID of the input data
-            allowed_components: Optional set of component names to filter selection to
-            components_config: Optional mapping (not actively used in onestep, for API consistency)
+            data_type: Optional data type identifier for data_type-specific prompt customization
         """
 
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug(
-                "---CALL component_selection_inference--- id: %s", {input_data_id}
+                "---CALL component_selection_inference--- id: %s, data_type: %s",
+                input_data_id,
+                data_type,
             )
             # logger.debug(user_prompt)
             # logger.debug(input_data)
 
-        # Get or build cached system prompt
-        components_to_use = cast(
-            CONFIG_OPTIONS_ALL_COMPONETS,
-            (
-                allowed_components
-                if allowed_components is not None
-                else self._config_selectable_components
-            ),
-        )
-        sys_msg_content = self._get_or_build_system_prompt(components_to_use)
+        # Get or build cached system prompt using data_type
+        sys_msg_content = self._get_or_build_system_prompt(data_type)
 
         prompt = f"""=== User query ===
     {user_prompt}

@@ -11,7 +11,7 @@ from next_gen_ui_agent.component_selection_common import (
     ALL_COMPONENTS,
     COMPONENT_METADATA,
 )
-from next_gen_ui_agent.types import AgentConfig
+from next_gen_ui_agent.types import AgentConfig, AgentConfigComponent
 
 
 def validate_component_overrides(overrides: dict[str, Any]) -> None:
@@ -72,6 +72,36 @@ def merge_component_metadata(
             # Update only the specified fields
             for field_name, field_value in component_overrides.items():
                 if field_value is not None:  # Only apply non-None values
+                    merged[component_name][field_name] = field_value
+
+    return merged
+
+
+def merge_per_component_prompt_overrides(
+    base_metadata: dict[str, dict[str, Any]],
+    components_list: list[AgentConfigComponent],
+) -> dict[str, dict[str, Any]]:
+    """Merge per-component prompt overrides into metadata.
+
+    Args:
+        base_metadata: Base metadata (already includes global overrides)
+        components_list: List of components with potential prompt overrides
+
+    Returns:
+        Metadata with per-component overrides applied
+    """
+    # Start with deep copy to avoid modifying the original
+    merged = deepcopy(base_metadata)
+
+    # Iterate through components and apply per-component prompt overrides
+    for component in components_list:
+        if component.prompt:
+            component_name = component.component
+            # Convert prompt to dict, excluding None values
+            prompt_dict = component.prompt.model_dump(exclude_none=True)
+            if prompt_dict and component_name in merged:
+                # Apply per-component overrides
+                for field_name, field_value in prompt_dict.items():
                     merged[component_name][field_name] = field_value
 
     return merged

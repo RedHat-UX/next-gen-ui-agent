@@ -90,6 +90,12 @@ class AgentConfigComponent(BaseModel):
     Only applicable to dynamic components. Hand-build components must not use this field.
     """
 
+    prompt: Optional["AgentConfigPromptComponent"] = Field(
+        default=None,
+        description="Optional prompt customization for this component. Overrides global `prompt.components` configuration for this component in this data_type context. Has the same fields as `prompt.components`. For HBCs in multi-component scenarios, at least 'description' field is required.",
+    )
+    """Optional prompt customization for this component."""
+
 
 class AgentConfigDataType(BaseModel):
     """Agent Configuration for the Data Type."""
