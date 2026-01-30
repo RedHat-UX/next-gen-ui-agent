@@ -240,6 +240,7 @@ class NextGenUIAgent:
         return UIBlockConfiguration(
             component_metadata=block_component_metadata,
             data_type=input_data.get("type"),
+            data_type_metadata=input_data.get("type_metadata"),
             input_data_transformer_name=component_metadata.input_data_transformer_name,
             json_wrapping_field_name=component_metadata.json_wrapping_field_name,
         )

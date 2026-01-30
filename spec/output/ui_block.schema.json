@@ -92,6 +92,18 @@
           "default": null,
           "description": "Input data type."
         },
+        "data_type_metadata": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional type specific metadata from InputData, passed to the renderer. For example Tool call arguments used to load the data can be used by frontend to refresh data."
+        },
         "input_data_transformer_name": {
           "anyOf": [
             {

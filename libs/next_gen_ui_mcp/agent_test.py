@@ -286,6 +286,7 @@ class TestGenerateUIComponent:
                     "user_prompt": "Tell me brief details of Toy Story",
                     "data": json.dumps(movies_data, default=str),
                     "data_type": "data_type_ignored",
+                    "data_type_metadata": '{"tool": "find_movie", "args": {"title": "Toy Story"}}',
                 },
             )
 
@@ -297,6 +298,10 @@ class TestGenerateUIComponent:
         configuration = output.blocks[0].configuration
         assert configuration is not None
         assert configuration.data_type == "data_type_ignored"
+        assert (
+            configuration.data_type_metadata
+            == '{"tool": "find_movie", "args": {"title": "Toy Story"}}'
+        )
         assert configuration.input_data_transformer_name == "json"
         assert configuration.json_wrapping_field_name == "data_type_ignored"
 
@@ -337,6 +342,40 @@ class TestGenerateUIComponent:
                         )
         mock_info.assert_any_call("Using external inference provider...")
         mock_error.assert_any_call("UI generation failed: call model test error")
+
+    @pytest.mark.asyncio
+    async def test_data_type_metadata_passed_through(self, external_inference) -> None:
+        """Test that data_type_metadata is correctly passed through to the configuration."""
+        ngui_agent = NextGenUIMCPServer(
+            config=MCPAgentConfig(component_system="json"),
+            name="TestAgentExternal",
+            inference=external_inference,
+        )
+
+        movies_data = find_movie("Toy Story")
+        test_metadata = '{"tool": "search", "query": "test", "params": {"limit": 10}}'
+
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            result = await client.call_tool(
+                "generate_ui_component",
+                {
+                    "user_prompt": "Tell me brief details of Toy Story",
+                    "data": json.dumps(movies_data, default=str),
+                    "data_type": "movie_detail",
+                    "data_type_metadata": test_metadata,
+                    "data_id": "test_id",
+                },
+            )
+
+        # Verify the result
+        assert result is not None
+
+        # Parse the JSON response
+        output = MCPGenerateUIOutput.model_validate(result.data)
+        configuration = output.blocks[0].configuration
+        assert configuration is not None
+        assert configuration.data_type == "movie_detail"
+        assert configuration.data_type_metadata == test_metadata
 
 
 class TestGenerateUIMultipleComponents:
@@ -640,6 +679,47 @@ class TestGenerateUIMultipleComponents:
             "\nFailed component generation:"
             "\n1. UI generation failed for this component. THROW-TEST-EXCEPTION"
         )
+
+    @pytest.mark.asyncio
+    async def test_structured_data_with_type_metadata(self, external_inference) -> None:
+        """Test that type_metadata in structured_data is preserved in output configuration."""
+        ngui_agent = NextGenUIMCPServer(
+            config=MCPAgentConfig(component_system="json"),
+            name="TestAgentExternal",
+            inference=external_inference,
+        )
+
+        movies_data = find_movie("Toy Story")
+        test_metadata = '{"tool": "find_movie", "args": {"title": "Toy Story"}}'
+        input_data: List[InputData] = [
+            {
+                "id": "test_id",
+                "data": json.dumps(movies_data, default=str),
+                "type": "movie_detail",
+                "type_metadata": test_metadata,
+            }
+        ]
+
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            result = await client.call_tool(
+                "generate_ui_multiple_components",
+                {
+                    "user_prompt": "Tell me brief details of Toy Story",
+                    "structured_data": input_data,
+                },
+            )
+
+        # Verify the result
+        assert result is not None
+
+        # Parse the JSON response
+        output = MCPGenerateUIOutput.model_validate(result.data)
+        assert len(output.blocks) == 1
+
+        configuration = output.blocks[0].configuration
+        assert configuration is not None
+        assert configuration.data_type == "movie_detail"
+        assert configuration.data_type_metadata == test_metadata
 
 
 class TestToolDescriptions:
