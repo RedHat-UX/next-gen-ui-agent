@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from next_gen_ui_agent.input_data_transform.csv_input_data_transformer import (
     CsvCommaInputDataTransformer,
@@ -53,6 +53,7 @@ BUILTIN_INPUT_DATA_TRANSFORMERS: dict[str, InputDataTransformerBase] = {
 class InputDataTransformersConfig:
     default_data_transformer: str
     per_type_data_transformers: dict[str, str] = {}
+    enable_auto_detection: bool = True
 
 
 c = InputDataTransformersConfig()
@@ -80,9 +81,13 @@ def init_input_data_transformers(config: AgentConfig) -> None:
                 get_input_data_transformer(type_config.data_transformer)
                 c.per_type_data_transformers[type] = type_config.data_transformer
 
+    # store auto-detection config
+    c.enable_auto_detection = config.enable_input_data_type_detection
+
 
 def get_input_data_transformer_name(input_data: InputData) -> str:
     """Get input data transformer name based on input data type."""
+    # Check if there's an explicit transformer configured for this type
     if (
         c.per_type_data_transformers
         and input_data.get("type")
@@ -91,7 +96,39 @@ def get_input_data_transformer_name(input_data: InputData) -> str:
         transformer_name = c.per_type_data_transformers[input_data["type"]]
         if transformer_name:
             return transformer_name
+
+    # No explicit transformer configured, try auto-detection if enabled
+    elif c.enable_auto_detection:
+        derived_transformer_name = get_auto_detected_transformer_name(input_data)
+        if derived_transformer_name:
+            return derived_transformer_name
+
+    # Fallback to default transformer
     return c.default_data_transformer
+
+
+def get_auto_detected_transformer_name(input_data: InputData) -> Optional[str]:
+    """Get the input data transformer name via auto-detection from data structure.
+
+    Iterates through all available transformers (built-in first, then pluggable)
+    and returns the name of the first transformer that detects the data structure.
+
+    Args:
+        input_data: InputData to detect
+    Returns:
+        Transformer name if a compatible transformer is found, None otherwise
+    """
+    # Check built-in transformers first
+    for name, transformer in BUILTIN_INPUT_DATA_TRANSFORMERS.items():
+        if transformer.detect_my_data_structure(input_data):
+            return name
+
+    # Check pluggable transformers
+    for ext in input_data_transformer_extension_manager:
+        if ext.obj.detect_my_data_structure(input_data):
+            return str(ext.name)
+
+    return None
 
 
 def get_input_data_transformer(

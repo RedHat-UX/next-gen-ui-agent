@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from next_gen_ui_agent.types import InputDataTransformerBase
+from next_gen_ui_agent.types import InputData, InputDataTransformerBase
 
 
 class NoopInputDataTransformer(InputDataTransformerBase):
@@ -25,3 +25,10 @@ class NoopInputDataTransformer(InputDataTransformerBase):
             The input data as is.
         """
         return input_data
+
+    def detect_my_data_structure(self, input_data: InputData) -> bool:
+        """
+        NOOP transformer should not be auto-detected.
+        It must be explicitly configured by the user.
+        """
+        return False
