@@ -9,7 +9,8 @@ from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
     build_chart_instructions,
     build_components_description,
-    build_onestep_examples,
+    has_chart_components,
+    has_non_chart_components,
     normalize_allowed_components,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
@@ -126,7 +127,7 @@ AVAILABLE UI COMPONENTS:"""
 {chart_instructions}"""
 
         # Get filtered examples
-        response_examples = build_onestep_examples(allowed_components)
+        response_examples = self._build_examples(allowed_components)
 
         # Add examples if available
         if response_examples:
@@ -135,6 +136,100 @@ AVAILABLE UI COMPONENTS:"""
 {response_examples}"""
 
         return system_prompt
+
+    def _build_examples(self, allowed_components: set[str]) -> str:
+        """
+        Build examples section for one-step strategy system prompt.
+
+        Args:
+            allowed_components: Set of allowed component names
+
+        Returns:
+            Formatted string with examples
+        """
+        # Combine normal components and chart examples
+        examples = []
+
+        normalcomponents_examples = self._build_normalcomponents_examples(
+            allowed_components
+        )
+        if normalcomponents_examples:
+            examples.append(normalcomponents_examples)
+
+        chart_examples = self._build_chart_examples(allowed_components)
+        if chart_examples:
+            examples.append(chart_examples)
+
+        return "\n\n".join(examples)
+
+    def _build_normalcomponents_examples(self, allowed_components: set[str]) -> str:
+        """Build normal component examples (table, cards, image)."""
+        if not has_non_chart_components(allowed_components):
+            return ""
+
+        # Check for custom template
+        if self.config.prompt and self.config.prompt.examples_onestep_normalcomponents:
+            return self.config.prompt.examples_onestep_normalcomponents
+
+        # Default hardcoded examples
+        return """Response example for multi-item data when table is suitable:
+{
+    "title": "Orders",
+    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
+    "confidenceScore": "95%",
+    "component": "table",
+    "fields" : [
+        {"name":"Name","data_path":"orders[*].name"},
+        {"name":"Creation Date","data_path":"orders[*].creationDate"}
+    ]
+}
+
+Response example for one-item data when one-card is suitable:
+{
+    "title": "Order CA565",
+    "reasonForTheComponentSelection": "One item available in the data",
+    "confidenceScore": "75%",
+    "component": "one-card",
+    "fields" : [
+        {"name":"Name","data_path":"order.name"},
+        {"name":"Creation Date","data_path":"order.creationDate"}
+    ]
+}"""
+
+    def _build_chart_examples(self, allowed_components: set[str]) -> str:
+        """Build chart component examples."""
+        if not has_chart_components(allowed_components):
+            return ""
+
+        # Check for custom template
+        if self.config.prompt and self.config.prompt.examples_onestep_charts:
+            return self.config.prompt.examples_onestep_charts
+
+        # Default hardcoded examples
+        return """Response example for multi-item data when bar chart is suitable:
+{
+    "title": "Movie Revenue Comparison",
+    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
+    "confidenceScore": "90%",
+    "component": "chart-bar",
+    "fields" : [
+        {"name":"Movie","data_path":"movies[*].title"},
+        {"name":"Revenue","data_path":"movies[*].revenue"}
+    ]
+}
+
+Response example for multi-item data when mirrored-bar chart is suitable (comparing 2 metrics, note nested structure):
+{
+    "title": "Movie ROI and Budget Comparison",
+    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
+    "confidenceScore": "90%",
+    "component": "chart-mirrored-bar",
+    "fields" : [
+        {"name":"Movie","data_path":"get_all_movies[*].movie.title"},
+        {"name":"ROI","data_path":"get_all_movies[*].movie.roi"},
+        {"name":"Budget","data_path":"get_all_movies[*].movie.budget"}
+    ]
+}"""
 
     def _get_or_build_system_prompt(self, data_type: str | None) -> str:
         """

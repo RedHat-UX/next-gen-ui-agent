@@ -185,6 +185,84 @@ These customizations can be applied globally (via `config.prompt.components`) or
 
 For detailed information about component-specific prompt customization, including precedence rules and configuration examples, see [Prompt Customization for Component Selection](data_ui_blocks/index.md#prompt-customization-for-component-selection).
 
+#### Examples Customization
+
+In addition to customizing the initial system prompt sections, you can also customize the response examples that help guide the LLM to produce correctly formatted output.
+
+Examples can be customized at two levels:
+
+1. **Normal Component Examples**: Customize examples for table, cards, and image components
+2. **Chart Component Examples**: Customize examples for chart components
+
+Both types of examples are automatically combined and included in the system prompt when their respective component types are enabled.
+
+**One-Step Strategy Examples:**
+
+```yaml
+prompt:
+  # Customize normal component examples
+  examples_onestep_normalcomponents: |
+    Example for financial transactions table:
+    {
+        "title": "Transaction History",
+        "reasonForTheComponentSelection": "Displaying multiple transaction records with detailed fields",
+        "confidenceScore": "95%",
+        "component": "table",
+        "fields": [
+            {"name":"Transaction ID","data_path":"transactions[*].id"},
+            {"name":"Amount","data_path":"transactions[*].amount"},
+            {"name":"Date","data_path":"transactions[*].date"}
+        ]
+    }
+  
+  # Customize chart examples
+  examples_onestep_charts: |
+    Example for revenue comparison:
+    {
+        "title": "Quarterly Revenue",
+        "reasonForTheComponentSelection": "Comparing revenue across quarters",
+        "confidenceScore": "90%",
+        "component": "chart-bar",
+        "fields": [
+            {"name":"Quarter","data_path":"data[*].quarter"},
+            {"name":"Revenue","data_path":"data[*].revenue"}
+        ]
+    }
+```
+
+**Two-Step Strategy Step1 Examples:**
+
+```yaml
+prompt:
+  # Customize normal component examples for step1
+  examples_twostep_step1select_normalcomponents: |
+    Medical records table example:
+    {
+        "reasonForTheComponentSelection": "Multiple patient records to display",
+        "confidenceScore": "95%",
+        "title": "Patient Records",
+        "component": "table"
+    }
+  
+  # Customize chart examples for step1
+  examples_twostep_step1select_charts: |
+    Patient metrics chart example:
+    {
+        "title": "Patient Vital Signs Trend",
+        "reasonForTheComponentSelection": "Visualizing vital signs over time",
+        "confidenceScore": "90%",
+        "component": "chart-line"
+    }
+```
+
+**Notes:**
+
+- Examples are automatically combined: normal component examples followed by chart examples (if applicable)
+- Examples are only included if relevant components are enabled in `selectable_components`
+- You can customize just `*_normalcomponents`, just `*_charts`, or both
+- Examples should match the JSON output format expected by your strategy
+- Two-step step2 examples are already configurable via component metadata (`twostep_step2configure_example`)
+
 ### Best Practices
 
 #### 1. Start with Defaults

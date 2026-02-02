@@ -9,9 +9,10 @@ from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
     build_chart_instructions,
     build_components_description,
-    build_twostep_step1select_examples,
     build_twostep_step2configure_example,
     build_twostep_step2configure_rules,
+    has_chart_components,
+    has_non_chart_components,
     normalize_allowed_components,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
@@ -138,7 +139,7 @@ AVAILABLE UI COMPONENTS:"""
 {chart_instructions}"""
 
         # Get filtered examples
-        response_examples = build_twostep_step1select_examples(allowed_components)
+        response_examples = self._build_step1select_examples(allowed_components)
 
         # Add examples if available
         if response_examples:
@@ -147,6 +148,99 @@ AVAILABLE UI COMPONENTS:"""
 {response_examples}"""
 
         return system_prompt
+
+    def _build_step1select_examples(self, allowed_components: set[str]) -> str:
+        """
+        Build examples section for two-step step1 (component selection) system prompt.
+
+        Args:
+            allowed_components: Set of allowed component names
+
+        Returns:
+            Formatted string with examples
+        """
+        # Combine normal components and chart examples
+        examples = []
+
+        normalcomponents_examples = self._build_step1select_normalcomponents_examples(
+            allowed_components
+        )
+        if normalcomponents_examples:
+            examples.append(normalcomponents_examples)
+
+        chart_examples = self._build_step1select_chart_examples(allowed_components)
+        if chart_examples:
+            examples.append(chart_examples)
+
+        return "\n\n".join(examples)
+
+    def _build_step1select_normalcomponents_examples(
+        self, allowed_components: set[str]
+    ) -> str:
+        """Build normal component examples for step1."""
+        if not has_non_chart_components(allowed_components):
+            return ""
+
+        # Check for custom template
+        if (
+            self.config.prompt
+            and self.config.prompt.examples_twostep_step1select_normalcomponents
+        ):
+            return self.config.prompt.examples_twostep_step1select_normalcomponents
+
+        # Default hardcoded examples (matching current build_twostep_step1select_examples)
+        return """Response example for multi-item data when table is suitable:
+{
+    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
+    "confidenceScore": "95%",
+    "title": "Orders",
+    "component": "table"
+}
+
+Response example for one-item data when one-card is suitable:
+{
+    "reasonForTheComponentSelection": "One item available in the data. Multiple fields to show based on the User query",
+    "confidenceScore": "95%",
+    "title": "Order CA565",
+    "component": "one-card"
+}
+
+Response example for one-item data and image when image is suitable:
+{
+    "reasonForTheComponentSelection": "User asked to see the magazine cover",
+    "confidenceScore": "75%",
+    "title": "Magazine cover",
+    "component": "image"
+}"""
+
+    def _build_step1select_chart_examples(self, allowed_components: set[str]) -> str:
+        """Build chart component examples for step1."""
+        if not has_chart_components(allowed_components):
+            return ""
+
+        # Check for custom template
+        if (
+            self.config.prompt
+            and self.config.prompt.examples_twostep_step1select_charts
+        ):
+            return self.config.prompt.examples_twostep_step1select_charts
+
+        # Default hardcoded examples
+        return """Response example for multi-item data when bar chart is suitable:
+{
+    "title": "Movie Revenue Comparison",
+    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
+    "confidenceScore": "90%",
+    "component": "chart-bar"
+}
+
+Response example for multi-item data when mirrored-bar chart is suitable (comparing 2 metrics):
+{
+    "title": "Movie ROI and Budget Comparison",
+    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
+    "confidenceScore": "90%",
+    "component": "chart-mirrored-bar"
+}"""
 
     def _get_or_build_step1select_system_prompt(self, data_type: str | None) -> str:
         """

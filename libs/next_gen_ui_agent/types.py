@@ -212,6 +212,30 @@ class AgentConfigPrompt(BaseModel):
     )
     """Override the chart instructions template used in both strategies."""
 
+    examples_onestep_normalcomponents: Optional[str] = Field(
+        default=None,
+        description="Override normal component examples (table, cards, image) for one-step strategy. If not set, uses default hardcoded examples.",
+    )
+    """Override normal component examples for one-step strategy."""
+
+    examples_onestep_charts: Optional[str] = Field(
+        default=None,
+        description="Override chart component examples for one-step strategy. If not set, uses default hardcoded examples.",
+    )
+    """Override chart component examples for one-step strategy."""
+
+    examples_twostep_step1select_normalcomponents: Optional[str] = Field(
+        default=None,
+        description="Override normal component examples (table, cards, image) for two-step strategy step1. If not set, uses default hardcoded examples.",
+    )
+    """Override normal component examples for two-step strategy step1."""
+
+    examples_twostep_step1select_charts: Optional[str] = Field(
+        default=None,
+        description="Override chart component examples for two-step strategy step1. If not set, uses default hardcoded examples.",
+    )
+    """Override chart component examples for two-step strategy step1."""
+
 
 # Intentionaly TypeDict because of passing ABC class InferenceBase
 class AgentConfig(BaseModel):

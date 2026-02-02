@@ -223,6 +223,34 @@ Supports placeholders that will be replaced with dynamically generated component
 If not set, uses the default hardcoded template. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
 
 
+#### `examples_onestep_normalcomponents` [`str`, optional]
+
+Override the normal component examples (table, cards, image) for one-step strategy.
+
+If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+
+
+#### `examples_onestep_charts` [`str`, optional]
+
+Override the chart component examples for one-step strategy.
+
+If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+
+
+#### `examples_twostep_step1select_normalcomponents` [`str`, optional]
+
+Override the normal component examples (table, cards, image) for two-step strategy's first step.
+
+If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+
+
+#### `examples_twostep_step1select_charts` [`str`, optional]
+
+Override the chart component examples for two-step strategy's first step.
+
+If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+
+
 ## Programmatic Configuration
 
 ### Usage with Inference Configuration
