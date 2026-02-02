@@ -132,7 +132,7 @@ class AgentConfigPromptComponent(BaseModel):
 
     Allows overriding any field from COMPONENT_METADATA for a specific component.
     Available fields depend on component type:
-    - All components: description, twostep_step2_example, twostep_step2_rules
+    - All components: description, twostep_step2configure_example, twostep_step2configure_rules
     - Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples
     """
 
@@ -142,17 +142,17 @@ class AgentConfigPromptComponent(BaseModel):
     )
     """Override component description used in LLM prompts."""
 
-    twostep_step2_example: Optional[str] = Field(
+    twostep_step2configure_example: Optional[str] = Field(
         default=None,
-        description="Override example for two-step strategy field selection",
+        description="Override example for two-step strategy field selection (step2configure)",
     )
-    """Override example for two-step strategy field selection."""
+    """Override example for two-step strategy field selection (step2configure)."""
 
-    twostep_step2_rules: Optional[str] = Field(
+    twostep_step2configure_rules: Optional[str] = Field(
         default=None,
-        description="Override rules for two-step strategy field selection",
+        description="Override rules for two-step strategy field selection (step2configure)",
     )
-    """Override rules for two-step strategy field selection."""
+    """Override rules for two-step strategy field selection (step2configure)."""
 
     chart_description: Optional[str] = Field(
         default=None,

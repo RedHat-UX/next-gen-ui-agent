@@ -155,12 +155,12 @@ Only specified fields are overridden for the prompt, unspecified fields retain t
 
 Override the main component description for the component selection. This helps the LLM understand when to use this component.
 
-##### `twostep_step2_example` [`str`, optional]
+##### `twostep_step2configure_example` [`str`, optional]
 
-Override the example shown to the LLM during field selection when using `two_llm_calls` strategy. 
+Override the example shown to the LLM during component configuration when using `two_llm_calls` strategy. 
 Provide a JSON example showing how fields should be selected for this component.
 
-##### `twostep_step2_rules` [`str`, optional]
+##### `twostep_step2configure_rules` [`str`, optional]
 
 Override additional rules for field selection when using `two_llm_calls` strategy. 
 Use this to provide component-specific guidance for field selection.
@@ -217,7 +217,7 @@ config = AgentConfig(
         components={
             "table": AgentConfigPromptComponent(
                 description="Display structured business data in tabular format",
-                twostep_step2_rules="Always include ID, name, and date fields"
+                twostep_step2configure_rules="Always include ID, name, and date fields"
             ),
             "chart-bar": AgentConfigPromptComponent(
                 chart_description="Compare sales metrics across products or regions",
@@ -279,7 +279,7 @@ prompt:
   components:
     table:
       description: "Display structured business data in tabular format"
-      twostep_step2_rules: "Always include ID, name, and date fields"
+      twostep_step2configure_rules: "Always include ID, name, and date fields"
     
     chart-bar:
       description: "Bar chart is suitable for values comparison"
@@ -288,7 +288,7 @@ prompt:
     
     one-card:
       description: "Show detailed information for a single business entity"
-      twostep_step2_rules: "Include key identifiers and status information"
+      twostep_step2configure_rules: "Include key identifiers and status information"
 ```
 
 ### Multiple Component Configuration

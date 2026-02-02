@@ -134,8 +134,8 @@ class TestInitPertypeValidation:
                                 description="Custom HBC description",
                                 chart_description="This should be accepted",
                                 chart_rules="This too",
-                                twostep_step2_example="This as well",
-                                twostep_step2_rules="And this",
+                                twostep_step2configure_example="This as well",
+                                twostep_step2configure_rules="And this",
                             ),
                         ),
                     ]

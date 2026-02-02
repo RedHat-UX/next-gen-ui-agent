@@ -318,7 +318,7 @@
       "type": "object"
     },
     "AgentConfigPromptComponent": {
-      "description": "Component metadata overrides for LLM prompts.\n\nAllows overriding any field from COMPONENT_METADATA for a specific component.\nAvailable fields depend on component type:\n- All components: description, twostep_step2_example, twostep_step2_rules\n- Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples",
+      "description": "Component metadata overrides for LLM prompts.\n\nAllows overriding any field from COMPONENT_METADATA for a specific component.\nAvailable fields depend on component type:\n- All components: description, twostep_step2configure_example, twostep_step2configure_rules\n- Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples",
       "properties": {
         "description": {
           "anyOf": [
@@ -332,7 +332,7 @@
           "default": null,
           "description": "Override component description used in LLM prompts"
         },
-        "twostep_step2_example": {
+        "twostep_step2configure_example": {
           "anyOf": [
             {
               "type": "string"
@@ -342,9 +342,9 @@
             }
           ],
           "default": null,
-          "description": "Override example for two-step strategy field selection"
+          "description": "Override example for two-step strategy field selection (step2configure)"
         },
-        "twostep_step2_rules": {
+        "twostep_step2configure_rules": {
           "anyOf": [
             {
               "type": "string"
@@ -354,7 +354,7 @@
             }
           ],
           "default": null,
-          "description": "Override rules for two-step strategy field selection"
+          "description": "Override rules for two-step strategy field selection (step2configure)"
         },
         "chart_description": {
           "anyOf": [

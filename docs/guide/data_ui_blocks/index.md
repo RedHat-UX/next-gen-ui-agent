@@ -118,7 +118,7 @@ data_types:
       - component: table
         prompt:
           description: "Use table for movie listings with many items but without actors"
-          twostep_step2_rules: "Always include title and year fields."
+          twostep_step2configure_rules: "Always include title and year fields."
       
       # HBC with required description
       - component: movies:list-with-actors
@@ -134,11 +134,11 @@ data_types:
 Different component types use different prompt customization fields:
 
 - **All components**: `description` - Main description for component selection. It should 
-- **Dynamic components**: `twostep_step2_example`, `twostep_step2_rules` - Field selection guidance used by two-step strategy only
+- **Dynamic components**: `twostep_step2configure_example`, `twostep_step2configure_rules` - Field selection guidance used by two-step strategy only
 - **Dynamic Chart components**: `chart_description`, `chart_fields_spec`, `chart_rules`, `chart_inline_examples` - Chart-specific guidance
 
 **For Hand-Build Components (HBCs)**:
-- Only `description` field is used for LLM component selection, `chart_*` and `twostep_step2_*` fields are not used for HBCs.
+- Only `description` field is used for LLM component selection, `chart_*` and `twostep_step2configure_*` fields are not used for HBCs.
 - When multiple components include HBCs, each HBC must have `prompt.description` defined
 
 ### How Prompts Are Used

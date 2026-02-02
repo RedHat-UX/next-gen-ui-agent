@@ -5,9 +5,9 @@ from next_gen_ui_agent.component_selection_common import (
     build_chart_instructions,
     build_components_description,
     build_onestep_examples,
-    build_twostep_step1_examples,
-    build_twostep_step2_example,
-    build_twostep_step2_rules,
+    build_twostep_step1select_examples,
+    build_twostep_step2configure_example,
+    build_twostep_step2configure_rules,
     has_chart_components,
     has_non_chart_components,
     normalize_allowed_components,
@@ -38,7 +38,7 @@ class TestComponentMetadata:
         """Test that all components have required fields."""
         required_fields = {
             "description",
-            "twostep_step2_example",
+            "twostep_step2configure_example",
         }
 
         for component, metadata in COMPONENT_METADATA.items():
@@ -237,13 +237,13 @@ class TestBuildOnestepExamples:
         assert '"chart-mirrored-bar"' not in result
 
 
-class TestBuildTwostepStep1Examples:
-    """Test build_twostep_step1_examples function."""
+class TestBuildTwostepStep1selectExamples:
+    """Test build_twostep_step1select_examples function."""
 
     def test_all_examples(self):
         """Test that all examples are included when all components are allowed."""
         allowed = set(COMPONENT_METADATA.keys())
-        result = build_twostep_step1_examples(allowed)
+        result = build_twostep_step1select_examples(allowed)
         assert '"table"' in result
         assert '"one-card"' in result
         assert '"image"' in result
@@ -253,7 +253,7 @@ class TestBuildTwostepStep1Examples:
     def test_only_non_chart_components(self):
         """Test that examples are returned."""
         allowed = {"image"}
-        result = build_twostep_step1_examples(allowed)
+        result = build_twostep_step1select_examples(allowed)
         assert '"image"' in result
         assert '"table"' in result
         assert '"one-card"' in result
@@ -263,14 +263,14 @@ class TestBuildTwostepStep1Examples:
     def test_only_chart_components(self):
         """Test that examples are returned based on component types."""
         allowed = {"chart-bar", "chart-mirrored-bar"}
-        result = build_twostep_step1_examples(allowed)
+        result = build_twostep_step1select_examples(allowed)
         assert '"table"' not in result
         assert '"one-card"' not in result
         assert '"image"' not in result
 
     def test_empty_set(self):
         """Test with empty set still returns examples."""
-        result = build_twostep_step1_examples(set())
+        result = build_twostep_step1select_examples(set())
         assert '"table"' not in result
         assert '"one-card"' not in result
         assert '"image"' not in result
@@ -278,45 +278,47 @@ class TestBuildTwostepStep1Examples:
         assert '"chart-mirrored-bar"' not in result
 
 
-class TestBuildTwostepStep2Example:
-    """Test build_twostep_step2_example function."""
+class TestBuildTwostepStep2configureExample:
+    """Test build_twostep_step2configure_example function."""
 
     def test_valid_component(self):
         """Test getting example for valid component."""
-        result = build_twostep_step2_example("one-card", COMPONENT_METADATA)
+        result = build_twostep_step2configure_example("one-card", COMPONENT_METADATA)
         assert result
         assert "data_path" in result
 
     def test_chart_component(self):
         """Test getting example for chart component."""
-        result = build_twostep_step2_example("chart-bar", COMPONENT_METADATA)
+        result = build_twostep_step2configure_example("chart-bar", COMPONENT_METADATA)
         assert result
         assert "data_path" in result
 
     def test_invalid_component(self):
         """Test getting example for non-existent component."""
-        result = build_twostep_step2_example("non-existent", COMPONENT_METADATA)
+        result = build_twostep_step2configure_example(
+            "non-existent", COMPONENT_METADATA
+        )
         assert result == ""
 
 
-class TestBuildTwostepStep2Rules:
-    """Test build_twostep_step2_extension function."""
+class TestBuildTwostepStep2configureRules:
+    """Test build_twostep_step2configure_rules function."""
 
     def test_component_with_extension(self):
         """Test getting extension for component that has one."""
-        result = build_twostep_step2_rules("one-card", COMPONENT_METADATA)
+        result = build_twostep_step2configure_rules("one-card", COMPONENT_METADATA)
         assert result
         assert "data_path" in result
 
     def test_component_without_extension(self):
         """Test getting extension for component without one."""
-        result = build_twostep_step2_rules("table", COMPONENT_METADATA)
+        result = build_twostep_step2configure_rules("table", COMPONENT_METADATA)
         # table doesn't have extension in metadata
         assert result == ""
 
     def test_invalid_component(self):
         """Test getting extension for non-existent component."""
-        result = build_twostep_step2_rules("non-existent", COMPONENT_METADATA)
+        result = build_twostep_step2configure_rules("non-existent", COMPONENT_METADATA)
         assert result == ""
 
 

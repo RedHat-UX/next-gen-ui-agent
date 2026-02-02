@@ -77,7 +77,7 @@ def test_validate_component_overrides_cross_component_fields():
     validate_component_overrides(overrides)
 
     # Non-chart fields on chart component - should be allowed
-    overrides2 = {"chart-bar": {"twostep_step2_example": "Some value"}}
+    overrides2 = {"chart-bar": {"twostep_step2configure_example": "Some value"}}
     # Should not raise any exception
     validate_component_overrides(overrides2)
 
@@ -94,8 +94,8 @@ def test_merge_component_metadata_single_field():
 
     # Check that other fields remain unchanged
     assert (
-        merged["table"]["twostep_step2_example"]
-        == base["table"]["twostep_step2_example"]
+        merged["table"]["twostep_step2configure_example"]
+        == base["table"]["twostep_step2configure_example"]
     )
 
     # Check that other components remain unchanged
@@ -159,7 +159,7 @@ def test_merge_component_metadata_none_values_ignored():
     overrides = {
         "table": {
             "description": "Custom description",
-            "twostep_step2_example": None,  # Should be ignored
+            "twostep_step2configure_example": None,  # Should be ignored
         }
     }
 
@@ -170,8 +170,8 @@ def test_merge_component_metadata_none_values_ignored():
 
     # None override should be ignored, keeping base value
     assert (
-        merged["table"]["twostep_step2_example"]
-        == base["table"]["twostep_step2_example"]
+        merged["table"]["twostep_step2configure_example"]
+        == base["table"]["twostep_step2configure_example"]
     )
 
 
@@ -212,7 +212,7 @@ def test_get_component_metadata_with_valid_overrides():
             components={
                 "table": AgentConfigPromptComponent(
                     description="Custom table description",
-                    twostep_step2_rules="Custom rules",
+                    twostep_step2configure_rules="Custom rules",
                 )
             }
         )
@@ -222,12 +222,12 @@ def test_get_component_metadata_with_valid_overrides():
 
     # Check overrides were applied
     assert metadata["table"]["description"] == "Custom table description"
-    assert metadata["table"]["twostep_step2_rules"] == "Custom rules"
+    assert metadata["table"]["twostep_step2configure_rules"] == "Custom rules"
 
     # Check other fields remain
     assert (
-        metadata["table"]["twostep_step2_example"]
-        == COMPONENT_METADATA["table"]["twostep_step2_example"]
+        metadata["table"]["twostep_step2configure_example"]
+        == COMPONENT_METADATA["table"]["twostep_step2configure_example"]
     )
 
 
@@ -297,7 +297,7 @@ def test_get_component_metadata_multiple_components():
                 "table": AgentConfigPromptComponent(description="Custom table"),
                 "chart-bar": AgentConfigPromptComponent(chart_description="Custom bar"),
                 "one-card": AgentConfigPromptComponent(
-                    twostep_step2_rules="Custom card rules"
+                    twostep_step2configure_rules="Custom card rules"
                 ),
             }
         )
@@ -308,7 +308,7 @@ def test_get_component_metadata_multiple_components():
     # Check all overrides were applied
     assert metadata["table"]["description"] == "Custom table"
     assert metadata["chart-bar"]["chart_description"] == "Custom bar"
-    assert metadata["one-card"]["twostep_step2_rules"] == "Custom card rules"
+    assert metadata["one-card"]["twostep_step2configure_rules"] == "Custom card rules"
 
     # Check unmodified components remain unchanged
     assert metadata["image"] == COMPONENT_METADATA["image"]
@@ -335,8 +335,8 @@ def test_merge_per_component_prompt_overrides_single_component():
 
     # Check that other fields remain unchanged
     assert (
-        merged["table"]["twostep_step2_example"]
-        == base["table"]["twostep_step2_example"]
+        merged["table"]["twostep_step2configure_example"]
+        == base["table"]["twostep_step2configure_example"]
     )
 
     # Ensure base was not modified
@@ -351,7 +351,7 @@ def test_merge_per_component_prompt_overrides_multiple_components():
             component="table",
             prompt=AgentConfigPromptComponent(
                 description="Custom table",
-                twostep_step2_rules="Custom rules",
+                twostep_step2configure_rules="Custom rules",
             ),
         ),
         AgentConfigComponent(
@@ -366,7 +366,7 @@ def test_merge_per_component_prompt_overrides_multiple_components():
 
     # Check both overrides were applied
     assert merged["table"]["description"] == "Custom table"
-    assert merged["table"]["twostep_step2_rules"] == "Custom rules"
+    assert merged["table"]["twostep_step2configure_rules"] == "Custom rules"
     assert merged["chart-bar"]["chart_description"] == "Custom bar chart"
 
     # Check unmodified fields remain
@@ -424,7 +424,7 @@ def test_merge_per_component_prompt_overrides_hbc_with_all_fields():
             prompt=AgentConfigPromptComponent(
                 description="HBC description",
                 chart_description="Accepted but not used",
-                twostep_step2_example="Also accepted",
+                twostep_step2configure_example="Also accepted",
             ),
         )
     ]
