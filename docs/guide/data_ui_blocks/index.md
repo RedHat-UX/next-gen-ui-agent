@@ -88,6 +88,8 @@ data_types:
 
 For agent decisions, the LLM uses system prompt to select the best component based on the user's query and data and configure it. This prompt can be customized at multiple levels with increasing specificity.
 
+This section focuses on **component-specific prompt customization** (component descriptions, chart instructions, configuration examples). For customizing the **initial system prompt sections** (rules, instructions, strategy-specific prompts), see [Prompt Tuning](../llm.md#prompt-tuning).
+
 ### Prompt Override Precedence
 
 Prompts are constructed by merging overrides in this order (later overrides replace earlier ones):

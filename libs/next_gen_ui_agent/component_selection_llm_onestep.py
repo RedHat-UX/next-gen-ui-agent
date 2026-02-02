@@ -7,7 +7,6 @@ from next_gen_ui_agent.component_metadata import (
 )
 from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
-    ONESTEP_PROMPT_RULES,
     build_chart_instructions,
     build_components_description,
     build_onestep_examples,
@@ -83,24 +82,51 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             allowed_components, metadata
         )
 
-        # Get filtered examples
-        response_examples = build_onestep_examples(allowed_components)
-
         # Detect chart components in allowed set
         allowed_charts = allowed_components & CHART_COMPONENTS
 
-        # Get chart instructions (empty if no charts)
-        chart_instructions = build_chart_instructions(allowed_charts, metadata)
+        # Get chart instructions template from config
+        chart_template = (
+            self.config.prompt.chart_instructions_template
+            if self.config.prompt
+            else None
+        )
+        chart_instructions = build_chart_instructions(
+            allowed_charts, metadata, chart_template
+        )
 
-        # Build the complete system prompt
-        system_prompt = f"""You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
+        # Check for custom initial prompt
+        if self.config.prompt and self.config.prompt.system_prompt_onestep:
+            initial_section = self.config.prompt.system_prompt_onestep
+        else:
+            # Default hardcoded initial section
+            initial_section = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
 
-{ONESTEP_PROMPT_RULES}
+RULES:
+- Generate JSON only
+- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS, unless data structure prevents it
+- Select one component into "component" field. It MUST BE named in the AVAILABLE UI COMPONENTS!
+- Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)
+- Select relevant Data fields based on User query
+- Each field must have "name" and "data_path"
+- Do not use formatting or calculations in "data_path"
 
-AVAILABLE UI COMPONENTS:
+JSONPATH REQUIREMENTS:
+- Analyze actual Data structure carefully
+- If fields are nested (e.g., items[*].movie.title), include full path
+- Do NOT skip intermediate objects
+- Use [*] for array access
+
+AVAILABLE UI COMPONENTS:"""
+
+        # Build the complete system prompt with initial section + generated parts
+        system_prompt = f"""{initial_section}
 {components_description}
 
 {chart_instructions}"""
+
+        # Get filtered examples
+        response_examples = build_onestep_examples(allowed_components)
 
         # Add examples if available
         if response_examples:

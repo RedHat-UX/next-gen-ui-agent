@@ -7,8 +7,6 @@ from next_gen_ui_agent.component_metadata import (
 )
 from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
-    TWOSTEP_STEP1SELECT_PROMPT_RULES,
-    TWOSTEP_STEP2CONFIGURE_PROMPT_RULES,
     build_chart_instructions,
     build_components_description,
     build_twostep_step1select_examples,
@@ -45,12 +43,26 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         Args:
             config: AgentConfig to get selectable components and input data json wrapping configuration from
             select_component_only: if True, only generate the component, it is not necesary to generate it's configuration
+
+        Raises:
+            ValueError: If custom system_prompt_twostep_step2configure is provided but doesn't contain {component} placeholder
         """
         super().__init__(logger, config)
         self.select_component_only = select_component_only
 
         # Store full config for data_type lookups
         self.config = config
+
+        # Validate custom step2 prompt if provided
+        if (
+            config.prompt
+            and config.prompt.system_prompt_twostep_step2configure
+            and "{component}" not in config.prompt.system_prompt_twostep_step2configure
+        ):
+            raise ValueError(
+                "Custom 'system_prompt_twostep_step2configure' must contain {component} placeholder "
+                "which will be replaced with the selected component name"
+            )
 
         # Get merged metadata with global overrides
         self._base_metadata = get_component_metadata(config)
@@ -91,24 +103,42 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             allowed_components, metadata
         )
 
-        # Get filtered examples
-        response_examples = build_twostep_step1select_examples(allowed_components)
-
         # Detect chart components in allowed set
         allowed_charts = allowed_components & CHART_COMPONENTS
 
-        # Get chart instructions (empty if no charts)
-        chart_instructions = build_chart_instructions(allowed_charts, metadata)
+        # Get chart instructions template from config
+        chart_template = (
+            self.config.prompt.chart_instructions_template
+            if self.config.prompt
+            else None
+        )
+        chart_instructions = build_chart_instructions(
+            allowed_charts, metadata, chart_template
+        )
+
+        # Check for custom initial prompt
+        if self.config.prompt and self.config.prompt.system_prompt_twostep_step1select:
+            initial_section = self.config.prompt.system_prompt_twostep_step1select
+        else:
+            # Default hardcoded initial section
+            initial_section = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
+
+RULES:
+- Generate JSON only
+- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS, unless data structure prevents it
+- Select one component into "component" field. It MUST BE named in the AVAILABLE UI COMPONENTS!
+- Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)
+
+AVAILABLE UI COMPONENTS:"""
 
         # Build the complete system prompt
-        system_prompt = f"""You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
-
-{TWOSTEP_STEP1SELECT_PROMPT_RULES}
-
-AVAILABLE UI COMPONENTS:
+        system_prompt = f"""{initial_section}
 {components_description}
 
 {chart_instructions}"""
+
+        # Get filtered examples
+        response_examples = build_twostep_step1select_examples(allowed_components)
 
         # Add examples if available
         if response_examples:
@@ -362,15 +392,40 @@ AVAILABLE UI COMPONENTS:
         llm_interactions: list[LLMInteraction],
         metadata: dict,
     ):
+        """Run Component Configuration inference (step2configure)."""
         component = from_json(component_selection_response, allow_partial=True)[
             "component"
         ]
 
-        """Run Component Configuration inference (step2configure)."""
+        # Check for custom initial prompt
+        if (
+            self.config.prompt
+            and self.config.prompt.system_prompt_twostep_step2configure
+        ):
+            # Use custom prompt and substitute {component} placeholder
+            initial_section = (
+                self.config.prompt.system_prompt_twostep_step2configure.format(
+                    component=component
+                )
+            )
+        else:
+            # Default hardcoded initial section
+            initial_section = f"""You are a UI design assistant. Select the best fields to display Data in the {component} component.
 
-        sys_msg_content = f"""You are a UI design assistant. Select the best fields to display Data in the {component} component.
+RULES:
+- Generate JSON array of objects only
+- Each field must also have "reason" and "confidenceScore" (percentage)
+- Select relevant Data fields based on User query
+- Each field must have "name" and "data_path"
+- Do not use formatting or calculations in "data_path"
 
-{TWOSTEP_STEP2CONFIGURE_PROMPT_RULES}
+JSONPATH REQUIREMENTS:
+- Analyze actual Data structure carefully
+- If fields are nested (e.g., items[*].movie.title), include full path
+- Do NOT skip intermediate objects
+- Use [*] for array access"""
+
+        sys_msg_content = f"""{initial_section}
 
 {build_twostep_step2configure_rules(component, metadata)}
 

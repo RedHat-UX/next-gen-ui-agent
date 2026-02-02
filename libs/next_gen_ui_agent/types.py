@@ -188,6 +188,30 @@ class AgentConfigPrompt(BaseModel):
     )
     """Component metadata overrides. Keys are component names, values are field overrides."""
 
+    system_prompt_onestep: Optional[str] = Field(
+        default=None,
+        description="Override the initial system prompt section for one-step strategy (including 'AVAILABLE UI COMPONENTS:' heading, before component descriptions and other per-component dynamically generated parts). If not set, uses default hardcoded prompt.",
+    )
+    """Override the initial system prompt section for one-step strategy."""
+
+    system_prompt_twostep_step1select: Optional[str] = Field(
+        default=None,
+        description="Override the initial system prompt section for two-step strategy step1 (component selection, including 'AVAILABLE UI COMPONENTS:' heading, before component descriptions and other per-component dynamically generated parts). If not set, uses default hardcoded prompt.",
+    )
+    """Override the initial system prompt section for two-step strategy step1 (component selection)."""
+
+    system_prompt_twostep_step2configure: Optional[str] = Field(
+        default=None,
+        description="Override the initial system prompt section for two-step strategy step2 (field configuration, before component-specific rules). MUST contain `{component}` placeholder which will be replaced with the selected component name. If not set, uses default hardcoded prompt.",
+    )
+    """Override the initial system prompt section for two-step strategy step2 (field configuration). Must contain {component} placeholder."""
+
+    chart_instructions_template: Optional[str] = Field(
+        default=None,
+        description="Override the chart instructions template used in both strategies. Supports placeholders: {chart_types}, {fields_by_type}, {chart_rules}, {examples} which will be replaced with dynamically generated component-specific content. If not set, uses default hardcoded template (which includes common rule: '- Don\\'t add unrequested metrics').",
+    )
+    """Override the chart instructions template used in both strategies."""
+
 
 # Intentionaly TypeDict because of passing ABC class InferenceBase
 class AgentConfig(BaseModel):

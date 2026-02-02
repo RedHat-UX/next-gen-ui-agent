@@ -60,3 +60,253 @@ Multiple implementations are then provided in some of the [AI Framework and prot
 including OpenAI compatible API, LlamaStack remote and embedded server, Anthropic/Claude models from proxied Google Vertex AI API etc.
 
 To get repeatable results from the agent, you should always use `temperature=0` when calling the LLM behind this interface.
+
+## Prompt Tuning
+
+The Next Gen UI Agent uses carefully crafted system prompts to instruct the LLM to select and configure UI components. While the default prompts work well for general use cases, you may want to customize them for domain-specific applications or to optimize for specific LLM characteristics.
+
+### Understanding the Prompt Structure
+
+Each prompt consists of two parts:
+
+1. **Initial Section** (configurable): Instructions, rules, and context
+2. **Generated Section** (automatic): Component descriptions, examples, and metadata
+
+The configurable sections are defined in the agent configuration under the `prompt` key.
+
+### Available Customization Points
+
+#### One-Step Strategy
+
+When using `component_selection_strategy: one_llm_call`, you can customize:
+
+- **`system_prompt_onestep`**: The main system prompt that instructs the LLM to select a component and configure it in a single call.
+
+**Example:**
+
+```yaml
+prompt:
+  system_prompt_onestep: |
+    You are an expert financial data visualization assistant.
+    
+    RULES:
+    - Generate valid JSON only
+    - Prioritize clarity and accuracy for financial data
+    - Select exactly one component from the list below
+    - Include fields: component, title, reasonForTheComponentSelection, confidenceScore, fields
+    - Each field must have: name, data_path
+    
+    JSONPATH REQUIREMENTS:
+    - Use precise JSONPath expressions
+    - For arrays, always use [*] notation
+    - Include full nested paths (e.g., items[*].order.total)
+    
+    AVAILABLE UI COMPONENTS:
+```
+
+**Important:** Always end your custom prompt with `AVAILABLE UI COMPONENTS:` header which you reference in previous instructions - the component list will be appended automatically.
+
+#### Two-Step Strategy
+
+When using `component_selection_strategy: two_llm_calls`, you can customize:
+
+- **`system_prompt_twostep_step1select`**: First call that selects the component type
+- **`system_prompt_twostep_step2configure`**: Second call that configures the selected component
+
+**Example:**
+
+```yaml
+prompt:
+  system_prompt_twostep_step1select: |
+    You are a UI component selector for medical data visualization.
+    
+    SELECTION RULES:
+    - Generate JSON with: component, title, reasonForTheComponentSelection, confidenceScore
+    - Choose the most appropriate component for medical professionals
+    - Prioritize data clarity and patient safety
+    
+    AVAILABLE UI COMPONENTS:
+  
+  system_prompt_twostep_step2configure: |
+    You are configuring the {component} component for medical data display.
+    
+    FIELD SELECTION RULES:
+    - Return JSON array of field objects
+    - Each field needs: name, data_path, reason, confidenceScore
+    - Prioritize critical medical information
+    - Use accurate JSONPath expressions in data_path
+```
+
+**Important:** The `{component}` placeholder in `system_prompt_twostep_step2configure` is **required** - the agent will raise error during initialization if you provide a custom prompt without this placeholder. The placeholder will be replaced with the actual component name selected in step 1 (e.g., "table", "chart-bar").
+
+#### Chart Instructions Template
+
+Both strategies use chart instructions when chart components are available. You can customize the structure:
+
+**Example:**
+
+```yaml
+prompt:
+  chart_instructions_template: |
+    CHART VISUALIZATION GUIDELINES:
+    
+    Available Chart Types:
+    {chart_types}
+    
+    Required Fields per Chart Type:
+    {fields_by_type}
+    
+    Chart Selection Rules:
+    - Don't add unrequested metrics
+    - Prioritize user-requested visualizations
+    {chart_rules}
+    
+    Chart Configuration Examples:
+    {examples}
+```
+
+**Placeholders:**
+- `{chart_types}`: Auto-generated chart type descriptions
+- `{fields_by_type}`: Required field specifications for each chart
+- `{chart_rules}`: Component-specific chart rules
+- `{examples}`: Chart configuration examples
+
+You can reorder sections, change headings, or add additional instructions. The common rule "- Don't add unrequested metrics" is shown as an example - include any common rules you want in your template text.
+
+#### Component-Specific Prompt Customization
+
+In addition to customizing the initial system prompt sections (described above), you can also customize component-specific metadata that appears in the generated section of the prompt:
+
+- **Component descriptions**: How each component is described to the LLM
+- **Chart-specific instructions**: Fields, rules, and examples for chart components
+- **Step 2 configuration rules and examples**: For the two-step strategy's field configuration phase
+
+These customizations can be applied globally (via `config.prompt.components`) or per-data-type (via `data_types[type].components[component].prompt`), providing fine-grained control over how the LLM perceives each component.
+
+For detailed information about component-specific prompt customization, including precedence rules and configuration examples, see [Prompt Customization for Component Selection](data_ui_blocks/index.md#prompt-customization-for-component-selection).
+
+### Best Practices
+
+#### 1. Start with Defaults
+
+Before customizing, test the default prompts with your use case. Only customize if you encounter issues or have specific requirements.
+
+#### 2. Preserve Key Elements
+
+When customizing, make sure to include:
+
+- JSON generation requirement
+- Component selection instruction
+- Required output fields
+- JSONPath usage guidelines
+- The `AVAILABLE UI COMPONENTS:` heading (for step 1 prompts)
+
+#### 3. Test Thoroughly
+
+After customizing prompts:
+
+1. Test with various data structures
+2. Verify JSONPath expressions are correct
+3. Check that confidence scores are reasonable
+4. Ensure component selection is appropriate
+
+#### 4. Domain-Specific Instructions
+
+Add domain-specific context to improve results:
+
+```yaml
+prompt:
+  system_prompt_onestep: |
+    You are visualizing e-commerce data for business analytics dashboards.
+    
+    DOMAIN CONTEXT:
+    - Revenue and sales metrics are critical
+    - User behavior patterns should be highlighted
+    - Compare periods when temporal data is available
+    
+    RULES:
+    - Generate valid JSON only
+    ...
+```
+
+#### 5. LLM-Specific Tuning
+
+Different LLMs may respond better to different prompt styles:
+
+- **Smaller models** (2B-3B): Use concise, direct instructions
+- **Medium models** (7B-13B): Can handle more context and examples
+- **Large models** (70B+): Benefit from detailed reasoning instructions
+
+### Debugging Custom Prompts
+
+If your custom prompts aren't working as expected:
+
+1. **Check LLM interactions**: Enable debug logging to see actual prompts sent to the LLM
+2. **Validate placeholders**: Ensure `{component}` placeholder is used correctly
+3. **Test incrementally**: Start with small changes from the default
+4. **Verify syntax**: YAML multiline strings require proper indentation
+
+### Complete Example
+
+Here's a complete configuration example for a financial analytics application:
+
+```yaml
+component_system: json
+selectable_components:
+  - table
+  - chart-bar
+  - chart-line
+  - one-card
+
+component_selection_strategy: one_llm_call
+
+prompt:
+  system_prompt_onestep: |
+    You are a financial data visualization expert.
+    
+    RULES:
+    - Generate valid JSON only
+    - Prioritize financial KPIs and trends
+    - Use tables for detailed data, charts for trends
+    - Include currency and percentage formatting context in field names
+    - Component must be from AVAILABLE UI COMPONENTS list
+    - Required fields: component, title, reasonForTheComponentSelection, confidenceScore, fields
+    
+    JSONPATH REQUIREMENTS:
+    - Analyze data structure carefully
+    - Use [*] for arrays (e.g., transactions[*].amount)
+    - Include full nested paths
+    - No calculations in data_path
+    
+    AVAILABLE UI COMPONENTS:
+  
+  chart_instructions_template: |
+    FINANCIAL CHART GUIDELINES:
+    
+    Available Chart Types:
+    {chart_types}
+    
+    Field Requirements:
+    {fields_by_type}
+    
+    Financial Chart Rules:
+    - Don't add unrequested metrics
+    - Prefer line charts for time-series financial data
+    - Use bar charts for category comparisons
+    {chart_rules}
+    
+    Examples:
+    {examples}
+  
+  components:
+    table:
+      description: "component to display detailed financial transactions in tabular format"
+    chart-line:
+      description: "component for financial time-series trends (revenue, expenses, growth)"
+```
+
+### Further Reading
+
+- [Configuration Reference](configuration.md#prompt-agentconfigprompt-optional)
+- [LLM Evaluations](#llm-evaluations)
+- [Component Metadata Customization](configuration.md#components-dictstr-agentconfigpromptcomponent-optional)

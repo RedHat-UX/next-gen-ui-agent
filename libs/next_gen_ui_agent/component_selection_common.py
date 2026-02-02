@@ -51,48 +51,7 @@ def get_all_chart_instructions() -> str:
 
 
 # ============================================================================
-# SECTION 2: Internal Building Blocks (Private - not imported by strategies)
-# ============================================================================
-_COMMON_COMPONENT_SELECTION_RULES = """RULES:
-- Generate JSON only
-- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS, unless data structure prevents it
-- Select one component into "component" field. It MUST BE named in the AVAILABLE UI COMPONENTS
-- Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)"""
-
-_COMMON_FIELD_SELECTION_RULES = """- Select relevant Data fields based on User query
-- Each field must have "name" and "data_path"
-- Do not use formatting or calculations in "data_path" """
-
-_JSONPATH_REQUIREMENTS = """JSONPATH REQUIREMENTS:
-- Analyze actual Data structure carefully
-- If fields are nested (e.g., items[*].movie.title), include full path
-- Do NOT skip intermediate objects
-- Use [*] for array access"""
-
-# ============================================================================
-# SECTION 3: One-Step Strategy (Public API)
-# ============================================================================
-ONESTEP_PROMPT_RULES = f"""{_COMMON_COMPONENT_SELECTION_RULES}
-{_COMMON_FIELD_SELECTION_RULES}
-
-{_JSONPATH_REQUIREMENTS}"""
-
-# ============================================================================
-# SECTION 4: Two-Step Strategy (Public API)
-# ============================================================================
-TWOSTEP_STEP1SELECT_PROMPT_RULES = f"""{_COMMON_COMPONENT_SELECTION_RULES}
-
-{_JSONPATH_REQUIREMENTS}"""
-
-TWOSTEP_STEP2CONFIGURE_PROMPT_RULES = f"""RULES:
-- Generate JSON array of objects only
-{_COMMON_FIELD_SELECTION_RULES}
-- Each field must also have "reason" and "confidenceScore" (percentage)
-
-{_JSONPATH_REQUIREMENTS}"""
-
-# ============================================================================
-# SECTION 5: Unified Component Metadata (Public API)
+# SECTION 2: Unified Component Metadata (Public API)
 # ============================================================================
 
 # Ordered list of all component names (for consistent display order)
@@ -119,10 +78,6 @@ CHART_COMPONENTS = {
     DonutChartDataTransformer.COMPONENT_NAME,
     MirroredBarChartDataTransformer.COMPONENT_NAME,
 }
-
-# Common rules applying to all chart types
-CHART_COMMON_RULES = """- Don't add unrequested metrics
-- Line charts: Use standard pattern when showing multiple different metrics. Use multi-series pattern when showing same metric for different entities."""
 
 # Unified component metadata containing all information for both strategies
 COMPONENT_METADATA = {
@@ -442,13 +397,17 @@ def build_twostep_step2configure_rules(component: str, metadata: dict) -> str:
     return ""
 
 
-def build_chart_instructions(allowed_chart_components: set[str], metadata: dict) -> str:
+def build_chart_instructions(
+    allowed_chart_components: set[str], metadata: dict, template: str | None = None
+) -> str:
     """
     Build filtered chart instructions for component selection based on allowed chart components.
 
     Args:
         allowed_chart_components: Set of allowed chart component names
         metadata: Component metadata dictionary
+        template: Optional template string with placeholders: {chart_types}, {fields_by_type},
+                  {chart_rules}, {examples}. If None, uses default template.
 
     Returns:
         Formatted string with chart instructions or empty string if no charts
@@ -465,7 +424,7 @@ def build_chart_instructions(allowed_chart_components: set[str], metadata: dict)
         if (
             chart_comp in allowed_chart_components
             and metadata[chart_comp]["chart_description"] is not None
-            and metadata[chart_comp]["chart_description"] != ""
+            and metadata[chart_comp]["chart_description"].strip() != ""
         ):
             chart_types.append(
                 f"{chart_comp}: {metadata[chart_comp]['chart_description']}"
@@ -477,10 +436,20 @@ def build_chart_instructions(allowed_chart_components: set[str], metadata: dict)
         if (
             chart_comp in allowed_chart_components
             and metadata[chart_comp]["chart_fields_spec"] is not None
-            and metadata[chart_comp]["chart_fields_spec"] != ""
+            and metadata[chart_comp]["chart_fields_spec"].strip() != ""
         ):
             fields_spec = metadata[chart_comp]["chart_fields_spec"]
             fields_by_type.append(f"{chart_comp}: {fields_spec}")
+
+    # Build CHART RULES section
+    chart_rules = []
+    for chart_comp in chart_components_ordered:
+        if (
+            chart_comp in allowed_chart_components
+            and metadata[chart_comp]["chart_rules"] is not None
+            and metadata[chart_comp]["chart_rules"].strip() != ""
+        ):
+            chart_rules.append(metadata[chart_comp]["chart_rules"])
 
     # Build EXAMPLES section
     examples = []
@@ -488,24 +457,38 @@ def build_chart_instructions(allowed_chart_components: set[str], metadata: dict)
         if (
             chart_comp in allowed_chart_components
             and metadata[chart_comp]["chart_inline_examples"] is not None
-            and metadata[chart_comp]["chart_inline_examples"] != ""
+            and metadata[chart_comp]["chart_inline_examples"].strip() != ""
         ):
             inline_examples = metadata[chart_comp]["chart_inline_examples"]
             examples.append(inline_examples)
 
-    # Construct the full instruction string
-    instruction_parts = [
-        "CHART TYPES (count ONLY metrics user requests):",
-        "\n".join(chart_types),
-        "",
-        "FIELDS BY CHART TYPE:",
-        "\n".join(fields_by_type),
-        "",
-        "CHART RULES:",
-        CHART_COMMON_RULES,
-        "",
-        "CHART EXAMPLES:",
-        "\n".join(examples),
-    ]
+    # Prepare component-specific chart rules
+    chart_rules_content = "\n".join(chart_rules) if chart_rules else ""
 
-    return "\n".join(instruction_parts)
+    # Use custom template or default
+    if template:
+        # User provides full template, including any common rules they want
+        return template.format(
+            chart_types="\n".join(chart_types),
+            fields_by_type="\n".join(fields_by_type),
+            chart_rules=chart_rules_content,
+            examples="\n".join(examples),
+        )
+    else:
+        # Default template (existing behavior)
+
+        instruction_parts = [
+            "CHART TYPES (count ONLY metrics user requests):",
+            "\n".join(chart_types),
+            "",
+            "FIELDS BY CHART TYPE:",
+            "\n".join(fields_by_type),
+            "",
+            "CHART RULES:",
+            "- Don't add unrequested metrics",
+            chart_rules_content,
+            "",
+            "CHART EXAMPLES:",
+            "\n".join(examples),
+        ]
+        return "\n".join(instruction_parts)
