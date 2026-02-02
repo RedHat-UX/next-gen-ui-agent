@@ -11,6 +11,14 @@ import {
   type MessageProps,
 } from "@patternfly/chatbot";
 import React, { useRef, useState } from "react";
+import {
+  ExpandableSection,
+  FormGroup,
+  TextArea,
+  TextInput,
+  Button,
+  Switch,
+} from "@patternfly/react-core";
 
 import DynamicComponent from "./DynamicComponent";
 import { useFetch } from "../hooks/useFetch";
@@ -30,37 +38,48 @@ export default function ChatBotPage() {
 
   const { loading, fetchData } = useFetch();
 
-  // Check if debug mode is enabled via URL parameter
-  const isDebugMode = React.useMemo(() => {
+  // Debug mode state - initialized from URL parameter, can be toggled
+  const [isDebugMode, setIsDebugMode] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    return params.get('debug') === 'true';
-  }, []);
+    return params.get("debug") === "true";
+  });
 
   // Mock mode state
   const [isMockMode, setIsMockMode] = useState(false);
-  const [selectedMock, setSelectedMock] = useState<string>('');
-  const [customJson, setCustomJson] = useState('');
-  
+  const [selectedMock, setSelectedMock] = useState<string>("");
+  const [customJson, setCustomJson] = useState("");
+
   // Model info state
-  const [modelInfo, setModelInfo] = useState<{name: string, baseUrl: string} | undefined>();
-  
+  const [modelInfo, setModelInfo] = useState<
+    { name: string; baseUrl: string } | undefined
+  >();
+
   // Strategy selection state
-  const [selectedStrategy, setSelectedStrategy] = useState<'one-step' | 'two-step'>('one-step');
+  const [selectedStrategy, setSelectedStrategy] = useState<
+    "one-step" | "two-step"
+  >("one-step");
 
   // Inline dataset (live mode) state
-  const [inlineDataset, setInlineDataset] = useState('');
-  const [inlineDatasetType, setInlineDatasetType] = useState('');
-  
+  const [inlineDataset, setInlineDataset] = useState("");
+  const [inlineDatasetType, setInlineDatasetType] = useState("");
+
+  // Attached data state
+  const [isDataSectionExpanded, setIsDataSectionExpanded] = useState(false);
+  const [attachedData, setAttachedData] = useState("");
+  const [attachedDataType, setAttachedDataType] = useState("");
+
   // Fetch model info on mount if in debug mode
   React.useEffect(() => {
     if (isDebugMode) {
-      fetch(`${import.meta.env.VITE_API_ENDPOINT.replace('/generate', '')}/model-info`)
-        .then(res => res.json())
-        .then(data => setModelInfo(data))
-        .catch(err => console.error('Failed to fetch model info:', err));
+      fetch(
+        `${import.meta.env.VITE_API_ENDPOINT.replace("/generate", "")}/model-info`,
+      )
+        .then((res) => res.json())
+        .then((data) => setModelInfo(data))
+        .catch((err) => console.error("Failed to fetch model info:", err));
     }
   }, [isDebugMode]);
-  
+
   // Resizable panel state
   const [panelWidth, setPanelWidth] = useState(600);
   const [isResizing, setIsResizing] = useState(false);
@@ -77,28 +96,32 @@ export default function ChatBotPage() {
     const newMessages: MessageProps[] = [...messages];
     const date = new Date();
     const messageId = generateId();
-    
+
     newMessages.push({
       id: generateId(),
-      role: 'user',
+      role: "user",
       content: `[MOCK] ${mockName}`,
-      name: 'User',
-      avatar: 'https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg',
+      name: "User",
+      avatar:
+        "https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg",
       timestamp: date.toLocaleString(),
       avatarProps: { isBordered: true },
     });
 
     newMessages.push({
       id: messageId,
-      role: 'bot',
-      name: 'Bot',
-      avatar: 'https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg',
+      role: "bot",
+      name: "Bot",
+      avatar:
+        "https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg",
       timestamp: date.toLocaleString(),
       extraContent: {
         afterMainContent: (
           <>
             <DynamicComponent config={mockConfig} showRawConfig={false} />
-            {isDebugMode && <DebugSection config={mockConfig} messageId={messageId} />}
+            {isDebugMode && (
+              <DebugSection config={mockConfig} messageId={messageId} />
+            )}
           </>
         ),
       },
@@ -117,16 +140,16 @@ export default function ChatBotPage() {
 
   const handleSendCustomJson = () => {
     try {
-      if (!customJson || customJson.trim() === '') {
-        console.error('No JSON to send');
+      if (!customJson || customJson.trim() === "") {
+        console.error("No JSON to send");
         return;
       }
       const config = JSON.parse(customJson);
       // Check if this is a modified version of a selected mock
-      const label = selectedMock ? `${selectedMock} (Modified)` : 'Custom JSON';
+      const label = selectedMock ? `${selectedMock} (Modified)` : "Custom JSON";
       handleMockSend(config, label);
     } catch (e) {
-      console.error('Invalid JSON:', e);
+      console.error("Invalid JSON:", e);
     }
   };
 
@@ -138,26 +161,30 @@ export default function ChatBotPage() {
     // If the prompt has a dataset, look it up by ID and attach it
     const dataset = prompt.dataset;
     if (dataset?.datasetId) {
-      const inlineDataset = INLINE_DATASETS.find(d => d.id === dataset.datasetId);
+      const inlineDataset = INLINE_DATASETS.find(
+        (d) => d.id === dataset.datasetId,
+      );
       if (inlineDataset) {
         const datasetJson = JSON.stringify(inlineDataset.payload, null, 2);
-        const datasetType = dataset.dataType || inlineDataset.dataType || '';
+        const datasetType = dataset.dataType || inlineDataset.dataType || "";
         // Update state for UI display
         setInlineDataset(datasetJson);
         setInlineDatasetType(datasetType);
         // Send the prompt with dataset override to avoid timing issues
         handleSend(prompt.prompt, datasetJson, datasetType);
       } else {
-        console.warn(`Dataset with ID "${dataset.datasetId}" not found in INLINE_DATASETS`);
+        console.warn(
+          `Dataset with ID "${dataset.datasetId}" not found in INLINE_DATASETS`,
+        );
         // Fallback to sending without dataset
-        setInlineDataset('');
-        setInlineDatasetType('');
+        setInlineDataset("");
+        setInlineDatasetType("");
         handleSend(prompt.prompt);
       }
     } else {
       // Clear dataset if prompt doesn't have one
-      setInlineDataset('');
-      setInlineDatasetType('');
+      setInlineDataset("");
+      setInlineDatasetType("");
       // Send the prompt through normal flow
       handleSend(prompt.prompt);
     }
@@ -185,45 +212,58 @@ export default function ChatBotPage() {
   // Add/remove mouse event listeners
   React.useEffect(() => {
     if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
     } else {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
     };
   }, [isResizing]);
 
-  const handleSend = async (message: string, datasetOverride?: string, datasetTypeOverride?: string) => {
+  // Handle clear data
+  const handleClearData = () => {
+    setAttachedData("");
+    setAttachedDataType("");
+  };
+
+  const handleSend = async (
+    message: string,
+    datasetOverride?: string,
+    datasetTypeOverride?: string,
+  ) => {
     // Check if in mock mode
     if (isMockMode) {
       const newMessages: MessageProps[] = [...messages];
       const date = new Date();
       newMessages.push({
         id: generateId(),
-        role: 'user',
+        role: "user",
         content: message,
-        name: 'User',
-        avatar: 'https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg',
+        name: "User",
+        avatar:
+          "https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg",
         timestamp: date.toLocaleString(),
         avatarProps: { isBordered: true },
       });
       newMessages.push({
         id: generateId(),
-        role: 'bot',
-        name: 'Bot',
-        content: 'Mock mode is enabled. Please select a mock component from the panel above.',
-        avatar: 'https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg',
+        role: "bot",
+        name: "Bot",
+        content:
+          "Mock mode is enabled. Please select a mock component from the panel above.",
+        avatar:
+          "https://www.patternfly.org/images/patternfly_avatar.9a60a33abd961931.jpg",
         timestamp: date.toLocaleString(),
       });
       setMessages(newMessages);
@@ -257,15 +297,27 @@ export default function ChatBotPage() {
     setMessages(newMessages);
 
     // Use override dataset if provided, otherwise use state
-    const datasetToUse = datasetOverride !== undefined ? datasetOverride : inlineDataset;
-    const datasetTypeToUse = datasetTypeOverride !== undefined ? datasetTypeOverride : inlineDatasetType;
+    const datasetToUse =
+      datasetOverride !== undefined ? datasetOverride : inlineDataset;
+    const datasetTypeToUse =
+      datasetTypeOverride !== undefined
+        ? datasetTypeOverride
+        : inlineDatasetType;
 
     const res = await fetchData(import.meta.env.VITE_API_ENDPOINT, {
       method: "POST",
-      body: { 
+      body: {
         prompt: message,
         strategy: selectedStrategy,
-        ...(datasetToUse.trim()
+        ...(attachedData.trim()
+          ? {
+              data: attachedData,
+              ...(attachedDataType.trim()
+                ? { data_type: attachedDataType.trim() }
+                : {}),
+            }
+          : {}),
+        ...(datasetToUse.trim() && !attachedData.trim()
           ? {
               data: datasetToUse,
               data_type: datasetTypeToUse.trim() || undefined,
@@ -274,12 +326,12 @@ export default function ChatBotPage() {
       },
     });
     newMessages.pop();
-    
+
     // Extract model info from metadata if available
     if (res?.metadata?.model) {
       setModelInfo(res.metadata.model);
     }
-    
+
     const botMessageId = generateId();
     newMessages.push({
       id: botMessageId,
@@ -291,43 +343,53 @@ export default function ChatBotPage() {
       ...(!res
         ? { content: "Something went wrong!" }
         : res.error
-        ? {
-            content: `Error: ${res.error}${res.details ? ` - ${res.details}` : ''}`,
-            extraContent: {
-              afterMainContent: (
-                <>
-                  {isDebugMode && (res.metadata?.llmInteractions || res.metadata?.agentMessages) && (
-                    <DebugSection
-                      llmInteractions={res.metadata?.llmInteractions}
-                      agentMessages={res.metadata?.agentMessages}
+          ? {
+              content: `Error: ${res.error}${res.details ? ` - ${res.details}` : ""}`,
+              extraContent: {
+                afterMainContent: (
+                  <>
+                    {isDebugMode &&
+                      (res.metadata?.llmInteractions ||
+                        res.metadata?.agentMessages) && (
+                        <DebugSection
+                          llmInteractions={res.metadata?.llmInteractions}
+                          agentMessages={res.metadata?.agentMessages}
+                          config={res.response}
+                          messageId={botMessageId}
+                        />
+                      )}
+                  </>
+                ),
+              },
+            }
+          : {
+              extraContent: {
+                afterMainContent: (
+                  <>
+                    <DynamicComponent
                       config={res.response}
-                      messageId={botMessageId}
+                      showRawConfig={false}
                     />
-                  )}
-                </>
-              ),
-            },
-          }
-        : {
-            extraContent: {
-              afterMainContent: (
-                <>
-                  <DynamicComponent config={res.response} showRawConfig={false} />
-                  {isDebugMode && (res.metadata || res.metadata?.llmInteractions || res.metadata?.agentMessages || res.metadata?.dataTransform || res.metadata?.dataset) && (
-                    <DebugSection
-                      metadata={res.metadata}
-                      llmInteractions={res.metadata?.llmInteractions}
-                      agentMessages={res.metadata?.agentMessages}
-                      dataTransform={res.metadata?.dataTransform}
-                      dataset={res.metadata?.dataset}
-                      config={res.response}
-                      messageId={botMessageId}
-                    />
-                  )}
-                </>
-              ),
-            },
-          }),
+                    {isDebugMode &&
+                      (res.metadata ||
+                        res.metadata?.llmInteractions ||
+                        res.metadata?.agentMessages ||
+                        res.metadata?.dataTransform ||
+                        res.metadata?.dataset) && (
+                        <DebugSection
+                          metadata={res.metadata}
+                          llmInteractions={res.metadata?.llmInteractions}
+                          agentMessages={res.metadata?.agentMessages}
+                          dataTransform={res.metadata?.dataTransform}
+                          dataset={res.metadata?.dataset}
+                          config={res.response}
+                          messageId={botMessageId}
+                        />
+                      )}
+                  </>
+                ),
+              },
+            }),
     });
     console.log(newMessages);
     setMessages(newMessages);
@@ -335,13 +397,24 @@ export default function ChatBotPage() {
 
   return (
     <div className="chatbot-layout">
+      {/* Debug Mode Toggle - Top Right Corner */}
+      <div className="debug-mode-toggle">
+        <Switch
+          id="debug-mode-switch"
+          label="Debug Mode"
+          isChecked={isDebugMode}
+          onChange={(_event, checked) => setIsDebugMode(checked)}
+        />
+      </div>
       {/* Test Panel - Left Side (only shown when debug=true) */}
       {isDebugMode && (
-        <div 
+        <div
           className="chatbot-panel"
-          style={{
-            '--panel-width': `${panelWidth}px`
-          } as React.CSSProperties}
+          style={
+            {
+              "--panel-width": `${panelWidth}px`,
+            } as React.CSSProperties
+          }
         >
           <TestPanel
             isMockMode={isMockMode}
@@ -368,7 +441,7 @@ export default function ChatBotPage() {
       {/* Resize Handle (only shown when debug=true) */}
       {isDebugMode && (
         <div
-          className={`chatbot-resize-handle ${isResizing ? 'is-dragging' : ''}`}
+          className={`chatbot-resize-handle ${isResizing ? "is-dragging" : ""}`}
           onMouseDown={handleMouseDown}
           onMouseEnter={() => setIsHoveringHandle(true)}
           onMouseLeave={() => setIsHoveringHandle(false)}
@@ -385,40 +458,85 @@ export default function ChatBotPage() {
             {/* Update the announcement prop on MessageBox whenever a new message is sent
           so that users of assistive devices receive sufficient context  */}
             <MessageBox announcement={announcement} position={position}>
-            {messages.length === 0 && (
-              <ChatbotWelcomePrompt
-                title="Hi, ChatBot User!"
-                description="How can I help you today?"
-              />
-            )}
-            {/* This code block enables scrolling to the top of the last message.
+              {messages.length === 0 && (
+                <ChatbotWelcomePrompt
+                  title="Hi, ChatBot User!"
+                  description="How can I help you today?"
+                />
+              )}
+              {/* This code block enables scrolling to the top of the last message.
           You can instead choose to move the div with scrollToBottomRef on it below 
           the map of messages, so that users are forced to scroll to the bottom.
           If you are using streaming, you will want to take a different approach; 
           see: https://github.com/patternfly/chatbot/issues/201#issuecomment-2400725173 */}
-            {messages && messages.map((message, index) => {
-              if (index === messages.length - 1) {
-                return (
-                  <>
-                    <div ref={scrollToBottomRef}></div>
-                    <Message key={message.id} {...message} />
-                  </>
-                );
+              {messages &&
+                messages.map((message, index) => {
+                  if (index === messages.length - 1) {
+                    return (
+                      <>
+                        <div ref={scrollToBottomRef}></div>
+                        <Message key={message.id} {...message} />
+                      </>
+                    );
+                  }
+                  return <Message key={message.id} {...message} />;
+                })}
+            </MessageBox>
+          </ChatbotContent>
+          <ChatbotFooter>
+            <MessageBar
+              isAttachmentDisabled
+              isSendButtonDisabled={loading}
+              isCompact
+              onSendMessage={(message: string | number) =>
+                handleSend(String(message))
               }
-              return <Message key={message.id} {...message} />;
-            })}
-          </MessageBox>
-        </ChatbotContent>
-        <ChatbotFooter>
-          <MessageBar
-            isAttachmentDisabled
-            isSendButtonDisabled={loading}
-            isCompact
-            onSendMessage={(message: string | number) => handleSend(String(message))}
-          />
-          <ChatbotFootnote label="ChatBot uses AI. Check for mistakes." />
-        </ChatbotFooter>
-      </Chatbot>
+            />
+            <ExpandableSection
+              toggleText={
+                isDataSectionExpanded ? "Hide data attachment" : "Attach data"
+              }
+              onToggle={(_event, isExpanded) =>
+                setIsDataSectionExpanded(isExpanded)
+              }
+              isExpanded={isDataSectionExpanded}
+              className="data-attachment-section"
+            >
+              <div className="data-attachment-content">
+                <FormGroup
+                  label="Data type"
+                  fieldId="data-type-input"
+                  className="data-attachment-form-group"
+                >
+                  <TextInput
+                    id="data-type-input"
+                    value={attachedDataType}
+                    onChange={(_, value) => setAttachedDataType(value)}
+                    placeholder="Optional data type for UI agent processing"
+                    aria-label="Data type input"
+                  />
+                </FormGroup>
+                <FormGroup label="Data" fieldId="data-textarea">
+                  <TextArea
+                    id="data-textarea"
+                    value={attachedData}
+                    onChange={(_, value) => setAttachedData(value)}
+                    rows={8}
+                    aria-label="Data input"
+                  />
+                </FormGroup>
+                {(attachedData.trim() || attachedDataType.trim()) && (
+                  <div className="data-attachment-clear-wrapper">
+                    <Button variant="link" onClick={handleClearData} isInline>
+                      Clear
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </ExpandableSection>
+            <ChatbotFootnote label="ChatBot uses AI. Check for mistakes." />
+          </ChatbotFooter>
+        </Chatbot>
       </div>
     </div>
   );
