@@ -177,8 +177,8 @@ See [A2A client example code](https://github.com/RedHat-UX/next-gen-ui-agent/blo
 
 Agent expects `Message` with `TextPart`, containing user's prompt. Then it looks for the input data blocks in:
 
-* string or object tree (converted to JSON string) in the `Message`'s or the `TextPart`'s metadata `data` item, with optional `type` item used as an input data type.
-* object tree (converted to JSON string) in the `Message`'s subsequent `DataPart`s. Input data type can be optionally provided in this part's metadat `type` item.
+* string or object tree (converted to JSON string) in the `Message`'s or the `TextPart`'s metadata `data` item, with optional `type` item used as an input data type (e.g., tool call name used to load the data), and optional `type_metadata` item for type specific metadata (e.g., tool call arguments used to load the data).
+* object tree (converted to JSON string) in the `Message`'s subsequent `DataPart`s. Input data type can be optionally provided in this part's metadata `type` item, and `type_metadata` item for type specific metadata.
 
 Multiple input data blocks can be provided this way to generate multiple UI components in one call.
 

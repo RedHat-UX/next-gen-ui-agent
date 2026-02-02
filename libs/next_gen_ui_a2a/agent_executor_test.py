@@ -68,6 +68,7 @@ async def test_agent_executor_one_part_input_with_metadata() -> None:
                     metadata={
                         "data": movies_data_obj,
                         "type": "search_movie",
+                        "type_metadata": '{"tool": "search_movie", "query": "Toy Story"}',
                     },
                 )
             ),
@@ -95,6 +96,10 @@ async def test_agent_executor_one_part_input_with_metadata() -> None:
     ui_block = UIBlock.model_validate(event.parts[1].root.data)
     assert ui_block.configuration is not None
     assert ui_block.configuration.data_type == "search_movie"
+    assert (
+        ui_block.configuration.data_type_metadata
+        == '{"tool": "search_movie", "query": "Toy Story"}'
+    )
     assert ui_block.configuration.component_metadata is not None
     assert "one-card" == ui_block.configuration.component_metadata.component
     assert ui_block.rendering is not None
@@ -407,3 +412,95 @@ async def test_agent_executor_two_parts_input() -> None:
     c = ComponentDataOneCard.model_validate_json(ui_block.rendering.content)
     assert "one-card" == c.component
     assert "Toy Story Details" == c.title
+
+
+@pytest.mark.asyncio
+async def test_agent_executor_with_type_metadata() -> None:
+    """Test that type_metadata is correctly passed through from message metadata to UI configuration."""
+    msg = AIMessage(content=LLM_RESPONSE)
+    llm = FakeMessagesListChatModel(responses=[msg])
+    inference = LangChainModelInference(llm)
+
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
+
+    test_metadata = (
+        '{"tool": "find_movie", "args": {"title": "Toy Story", "year": 1995}}'
+    )
+    message = Message(
+        role=Role.user,
+        parts=[
+            Part(
+                root=TextPart(
+                    text="Tell me details about Toy Story",
+                    metadata={
+                        "data": movies_data_obj,
+                        "type": "movie_detail",
+                        "type_metadata": test_metadata,
+                    },
+                )
+            ),
+        ],
+        message_id=str(uuid4()),
+    )
+
+    context = await SimpleRequestContextBuilder().build(
+        params=MessageSendParams(message=message)
+    )
+
+    event_queue = EventQueue()
+    await executor.execute(context, event_queue)
+
+    event = await event_queue.dequeue_event(no_wait=True)
+    assert isinstance(event, Message)
+    assert len(event.parts) == 2
+
+    assert isinstance(event.parts[1].root, DataPart)
+    ui_block = UIBlock.model_validate(event.parts[1].root.data)
+    assert ui_block.configuration is not None
+    assert ui_block.configuration.data_type == "movie_detail"
+    assert ui_block.configuration.data_type_metadata == test_metadata
+
+
+@pytest.mark.asyncio
+async def test_agent_executor_datapart_with_type_metadata() -> None:
+    """Test that type_metadata is correctly extracted from DataPart metadata."""
+    msg = AIMessage(content=LLM_RESPONSE)
+    llm = FakeMessagesListChatModel(responses=[msg])
+    inference = LangChainModelInference(llm)
+
+    executor = NextGenUIAgentExecutor(inference=inference, config=AgentConfig())
+
+    test_metadata = '{"source": "database", "query_id": "12345"}'
+    message = Message(
+        role=Role.user,
+        parts=[
+            Part(root=TextPart(text="Tell me details about Toy Story")),
+            Part(
+                root=DataPart(
+                    data=movies_data_obj,
+                    metadata={
+                        "type": "movie_detail",
+                        "type_metadata": test_metadata,
+                    },
+                )
+            ),
+        ],
+        message_id=str(uuid4()),
+    )
+
+    context = await SimpleRequestContextBuilder().build(
+        params=MessageSendParams(message=message)
+    )
+
+    event_queue = EventQueue()
+    await executor.execute(context, event_queue)
+
+    event = await event_queue.dequeue_event(no_wait=True)
+    assert isinstance(event, Message)
+    assert len(event.parts) == 2
+
+    assert isinstance(event.parts[1].root, DataPart)
+    ui_block = UIBlock.model_validate(event.parts[1].root.data)
+    assert ui_block.configuration is not None
+    assert ui_block.configuration.data_type == "movie_detail"
+    assert ui_block.configuration.data_type_metadata == test_metadata
