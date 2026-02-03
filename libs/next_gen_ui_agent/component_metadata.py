@@ -4,14 +4,17 @@ This module provides functionality to override COMPONENT_METADATA fields through
 AgentConfig, with validation and optimized runtime access.
 """
 
-from copy import deepcopy
 from typing import Any
 
 from next_gen_ui_agent.component_selection_common import (
     ALL_COMPONENTS,
     COMPONENT_METADATA,
 )
-from next_gen_ui_agent.types import AgentConfig, AgentConfigComponent
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    AgentConfigComponent,
+    AgentConfigPromptComponent,
+)
 
 
 def validate_component_overrides(overrides: dict[str, Any]) -> None:
@@ -38,7 +41,10 @@ def validate_component_overrides(overrides: dict[str, Any]) -> None:
     # This allows any field to be used on any component (even if it doesn't make sense)
     all_possible_fields: set[Any] = set()
     for component_metadata in COMPONENT_METADATA.values():
-        all_possible_fields.update(component_metadata.keys())
+        # Get all non-None fields from the Pydantic model
+        all_possible_fields.update(
+            component_metadata.model_dump(exclude_none=True).keys()
+        )
 
     # Validate field names exist somewhere in COMPONENT_METADATA
     for component_name, component_overrides in overrides.items():
@@ -52,35 +58,40 @@ def validate_component_overrides(overrides: dict[str, Any]) -> None:
 
 
 def merge_component_metadata(
-    base: dict[str, dict[str, Any]], overrides: dict[str, Any]
-) -> dict[str, dict[str, Any]]:
+    base: dict[str, AgentConfigPromptComponent], overrides: dict[str, Any]
+) -> dict[str, AgentConfigPromptComponent]:
     """Merge component metadata overrides into base metadata.
 
     Args:
-        base: Base COMPONENT_METADATA dictionary
+        base: Base COMPONENT_METADATA dictionary with AgentConfigPromptComponent values
         overrides: Dictionary mapping component names to field overrides
 
     Returns:
-        New dictionary with overrides applied (does not modify base)
+        New dictionary with overrides applied (as AgentConfigPromptComponent instances)
     """
-    # Start with deep copy to avoid modifying the original
-    merged = deepcopy(base)
+    # Create a deep copy of base metadata
+    merged: dict[str, AgentConfigPromptComponent] = {}
 
-    # Apply overrides for each component
-    for component_name, component_overrides in overrides.items():
-        if component_name in merged:
-            # Update only the specified fields
-            for field_name, field_value in component_overrides.items():
+    for component_name, component_meta in base.items():
+        # Get dict representation
+        meta_dict = component_meta.model_dump()
+
+        # Apply overrides for this component if any
+        if component_name in overrides:
+            for field_name, field_value in overrides[component_name].items():
                 if field_value is not None:  # Only apply non-None values
-                    merged[component_name][field_name] = field_value
+                    meta_dict[field_name] = field_value
+
+        # Create new AgentConfigPromptComponent with merged values
+        merged[component_name] = AgentConfigPromptComponent(**meta_dict)
 
     return merged
 
 
 def merge_per_component_prompt_overrides(
-    base_metadata: dict[str, dict[str, Any]],
+    base_metadata: dict[str, AgentConfigPromptComponent],
     components_list: list[AgentConfigComponent],
-) -> dict[str, dict[str, Any]]:
+) -> dict[str, AgentConfigPromptComponent]:
     """Merge per-component prompt overrides into metadata.
 
     Args:
@@ -90,8 +101,12 @@ def merge_per_component_prompt_overrides(
     Returns:
         Metadata with per-component overrides applied
     """
-    # Start with deep copy to avoid modifying the original
-    merged = deepcopy(base_metadata)
+    # Start with base metadata
+    merged: dict[str, AgentConfigPromptComponent] = {}
+
+    # First copy all base metadata
+    for component_name, component_meta in base_metadata.items():
+        merged[component_name] = component_meta
 
     # Iterate through components and apply per-component prompt overrides
     for component in components_list:
@@ -100,14 +115,19 @@ def merge_per_component_prompt_overrides(
             # Convert prompt to dict, excluding None values
             prompt_dict = component.prompt.model_dump(exclude_none=True)
             if prompt_dict and component_name in merged:
-                # Apply per-component overrides
+                # Get existing metadata as dict and apply overrides
+                meta_dict = merged[component_name].model_dump()
                 for field_name, field_value in prompt_dict.items():
-                    merged[component_name][field_name] = field_value
+                    meta_dict[field_name] = field_value
+                # Create new instance with overrides
+                merged[component_name] = AgentConfigPromptComponent(**meta_dict)
 
     return merged
 
 
-def get_component_metadata(config: AgentConfig) -> dict[str, dict[str, Any]]:
+def get_component_metadata(
+    config: AgentConfig,
+) -> dict[str, AgentConfigPromptComponent]:
     """Get component metadata with overrides applied from config.
 
     Args:

@@ -139,6 +139,24 @@ For detailed explanation of how prompt construction works and field descriptions
 - **Accepted but not used**: `chart_*` and `twostep_step2_*` fields are accepted in configuration but not used for HBCs
 
 
+#### `prompt` [`AgentConfigPromptBase`, optional]
+
+Optional prompt configuration for this data type. Overrides global prompt settings from `AgentConfig.prompt`. 
+
+All fields from `AgentConfigPromptBase` are available (system prompts, examples, chart instructions) and take precedence over global configuration. This allows different data types (typically from different tools or data sources) to use customized LLM prompts.
+
+See [Prompt Tuning](llm.md#prompt-tuning) and [Per-Data-Type Prompt Customization](data_ui_blocks/index.md#per-data-type-prompt-customization) for detailed information and examples.
+
+**Available fields**: All fields from global `prompt` configuration except `components`:
+- `system_prompt_start`
+- `twostep_step1select_system_prompt_start`
+- `twostep_step2configure_system_prompt_start`
+- `chart_instructions_template`
+- `examples_normalcomponents`
+- `examples_charts`
+- `twostep_step1select_examples_normalcomponents`
+- `twostep_step1select_examples_charts`
+
 
 ### `prompt` [`AgentConfigPrompt`, optional]
 

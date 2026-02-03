@@ -65,6 +65,11 @@ To get repeatable results from the agent, you should always use `temperature=0` 
 
 The Next Gen UI Agent uses carefully crafted system prompts to instruct the LLM to select and configure UI components. While the default prompts work well for general use cases, you may want to customize them for domain-specific applications or to optimize for specific LLM characteristics.
 
+Prompts can be customized at multiple levels:
+- **Global level**: Via `config.prompt` - applies to all data types
+- **Per-data-type level**: Via `config.data_types[type].prompt` - applies to specific data types (see [Per-Data-Type Prompt Customization](data_ui_blocks/index.md#per-data-type-prompt-customization))
+- **Per-component level**: Via component-specific metadata overrides (see [Prompt Customization for Component Selection](data_ui_blocks/index.md#prompt-customization-for-component-selection))
+
 ### Understanding the Prompt Structure
 
 Each prompt consists of two parts:
@@ -72,7 +77,7 @@ Each prompt consists of two parts:
 1. **Initial Section** (configurable): Instructions, rules, and context
 2. **Generated Section** (automatic): Component descriptions, examples, and metadata - may contain component specific parts for allowed/relevant components for inference run.
 
-The configurable sections are defined in the agent configuration under the `prompt` key.
+The configurable sections are defined in the agent configuration under the `prompt` key (globally) or under `data_types[type].prompt` (per data type).
 
 ### Available Customization Points
 

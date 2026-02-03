@@ -95,8 +95,11 @@ This section focuses on **component-specific prompt customization** (component d
 Prompts are constructed by merging overrides in this order (later overrides replace earlier ones):
 
 1. **Base prompts**: Default component prompts hardcoded in the agent, see [`COMPONENT_METADATA`](https://github.com/RedHat-UX/next-gen-ui-agent/blob/cf80d1c49f49d1eca282fc656db4afaa6a5eeea2/libs/next_gen_ui_agent/component_selection_common.py#L127C1-L127C19)
-2. **Global prompt overrides**: From `config.prompt.components` - applies to all uses of the component
-3. **Per-component prompt overrides**: From `data_types[type].components[component].prompt` - applies only to this component in this `InputData.type`
+2. **Global prompt overrides**: From `config.prompt` fields - applies to all data types
+3. **Per-data-type prompt overrides**: From `config.data_types[type].prompt` fields - applies to specific data type (NEW)
+4. **Per-component prompt overrides**: From `data_types[type].components[component].prompt` - applies only to this component in this `InputData.type`
+
+Note: Per-component overrides (level 4) only affect component-specific fields (description, chart_*, twostep_step2configure_*), while per-data-type overrides (level 3) affect the overall system prompt structure, examples, and chart instructions.
 
 !!!warning
     Please be aware that one large system prompt is constructed by the UI Agent using these per-component overrides, but also common parts. 
@@ -142,6 +145,104 @@ Different component types use different prompt customization fields:
 **For Hand-Build Components (HBCs)**:
 - Only `description` field is used for LLM component selection, `chart_*` and `twostep_step2configure_*` fields are not used for HBCs.
 - When multiple components include HBCs, each HBC must have `prompt.description` defined
+
+### Per-Data-Type Prompt Customization
+
+In addition to per-component prompt customization described above, you can customize the overall system prompt structure, examples, and chart instructions on a per-data-type basis. This is useful when different data types (typically from different tools or data sources) require different prompting strategies.
+
+#### Available Fields
+
+All fields from `AgentConfigPromptBase` can be customized per data type (everything from global `prompt` configuration except `components`):
+
+- **`system_prompt_start`**: Override initial system prompt for one-step strategy
+- **`chart_instructions_template`**: Override chart instructions template
+- **`examples_normalcomponents`**: Override normal component examples (one-step)
+- **`examples_charts`**: Override chart component examples (one-step)
+- **`twostep_step1select_system_prompt_start`**: Override initial prompt for two-step strategy step1
+- **`twostep_step2configure_system_prompt_start`**: Override initial prompt for two-step strategy step2
+- **`twostep_step1select_examples_normalcomponents`**: Override normal component examples (two-step step1)
+- **`twostep_step1select_examples_charts`**: Override chart component examples (two-step step1)
+
+#### Precedence Order
+
+For system prompt construction:
+1. Data-type specific prompt (highest priority)
+2. Global prompt from `config.prompt`
+3. Default hardcoded prompt (lowest priority)
+
+#### Configuration Example
+
+```yaml
+# Global prompt configuration
+prompt:
+  system_prompt_start: |
+    You are a generic UI assistant.
+    
+    AVAILABLE UI COMPONENTS:
+  examples_normalcomponents: |
+    Generic table example:
+    {"component": "table", "title": "Items"}
+
+data_types:
+  # Tool A data with specific prompt requirements
+  tool-a:result:
+    prompt:
+      system_prompt_start: |
+        You are a Tool A data visualization assistant.
+        Focus on key metrics and trends.
+        
+        AVAILABLE UI COMPONENTS:
+      examples_normalcomponents: |
+        Tool A table example with metrics:
+        {"component": "table", "title": "Tool A Metrics"}
+    components:
+      - component: table
+      - component: chart-bar
+  
+  # Tool B data with different prompt strategy
+  tool-b:result:
+    prompt:
+      system_prompt_start: |
+        You are a Tool B data visualization assistant.
+        Emphasize relationships and hierarchies.
+        
+        AVAILABLE UI COMPONENTS:
+      chart_instructions_template: |
+        Tool B specific chart guidance:
+        {charts_description}
+    components:
+      - component: table
+      - component: set-of-cards
+  
+  # Tool C uses global prompts (no data-type override)
+  tool-c:result:
+    components:
+      - component: one-card
+```
+
+In this example:
+- `tool-a:result` data uses Tool A specific prompts and examples
+- `tool-b:result` data uses Tool B specific prompts with custom chart instructions
+- `tool-c:result` data falls back to global prompts
+- Other data types without configuration use global prompts
+
+#### Use Cases
+
+Per-data-type prompt customization is particularly useful for:
+
+1. **Different Tool Outputs**: When integrating multiple tools, each tool's output may benefit from domain-specific prompting
+2. **Data Source Variations**: Different data sources (databases, APIs, files) may need different visualization strategies
+3. **Multi-Tenant Applications**: Different tenants or customers may have different visualization preferences
+4. **A/B Testing**: Test different prompting strategies for the same data type
+5. **Language/Locale Variations**: Provide prompts in different languages for different data types
+
+#### Best Practices
+
+1. **Start with Global**: Define global prompts first, then override only what's necessary per data type
+2. **Test Thoroughly**: Use the [evaluation tool](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ai_eval_components) to measure impact
+3. **Document Rationale**: Comment why specific data types need custom prompts
+4. **Combine with Per-Component**: Use both per-data-type AND per-component customization for fine-grained control
+5. **Monitor Performance**: Small LLMs are more sensitive to prompt changes - validate with your target LLM
 
 ### How Prompts Are Used
 
