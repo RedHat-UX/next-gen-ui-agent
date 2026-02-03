@@ -70,29 +70,28 @@ The Next Gen UI Agent uses carefully crafted system prompts to instruct the LLM 
 Each prompt consists of two parts:
 
 1. **Initial Section** (configurable): Instructions, rules, and context
-2. **Generated Section** (automatic): Component descriptions, examples, and metadata
+2. **Generated Section** (automatic): Component descriptions, examples, and metadata - may contain component specific parts for allowed/relevant components for inference run.
 
 The configurable sections are defined in the agent configuration under the `prompt` key.
 
 ### Available Customization Points
 
-#### One-Step Strategy
+#### System Promp initial section
 
-When using `component_selection_strategy: one_llm_call`, you can customize:
 
-- **`system_prompt_onestep`**: The main system prompt that instructs the LLM to select a component and configure it in a single call.
+- **`system_prompt_start`**: The main system prompt that instructs the LLM to select a component and configure it in a single call.
 
 **Example:**
 
 ```yaml
 prompt:
-  system_prompt_onestep: |
+  system_prompt_start: |
     You are an expert financial data visualization assistant.
     
     RULES:
     - Generate valid JSON only
     - Prioritize clarity and accuracy for financial data
-    - Select exactly one component from the list below
+    - Select exactly one component from the AVAILABLE UI COMPONENTS list
     - Include fields: component, title, reasonForTheComponentSelection, confidenceScore, fields
     - Each field must have: name, data_path
     
@@ -106,38 +105,7 @@ prompt:
 
 **Important:** Always end your custom prompt with `AVAILABLE UI COMPONENTS:` header which you reference in previous instructions - the component list will be appended automatically.
 
-#### Two-Step Strategy
-
-When using `component_selection_strategy: two_llm_calls`, you can customize:
-
-- **`system_prompt_twostep_step1select`**: First call that selects the component type
-- **`system_prompt_twostep_step2configure`**: Second call that configures the selected component
-
-**Example:**
-
-```yaml
-prompt:
-  system_prompt_twostep_step1select: |
-    You are a UI component selector for medical data visualization.
-    
-    SELECTION RULES:
-    - Generate JSON with: component, title, reasonForTheComponentSelection, confidenceScore
-    - Choose the most appropriate component for medical professionals
-    - Prioritize data clarity and patient safety
-    
-    AVAILABLE UI COMPONENTS:
-  
-  system_prompt_twostep_step2configure: |
-    You are configuring the {component} component for medical data display.
-    
-    FIELD SELECTION RULES:
-    - Return JSON array of field objects
-    - Each field needs: name, data_path, reason, confidenceScore
-    - Prioritize critical medical information
-    - Use accurate JSONPath expressions in data_path
-```
-
-**Important:** The `{component}` placeholder in `system_prompt_twostep_step2configure` is **required** - the agent will raise error during initialization if you provide a custom prompt without this placeholder. The placeholder will be replaced with the actual component name selected in step 1 (e.g., "table", "chart-bar").
+When using `component_selection_strategy: two_llm_calls`, similar customization options are available through `twostep_step1select_system_prompt_start` (for step 1 component selection) and `twostep_step2configure_system_prompt_start` (for step 2 field configuration). These work analogously to the one-step strategy prompt. Note that `twostep_step2configure_system_prompt_start` requires a `{component}` placeholder. See the [Configuration Guide](configuration.md#prompt-configuration) for details.
 
 #### Chart Instructions Template
 
@@ -151,25 +119,27 @@ prompt:
     CHART VISUALIZATION GUIDELINES:
     
     Available Chart Types:
-    {chart_types}
+    {charts_description}
     
     Required Fields per Chart Type:
-    {fields_by_type}
+    {charts_fields_spec}
     
     Chart Selection Rules:
     - Don't add unrequested metrics
-    - Prioritize user-requested visualizations
-    {chart_rules}
+    {charts_rules}
     
     Chart Configuration Examples:
-    {examples}
+    {charts_inline_examples}
 ```
 
 **Placeholders:**
-- `{chart_types}`: Auto-generated chart type descriptions
-- `{fields_by_type}`: Required field specifications for each chart
-- `{chart_rules}`: Component-specific chart rules
-- `{examples}`: Chart configuration examples
+
+These placeholders are replaced with content from the component configuration section (see [Component-Specific Prompt Customization](#component-specific-prompt-customization)). Only chart components allowed/relevant for the every inference run are included here:
+
+- `{charts_description}`: Content from `chart_description` field for each chart component
+- `{charts_fields_spec}`: Content from `chart_fields_spec` field for each chart component
+- `{charts_rules}`: Content from `chart_rules` field for each chart component
+- `{charts_inline_examples}`: Content from `chart_inline_examples` field for each chart component
 
 You can reorder sections, change headings, or add additional instructions. The common rule "- Don't add unrequested metrics" is shown as an example - include any common rules you want in your template text.
 
@@ -196,12 +166,10 @@ Examples can be customized at two levels:
 
 Both types of examples are automatically combined and included in the system prompt when their respective component types are enabled.
 
-**One-Step Strategy Examples:**
-
 ```yaml
 prompt:
   # Customize normal component examples
-  examples_onestep_normalcomponents: |
+  examples_normalcomponents: |
     Example for financial transactions table:
     {
         "title": "Transaction History",
@@ -216,7 +184,7 @@ prompt:
     }
   
   # Customize chart examples
-  examples_onestep_charts: |
+  examples_charts: |
     Example for revenue comparison:
     {
         "title": "Quarterly Revenue",
@@ -230,38 +198,14 @@ prompt:
     }
 ```
 
-**Two-Step Strategy Step1 Examples:**
-
-```yaml
-prompt:
-  # Customize normal component examples for step1
-  examples_twostep_step1select_normalcomponents: |
-    Medical records table example:
-    {
-        "reasonForTheComponentSelection": "Multiple patient records to display",
-        "confidenceScore": "95%",
-        "title": "Patient Records",
-        "component": "table"
-    }
-  
-  # Customize chart examples for step1
-  examples_twostep_step1select_charts: |
-    Patient metrics chart example:
-    {
-        "title": "Patient Vital Signs Trend",
-        "reasonForTheComponentSelection": "Visualizing vital signs over time",
-        "confidenceScore": "90%",
-        "component": "chart-line"
-    }
-```
 
 **Notes:**
 
 - Examples are automatically combined: normal component examples followed by chart examples (if applicable)
-- Examples are only included if relevant components are enabled in `selectable_components`
+- Examples are only included if relevant components are enabled in `selectable_components` or `data_type.components` configuration 
 - You can customize just `*_normalcomponents`, just `*_charts`, or both
-- Examples should match the JSON output format expected by your strategy
-- Two-step step2 examples are already configurable via component metadata (`twostep_step2configure_example`)
+- Examples mainly define the JSON output format expected by the selection strategy
+- Two-step step2 examples are already configurable via component related prompt bits (`twostep_step2configure_example`)
 
 ### Best Practices
 
@@ -277,13 +221,12 @@ When customizing, make sure to include:
 - Component selection instruction
 - Required output fields
 - JSONPath usage guidelines
-- The `AVAILABLE UI COMPONENTS:` heading (for step 1 prompts)
 
 #### 3. Test Thoroughly
 
 After customizing prompts:
 
-1. Test with various data structures
+1. Test with various data structures - build evaluation dataset and run it using [our Evaluation tool](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ai_eval_components)
 2. Verify JSONPath expressions are correct
 3. Check that confidence scores are reasonable
 4. Ensure component selection is appropriate
@@ -294,7 +237,7 @@ Add domain-specific context to improve results:
 
 ```yaml
 prompt:
-  system_prompt_onestep: |
+  system_prompt_start: |
     You are visualizing e-commerce data for business analytics dashboards.
     
     DOMAIN CONTEXT:
@@ -339,7 +282,7 @@ selectable_components:
 component_selection_strategy: one_llm_call
 
 prompt:
-  system_prompt_onestep: |
+  system_prompt_start: |
     You are a financial data visualization expert.
     
     RULES:
@@ -362,19 +305,19 @@ prompt:
     FINANCIAL CHART GUIDELINES:
     
     Available Chart Types:
-    {chart_types}
+    {charts_description}
     
     Field Requirements:
-    {fields_by_type}
+    {charts_fields_spec}
     
     Financial Chart Rules:
     - Don't add unrequested metrics
     - Prefer line charts for time-series financial data
     - Use bar charts for category comparisons
-    {chart_rules}
+    {charts_rules}
     
     Examples:
-    {examples}
+    {charts_inline_examples}
   
   components:
     table:

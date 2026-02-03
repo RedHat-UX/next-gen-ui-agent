@@ -70,9 +70,9 @@ System prompts have two main parts:
 
 The feature adds four main configuration points:
 
-1. `system_prompt_onestep` - Initial prompt for one-step strategy
-2. `system_prompt_twostep_step1select` - Initial prompt for two-step step1 (component selection)
-3. `system_prompt_twostep_step2configure` - Initial prompt for two-step step2 (field configuration) - must contain `{component}` placeholder
+1. `system_prompt_start` - Initial prompt for one-step strategy
+2. `twostep_step1select_system_prompt_start` - Initial prompt for two-step step1 (component selection)
+3. `twostep_step2configure_system_prompt_start` - Initial prompt for two-step step2 (field configuration) - must contain `{component}` placeholder
 4. `chart_instructions_template` - Template for chart-specific instructions with placeholders
 
 ## Implementation Plan
@@ -87,19 +87,19 @@ Add four new optional fields to `AgentConfigPrompt` class:
 class AgentConfigPrompt(BaseModel):
     # ... existing fields ...
     
-    system_prompt_onestep: Optional[str] = Field(
+    system_prompt_start: Optional[str] = Field(
         default=None,
         description="Override the initial system prompt section for one-step strategy (including 'AVAILABLE UI COMPONENTS:' heading, before component descriptions and other per-component dynamically generated parts). If not set, uses default hardcoded prompt.",
     )
     """Override the initial system prompt section for one-step strategy."""
 
-    system_prompt_twostep_step1select: Optional[str] = Field(
+    twostep_step1select_system_prompt_start: Optional[str] = Field(
         default=None,
         description="Override the initial system prompt section for two-step strategy step1 (component selection, including 'AVAILABLE UI COMPONENTS:' heading, before component descriptions and other per-component dynamically generated parts). If not set, uses default hardcoded prompt.",
     )
     """Override the initial system prompt section for two-step strategy step1 (component selection)."""
 
-    system_prompt_twostep_step2configure: Optional[str] = Field(
+    twostep_step2configure_system_prompt_start: Optional[str] = Field(
         default=None,
         description="Override the initial system prompt section for two-step strategy step2 (field configuration, before component-specific rules). MUST contain `{component}` placeholder which will be replaced with the selected component name. If not set, uses default hardcoded prompt.",
     )
@@ -107,7 +107,7 @@ class AgentConfigPrompt(BaseModel):
 
     chart_instructions_template: Optional[str] = Field(
         default=None,
-        description="Override the chart instructions template used in both strategies. Supports placeholders: {chart_types}, {fields_by_type}, {chart_rules}, {examples} which will be replaced with dynamically generated component-specific content. If not set, uses default hardcoded template (which includes common rule: '- Don\\'t add unrequested metrics').",
+        description="Override the chart instructions template used in both strategies. Supports placeholders: {charts_description}, {charts_fields_spec}, {charts_rules}, {charts_inline_examples} which will be replaced with dynamically generated component-specific content. If not set, uses default hardcoded template (which includes common rule: '- Don\\'t add unrequested metrics').",
     )
     """Override the chart instructions template used in both strategies."""
 ```
@@ -155,17 +155,17 @@ def build_chart_instructions(
     
     # Default template (includes common rule: "- Don't add unrequested metrics")
     return f"""CHART TYPES (count ONLY metrics user requests):
-{chart_types}
+{charts_description}
 
 FIELDS BY CHART TYPE:
-{fields_by_type}
+{charts_fields_spec}
 
 CHART RULES:
 - Don't add unrequested metrics
-{chart_rules}
+{charts_rules}
 
 CHART EXAMPLES:
-{examples}"""
+{charts_inline_examples}"""
 ```
 
 ### 3. Update One-Step Strategy
@@ -183,9 +183,9 @@ def _build_system_prompt(
     # Check for custom initial section
     if (
         self.config.prompt
-        and self.config.prompt.system_prompt_onestep
+        and self.config.prompt.system_prompt_start
     ):
-        initial_section = self.config.prompt.system_prompt_onestep
+        initial_section = self.config.prompt.system_prompt_start
     else:
         # Default initial section
         initial_section = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
@@ -250,9 +250,9 @@ def _build_step1select_system_prompt(
     # Check for custom initial section
     if (
         self.config.prompt
-        and self.config.prompt.system_prompt_twostep_step1select
+        and self.config.prompt.twostep_step1select_system_prompt_start
     ):
-        initial_section = self.config.prompt.system_prompt_twostep_step1select
+        initial_section = self.config.prompt.twostep_step1select_system_prompt_start
     else:
         # Default initial section
         initial_section = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
@@ -304,11 +304,11 @@ def __init__(self, config: AgentConfig):
     # Validate that step2 custom prompt contains {component} placeholder if provided
     if (
         config.prompt
-        and config.prompt.system_prompt_twostep_step2configure
-        and "{component}" not in config.prompt.system_prompt_twostep_step2configure
+        and config.prompt.twostep_step2configure_system_prompt_start
+        and "{component}" not in config.prompt.twostep_step2configure_system_prompt_start
     ):
         raise ValueError(
-            "system_prompt_twostep_step2configure must contain {component} placeholder"
+            "twostep_step2configure_system_prompt_start must contain {component} placeholder"
         )
 ```
 
@@ -323,9 +323,9 @@ def inference_step2configure(
     # Check for custom initial section
     if (
         self.config.prompt
-        and self.config.prompt.system_prompt_twostep_step2configure
+        and self.config.prompt.twostep_step2configure_system_prompt_start
     ):
-        initial_section = self.config.prompt.system_prompt_twostep_step2configure.format(
+        initial_section = self.config.prompt.twostep_step2configure_system_prompt_start.format(
             component=component
         )
     else:
@@ -391,7 +391,7 @@ class TestOnestepCustomPrompt:
 AVAILABLE UI COMPONENTS:"""
         
         config = AgentConfig(
-            prompt=AgentConfigPrompt(system_prompt_onestep=custom_prompt)
+            prompt=AgentConfigPrompt(system_prompt_start=custom_prompt)
         )
         strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
         system_prompt = strategy.get_system_prompt()
@@ -410,7 +410,7 @@ AVAILABLE UI COMPONENTS:"""
         
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                system_prompt_twostep_step1select=custom_prompt
+                twostep_step1select_system_prompt_start=custom_prompt
             )
         )
         strategy = TwostepLLMCallComponentSelectionStrategy(config=config)
@@ -426,7 +426,7 @@ RULES:
         
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                system_prompt_twostep_step2configure=custom_prompt
+                twostep_step2configure_system_prompt_start=custom_prompt
             )
         )
         strategy = TwostepLLMCallComponentSelectionStrategy(config=config)
@@ -443,7 +443,7 @@ RULES:
         with pytest.raises(ValueError, match="must contain {component} placeholder"):
             config = AgentConfig(
                 prompt=AgentConfigPrompt(
-                    system_prompt_twostep_step2configure=custom_prompt
+                    twostep_step2configure_system_prompt_start=custom_prompt
                 )
             )
             TwostepLLMCallComponentSelectionStrategy(config=config)
@@ -455,10 +455,10 @@ class TestChartInstructionsTemplate:
     def test_custom_chart_instructions(self):
         """Test custom chart instructions template."""
         custom_template = """CUSTOM CHART SECTION
-Types: {chart_types}
-Fields: {fields_by_type}
-Rules: {chart_rules}
-Examples: {examples}"""
+Types: {charts_description}
+Fields: {charts_fields_spec}
+Rules: {charts_rules}
+Examples: {charts_inline_examples}"""
         
         config = AgentConfig(
             selectable_components=["chart-bar"],
@@ -495,21 +495,21 @@ class TestBackwardCompatibility:
 Add sections under the `prompt` key:
 
 ```markdown
-#### `system_prompt_onestep` [`str`, optional]
+#### `system_prompt_start` [`str`, optional]
 
 Override the initial system prompt section for one-step strategy (including 'AVAILABLE UI COMPONENTS:' heading, before component descriptions and examples).
 
 If not set, uses the default hardcoded prompt. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
 
 
-#### `system_prompt_twostep_step1select` [`str`, optional]
+#### `twostep_step1select_system_prompt_start` [`str`, optional]
 
 Override the initial system prompt section for two-step strategy's first step (component selection).
 
 Must include 'AVAILABLE UI COMPONENTS:' heading. If not set, uses default hardcoded prompt. For detailed information, see [Prompt Tuning](llm.md#prompt-tuning).
 
 
-#### `system_prompt_twostep_step2configure` [`str`, optional]
+#### `twostep_step2configure_system_prompt_start` [`str`, optional]
 
 Override the initial system prompt section for two-step strategy's second step (field configuration).
 
@@ -521,10 +521,10 @@ MUST contain `{component}` placeholder which will be replaced with the selected 
 Override the chart instructions template used in both strategies when chart components are available.
 
 Supports placeholders that will be replaced with dynamically generated component-specific content:
-- `{chart_types}` - Chart type descriptions
-- `{fields_by_type}` - Required fields for each chart type  
-- `{chart_rules}` - Component-specific rules
-- `{examples}` - Chart configuration examples
+- `{charts_description}` - Chart type descriptions
+- `{charts_fields_spec}` - Required fields for each chart type  
+- `{charts_rules}` - Component-specific rules
+- `{charts_inline_examples}` - Chart configuration examples
 
 If not set, uses the default hardcoded template. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
 ```
@@ -555,7 +555,7 @@ Customize the initial prompt for the one-step strategy:
 
 ```yaml
 prompt:
-  system_prompt_onestep: |
+  system_prompt_start: |
     You are a financial data visualization assistant. Select the best UI component.
     
     RULES:
@@ -572,7 +572,7 @@ prompt:
 
 ```yaml
 prompt:
-  system_prompt_twostep_step1select: |
+  twostep_step1select_system_prompt_start: |
     You are a medical data assistant. Select appropriate visualization component.
     
     RULES:
@@ -587,7 +587,7 @@ prompt:
 
 ```yaml
 prompt:
-  system_prompt_twostep_step2configure: |
+  twostep_step2configure_system_prompt_start: |
     Configure fields for the {component} component for medical data visualization.
     
     RULES:
@@ -608,26 +608,26 @@ prompt:
     FINANCIAL CHART GUIDELINES:
     
     Available Chart Types:
-    {chart_types}
+    {charts_description}
     
     Required Fields Per Type:
-    {fields_by_type}
+    {charts_fields_spec}
     
     Business Rules:
     - Focus on fiscal year alignment
     - Use appropriate currency formatting
-    {chart_rules}
+    {charts_rules}
     
     Examples:
-    {examples}
+    {charts_inline_examples}
 ```
 
 **Placeholders:**
 
-- `{chart_types}` - Generated descriptions of available chart types
-- `{fields_by_type}` - Required field structure for each chart type
-- `{chart_rules}` - Component-specific rules from metadata
-- `{examples}` - Chart usage examples from metadata
+- `{charts_description}` - Generated descriptions of available chart types
+- `{charts_fields_spec}` - Required field structure for each chart type
+- `{charts_rules}` - Component-specific rules from metadata
+- `{charts_inline_examples}` - Chart usage examples from metadata
 
 #### Component-Specific Prompt Customization
 
@@ -682,7 +682,7 @@ Custom prompts work seamlessly with the built-in system prompt caching. The cach
 ```yaml
 prompt:
   # One-step strategy prompt
-  system_prompt_onestep: |
+  system_prompt_start: |
     You are a financial reporting assistant. Select the optimal UI component for financial data visualization.
     
     RULES:
@@ -698,7 +698,7 @@ prompt:
     AVAILABLE UI COMPONENTS:
   
   # Two-step strategy prompts
-  system_prompt_twostep_step1select: |
+  twostep_step1select_system_prompt_start: |
     Financial Data Visualization - Component Selection
     
     Select the most appropriate component for the financial data.
@@ -708,7 +708,7 @@ prompt:
     
     AVAILABLE UI COMPONENTS:
   
-  system_prompt_twostep_step2configure: |
+  twostep_step2configure_system_prompt_start: |
     Configure fields for {component} to display financial data.
     
     RULES:
@@ -721,19 +721,19 @@ prompt:
     FINANCIAL CHARTS:
     
     Chart Types Available:
-    {chart_types}
+    {charts_description}
     
     Required Field Structure:
-    {fields_by_type}
+    {charts_fields_spec}
     
     Financial Reporting Rules:
     - Align with fiscal periods
     - Use consistent time series granularity
     - Include comparative periods when relevant
-    {chart_rules}
+    {charts_rules}
     
     Chart Examples:
-    {examples}
+    {charts_inline_examples}
 ```
 
 ### Troubleshooting
@@ -744,7 +744,7 @@ prompt:
 
 **Issue:** Step2 validation error
 
-- **Solution:** Verify `system_prompt_twostep_step2configure` contains `{component}` placeholder.
+- **Solution:** Verify `twostep_step2configure_system_prompt_start` contains `{component}` placeholder.
 
 **Issue:** Chart instructions not appearing
 
@@ -752,7 +752,7 @@ prompt:
 
 **Issue:** Template placeholders not replaced
 
-- **Solution:** Check placeholder names match exactly: `{chart_types}`, `{fields_by_type}`, `{chart_rules}`, `{examples}`.
+- **Solution:** Check placeholder names match exactly: `{charts_description}`, `{charts_fields_spec}`, `{charts_rules}`, `{charts_inline_examples}`.
 
 ```
 

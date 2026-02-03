@@ -97,8 +97,8 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         )
 
         # Check for custom initial prompt
-        if self.config.prompt and self.config.prompt.system_prompt_onestep:
-            initial_section = self.config.prompt.system_prompt_onestep
+        if self.config.prompt and self.config.prompt.system_prompt_start:
+            initial_section = self.config.prompt.system_prompt_start
         else:
             # Default hardcoded initial section
             initial_section = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
@@ -168,8 +168,8 @@ AVAILABLE UI COMPONENTS:"""
             return ""
 
         # Check for custom template
-        if self.config.prompt and self.config.prompt.examples_onestep_normalcomponents:
-            return self.config.prompt.examples_onestep_normalcomponents
+        if self.config.prompt and self.config.prompt.examples_normalcomponents:
+            return self.config.prompt.examples_normalcomponents
 
         # Default hardcoded examples
         return """Response example for multi-item data when table is suitable:
@@ -202,8 +202,8 @@ Response example for one-item data when one-card is suitable:
             return ""
 
         # Check for custom template
-        if self.config.prompt and self.config.prompt.examples_onestep_charts:
-            return self.config.prompt.examples_onestep_charts
+        if self.config.prompt and self.config.prompt.examples_charts:
+            return self.config.prompt.examples_charts
 
         # Default hardcoded examples
         return """Response example for multi-item data when bar chart is suitable:

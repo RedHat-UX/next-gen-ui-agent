@@ -68,22 +68,22 @@ Add new template fields to `AgentConfigPrompt` class (around line 191):
 class AgentConfigPrompt(BaseModel):
     # ... existing fields ...
     
-    examples_onestep_normalcomponents: Optional[str] = Field(
+    examples_normalcomponents: Optional[str] = Field(
         default=None,
         description="Override normal component examples (table, cards, image) for one-step strategy. If not set, uses default hardcoded examples.",
     )
     
-    examples_onestep_charts: Optional[str] = Field(
+    examples_charts: Optional[str] = Field(
         default=None,
         description="Override chart component examples for one-step strategy. If not set, uses default hardcoded examples.",
     )
     
-    examples_twostep_step1select_normalcomponents: Optional[str] = Field(
+    twostep_step1select_examples_normalcomponents: Optional[str] = Field(
         default=None,
         description="Override normal component examples (table, cards, image) for two-step strategy step1. If not set, uses default hardcoded examples.",
     )
     
-    examples_twostep_step1select_charts: Optional[str] = Field(
+    twostep_step1select_examples_charts: Optional[str] = Field(
         default=None,
         description="Override chart component examples for two-step strategy step1. If not set, uses default hardcoded examples.",
     )
@@ -129,9 +129,9 @@ def _build_normalcomponents_examples(self, allowed_components: set[str]) -> str:
     # Check for custom template
     if (
         self.config.prompt
-        and self.config.prompt.examples_onestep_normalcomponents
+        and self.config.prompt.examples_normalcomponents
     ):
-        return self.config.prompt.examples_onestep_normalcomponents
+        return self.config.prompt.examples_normalcomponents
     
     # Default hardcoded examples
     return """Response example for multi-item data when table is suitable:
@@ -166,9 +166,9 @@ def _build_chart_examples(self, allowed_components: set[str]) -> str:
     # Check for custom template
     if (
         self.config.prompt
-        and self.config.prompt.examples_onestep_charts
+        and self.config.prompt.examples_charts
     ):
-        return self.config.prompt.examples_onestep_charts
+        return self.config.prompt.examples_charts
     
     # Default hardcoded examples
     return """Response example for multi-item data when bar chart is suitable:
@@ -250,9 +250,9 @@ def _build_step1select_normalcomponents_examples(self, allowed_components: set[s
     # Check for custom template
     if (
         self.config.prompt
-        and self.config.prompt.examples_twostep_step1select_normalcomponents
+        and self.config.prompt.twostep_step1select_examples_normalcomponents
     ):
-        return self.config.prompt.examples_twostep_step1select_normalcomponents
+        return self.config.prompt.twostep_step1select_examples_normalcomponents
     
     # Default hardcoded examples (matching current build_twostep_step1select_examples)
     return """Response example for multi-item data when table is suitable:
@@ -287,9 +287,9 @@ def _build_step1select_chart_examples(self, allowed_components: set[str]) -> str
     # Check for custom template
     if (
         self.config.prompt
-        and self.config.prompt.examples_twostep_step1select_charts
+        and self.config.prompt.twostep_step1select_examples_charts
     ):
-        return self.config.prompt.examples_twostep_step1select_charts
+        return self.config.prompt.twostep_step1select_examples_charts
     
     # Default hardcoded examples
     return """Response example for multi-item data when bar chart is suitable:
@@ -399,7 +399,7 @@ class TestOnestepExamples:
         
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                examples_onestep_normalcomponents=custom_normalcomponents
+                examples_normalcomponents=custom_normalcomponents
             )
         )
         strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
@@ -420,7 +420,7 @@ class TestOnestepExamples:
         config = AgentConfig(
             selectable_components=["chart-bar"],
             prompt=AgentConfigPrompt(
-                examples_onestep_charts=custom_chart
+                examples_charts=custom_chart
             )
         )
         strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
@@ -446,8 +446,8 @@ class TestOnestepExamples:
         
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                examples_onestep_normalcomponents=custom_normalcomponents,
-                examples_onestep_charts=custom_charts
+                examples_normalcomponents=custom_normalcomponents,
+                examples_charts=custom_charts
             )
         )
         strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
@@ -485,7 +485,7 @@ class TestTwostepStep1Examples:
         
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                examples_twostep_step1select_normalcomponents=custom_normalcomponents
+                twostep_step1select_examples_normalcomponents=custom_normalcomponents
             )
         )
         strategy = TwostepLLMCallComponentSelectionStrategy(config=config)
@@ -506,7 +506,7 @@ class TestTwostepStep1Examples:
         config = AgentConfig(
             selectable_components=["chart-line"],
             prompt=AgentConfigPrompt(
-                examples_twostep_step1select_charts=custom_chart
+                twostep_step1select_examples_charts=custom_chart
             )
         )
         strategy = TwostepLLMCallComponentSelectionStrategy(config=config)
@@ -531,8 +531,8 @@ class TestTwostepStep1Examples:
         
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                examples_twostep_step1select_normalcomponents=custom_normalcomponents,
-                examples_twostep_step1select_charts=custom_charts
+                twostep_step1select_examples_normalcomponents=custom_normalcomponents,
+                twostep_step1select_examples_charts=custom_charts
             )
         )
         strategy = TwostepLLMCallComponentSelectionStrategy(config=config)
@@ -573,28 +573,28 @@ class TestBackwardCompatibility:
 Add new sections after the `chart_instructions_template` section (around line 228):
 
 ```markdown
-#### `examples_onestep_normalcomponents` [`str`, optional]
+#### `examples_normalcomponents` [`str`, optional]
 
 Override the normal component examples (table, cards, image) for one-step strategy.
 
 If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
 
 
-#### `examples_onestep_charts` [`str`, optional]
+#### `examples_charts` [`str`, optional]
 
 Override the chart component examples for one-step strategy.
 
 If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
 
 
-#### `examples_twostep_step1select_normalcomponents` [`str`, optional]
+#### `twostep_step1select_examples_normalcomponents` [`str`, optional]
 
 Override the normal component examples (table, cards, image) for two-step strategy's first step.
 
 If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
 
 
-#### `examples_twostep_step1select_charts` [`str`, optional]
+#### `twostep_step1select_examples_charts` [`str`, optional]
 
 Override the chart component examples for two-step strategy's first step.
 
@@ -624,7 +624,7 @@ Both types of examples are automatically combined and included in the system pro
 ```yaml
 prompt:
   # Customize normal component examples
-  examples_onestep_normalcomponents: |
+  examples_normalcomponents: |
     Example for financial transactions table:
     {
         "title": "Transaction History",
@@ -639,7 +639,7 @@ prompt:
     }
   
   # Customize chart examples
-  examples_onestep_charts: |
+  examples_charts: |
     Example for revenue comparison:
     {
         "title": "Quarterly Revenue",
@@ -658,7 +658,7 @@ prompt:
 ```yaml
 prompt:
   # Customize normal component examples for step1
-  examples_twostep_step1select_normalcomponents: |
+  twostep_step1select_examples_normalcomponents: |
     Medical records table example:
     {
         "reasonForTheComponentSelection": "Multiple patient records to display",
@@ -668,7 +668,7 @@ prompt:
     }
   
   # Customize chart examples for step1
-  examples_twostep_step1select_charts: |
+  twostep_step1select_examples_charts: |
     Patient metrics chart example:
     {
         "title": "Patient Vital Signs Trend",
@@ -696,7 +696,7 @@ prompt:
   # ... existing prompt customizations ...
   
   # Customize examples for financial domain
-  examples_onestep_normalcomponents: |
+  examples_normalcomponents: |
     Example for transaction list:
     {
         "title": "Recent Transactions",
@@ -710,7 +710,7 @@ prompt:
         ]
     }
   
-  examples_onestep_charts: |
+  examples_charts: |
     Example for revenue trend:
     {
         "title": "Monthly Revenue Trend",

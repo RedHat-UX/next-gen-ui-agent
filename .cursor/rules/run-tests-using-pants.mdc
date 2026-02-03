@@ -5,3 +5,5 @@ alwaysApply: true
 
 - run tests using pants configured in the project
 - run pants in the project/repository root
+- ignore errors from `spec/schema_test.py`
+- never modify json files under `spec/` directory.

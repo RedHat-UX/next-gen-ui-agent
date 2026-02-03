@@ -183,29 +183,11 @@ Override chart-specific rule. Use this to add domain-specific guidance for chart
 Override inline JSON examples for chart components. Provide examples specific to your data domain.
 
 
-#### `system_prompt_onestep` [`str`, optional]
+#### `system_prompt_start` [`str`, optional]
 
 Override the initial system prompt section for the one-step strategy (used when `component_selection_strategy` is `one_llm_call`). 
 
 The custom prompt should include the `AVAILABLE UI COMPONENTS:` heading at the end - the component list, examples and chart instructions will be automatically appended after this heading.
-
-If not set, uses the default hardcoded prompt. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
-
-
-#### `system_prompt_twostep_step1select` [`str`, optional]
-
-Override the initial system prompt section for the two-step strategy's first step (component selection, used when `component_selection_strategy` is `two_llm_calls`).
-
-The custom prompt should include the `AVAILABLE UI COMPONENTS:` heading at the end - the component list, examples and chart instructions will be automatically appended after this heading.
-
-If not set, uses the default hardcoded prompt. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
-
-
-#### `system_prompt_twostep_step2configure` [`str`, optional]
-
-Override the initial system prompt section for the two-step strategy's second step (field configuration, used when `component_selection_strategy` is `two_llm_calls`).
-
-The custom prompt MUST contain the `{component}` placeholder which will be replaced with the selected component name from step 1.
 
 If not set, uses the default hardcoded prompt. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
 
@@ -215,40 +197,54 @@ If not set, uses the default hardcoded prompt. For detailed information and exam
 Override the chart instructions template used in both strategies when chart components are available.
 
 Supports placeholders that will be replaced with dynamically generated component-specific content:
-- `{chart_types}` - Chart type descriptions
-- `{fields_by_type}` - Required fields for each chart type  
-- `{chart_rules}` - Component-specific rules
-- `{examples}` - Chart configuration examples
+- `{charts_description}` - Chart type descriptions
+- `{charts_fields_spec}` - Required fields for each chart type  
+- `{charts_rules}` - Component-specific rules
+- `{charts_inline_examples}` - Chart configuration examples
 
 If not set, uses the default hardcoded template. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
 
 
-#### `examples_onestep_normalcomponents` [`str`, optional]
+#### `examples_normalcomponents` [`str`, optional]
 
 Override the normal component examples (table, cards, image) for one-step strategy.
 
 If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
 
 
-#### `examples_onestep_charts` [`str`, optional]
+#### `examples_charts` [`str`, optional]
 
 Override the chart component examples for one-step strategy.
 
 If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
 
 
-#### `examples_twostep_step1select_normalcomponents` [`str`, optional]
+#### `twostep_step1select_system_prompt_start` [`str`, optional]
 
-Override the normal component examples (table, cards, image) for two-step strategy's first step.
+Override the initial system prompt section for two-step strategy's first step (component selection, used when `component_selection_strategy` is `two_llm_calls`). Works like `system_prompt_start`.
 
-If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+If not set, uses the default hardcoded prompt.
 
 
-#### `examples_twostep_step1select_charts` [`str`, optional]
+#### `twostep_step2configure_system_prompt_start` [`str`, optional]
 
-Override the chart component examples for two-step strategy's first step.
+Override the initial system prompt section for two-step strategy's second step (field configuration, used when `component_selection_strategy` is `two_llm_calls`). Must contain `{component}` placeholder.
 
-If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+If not set, uses the default hardcoded prompt.
+
+
+#### `twostep_step1select_examples_normalcomponents` [`str`, optional]
+
+Override normal component examples (table, cards, image) for two-step strategy's first step (used when `component_selection_strategy` is `two_llm_calls`). Works like `examples_normalcomponents`.
+
+If not set, uses default hardcoded examples.
+
+
+#### `twostep_step1select_examples_charts` [`str`, optional]
+
+Override chart component examples for two-step strategy's first step (used when `component_selection_strategy` is `two_llm_calls`). Works like `examples_charts`.
+
+If not set, uses default hardcoded examples.
 
 
 ## Programmatic Configuration

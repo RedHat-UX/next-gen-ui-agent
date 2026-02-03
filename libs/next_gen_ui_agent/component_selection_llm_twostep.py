@@ -46,7 +46,7 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             select_component_only: if True, only generate the component, it is not necesary to generate it's configuration
 
         Raises:
-            ValueError: If custom system_prompt_twostep_step2configure is provided but doesn't contain {component} placeholder
+            ValueError: If custom twostep_step2configure_system_prompt_start is provided but doesn't contain {component} placeholder
         """
         super().__init__(logger, config)
         self.select_component_only = select_component_only
@@ -57,11 +57,12 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         # Validate custom step2 prompt if provided
         if (
             config.prompt
-            and config.prompt.system_prompt_twostep_step2configure
-            and "{component}" not in config.prompt.system_prompt_twostep_step2configure
+            and config.prompt.twostep_step2configure_system_prompt_start
+            and "{component}"
+            not in config.prompt.twostep_step2configure_system_prompt_start
         ):
             raise ValueError(
-                "Custom 'system_prompt_twostep_step2configure' must contain {component} placeholder "
+                "Custom 'twostep_step2configure_system_prompt_start' must contain {component} placeholder "
                 "which will be replaced with the selected component name"
             )
 
@@ -118,8 +119,11 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         )
 
         # Check for custom initial prompt
-        if self.config.prompt and self.config.prompt.system_prompt_twostep_step1select:
-            initial_section = self.config.prompt.system_prompt_twostep_step1select
+        if (
+            self.config.prompt
+            and self.config.prompt.twostep_step1select_system_prompt_start
+        ):
+            initial_section = self.config.prompt.twostep_step1select_system_prompt_start
         else:
             # Default hardcoded initial section
             initial_section = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
@@ -184,9 +188,9 @@ AVAILABLE UI COMPONENTS:"""
         # Check for custom template
         if (
             self.config.prompt
-            and self.config.prompt.examples_twostep_step1select_normalcomponents
+            and self.config.prompt.twostep_step1select_examples_normalcomponents
         ):
-            return self.config.prompt.examples_twostep_step1select_normalcomponents
+            return self.config.prompt.twostep_step1select_examples_normalcomponents
 
         # Default hardcoded examples (matching current build_twostep_step1select_examples)
         return """Response example for multi-item data when table is suitable:
@@ -221,9 +225,9 @@ Response example for one-item data and image when image is suitable:
         # Check for custom template
         if (
             self.config.prompt
-            and self.config.prompt.examples_twostep_step1select_charts
+            and self.config.prompt.twostep_step1select_examples_charts
         ):
-            return self.config.prompt.examples_twostep_step1select_charts
+            return self.config.prompt.twostep_step1select_examples_charts
 
         # Default hardcoded examples
         return """Response example for multi-item data when bar chart is suitable:
@@ -494,11 +498,11 @@ Response example for multi-item data when mirrored-bar chart is suitable (compar
         # Check for custom initial prompt
         if (
             self.config.prompt
-            and self.config.prompt.system_prompt_twostep_step2configure
+            and self.config.prompt.twostep_step2configure_system_prompt_start
         ):
             # Use custom prompt and substitute {component} placeholder
             initial_section = (
-                self.config.prompt.system_prompt_twostep_step2configure.format(
+                self.config.prompt.twostep_step2configure_system_prompt_start.format(
                     component=component
                 )
             )

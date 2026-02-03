@@ -56,9 +56,7 @@ class TestOnestepExamples:
 }"""
 
         config = AgentConfig(
-            prompt=AgentConfigPrompt(
-                examples_onestep_normalcomponents=custom_normalcomponents
-            )
+            prompt=AgentConfigPrompt(examples_normalcomponents=custom_normalcomponents)
         )
         strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
         system_prompt = strategy.get_system_prompt()
@@ -77,7 +75,7 @@ class TestOnestepExamples:
 
         config = AgentConfig(
             selectable_components=["chart-bar"],
-            prompt=AgentConfigPrompt(examples_onestep_charts=custom_chart),
+            prompt=AgentConfigPrompt(examples_charts=custom_chart),
         )
         strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
         system_prompt = strategy.get_system_prompt()
@@ -102,8 +100,8 @@ class TestOnestepExamples:
 
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                examples_onestep_normalcomponents=custom_normalcomponents,
-                examples_onestep_charts=custom_charts,
+                examples_normalcomponents=custom_normalcomponents,
+                examples_charts=custom_charts,
             )
         )
         strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
@@ -141,7 +139,7 @@ class TestTwostepStep1Examples:
 
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                examples_twostep_step1select_normalcomponents=custom_normalcomponents
+                twostep_step1select_examples_normalcomponents=custom_normalcomponents
             )
         )
         strategy = TwostepLLMCallComponentSelectionStrategy(config=config)
@@ -161,7 +159,7 @@ class TestTwostepStep1Examples:
 
         config = AgentConfig(
             selectable_components=["chart-line"],
-            prompt=AgentConfigPrompt(examples_twostep_step1select_charts=custom_chart),
+            prompt=AgentConfigPrompt(twostep_step1select_examples_charts=custom_chart),
         )
         strategy = TwostepLLMCallComponentSelectionStrategy(config=config)
         system_prompt = strategy.get_system_prompt()
@@ -185,8 +183,8 @@ class TestTwostepStep1Examples:
 
         config = AgentConfig(
             prompt=AgentConfigPrompt(
-                examples_twostep_step1select_normalcomponents=custom_normalcomponents,
-                examples_twostep_step1select_charts=custom_charts,
+                twostep_step1select_examples_normalcomponents=custom_normalcomponents,
+                twostep_step1select_examples_charts=custom_charts,
             )
         )
         strategy = TwostepLLMCallComponentSelectionStrategy(config=config)

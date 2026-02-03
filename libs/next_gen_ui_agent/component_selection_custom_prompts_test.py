@@ -14,7 +14,7 @@ def test_onestep_custom_system_prompt():
 
 AVAILABLE UI COMPONENTS:"""
 
-    config = AgentConfig(prompt=AgentConfigPrompt(system_prompt_onestep=custom_prompt))
+    config = AgentConfig(prompt=AgentConfigPrompt(system_prompt_start=custom_prompt))
 
     strategy = OnestepLLMCallComponentSelectionStrategy(config=config)
     system_prompt = strategy.get_system_prompt()
@@ -45,7 +45,7 @@ def test_twostep_custom_step1_system_prompt():
 AVAILABLE UI COMPONENTS:"""
 
     config = AgentConfig(
-        prompt=AgentConfigPrompt(system_prompt_twostep_step1select=custom_prompt)
+        prompt=AgentConfigPrompt(twostep_step1select_system_prompt_start=custom_prompt)
     )
 
     strategy = TwostepLLMCallComponentSelectionStrategy(config=config)
@@ -77,7 +77,7 @@ Select the best fields."""
 
     config = AgentConfig(
         prompt=AgentConfigPrompt(
-            system_prompt_twostep_step2configure=custom_prompt_without_placeholder
+            twostep_step2configure_system_prompt_start=custom_prompt_without_placeholder
         )
     )
 
@@ -96,7 +96,7 @@ Select the best fields."""
 
     config = AgentConfig(
         prompt=AgentConfigPrompt(
-            system_prompt_twostep_step2configure=custom_prompt_with_placeholder
+            twostep_step2configure_system_prompt_start=custom_prompt_with_placeholder
         )
     )
 
@@ -109,13 +109,13 @@ def test_custom_chart_instructions_template():
     """Test that custom chart instructions template is used."""
     custom_template = """CUSTOM CHART SECTION:
 
-Types: {chart_types}
+Types: {charts_description}
 
-Fields: {fields_by_type}
+Fields: {charts_fields_spec}
 
-Rules: {chart_rules}
+Rules: {charts_rules}
 
-Examples: {examples}"""
+Examples: {charts_inline_examples}"""
 
     config = AgentConfig(
         selectable_components=["chart-bar", "chart-line"],
@@ -155,14 +155,14 @@ AVAILABLE UI COMPONENTS:"""
 
     custom_chart_template = """FINANCIAL CHARTS:
 
-{chart_types}
+{charts_description}
 
-{fields_by_type}"""
+{charts_fields_spec}"""
 
     config = AgentConfig(
         selectable_components=["table", "chart-bar"],
         prompt=AgentConfigPrompt(
-            system_prompt_onestep=custom_initial,
+            system_prompt_start=custom_initial,
             chart_instructions_template=custom_chart_template,
         ),
     )

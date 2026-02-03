@@ -261,8 +261,8 @@ def build_chart_instructions(
     Args:
         allowed_chart_components: Set of allowed chart component names
         metadata: Component metadata dictionary
-        template: Optional template string with placeholders: {chart_types}, {fields_by_type},
-                  {chart_rules}, {examples}. If None, uses default template.
+        template: Optional template string with placeholders: {charts_description}, {charts_fields_spec},
+                  {charts_rules}, {charts_inline_examples}. If None, uses default template.
 
     Returns:
         Formatted string with chart instructions or empty string if no charts
@@ -324,10 +324,10 @@ def build_chart_instructions(
     if template:
         # User provides full template, including any common rules they want
         return template.format(
-            chart_types="\n".join(chart_types),
-            fields_by_type="\n".join(fields_by_type),
-            chart_rules=chart_rules_content,
-            examples="\n".join(examples),
+            charts_description="\n".join(chart_types),
+            charts_fields_spec="\n".join(fields_by_type),
+            charts_rules=chart_rules_content,
+            charts_inline_examples="\n".join(examples),
         )
     else:
         # Default template (existing behavior)
