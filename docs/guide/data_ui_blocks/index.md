@@ -88,6 +88,8 @@ data_types:
 
 For agent decisions, the LLM uses system prompt to select the best component based on the user's query and data and configure it. This prompt can be customized at multiple levels with increasing specificity.
 
+This section focuses on **component-specific prompt customization** (component descriptions, chart instructions, configuration examples). For customizing the **initial system prompt sections** (rules, instructions, strategy-specific prompts), see [Prompt Tuning](../llm.md#prompt-tuning).
+
 ### Prompt Override Precedence
 
 Prompts are constructed by merging overrides in this order (later overrides replace earlier ones):
@@ -118,7 +120,7 @@ data_types:
       - component: table
         prompt:
           description: "Use table for movie listings with many items but without actors"
-          twostep_step2_rules: "Always include title and year fields."
+          twostep_step2configure_rules: "Always include title and year fields."
       
       # HBC with required description
       - component: movies:list-with-actors
@@ -134,11 +136,11 @@ data_types:
 Different component types use different prompt customization fields:
 
 - **All components**: `description` - Main description for component selection. It should 
-- **Dynamic components**: `twostep_step2_example`, `twostep_step2_rules` - Field selection guidance used by two-step strategy only
+- **Dynamic components**: `twostep_step2configure_example`, `twostep_step2configure_rules` - Field selection guidance used by two-step strategy only
 - **Dynamic Chart components**: `chart_description`, `chart_fields_spec`, `chart_rules`, `chart_inline_examples` - Chart-specific guidance
 
 **For Hand-Build Components (HBCs)**:
-- Only `description` field is used for LLM component selection, `chart_*` and `twostep_step2_*` fields are not used for HBCs.
+- Only `description` field is used for LLM component selection, `chart_*` and `twostep_step2configure_*` fields are not used for HBCs.
 - When multiple components include HBCs, each HBC must have `prompt.description` defined
 
 ### How Prompts Are Used

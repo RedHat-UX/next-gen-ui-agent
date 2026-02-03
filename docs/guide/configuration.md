@@ -155,12 +155,12 @@ Only specified fields are overridden for the prompt, unspecified fields retain t
 
 Override the main component description for the component selection. This helps the LLM understand when to use this component.
 
-##### `twostep_step2_example` [`str`, optional]
+##### `twostep_step2configure_example` [`str`, optional]
 
-Override the example shown to the LLM during field selection when using `two_llm_calls` strategy. 
+Override the example shown to the LLM during component configuration when using `two_llm_calls` strategy. 
 Provide a JSON example showing how fields should be selected for this component.
 
-##### `twostep_step2_rules` [`str`, optional]
+##### `twostep_step2configure_rules` [`str`, optional]
 
 Override additional rules for field selection when using `two_llm_calls` strategy. 
 Use this to provide component-specific guidance for field selection.
@@ -181,6 +181,70 @@ Override chart-specific rule. Use this to add domain-specific guidance for chart
 ##### `chart_inline_examples` [`str`, optional]
 
 Override inline JSON examples for chart components. Provide examples specific to your data domain.
+
+
+#### `system_prompt_start` [`str`, optional]
+
+Override the initial system prompt section for the one-step strategy (used when `component_selection_strategy` is `one_llm_call`). 
+
+The custom prompt should include the `AVAILABLE UI COMPONENTS:` heading at the end - the component list, examples and chart instructions will be automatically appended after this heading.
+
+If not set, uses the default hardcoded prompt. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
+
+
+#### `chart_instructions_template` [`str`, optional]
+
+Override the chart instructions template used in both strategies when chart components are available.
+
+Supports placeholders that will be replaced with dynamically generated component-specific content:
+- `{charts_description}` - Chart type descriptions
+- `{charts_fields_spec}` - Required fields for each chart type  
+- `{charts_rules}` - Component-specific rules
+- `{charts_inline_examples}` - Chart configuration examples
+
+If not set, uses the default hardcoded template. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
+
+
+#### `examples_normalcomponents` [`str`, optional]
+
+Override the normal component examples (table, cards, image) for one-step strategy.
+
+If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+
+
+#### `examples_charts` [`str`, optional]
+
+Override the chart component examples for one-step strategy.
+
+If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+
+
+#### `twostep_step1select_system_prompt_start` [`str`, optional]
+
+Override the initial system prompt section for two-step strategy's first step (component selection, used when `component_selection_strategy` is `two_llm_calls`). Works like `system_prompt_start`.
+
+If not set, uses the default hardcoded prompt.
+
+
+#### `twostep_step2configure_system_prompt_start` [`str`, optional]
+
+Override the initial system prompt section for two-step strategy's second step (field configuration, used when `component_selection_strategy` is `two_llm_calls`). Must contain `{component}` placeholder.
+
+If not set, uses the default hardcoded prompt.
+
+
+#### `twostep_step1select_examples_normalcomponents` [`str`, optional]
+
+Override normal component examples (table, cards, image) for two-step strategy's first step (used when `component_selection_strategy` is `two_llm_calls`). Works like `examples_normalcomponents`.
+
+If not set, uses default hardcoded examples.
+
+
+#### `twostep_step1select_examples_charts` [`str`, optional]
+
+Override chart component examples for two-step strategy's first step (used when `component_selection_strategy` is `two_llm_calls`). Works like `examples_charts`.
+
+If not set, uses default hardcoded examples.
 
 
 ## Programmatic Configuration
@@ -217,7 +281,7 @@ config = AgentConfig(
         components={
             "table": AgentConfigPromptComponent(
                 description="Display structured business data in tabular format",
-                twostep_step2_rules="Always include ID, name, and date fields"
+                twostep_step2configure_rules="Always include ID, name, and date fields"
             ),
             "chart-bar": AgentConfigPromptComponent(
                 chart_description="Compare sales metrics across products or regions",
@@ -279,7 +343,7 @@ prompt:
   components:
     table:
       description: "Display structured business data in tabular format"
-      twostep_step2_rules: "Always include ID, name, and date fields"
+      twostep_step2configure_rules: "Always include ID, name, and date fields"
     
     chart-bar:
       description: "Bar chart is suitable for values comparison"
@@ -288,7 +352,7 @@ prompt:
     
     one-card:
       description: "Show detailed information for a single business entity"
-      twostep_step2_rules: "Include key identifiers and status information"
+      twostep_step2configure_rules: "Include key identifiers and status information"
 ```
 
 ### Multiple Component Configuration

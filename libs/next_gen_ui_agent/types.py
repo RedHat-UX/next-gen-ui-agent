@@ -132,7 +132,7 @@ class AgentConfigPromptComponent(BaseModel):
 
     Allows overriding any field from COMPONENT_METADATA for a specific component.
     Available fields depend on component type:
-    - All components: description, twostep_step2_example, twostep_step2_rules
+    - All components: description, twostep_step2configure_example, twostep_step2configure_rules
     - Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples
     """
 
@@ -142,17 +142,17 @@ class AgentConfigPromptComponent(BaseModel):
     )
     """Override component description used in LLM prompts."""
 
-    twostep_step2_example: Optional[str] = Field(
+    twostep_step2configure_example: Optional[str] = Field(
         default=None,
-        description="Override example for two-step strategy field selection",
+        description="Override example for two-step strategy field selection (step2configure)",
     )
-    """Override example for two-step strategy field selection."""
+    """Override example for two-step strategy field selection (step2configure)."""
 
-    twostep_step2_rules: Optional[str] = Field(
+    twostep_step2configure_rules: Optional[str] = Field(
         default=None,
-        description="Override rules for two-step strategy field selection",
+        description="Override rules for two-step strategy field selection (step2configure)",
     )
-    """Override rules for two-step strategy field selection."""
+    """Override rules for two-step strategy field selection (step2configure)."""
 
     chart_description: Optional[str] = Field(
         default=None,
@@ -187,6 +187,54 @@ class AgentConfigPrompt(BaseModel):
         description="Component metadata overrides. Keys are component names (e.g., 'table', 'chart-bar'), values are field overrides. Component names must match those in CONFIG_OPTIONS_ALL_COMPONETS.",
     )
     """Component metadata overrides. Keys are component names, values are field overrides."""
+
+    system_prompt_start: Optional[str] = Field(
+        default=None,
+        description="Override the initial system prompt section for one-step strategy. Available components list and other dynamically generated parts are added after this section. If not set, uses default hardcoded prompt.",
+    )
+    """Override the initial system prompt section for one-step strategy."""
+
+    twostep_step1select_system_prompt_start: Optional[str] = Field(
+        default=None,
+        description="Override the initial system prompt section for two-step strategy step1 (component selection). Available components list and other dynamically generated parts are added after this section. If not set, uses default hardcoded prompt.",
+    )
+    """Override the initial system prompt section for two-step strategy step1 (component selection)."""
+
+    twostep_step2configure_system_prompt_start: Optional[str] = Field(
+        default=None,
+        description="Override the initial system prompt section for two-step strategy step2 (field configuration). MUST contain `{component}` placeholder which is replaced with the selected component name from step1. Other dynamically generated component parts are added after this section If not set, uses default hardcoded prompt.",
+    )
+    """Override the initial system prompt section for two-step strategy step2 (field configuration). Must contain {component} placeholder."""
+
+    chart_instructions_template: Optional[str] = Field(
+        default=None,
+        description="Override the chart instructions template used in both strategies. Supports placeholders: {charts_description}, {charts_fields_spec}, {charts_rules}, {charts_inline_examples} which will be replaced with dynamically generated component-specific content. If not set, uses default hardcoded template.",
+    )
+    """Override the chart instructions template used in both strategies."""
+
+    examples_normalcomponents: Optional[str] = Field(
+        default=None,
+        description="Override normal component examples (table, cards, image) for one-step strategy. If not set, uses default hardcoded examples.",
+    )
+    """Override normal component examples for one-step strategy."""
+
+    examples_charts: Optional[str] = Field(
+        default=None,
+        description="Override chart component examples for one-step strategy. If not set, uses default hardcoded examples.",
+    )
+    """Override chart component examples for one-step strategy."""
+
+    twostep_step1select_examples_normalcomponents: Optional[str] = Field(
+        default=None,
+        description="Override normal component examples (table, cards, image) for two-step strategy step1. If not set, uses default hardcoded examples.",
+    )
+    """Override normal component examples for two-step strategy step1."""
+
+    twostep_step1select_examples_charts: Optional[str] = Field(
+        default=None,
+        description="Override chart component examples for two-step strategy step1. If not set, uses default hardcoded examples.",
+    )
+    """Override chart component examples for two-step strategy step1."""
 
 
 # Intentionaly TypeDict because of passing ABC class InferenceBase

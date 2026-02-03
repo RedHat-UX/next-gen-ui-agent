@@ -312,13 +312,109 @@
           ],
           "default": null,
           "description": "Component metadata overrides. Keys are component names (e.g., 'table', 'chart-bar'), values are field overrides. Component names must match those in CONFIG_OPTIONS_ALL_COMPONETS."
+        },
+        "system_prompt_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override the initial system prompt section for one-step strategy. Available components list and other dynamically generated parts are added after this section. If not set, uses default hardcoded prompt."
+        },
+        "twostep_step1select_system_prompt_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override the initial system prompt section for two-step strategy step1 (component selection). Available components list and other dynamically generated parts are added after this section. If not set, uses default hardcoded prompt."
+        },
+        "twostep_step2configure_system_prompt_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override the initial system prompt section for two-step strategy step2 (field configuration). MUST contain `{component}` placeholder which is replaced with the selected component name from step1. Other dynamically generated component parts are added after this section If not set, uses default hardcoded prompt."
+        },
+        "chart_instructions_template": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override the chart instructions template used in both strategies. Supports placeholders: {charts_description}, {charts_fields_spec}, {charts_rules}, {charts_inline_examples} which will be replaced with dynamically generated component-specific content. If not set, uses default hardcoded template."
+        },
+        "examples_normalcomponents": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override normal component examples (table, cards, image) for one-step strategy. If not set, uses default hardcoded examples."
+        },
+        "examples_charts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart component examples for one-step strategy. If not set, uses default hardcoded examples."
+        },
+        "twostep_step1select_examples_normalcomponents": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override normal component examples (table, cards, image) for two-step strategy step1. If not set, uses default hardcoded examples."
+        },
+        "twostep_step1select_examples_charts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart component examples for two-step strategy step1. If not set, uses default hardcoded examples."
         }
       },
       "title": "AgentConfigPrompt",
       "type": "object"
     },
     "AgentConfigPromptComponent": {
-      "description": "Component metadata overrides for LLM prompts.\n\nAllows overriding any field from COMPONENT_METADATA for a specific component.\nAvailable fields depend on component type:\n- All components: description, twostep_step2_example, twostep_step2_rules\n- Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples",
+      "description": "Component metadata overrides for LLM prompts.\n\nAllows overriding any field from COMPONENT_METADATA for a specific component.\nAvailable fields depend on component type:\n- All components: description, twostep_step2configure_example, twostep_step2configure_rules\n- Chart components: chart_description, chart_fields_spec, chart_rules, chart_inline_examples",
       "properties": {
         "description": {
           "anyOf": [
@@ -332,7 +428,7 @@
           "default": null,
           "description": "Override component description used in LLM prompts"
         },
-        "twostep_step2_example": {
+        "twostep_step2configure_example": {
           "anyOf": [
             {
               "type": "string"
@@ -342,9 +438,9 @@
             }
           ],
           "default": null,
-          "description": "Override example for two-step strategy field selection"
+          "description": "Override example for two-step strategy field selection (step2configure)"
         },
-        "twostep_step2_rules": {
+        "twostep_step2configure_rules": {
           "anyOf": [
             {
               "type": "string"
@@ -354,7 +450,7 @@
             }
           ],
           "default": null,
-          "description": "Override rules for two-step strategy field selection"
+          "description": "Override rules for two-step strategy field selection (step2configure)"
         },
         "chart_description": {
           "anyOf": [
