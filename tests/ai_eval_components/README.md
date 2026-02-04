@@ -62,6 +62,7 @@ You can use these commandline argument:
 
 - `-c <ui-component-name>` evaluate only named UI component, can be specified multiple times, omit or use 'all' to evaluate all components in the dataset.
 - `-p` if present then UI Agent is configured to select only from components defined by `-c` argument, otherwise it selects from all supported components."
+- `-a <config-file-path>` to load UI Agent YAML configuration file(s), can be specified multiple times to load and merge multiple config files. When provided, the component selection strategy is determined by the config file's `component_selection_strategy` field, and selectable components are taken from the config file's `selectable_components` field (unless `-p` is used to override). All `prompt` customizations are also used, and `data_type` configurations taken into account.
 - `-f <dataset-file-name>` to run only evaluations from the named dataset file (for any UI component present in the file, with respect to `-c` argument)
 - `-o` to also evaluate `warn_only` dataset items
 - `-w` to write Agent ouputs (LLM and Component data) with passed checks into files in the `/llm_out/` directory - usefull during the LLM functionality development to see all results

@@ -37,6 +37,7 @@ from ai_eval_components.types import (
 from langchain_anthropic import ChatAnthropic
 from langchain_openai import ChatOpenAI
 from next_gen_ui_agent import AgentConfig
+from next_gen_ui_agent.agent_config import read_config_yaml_file
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
 from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
@@ -237,6 +238,136 @@ def evaluate_agent_for_dataset_row(
     return DatasetRowAgentEvalResult(llm_output, errors, data, judge_results_list)
 
 
+def init_component_selection_strategy(
+    config: AgentConfig | None,
+    arg_select_only_from_enabled_components: bool,
+    run_components: list[str] | None,
+    arg_selected_component_type_check_only: bool,
+) -> ComponentSelectionStrategy:
+    """
+    Initialize component selection strategy based on configuration and command line arguments.
+
+    Parameters:
+    * `config` - AgentConfig loaded from file, or None
+    * `arg_select_only_from_enabled_components` - whether -p flag is set
+    * `run_components` - list of components to run evaluation for (from -c argument)
+    * `arg_selected_component_type_check_only` - whether -s flag is set
+
+    Returns:
+    * ComponentSelectionStrategy instance
+    """
+    # Handle config and component selection
+    selectable_components = None
+    if config and arg_select_only_from_enabled_components and run_components:
+        # Override config's selectable_components with run_components if -p flag is set
+        config.selectable_components = set(run_components)  # type: ignore
+        print(
+            f"UI Agent selects only from enabled components, overriding provided UI Agent config: {run_components}"
+        )
+    elif arg_select_only_from_enabled_components and run_components:
+        # No config loaded, but -p flag is set
+        print(f"UI Agent selects only from enabled components: {run_components}")
+        selectable_components = set(run_components)
+    elif config and config.selectable_components:
+        # Config loaded and has selectable_components defined
+        print("UI Agent selects from components defined in provided UI Agent config")
+    else:
+        print("UI Agent selects from all supported components")
+
+    # Create config if not loaded from file
+    if not config:
+        config = AgentConfig(selectable_components=selectable_components)  # type: ignore
+
+    # Instantiate component selection strategy based on config
+    component_selection_strategy: ComponentSelectionStrategy
+    if config.component_selection_strategy == "two_llm_calls":
+        component_selection_strategy = TwostepLLMCallComponentSelectionStrategy(
+            config=config,
+            select_component_only=arg_selected_component_type_check_only,
+        )
+        print(
+            "=== Default system prompt from the TwostepLLMCallComponentSelectionStrategy ===\n"
+            + component_selection_strategy.get_system_prompt()
+        )
+    else:
+        component_selection_strategy = OnestepLLMCallComponentSelectionStrategy(
+            config=config
+        )
+        print(
+            "=== Default system prompt from the OnestepLLMCallComponentSelectionStrategy ===\n"
+            + component_selection_strategy.get_system_prompt()
+        )
+
+    return component_selection_strategy
+
+
+def init_judge_inference_from_env(
+    arg_judge_enabled: bool,
+) -> tuple[InferenceBase | None, bool, str | None]:
+    """
+    Initialize judge inference from environment variables if judges are enabled.
+
+    Parameters:
+    * `arg_judge_enabled` - whether judge evaluation is enabled via command line argument
+
+    Returns:
+    * tuple of (judge_inference, judge_enabled, judge_model_name)
+
+    Exits with code 1 if judge is enabled but not properly configured.
+    """
+    judge_inference = None
+    judge_enabled_env = os.getenv("JUDGE_ENABLED", "false").lower() == "true"
+    judge_enabled = arg_judge_enabled or judge_enabled_env
+    judge_model_name = None
+
+    if judge_enabled:
+        judge_model_name = os.getenv("JUDGE_MODEL")
+        judge_api_url = os.getenv("JUDGE_API_URL")
+        judge_api_key = os.getenv("JUDGE_API_KEY")
+        judge_api_provider = os.getenv(
+            "JUDGE_API_PROVIDER", "openai"
+        )  # Default to openai for judge
+
+        if not judge_model_name or not judge_api_url or not judge_api_key:
+            print(
+                "Judge inference not initialized because not configured in env variables"
+            )
+            print("Required: JUDGE_MODEL, JUDGE_API_URL, JUDGE_API_KEY")
+            exit(1)
+
+        print(f"Initializing judge inference with model: {judge_model_name}")
+
+        judge_inference = init_direct_api_inference_from_env(
+            default_model=judge_model_name,
+            override_model=judge_model_name,
+            override_api_url=judge_api_url,
+            override_api_key=judge_api_key,
+            override_provider=judge_api_provider,
+        )
+        if not judge_inference:
+            # Temporarily set INFERENCE_MODEL to judge model for initialization
+            original_inference_model = os.getenv("INFERENCE_MODEL")
+            os.environ["INFERENCE_MODEL"] = judge_model_name
+            try:
+                judge_inference = init_inference_from_env(
+                    default_model=judge_model_name,
+                    default_config_file=LLAMASTACK_CONFIG_PATH_DEFAULT,
+                )
+            finally:
+                # Restore original INFERENCE_MODEL
+                if original_inference_model:
+                    os.environ["INFERENCE_MODEL"] = original_inference_model
+                else:
+                    os.environ.pop("INFERENCE_MODEL", None)
+        if not judge_inference:
+            print(
+                "Judge inference not initialized because not configured in env variables"
+            )
+            exit(1)
+
+    return judge_inference, judge_enabled, judge_model_name
+
+
 def init_direct_api_inference_from_env(
     default_model: str | None = None,
     override_model: str | None = None,
@@ -314,10 +445,17 @@ if __name__ == "__main__":
         arg_selected_component_type_check_only,
         arg_judge_enabled,
         arg_select_only_from_enabled_components,
+        arg_config_files,
     ) = load_args()
     errors_dir_path = get_errors_dir()
     llm_output_dir_path = get_llm_output_dir(arg_write_llm_output)
     dataset_files = get_dataset_files(arg_dataset_file)
+
+    # Load config files if provided
+    config = None
+    if arg_config_files and len(arg_config_files) > 0:
+        config = read_config_yaml_file(arg_config_files)
+        print(f"Loaded UI Agent config from: {arg_config_files}")
 
     inference = init_direct_api_inference_from_env(
         default_model=INFERENCE_MODEL_DEFAULT
@@ -337,81 +475,19 @@ if __name__ == "__main__":
     agent_model_name = os.getenv("INFERENCE_MODEL", INFERENCE_MODEL_DEFAULT)
 
     # Initialize judge inference if judges are enabled
-    judge_inference = None
-    judge_enabled_env = os.getenv("JUDGE_ENABLED", "false").lower() == "true"
-    judge_enabled = arg_judge_enabled or judge_enabled_env
-    judge_model_name = None
-    if judge_enabled:
-        judge_model_name = os.getenv("JUDGE_MODEL")
-        judge_api_url = os.getenv("JUDGE_API_URL")
-        judge_api_key = os.getenv("JUDGE_API_KEY")
-        judge_api_provider = os.getenv(
-            "JUDGE_API_PROVIDER", "openai"
-        )  # Default to openai for judge
-
-        if not judge_model_name or not judge_api_url or not judge_api_key:
-            print(
-                "Judge inference not initialized because not configured in env variables"
-            )
-            print("Required: JUDGE_MODEL, JUDGE_API_URL, JUDGE_API_KEY")
-            exit(1)
-
-        print(f"Initializing judge inference with model: {judge_model_name}")
-
-        judge_inference = init_direct_api_inference_from_env(
-            default_model=judge_model_name,
-            override_model=judge_model_name,
-            override_api_url=judge_api_url,
-            override_api_key=judge_api_key,
-            override_provider=judge_api_provider,
-        )
-        if not judge_inference:
-            # Temporarily set INFERENCE_MODEL to judge model for initialization
-            original_inference_model = os.getenv("INFERENCE_MODEL")
-            os.environ["INFERENCE_MODEL"] = judge_model_name
-            try:
-                judge_inference = init_inference_from_env(
-                    default_model=judge_model_name,
-                    default_config_file=LLAMASTACK_CONFIG_PATH_DEFAULT,
-                )
-            finally:
-                # Restore original INFERENCE_MODEL
-                if original_inference_model:
-                    os.environ["INFERENCE_MODEL"] = original_inference_model
-                else:
-                    os.environ.pop("INFERENCE_MODEL", None)
-        if not judge_inference:
-            print(
-                "Judge inference not initialized because not configured in env variables"
-            )
-            exit(1)
+    judge_inference, judge_enabled, judge_model_name = init_judge_inference_from_env(
+        arg_judge_enabled
+    )
 
     run_components = select_run_components(arg_ui_component, arg_dataset_file)
-    selectable_components = None
-    if arg_select_only_from_enabled_components and run_components:
-        print(f"UI Agent selects only from enabled components: {run_components}")
-        selectable_components = set(run_components)
-    else:
-        print("UI Agent selects from all supported components")
 
-    component_selection_strategy: ComponentSelectionStrategy
-    if not TWO_STEP_COMPONENT_SELECTION:
-        component_selection_strategy = OnestepLLMCallComponentSelectionStrategy(
-            config=AgentConfig(selectable_components=selectable_components)  # type: ignore
-        )
-        print(
-            "=== System prompt from the OnestepLLMCallComponentSelectionStrategy ===\n"
-            + component_selection_strategy.get_system_prompt()
-        )
-    else:
-        component_selection_strategy = TwostepLLMCallComponentSelectionStrategy(
-            config=AgentConfig(selectable_components=selectable_components),  # type: ignore
-            select_component_only=arg_selected_component_type_check_only,
-        )
-        print(
-            "=== System prompt from the TwostepLLMCallComponentSelectionStrategy ===\n"
-            + component_selection_strategy.get_system_prompt()
-        )
+    # Initialize component selection strategy
+    component_selection_strategy = init_component_selection_strategy(
+        config,
+        arg_select_only_from_enabled_components,
+        run_components,
+        arg_selected_component_type_check_only,
+    )
 
     for dataset_file in dataset_files:
         dataset = load_dataset_file(dataset_file)
