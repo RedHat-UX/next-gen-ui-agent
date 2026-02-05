@@ -21,7 +21,8 @@ def load_args():
     arg_selected_component_type_check_only = False
     arg_judge_enabled = False
     arg_select_only_from_enabled_components = False
-    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:jp")
+    arg_config_files = []
+    opts, args = getopt.getopt(sys.argv[1:], "hwvosc:f:jpa:")
     for opt, arg in opts:
         if opt == "-h":
             print("eval.py <arguments>")
@@ -31,6 +32,9 @@ def load_args():
             )
             print(
                 " -p - if present then UI Agent is configured to select only from components defined by '-c' argument, otherwise it selects from all supported components."
+            )
+            print(
+                " -a <config-file-path> - load UI Agent YAML configuration file(s), can be specified multiple times to load and merge multiple config files"
             )
             print(
                 " -f <dataset-file-name> - run only evaluations from the named dataset file"
@@ -66,6 +70,8 @@ def load_args():
             arg_judge_enabled = True
         elif opt in ("-p"):
             arg_select_only_from_enabled_components = True
+        elif opt in ("-a"):
+            arg_config_files.append(arg)
 
     if not arg_also_warn_only:
         print("Skipping `warn_only` dataset items ...")
@@ -81,6 +87,7 @@ def load_args():
         arg_selected_component_type_check_only,
         arg_judge_enabled,
         arg_select_only_from_enabled_components,
+        arg_config_files if arg_config_files else None,
     )
 
 
