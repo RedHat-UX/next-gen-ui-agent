@@ -268,6 +268,18 @@
           ],
           "default": null,
           "description": "List of components to select from for the input data of this type."
+        },
+        "prompt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/AgentConfigPromptBase"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional prompt configuration for this data type. Overrides global prompt settings from `AgentConfig.prompt`. All fields from `AgentConfigPromptBase` are available (system prompts, examples, chart instructions). Takes precedence over global configuration."
         }
       },
       "title": "AgentConfigDataType",
@@ -296,8 +308,104 @@
       "type": "object"
     },
     "AgentConfigPrompt": {
-      "description": "Prompt-related configuration for LLM interactions.",
+      "description": "Global prompt configuration for LLM interactions.\n\nInherits all base prompt fields and adds component-specific metadata overrides.",
       "properties": {
+        "system_prompt_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override the initial system prompt section for one-step strategy. Available components list and other dynamically generated parts are added after this section. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
+        },
+        "twostep_step1select_system_prompt_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override the initial system prompt section for two-step strategy step1 (component selection). Available components list and other dynamically generated parts are added after this section. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
+        },
+        "twostep_step2configure_system_prompt_start": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override the initial system prompt section for two-step strategy step2 (field configuration). MUST contain `{component}` placeholder which is replaced with the selected component name from step1. Other dynamically generated component parts are added after this section. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
+        },
+        "chart_instructions_template": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override the chart instructions template used in both strategies. Supports placeholders: {charts_description}, {charts_fields_spec}, {charts_rules}, {charts_inline_examples} which will be replaced with dynamically generated component-specific content. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
+        },
+        "examples_normalcomponents": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override normal component examples (table, cards, image) for one-step strategy. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
+        },
+        "examples_charts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart component examples for one-step strategy. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
+        },
+        "twostep_step1select_examples_normalcomponents": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override normal component examples (table, cards, image) for two-step strategy step1. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
+        },
+        "twostep_step1select_examples_charts": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Override chart component examples for two-step strategy step1. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
+        },
         "components": {
           "anyOf": [
             {
@@ -311,8 +419,15 @@
             }
           ],
           "default": null,
-          "description": "Component metadata overrides. Keys are component names (e.g., 'table', 'chart-bar'), values are field overrides. Component names must match those in CONFIG_OPTIONS_ALL_COMPONETS."
-        },
+          "description": "Component related prompt overrides. Keys are component names (e.g., 'table', 'chart-bar'), values are objects with prompt overrides for that component. Component names must match those in CONFIG_OPTIONS_ALL_COMPONETS."
+        }
+      },
+      "title": "AgentConfigPrompt",
+      "type": "object"
+    },
+    "AgentConfigPromptBase": {
+      "description": "Base prompt configuration (all prompt fields except components).\n\nUsed for data-type level prompt customization. Contains all prompt-related\nfields that can override global settings on a per-data-type basis.",
+      "properties": {
         "system_prompt_start": {
           "anyOf": [
             {
@@ -323,7 +438,7 @@
             }
           ],
           "default": null,
-          "description": "Override the initial system prompt section for one-step strategy. Available components list and other dynamically generated parts are added after this section. If not set, uses default hardcoded prompt."
+          "description": "Override the initial system prompt section for one-step strategy. Available components list and other dynamically generated parts are added after this section. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
         },
         "twostep_step1select_system_prompt_start": {
           "anyOf": [
@@ -335,7 +450,7 @@
             }
           ],
           "default": null,
-          "description": "Override the initial system prompt section for two-step strategy step1 (component selection). Available components list and other dynamically generated parts are added after this section. If not set, uses default hardcoded prompt."
+          "description": "Override the initial system prompt section for two-step strategy step1 (component selection). Available components list and other dynamically generated parts are added after this section. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
         },
         "twostep_step2configure_system_prompt_start": {
           "anyOf": [
@@ -347,7 +462,7 @@
             }
           ],
           "default": null,
-          "description": "Override the initial system prompt section for two-step strategy step2 (field configuration). MUST contain `{component}` placeholder which is replaced with the selected component name from step1. Other dynamically generated component parts are added after this section If not set, uses default hardcoded prompt."
+          "description": "Override the initial system prompt section for two-step strategy step2 (field configuration). MUST contain `{component}` placeholder which is replaced with the selected component name from step1. Other dynamically generated component parts are added after this section. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
         },
         "chart_instructions_template": {
           "anyOf": [
@@ -359,7 +474,7 @@
             }
           ],
           "default": null,
-          "description": "Override the chart instructions template used in both strategies. Supports placeholders: {charts_description}, {charts_fields_spec}, {charts_rules}, {charts_inline_examples} which will be replaced with dynamically generated component-specific content. If not set, uses default hardcoded template."
+          "description": "Override the chart instructions template used in both strategies. Supports placeholders: {charts_description}, {charts_fields_spec}, {charts_rules}, {charts_inline_examples} which will be replaced with dynamically generated component-specific content. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
         },
         "examples_normalcomponents": {
           "anyOf": [
@@ -371,7 +486,7 @@
             }
           ],
           "default": null,
-          "description": "Override normal component examples (table, cards, image) for one-step strategy. If not set, uses default hardcoded examples."
+          "description": "Override normal component examples (table, cards, image) for one-step strategy. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
         },
         "examples_charts": {
           "anyOf": [
@@ -383,7 +498,7 @@
             }
           ],
           "default": null,
-          "description": "Override chart component examples for one-step strategy. If not set, uses default hardcoded examples."
+          "description": "Override chart component examples for one-step strategy. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
         },
         "twostep_step1select_examples_normalcomponents": {
           "anyOf": [
@@ -395,7 +510,7 @@
             }
           ],
           "default": null,
-          "description": "Override normal component examples (table, cards, image) for two-step strategy step1. If not set, uses default hardcoded examples."
+          "description": "Override normal component examples (table, cards, image) for two-step strategy step1. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
         },
         "twostep_step1select_examples_charts": {
           "anyOf": [
@@ -407,10 +522,10 @@
             }
           ],
           "default": null,
-          "description": "Override chart component examples for two-step strategy step1. If not set, uses default hardcoded examples."
+          "description": "Override chart component examples for two-step strategy step1. Precedence order is 'per data_type' > 'global' > 'hardcoded default'."
         }
       },
-      "title": "AgentConfigPrompt",
+      "title": "AgentConfigPromptBase",
       "type": "object"
     },
     "AgentConfigPromptComponent": {

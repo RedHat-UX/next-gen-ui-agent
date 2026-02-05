@@ -11,6 +11,7 @@ from next_gen_ui_agent.component_selection_common import (
     build_components_description,
     build_twostep_step2configure_example,
     build_twostep_step2configure_rules,
+    get_prompt_field,
     has_chart_components,
     has_non_chart_components,
     normalize_allowed_components,
@@ -32,6 +33,91 @@ from next_gen_ui_agent.types import (
 from pydantic_core import from_json
 
 logger = logging.getLogger(__name__)
+
+
+# Default prompt templates for step 1 (component selection)
+DEFAULT_STEP1SELECT_SYSTEM_PROMPT_START = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
+
+RULES:
+- Generate JSON only
+- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS, unless data structure prevents it
+- Select one component into "component" field. It MUST BE named in the AVAILABLE UI COMPONENTS!
+- Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)
+
+AVAILABLE UI COMPONENTS:"""
+
+DEFAULT_STEP1SELECT_EXAMPLES_NORMALCOMPONENTS = """Response example for multi-item data when table is suitable:
+{
+    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
+    "confidenceScore": "95%",
+    "title": "Orders",
+    "component": "table"
+}
+
+Response example for one-item data when one-card is suitable:
+{
+    "reasonForTheComponentSelection": "One item available in the data. Multiple fields to show based on the User query",
+    "confidenceScore": "95%",
+    "title": "Order CA565",
+    "component": "one-card"
+}
+
+Response example for one-item data and image when image is suitable:
+{
+    "reasonForTheComponentSelection": "User asked to see the magazine cover",
+    "confidenceScore": "75%",
+    "title": "Magazine cover",
+    "component": "image"
+}"""
+
+DEFAULT_STEP1SELECT_EXAMPLES_CHARTS = """Response example for multi-item data when bar chart is suitable:
+{
+    "title": "Movie Revenue Comparison",
+    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
+    "confidenceScore": "90%",
+    "component": "chart-bar"
+}
+
+Response example for multi-item data when mirrored-bar chart is suitable (comparing 2 metrics):
+{
+    "title": "Movie ROI and Budget Comparison",
+    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
+    "confidenceScore": "90%",
+    "component": "chart-mirrored-bar"
+}"""
+
+# Default prompt template for step 2 (field configuration)
+DEFAULT_STEP2CONFIGURE_SYSTEM_PROMPT_START = """You are a UI design assistant. Select the best fields to display Data in the {component} component.
+
+RULES:
+- Generate JSON array of objects only
+- Each field must also have "reason" and "confidenceScore" (percentage)
+- Select relevant Data fields based on User query
+- Each field must have "name" and "data_path"
+- Do not use formatting or calculations in "data_path"
+
+JSONPATH REQUIREMENTS:
+- Analyze actual Data structure carefully
+- If fields are nested (e.g., items[*].movie.title), include full path
+- Do NOT skip intermediate objects
+- Use [*] for array access"""
+
+# User prompt template for step1select
+# Available placeholders: {user_prompt}, {json_data_for_llm}
+STEP1SELECT_USER_PROMPT_TEMPLATE = """=== User query ===
+{user_prompt}
+=== Data ===
+{json_data_for_llm}
+"""
+
+# User prompt template for step2configure
+# Available placeholders: {user_prompt}, {json_data_for_llm}
+STEP2CONFIGURE_USER_PROMPT_TEMPLATE = """=== User query ===
+{user_prompt}
+
+=== Data ===
+{json_data_for_llm}
+"""
 
 
 class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
@@ -84,18 +170,42 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         return self._step1select_system_prompt
 
     def _build_step1select_system_prompt(
-        self, allowed_components_config: set[str] | None, metadata: dict
+        self,
+        data_type: Optional[str] = None,
     ) -> str:
         """
-        Build complete step1select system prompt based on allowed components.
+        Build complete step1select system prompt based on data_type.
 
         Args:
-            allowed_components_config: Set of allowed component names, or None for all components
-            metadata: Component metadata dictionary to use
+            data_type: Optional data type for data-type-specific prompt customization
 
         Returns:
             Complete system prompt string for step1select
         """
+        # Determine allowed components and metadata based on data_type
+        if data_type and self.config.data_types and data_type in self.config.data_types:
+            # Extract component names from data_type configuration
+            components_list = self.config.data_types[data_type].components
+            if components_list:
+                allowed_components_config = {comp.component for comp in components_list}
+
+                # Merge per-component prompt overrides
+                metadata = merge_per_component_prompt_overrides(
+                    self._base_metadata, components_list
+                )
+            else:
+                allowed_components_config = set(self._base_metadata.keys())
+                metadata = self._base_metadata
+        else:
+            # Global selection - use selectable_components
+            allowed_components_config = (
+                set(self.config.selectable_components)
+                if self.config.selectable_components
+                else set(self._base_metadata.keys())
+            )
+            # Use base metadata for global selection
+            metadata = self._base_metadata
+
         allowed_components = normalize_allowed_components(
             allowed_components_config, metadata
         )
@@ -108,33 +218,21 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         # Detect chart components in allowed set
         allowed_charts = allowed_components & CHART_COMPONENTS
 
-        # Get chart instructions template from config
-        chart_template = (
-            self.config.prompt.chart_instructions_template
-            if self.config.prompt
-            else None
+        # Get chart instructions template from config with precedence: data_type > global > default
+        chart_template = get_prompt_field(
+            "chart_instructions_template", self.config, data_type, ""
         )
         chart_instructions = build_chart_instructions(
             allowed_charts, metadata, chart_template
         )
 
-        # Check for custom initial prompt
-        if (
-            self.config.prompt
-            and self.config.prompt.twostep_step1select_system_prompt_start
-        ):
-            initial_section = self.config.prompt.twostep_step1select_system_prompt_start
-        else:
-            # Default hardcoded initial section
-            initial_section = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
-
-RULES:
-- Generate JSON only
-- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS, unless data structure prevents it
-- Select one component into "component" field. It MUST BE named in the AVAILABLE UI COMPONENTS!
-- Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)
-
-AVAILABLE UI COMPONENTS:"""
+        # Get initial prompt with precedence: data_type > global > default
+        initial_section = get_prompt_field(
+            "twostep_step1select_system_prompt_start",
+            self.config,
+            data_type,
+            DEFAULT_STEP1SELECT_SYSTEM_PROMPT_START,
+        )
 
         # Build the complete system prompt
         system_prompt = f"""{initial_section}
@@ -143,7 +241,9 @@ AVAILABLE UI COMPONENTS:"""
 {chart_instructions}"""
 
         # Get filtered examples
-        response_examples = self._build_step1select_examples(allowed_components)
+        response_examples = self._build_step1select_examples(
+            allowed_components, data_type
+        )
 
         # Add examples if available
         if response_examples:
@@ -153,12 +253,15 @@ AVAILABLE UI COMPONENTS:"""
 
         return system_prompt
 
-    def _build_step1select_examples(self, allowed_components: set[str]) -> str:
+    def _build_step1select_examples(
+        self, allowed_components: set[str], data_type: Optional[str] = None
+    ) -> str:
         """
         Build examples section for two-step step1 (component selection) system prompt.
 
         Args:
             allowed_components: Set of allowed component names
+            data_type: Optional data type for data-type-specific prompt customization
 
         Returns:
             Formatted string with examples
@@ -167,84 +270,48 @@ AVAILABLE UI COMPONENTS:"""
         examples = []
 
         normalcomponents_examples = self._build_step1select_normalcomponents_examples(
-            allowed_components
+            allowed_components, data_type
         )
         if normalcomponents_examples:
             examples.append(normalcomponents_examples)
 
-        chart_examples = self._build_step1select_chart_examples(allowed_components)
+        chart_examples = self._build_step1select_chart_examples(
+            allowed_components, data_type
+        )
         if chart_examples:
             examples.append(chart_examples)
 
         return "\n\n".join(examples)
 
     def _build_step1select_normalcomponents_examples(
-        self, allowed_components: set[str]
+        self, allowed_components: set[str], data_type: Optional[str] = None
     ) -> str:
         """Build normal component examples for step1."""
         if not has_non_chart_components(allowed_components):
             return ""
 
-        # Check for custom template
-        if (
-            self.config.prompt
-            and self.config.prompt.twostep_step1select_examples_normalcomponents
-        ):
-            return self.config.prompt.twostep_step1select_examples_normalcomponents
+        # Get template with precedence: data_type > global > default
+        return get_prompt_field(
+            "twostep_step1select_examples_normalcomponents",
+            self.config,
+            data_type,
+            DEFAULT_STEP1SELECT_EXAMPLES_NORMALCOMPONENTS,
+        )
 
-        # Default hardcoded examples (matching current build_twostep_step1select_examples)
-        return """Response example for multi-item data when table is suitable:
-{
-    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
-    "confidenceScore": "95%",
-    "title": "Orders",
-    "component": "table"
-}
-
-Response example for one-item data when one-card is suitable:
-{
-    "reasonForTheComponentSelection": "One item available in the data. Multiple fields to show based on the User query",
-    "confidenceScore": "95%",
-    "title": "Order CA565",
-    "component": "one-card"
-}
-
-Response example for one-item data and image when image is suitable:
-{
-    "reasonForTheComponentSelection": "User asked to see the magazine cover",
-    "confidenceScore": "75%",
-    "title": "Magazine cover",
-    "component": "image"
-}"""
-
-    def _build_step1select_chart_examples(self, allowed_components: set[str]) -> str:
+    def _build_step1select_chart_examples(
+        self, allowed_components: set[str], data_type: Optional[str] = None
+    ) -> str:
         """Build chart component examples for step1."""
         if not has_chart_components(allowed_components):
             return ""
 
-        # Check for custom template
-        if (
-            self.config.prompt
-            and self.config.prompt.twostep_step1select_examples_charts
-        ):
-            return self.config.prompt.twostep_step1select_examples_charts
-
-        # Default hardcoded examples
-        return """Response example for multi-item data when bar chart is suitable:
-{
-    "title": "Movie Revenue Comparison",
-    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
-    "confidenceScore": "90%",
-    "component": "chart-bar"
-}
-
-Response example for multi-item data when mirrored-bar chart is suitable (comparing 2 metrics):
-{
-    "title": "Movie ROI and Budget Comparison",
-    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
-    "confidenceScore": "90%",
-    "component": "chart-mirrored-bar"
-}"""
+        # Get template with precedence: data_type > global > default
+        return get_prompt_field(
+            "twostep_step1select_examples_charts",
+            self.config,
+            data_type,
+            DEFAULT_STEP1SELECT_EXAMPLES_CHARTS,
+        )
 
     def _get_or_build_step1select_system_prompt(self, data_type: str | None) -> str:
         """
@@ -261,41 +328,9 @@ Response example for multi-item data when mirrored-bar chart is suitable (compar
 
         # Check cache
         if cache_key not in self._system_prompt_step1select_cache:
-            # Determine allowed components and metadata based on data_type
-            if (
-                data_type
-                and self.config.data_types
-                and data_type in self.config.data_types
-            ):
-                # Extract component names from data_type configuration
-                components_list = self.config.data_types[data_type].components
-                if components_list:
-                    allowed_components_set = {
-                        comp.component for comp in components_list
-                    }
-
-                    # Merge per-component prompt overrides
-                    merged_metadata = merge_per_component_prompt_overrides(
-                        self._base_metadata, components_list
-                    )
-                else:
-                    allowed_components_set = set(self._base_metadata.keys())
-                    merged_metadata = self._base_metadata
-            else:
-                # Global selection - use selectable_components
-                allowed_components_set = (
-                    set(self.config.selectable_components)
-                    if self.config.selectable_components
-                    else set(self._base_metadata.keys())
-                )
-                # Use base metadata for global selection
-                merged_metadata = self._base_metadata
-
-            # Build and cache
+            # Build and cache (data_type-specific logic is inside _build_step1select_system_prompt)
             self._system_prompt_step1select_cache[cache_key] = (
-                self._build_step1select_system_prompt(
-                    allowed_components_set, merged_metadata
-                )
+                self._build_step1select_system_prompt(data_type)
             )
 
         return self._system_prompt_step1select_cache[cache_key]
@@ -429,6 +464,7 @@ Response example for multi-item data when mirrored-bar chart is suitable (compar
             data_for_llm,
             llm_interactions,
             metadata_for_step2configure,
+            data_type,
         )
         response_2 = trim_to_json(raw_response_2)
 
@@ -457,11 +493,9 @@ Response example for multi-item data when mirrored-bar chart is suitable (compar
         # Get or build cached system prompt using data_type
         sys_msg_content = self._get_or_build_step1select_system_prompt(data_type)
 
-        prompt = f"""=== User query ===
-{user_prompt}
-=== Data ===
-{json_data_for_llm}
-"""
+        prompt = STEP1SELECT_USER_PROMPT_TEMPLATE.format(
+            user_prompt=user_prompt, json_data_for_llm=json_data_for_llm
+        )
 
         logger.debug("LLM component selection system message:\n%s", sys_msg_content)
         logger.debug("LLM component selection prompt:\n%s", prompt)
@@ -489,39 +523,33 @@ Response example for multi-item data when mirrored-bar chart is suitable (compar
         json_data_for_llm: str,
         llm_interactions: list[LLMInteraction],
         metadata: dict,
+        data_type: Optional[str] = None,
     ):
-        """Run Component Configuration inference (step2configure)."""
+        """Run Component Configuration inference (step2configure).
+
+        Args:
+            inference: Inference to use to call LLM
+            component_selection_response: Response from step1select containing selected component
+            user_prompt: User prompt to be processed
+            json_data_for_llm: JSON data as string for LLM
+            llm_interactions: List to store LLM interactions for debugging
+            metadata: Component metadata dictionary to use
+            data_type: Optional data type for data-type-specific prompt customization
+        """
         component = from_json(component_selection_response, allow_partial=True)[
             "component"
         ]
 
-        # Check for custom initial prompt
-        if (
-            self.config.prompt
-            and self.config.prompt.twostep_step2configure_system_prompt_start
-        ):
-            # Use custom prompt and substitute {component} placeholder
-            initial_section = (
-                self.config.prompt.twostep_step2configure_system_prompt_start.format(
-                    component=component
-                )
-            )
-        else:
-            # Default hardcoded initial section
-            initial_section = f"""You are a UI design assistant. Select the best fields to display Data in the {component} component.
+        # Get initial prompt with precedence: data_type > global > default
+        initial_section_template = get_prompt_field(
+            "twostep_step2configure_system_prompt_start",
+            self.config,
+            data_type,
+            DEFAULT_STEP2CONFIGURE_SYSTEM_PROMPT_START,
+        )
 
-RULES:
-- Generate JSON array of objects only
-- Each field must also have "reason" and "confidenceScore" (percentage)
-- Select relevant Data fields based on User query
-- Each field must have "name" and "data_path"
-- Do not use formatting or calculations in "data_path"
-
-JSONPATH REQUIREMENTS:
-- Analyze actual Data structure carefully
-- If fields are nested (e.g., items[*].movie.title), include full path
-- Do NOT skip intermediate objects
-- Use [*] for array access"""
+        # Substitute {component} placeholder if present
+        initial_section = initial_section_template.format(component=component)
 
         sys_msg_content = f"""{initial_section}
 
@@ -530,12 +558,9 @@ JSONPATH REQUIREMENTS:
 {build_twostep_step2configure_example(component, metadata)}
 """
 
-        prompt = f"""=== User query ===
-{user_prompt}
-
-=== Data ===
-{json_data_for_llm}
-"""
+        prompt = STEP2CONFIGURE_USER_PROMPT_TEMPLATE.format(
+            user_prompt=user_prompt, json_data_for_llm=json_data_for_llm
+        )
 
         logger.debug("LLM component configuration system message:\n%s", sys_msg_content)
         logger.debug("LLM component configuration prompt:\n%s", prompt)

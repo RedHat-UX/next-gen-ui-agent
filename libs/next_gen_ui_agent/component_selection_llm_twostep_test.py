@@ -15,9 +15,7 @@ class TestBuildStep1selectSystemPrompt:
         """Test that all components are included when selectable_components is None."""
         config = AgentConfig(selectable_components=None)
         strategy = TwostepLLMCallComponentSelectionStrategy(config)
-        prompt = strategy._build_step1select_system_prompt(
-            None, strategy._base_metadata
-        )
+        prompt = strategy._get_or_build_step1select_system_prompt(None)
 
         # Should include all components
         for component in COMPONENT_METADATA.keys():
@@ -34,9 +32,7 @@ class TestBuildStep1selectSystemPrompt:
         basic_components = {"one-card", "table", "set-of-cards"}
         config = AgentConfig(selectable_components=basic_components)
         strategy = TwostepLLMCallComponentSelectionStrategy(config)
-        prompt = strategy._build_step1select_system_prompt(
-            basic_components, strategy._base_metadata
-        )
+        prompt = strategy._get_or_build_step1select_system_prompt(None)
 
         # Should include selected basic components
         assert "one-card" in prompt
@@ -58,9 +54,7 @@ class TestBuildStep1selectSystemPrompt:
         components_with_charts = {"table", "chart-bar", "chart-line"}
         config = AgentConfig(selectable_components=components_with_charts)
         strategy = TwostepLLMCallComponentSelectionStrategy(config)
-        prompt = strategy._build_step1select_system_prompt(
-            components_with_charts, strategy._base_metadata
-        )
+        prompt = strategy._get_or_build_step1select_system_prompt(None)
 
         # Should include selected components
         assert "table" in prompt
@@ -110,8 +104,12 @@ class TestBuildStep1selectSystemPrompt:
         assert "CUSTOM_BAR_CHART_DESCRIPTION for twostep testing" in prompt
 
         # Verify original descriptions are NOT in the prompt
-        assert COMPONENT_METADATA["table"]["description"] not in prompt
-        assert COMPONENT_METADATA["chart-bar"]["chart_description"] not in prompt
+        assert (
+            COMPONENT_METADATA["table"].description or ""
+        ) not in prompt or COMPONENT_METADATA["table"].description is None
+        assert (
+            COMPONENT_METADATA["chart-bar"].chart_description or ""
+        ) not in prompt or COMPONENT_METADATA["chart-bar"].chart_description is None
 
 
 class TestSystemPromptCachingTwostep:

@@ -42,9 +42,11 @@ class TestComponentMetadata:
         for component, metadata in COMPONENT_METADATA.items():
             for field in required_fields:
                 assert (
-                    field in metadata
+                    hasattr(metadata, field) and getattr(metadata, field) is not None
                 ), f"Component {component} missing required field {field}"
-                assert metadata[field], f"Component {component} has empty {field}"
+                assert getattr(
+                    metadata, field
+                ), f"Component {component} has empty {field}"
 
     def test_chart_components_have_chart_fields(self):
         """Test that chart components have chart-specific fields."""
@@ -57,8 +59,8 @@ class TestComponentMetadata:
 
         for chart_comp in CHART_COMPONENTS:
             for field in chart_specific_fields:
-                assert (
-                    field in COMPONENT_METADATA[chart_comp]
+                assert hasattr(
+                    COMPONENT_METADATA[chart_comp], field
                 ), f"Chart component {chart_comp} missing {field}"
 
     def test_non_chart_components_no_chart_fields(self):

@@ -9,6 +9,7 @@ from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
     build_chart_instructions,
     build_components_description,
+    get_prompt_field,
     has_chart_components,
     has_non_chart_components,
     normalize_allowed_components,
@@ -25,6 +26,85 @@ from next_gen_ui_agent.types import AgentConfig, UIComponentMetadata
 from pydantic_core import from_json
 
 logger = logging.getLogger(__name__)
+
+
+# Default prompt templates
+DEFAULT_SYSTEM_PROMPT_START = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
+
+RULES:
+- Generate JSON only
+- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS, unless data structure prevents it
+- Select one component into "component" field. It MUST BE named in the AVAILABLE UI COMPONENTS!
+- Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)
+- Select relevant Data fields based on User query
+- Each field must have "name" and "data_path"
+- Do not use formatting or calculations in "data_path"
+
+JSONPATH REQUIREMENTS:
+- Analyze actual Data structure carefully
+- If fields are nested (e.g., items[*].movie.title), include full path
+- Do NOT skip intermediate objects
+- Use [*] for array access
+
+AVAILABLE UI COMPONENTS:"""
+
+DEFAULT_EXAMPLES_NORMALCOMPONENTS = """Response example for multi-item data when table is suitable:
+{
+    "title": "Orders",
+    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
+    "confidenceScore": "95%",
+    "component": "table",
+    "fields" : [
+        {"name":"Name","data_path":"orders[*].name"},
+        {"name":"Creation Date","data_path":"orders[*].creationDate"}
+    ]
+}
+
+Response example for one-item data when one-card is suitable:
+{
+    "title": "Order CA565",
+    "reasonForTheComponentSelection": "One item available in the data",
+    "confidenceScore": "75%",
+    "component": "one-card",
+    "fields" : [
+        {"name":"Name","data_path":"order.name"},
+        {"name":"Creation Date","data_path":"order.creationDate"}
+    ]
+}"""
+
+DEFAULT_EXAMPLES_CHARTS = """Response example for multi-item data when bar chart is suitable:
+{
+    "title": "Movie Revenue Comparison",
+    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
+    "confidenceScore": "90%",
+    "component": "chart-bar",
+    "fields" : [
+        {"name":"Movie","data_path":"movies[*].title"},
+        {"name":"Revenue","data_path":"movies[*].revenue"}
+    ]
+}
+
+Response example for multi-item data when mirrored-bar chart is suitable (comparing 2 metrics, note nested structure):
+{
+    "title": "Movie ROI and Budget Comparison",
+    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
+    "confidenceScore": "90%",
+    "component": "chart-mirrored-bar",
+    "fields" : [
+        {"name":"Movie","data_path":"get_all_movies[*].movie.title"},
+        {"name":"ROI","data_path":"get_all_movies[*].movie.roi"},
+        {"name":"Budget","data_path":"get_all_movies[*].movie.budget"}
+    ]
+}"""
+
+# User prompt template for inference
+# Available placeholders: {user_prompt}, {json_data}
+USER_PROMPT_TEMPLATE = """=== User query ===
+    {user_prompt}
+
+    === Data ===
+    {json_data}
+        """
 
 
 class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
@@ -61,18 +141,41 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         return self._system_prompt
 
     def _build_system_prompt(
-        self, allowed_components_config: set[str] | None, metadata: dict
+        self,
+        data_type: Optional[str] = None,
     ) -> str:
         """
-        Build complete system prompt based on allowed components.
+        Build complete system prompt based on data_type.
 
         Args:
-            allowed_components_config: Set of allowed component names, or None for all components
-            metadata: Component metadata dictionary to use
+            data_type: Optional data type for data-type-specific prompt customization
 
         Returns:
             Complete system prompt string
         """
+        # Determine allowed components and metadata based on data_type
+        if data_type and self.config.data_types and data_type in self.config.data_types:
+            # Extract component names from data_type configuration
+            components_list = self.config.data_types[data_type].components
+            if components_list:
+                allowed_components_config = {comp.component for comp in components_list}
+
+                # Merge per-component prompt overrides
+                metadata = merge_per_component_prompt_overrides(
+                    self._base_metadata, components_list
+                )
+            else:
+                allowed_components_config = set(self._base_metadata.keys())
+                metadata = self._base_metadata
+        else:
+            # Global selection - use selectable_components
+            allowed_components_config = (
+                set(self.config.selectable_components)
+                if self.config.selectable_components
+                else set(self._base_metadata.keys())
+            )
+            # Use base metadata for global selection
+            metadata = self._base_metadata
 
         allowed_components = normalize_allowed_components(
             allowed_components_config, metadata
@@ -86,39 +189,18 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         # Detect chart components in allowed set
         allowed_charts = allowed_components & CHART_COMPONENTS
 
-        # Get chart instructions template from config
-        chart_template = (
-            self.config.prompt.chart_instructions_template
-            if self.config.prompt
-            else None
+        # Get chart instructions template from config with precedence: data_type > global > default
+        chart_template = get_prompt_field(
+            "chart_instructions_template", self.config, data_type, ""
         )
         chart_instructions = build_chart_instructions(
             allowed_charts, metadata, chart_template
         )
 
-        # Check for custom initial prompt
-        if self.config.prompt and self.config.prompt.system_prompt_start:
-            initial_section = self.config.prompt.system_prompt_start
-        else:
-            # Default hardcoded initial section
-            initial_section = """You are a UI design assistant. Select the best UI component to visualize the Data based on User query.
-
-RULES:
-- Generate JSON only
-- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS, unless data structure prevents it
-- Select one component into "component" field. It MUST BE named in the AVAILABLE UI COMPONENTS!
-- Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)
-- Select relevant Data fields based on User query
-- Each field must have "name" and "data_path"
-- Do not use formatting or calculations in "data_path"
-
-JSONPATH REQUIREMENTS:
-- Analyze actual Data structure carefully
-- If fields are nested (e.g., items[*].movie.title), include full path
-- Do NOT skip intermediate objects
-- Use [*] for array access
-
-AVAILABLE UI COMPONENTS:"""
+        # Get initial prompt with precedence: data_type > global > default
+        initial_section = get_prompt_field(
+            "system_prompt_start", self.config, data_type, DEFAULT_SYSTEM_PROMPT_START
+        )
 
         # Build the complete system prompt with initial section + generated parts
         system_prompt = f"""{initial_section}
@@ -127,7 +209,7 @@ AVAILABLE UI COMPONENTS:"""
 {chart_instructions}"""
 
         # Get filtered examples
-        response_examples = self._build_examples(allowed_components)
+        response_examples = self._build_examples(allowed_components, data_type)
 
         # Add examples if available
         if response_examples:
@@ -137,12 +219,15 @@ AVAILABLE UI COMPONENTS:"""
 
         return system_prompt
 
-    def _build_examples(self, allowed_components: set[str]) -> str:
+    def _build_examples(
+        self, allowed_components: set[str], data_type: Optional[str] = None
+    ) -> str:
         """
         Build examples section for one-step strategy system prompt.
 
         Args:
             allowed_components: Set of allowed component names
+            data_type: Optional data type for data-type-specific prompt customization
 
         Returns:
             Formatted string with examples
@@ -151,85 +236,43 @@ AVAILABLE UI COMPONENTS:"""
         examples = []
 
         normalcomponents_examples = self._build_normalcomponents_examples(
-            allowed_components
+            allowed_components, data_type
         )
         if normalcomponents_examples:
             examples.append(normalcomponents_examples)
 
-        chart_examples = self._build_chart_examples(allowed_components)
+        chart_examples = self._build_chart_examples(allowed_components, data_type)
         if chart_examples:
             examples.append(chart_examples)
 
         return "\n\n".join(examples)
 
-    def _build_normalcomponents_examples(self, allowed_components: set[str]) -> str:
+    def _build_normalcomponents_examples(
+        self, allowed_components: set[str], data_type: Optional[str] = None
+    ) -> str:
         """Build normal component examples (table, cards, image)."""
         if not has_non_chart_components(allowed_components):
             return ""
 
-        # Check for custom template
-        if self.config.prompt and self.config.prompt.examples_normalcomponents:
-            return self.config.prompt.examples_normalcomponents
+        # Get template with precedence: data_type > global > default
+        return get_prompt_field(
+            "examples_normalcomponents",
+            self.config,
+            data_type,
+            DEFAULT_EXAMPLES_NORMALCOMPONENTS,
+        )
 
-        # Default hardcoded examples
-        return """Response example for multi-item data when table is suitable:
-{
-    "title": "Orders",
-    "reasonForTheComponentSelection": "User explicitly requested a table, and data has multiple items with short field values",
-    "confidenceScore": "95%",
-    "component": "table",
-    "fields" : [
-        {"name":"Name","data_path":"orders[*].name"},
-        {"name":"Creation Date","data_path":"orders[*].creationDate"}
-    ]
-}
-
-Response example for one-item data when one-card is suitable:
-{
-    "title": "Order CA565",
-    "reasonForTheComponentSelection": "One item available in the data",
-    "confidenceScore": "75%",
-    "component": "one-card",
-    "fields" : [
-        {"name":"Name","data_path":"order.name"},
-        {"name":"Creation Date","data_path":"order.creationDate"}
-    ]
-}"""
-
-    def _build_chart_examples(self, allowed_components: set[str]) -> str:
+    def _build_chart_examples(
+        self, allowed_components: set[str], data_type: Optional[str] = None
+    ) -> str:
         """Build chart component examples."""
         if not has_chart_components(allowed_components):
             return ""
 
-        # Check for custom template
-        if self.config.prompt and self.config.prompt.examples_charts:
-            return self.config.prompt.examples_charts
-
-        # Default hardcoded examples
-        return """Response example for multi-item data when bar chart is suitable:
-{
-    "title": "Movie Revenue Comparison",
-    "reasonForTheComponentSelection": "User wants to compare numeric values as a chart",
-    "confidenceScore": "90%",
-    "component": "chart-bar",
-    "fields" : [
-        {"name":"Movie","data_path":"movies[*].title"},
-        {"name":"Revenue","data_path":"movies[*].revenue"}
-    ]
-}
-
-Response example for multi-item data when mirrored-bar chart is suitable (comparing 2 metrics, note nested structure):
-{
-    "title": "Movie ROI and Budget Comparison",
-    "reasonForTheComponentSelection": "User wants to compare two metrics (ROI and budget) across movies, which requires a mirrored-bar chart to handle different scales",
-    "confidenceScore": "90%",
-    "component": "chart-mirrored-bar",
-    "fields" : [
-        {"name":"Movie","data_path":"get_all_movies[*].movie.title"},
-        {"name":"ROI","data_path":"get_all_movies[*].movie.roi"},
-        {"name":"Budget","data_path":"get_all_movies[*].movie.budget"}
-    ]
-}"""
+        # Get template with precedence: data_type > global > default
+        return get_prompt_field(
+            "examples_charts", self.config, data_type, DEFAULT_EXAMPLES_CHARTS
+        )
 
     def _get_or_build_system_prompt(self, data_type: str | None) -> str:
         """
@@ -246,40 +289,8 @@ Response example for multi-item data when mirrored-bar chart is suitable (compar
 
         # Check cache
         if cache_key not in self._system_prompt_cache:
-            # Determine allowed components and metadata based on data_type
-            if (
-                data_type
-                and self.config.data_types
-                and data_type in self.config.data_types
-            ):
-                # Extract component names from data_type configuration
-                components_list = self.config.data_types[data_type].components
-                if components_list:
-                    allowed_components_set = {
-                        comp.component for comp in components_list
-                    }
-
-                    # Merge per-component prompt overrides
-                    merged_metadata = merge_per_component_prompt_overrides(
-                        self._base_metadata, components_list
-                    )
-                else:
-                    allowed_components_set = set(self._base_metadata.keys())
-                    merged_metadata = self._base_metadata
-            else:
-                # Global selection - use selectable_components
-                allowed_components_set = (
-                    set(self.config.selectable_components)
-                    if self.config.selectable_components
-                    else set(self._base_metadata.keys())
-                )
-                # Use base metadata for global selection
-                merged_metadata = self._base_metadata
-
-            # Build and cache
-            self._system_prompt_cache[cache_key] = self._build_system_prompt(
-                allowed_components_set, merged_metadata
-            )
+            # Build and cache (data_type-specific logic is inside _build_system_prompt)
+            self._system_prompt_cache[cache_key] = self._build_system_prompt(data_type)
 
         return self._system_prompt_cache[cache_key]
 
@@ -313,12 +324,9 @@ Response example for multi-item data when mirrored-bar chart is suitable (compar
         # Get or build cached system prompt using data_type
         sys_msg_content = self._get_or_build_system_prompt(data_type)
 
-        prompt = f"""=== User query ===
-    {user_prompt}
-
-    === Data ===
-    {str(json_data)}
-        """
+        prompt = USER_PROMPT_TEMPLATE.format(
+            user_prompt=user_prompt, json_data=str(json_data)
+        )
 
         logger.debug("LLM system message:\n%s", sys_msg_content)
         logger.debug("LLM prompt:\n%s", prompt)

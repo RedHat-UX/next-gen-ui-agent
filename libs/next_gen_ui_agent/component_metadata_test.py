@@ -90,19 +90,19 @@ def test_merge_component_metadata_single_field():
     merged = merge_component_metadata(base, overrides)
 
     # Check that override was applied
-    assert merged["table"]["description"] == "Custom table description"
+    assert merged["table"].description == "Custom table description"
 
     # Check that other fields remain unchanged
     assert (
-        merged["table"]["twostep_step2configure_example"]
-        == base["table"]["twostep_step2configure_example"]
+        merged["table"].twostep_step2configure_example
+        == base["table"].twostep_step2configure_example
     )
 
     # Check that other components remain unchanged
     assert merged["one-card"] == base["one-card"]
 
     # Ensure base was not modified
-    assert base["table"]["description"] != "Custom table description"
+    assert base["table"].description != "Custom table description"
 
 
 def test_merge_component_metadata_multiple_components():
@@ -119,15 +119,12 @@ def test_merge_component_metadata_multiple_components():
     merged = merge_component_metadata(base, overrides)
 
     # Check both overrides were applied
-    assert merged["table"]["description"] == "Custom table description"
-    assert merged["chart-bar"]["chart_description"] == "Custom bar chart"
-    assert merged["chart-bar"]["chart_rules"] == "Custom rules"
+    assert merged["table"].description == "Custom table description"
+    assert merged["chart-bar"].chart_description == "Custom bar chart"
+    assert merged["chart-bar"].chart_rules == "Custom rules"
 
     # Check unmodified fields remain
-    assert (
-        merged["chart-bar"]["chart_fields_spec"]
-        == base["chart-bar"]["chart_fields_spec"]
-    )
+    assert merged["chart-bar"].chart_fields_spec == base["chart-bar"].chart_fields_spec
 
 
 def test_merge_component_metadata_partial_override():
@@ -138,18 +135,17 @@ def test_merge_component_metadata_partial_override():
     merged = merge_component_metadata(base, overrides)
 
     # Only one field should be overridden
-    assert merged["chart-line"]["chart_description"] == "Custom line chart"
+    assert merged["chart-line"].chart_description == "Custom line chart"
 
     # All other fields should remain unchanged
-    assert merged["chart-line"]["description"] == base["chart-line"]["description"]
+    assert merged["chart-line"].description == base["chart-line"].description
     assert (
-        merged["chart-line"]["chart_fields_spec"]
-        == base["chart-line"]["chart_fields_spec"]
+        merged["chart-line"].chart_fields_spec == base["chart-line"].chart_fields_spec
     )
-    assert merged["chart-line"]["chart_rules"] == base["chart-line"]["chart_rules"]
+    assert merged["chart-line"].chart_rules == base["chart-line"].chart_rules
     assert (
-        merged["chart-line"]["chart_inline_examples"]
-        == base["chart-line"]["chart_inline_examples"]
+        merged["chart-line"].chart_inline_examples
+        == base["chart-line"].chart_inline_examples
     )
 
 
@@ -166,12 +162,12 @@ def test_merge_component_metadata_none_values_ignored():
     merged = merge_component_metadata(base, overrides)
 
     # Non-None override should be applied
-    assert merged["table"]["description"] == "Custom description"
+    assert merged["table"].description == "Custom description"
 
     # None override should be ignored, keeping base value
     assert (
-        merged["table"]["twostep_step2configure_example"]
-        == base["table"]["twostep_step2configure_example"]
+        merged["table"].twostep_step2configure_example
+        == base["table"].twostep_step2configure_example
     )
 
 
@@ -221,13 +217,13 @@ def test_get_component_metadata_with_valid_overrides():
     metadata = get_component_metadata(config)
 
     # Check overrides were applied
-    assert metadata["table"]["description"] == "Custom table description"
-    assert metadata["table"]["twostep_step2configure_rules"] == "Custom rules"
+    assert metadata["table"].description == "Custom table description"
+    assert metadata["table"].twostep_step2configure_rules == "Custom rules"
 
     # Check other fields remain
     assert (
-        metadata["table"]["twostep_step2configure_example"]
-        == COMPONENT_METADATA["table"]["twostep_step2configure_example"]
+        metadata["table"].twostep_step2configure_example
+        == COMPONENT_METADATA["table"].twostep_step2configure_example
     )
 
 
@@ -282,11 +278,11 @@ def test_get_component_metadata_chart_components():
     metadata = get_component_metadata(config)
 
     # Check all overrides were applied
-    assert metadata["chart-bar"]["description"] == "Custom bar chart description"
-    assert metadata["chart-bar"]["chart_description"] == "Custom chart type description"
-    assert metadata["chart-bar"]["chart_fields_spec"] == "Custom fields spec"
-    assert metadata["chart-bar"]["chart_rules"] == "Custom rules"
-    assert metadata["chart-bar"]["chart_inline_examples"] == "Custom examples"
+    assert metadata["chart-bar"].description == "Custom bar chart description"
+    assert metadata["chart-bar"].chart_description == "Custom chart type description"
+    assert metadata["chart-bar"].chart_fields_spec == "Custom fields spec"
+    assert metadata["chart-bar"].chart_rules == "Custom rules"
+    assert metadata["chart-bar"].chart_inline_examples == "Custom examples"
 
 
 def test_get_component_metadata_multiple_components():
@@ -306,9 +302,9 @@ def test_get_component_metadata_multiple_components():
     metadata = get_component_metadata(config)
 
     # Check all overrides were applied
-    assert metadata["table"]["description"] == "Custom table"
-    assert metadata["chart-bar"]["chart_description"] == "Custom bar"
-    assert metadata["one-card"]["twostep_step2configure_rules"] == "Custom card rules"
+    assert metadata["table"].description == "Custom table"
+    assert metadata["chart-bar"].chart_description == "Custom bar"
+    assert metadata["one-card"].twostep_step2configure_rules == "Custom card rules"
 
     # Check unmodified components remain unchanged
     assert metadata["image"] == COMPONENT_METADATA["image"]
@@ -329,18 +325,16 @@ def test_merge_per_component_prompt_overrides_single_component():
     merged = merge_per_component_prompt_overrides(base, components_list)
 
     # Check that override was applied
-    assert (
-        merged["table"]["description"] == "Custom table description for this data_type"
-    )
+    assert merged["table"].description == "Custom table description for this data_type"
 
     # Check that other fields remain unchanged
     assert (
-        merged["table"]["twostep_step2configure_example"]
-        == base["table"]["twostep_step2configure_example"]
+        merged["table"].twostep_step2configure_example
+        == base["table"].twostep_step2configure_example
     )
 
     # Ensure base was not modified
-    assert base["table"]["description"] != "Custom table description for this data_type"
+    assert base["table"].description != "Custom table description for this data_type"
 
 
 def test_merge_per_component_prompt_overrides_multiple_components():
@@ -365,15 +359,12 @@ def test_merge_per_component_prompt_overrides_multiple_components():
     merged = merge_per_component_prompt_overrides(base, components_list)
 
     # Check both overrides were applied
-    assert merged["table"]["description"] == "Custom table"
-    assert merged["table"]["twostep_step2configure_rules"] == "Custom rules"
-    assert merged["chart-bar"]["chart_description"] == "Custom bar chart"
+    assert merged["table"].description == "Custom table"
+    assert merged["table"].twostep_step2configure_rules == "Custom rules"
+    assert merged["chart-bar"].chart_description == "Custom bar chart"
 
     # Check unmodified fields remain
-    assert (
-        merged["chart-bar"]["chart_fields_spec"]
-        == base["chart-bar"]["chart_fields_spec"]
-    )
+    assert merged["chart-bar"].chart_fields_spec == base["chart-bar"].chart_fields_spec
 
 
 def test_merge_per_component_prompt_overrides_no_prompt():
@@ -412,7 +403,7 @@ def test_merge_per_component_prompt_overrides_precedence():
     merged = merge_per_component_prompt_overrides(base_with_global, components_list)
 
     # Per-component should override global
-    assert merged["table"]["description"] == "Per-component table description"
+    assert merged["table"].description == "Per-component table description"
 
 
 def test_merge_per_component_prompt_overrides_hbc_with_all_fields():
