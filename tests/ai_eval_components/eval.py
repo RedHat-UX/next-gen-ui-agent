@@ -73,9 +73,6 @@ from next_gen_ui_llama_stack_embedded import init_inference_from_env
 # allows to print system error traces to the stderr
 PRINT_SYS_ERR_TRACE = True
 
-TWO_STEP_COMPONENT_SELECTION = False
-""" Allows to switch between one and two step (LLM inference calls) component selection process """
-
 INFERENCE_MODEL_DEFAULT = "granite3.3:2b"
 
 # Ollama models:
