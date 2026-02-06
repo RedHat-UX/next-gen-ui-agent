@@ -4,9 +4,22 @@ from abc import ABC, abstractmethod
 from typing import Any, Optional, TypedDict
 
 from next_gen_ui_agent.array_field_reducer import reduce_arrays
+from next_gen_ui_agent.component_metadata import (
+    get_component_metadata,
+    merge_per_component_prompt_overrides,
+)
+from next_gen_ui_agent.component_selection_common import (
+    build_components_description,
+    normalize_allowed_components,
+)
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.json_data_wrapper import wrap_json_data, wrap_string_as_json
-from next_gen_ui_agent.types import AgentConfig, InputDataInternal, UIComponentMetadata
+from next_gen_ui_agent.types import (
+    AgentConfig,
+    AgentConfigPromptComponent,
+    InputDataInternal,
+    UIComponentMetadata,
+)
 
 
 class LLMInteraction(TypedDict):
@@ -36,6 +49,12 @@ class ComponentSelectionStrategy(ABC):
     """Abstract base class for LLM-based component selection and configuration strategies."""
 
     logger: logging.Logger
+    config: AgentConfig
+    """AgentConfig for component selection configuration."""
+
+    _base_metadata: dict[str, AgentConfigPromptComponent]
+    """Base component metadata with global overrides applied."""
+
     input_data_json_wrapping: bool
     """
     If `True`, the agent will wrap the JSON input data into data type field if necessary due to its structure.
@@ -44,15 +63,23 @@ class ComponentSelectionStrategy(ABC):
 
     def __init__(self, logger: logging.Logger, config: AgentConfig):
         self.logger = logger
+        self.config = config
+        self._base_metadata = get_component_metadata(config)
         self.input_data_json_wrapping = (
             config.input_data_json_wrapping
             if config.input_data_json_wrapping is not None
             else True
         )
 
-    def get_system_prompt(self) -> str:
+    def get_system_prompt(self, data_type: Optional[str] = None) -> str:
         """
         Get the system prompt for the component selection strategy.
+
+        Args:
+            data_type: Optional data type for data-type-specific prompt customization
+
+        Returns:
+            System prompt string for the given data_type (or global prompt if None)
         """
         return "NOT IMPLEMENTED"
 
@@ -132,6 +159,117 @@ class ComponentSelectionStrategy(ABC):
         except Exception as e:
             self.logger.exception("Cannot decode the json from LLM response")
             raise e
+
+    def get_allowed_components(self, data_type: Optional[str] = None) -> set[str]:
+        """Get allowed components for the given data_type.
+
+        This is a convenience method that returns only the allowed components,
+        without the metadata.
+
+        Args:
+            data_type: Optional data type for data-type-specific component selection
+
+        Returns:
+            Set of normalized component names that are allowed for the given data_type regarding used config.
+        """
+        allowed_components, _ = self._resolve_allowed_components_and_metadata(data_type)
+        return allowed_components
+
+    def get_allowed_components_description(
+        self, data_type: Optional[str] = None
+    ) -> str:
+        """Get formatted components description for the given data_type used in the system prompt.
+
+        This is a convenience method that returns only the formatted description string
+        of allowed components, without the components set or metadata.
+
+        Args:
+            data_type: Optional data type for data-type-specific component selection
+
+        Returns:
+            Formatted string describing the allowed components regarding used config.
+        """
+        _, _, components_description = self._resolve_components_and_description(
+            data_type
+        )
+        return components_description
+
+    def _resolve_components_and_description(
+        self, data_type: Optional[str]
+    ) -> tuple[set[str], dict[str, AgentConfigPromptComponent], str]:
+        """Resolve allowed components, metadata, and component descriptions for data_type.
+
+        This is a convenience method that combines _resolve_allowed_components_and_metadata
+        with build_components_description.
+
+        Args:
+            data_type: Optional data type for data-type-specific component selection
+
+        Returns:
+            Tuple of (allowed_components, metadata, components_description) where:
+                - allowed_components: Set of normalized component names
+                - metadata: Dictionary mapping component names to their metadata
+                - components_description: Formatted string describing the components
+        """
+        allowed_components, metadata = self._resolve_allowed_components_and_metadata(
+            data_type
+        )
+        components_description = build_components_description(
+            allowed_components, metadata
+        )
+        return allowed_components, metadata, components_description
+
+    def _resolve_allowed_components_and_metadata(
+        self, data_type: Optional[str]
+    ) -> tuple[set[str], dict[str, AgentConfigPromptComponent]]:
+        """Resolve allowed components and metadata based on data_type.
+
+        This method determines which components are allowed and what metadata to use
+        based on whether a data_type is specified. It handles:
+        - Data-type-specific component selection with per-component prompt overrides
+        - Global component selection using selectable_components
+        - Fallback to all available components
+
+        Args:
+            data_type: Optional data type for data-type-specific component selection
+
+        Returns:
+            Tuple of (allowed_components, metadata) where:
+                - allowed_components: Set of normalized component names
+                - metadata: Dictionary mapping component names to their metadata
+        """
+        config: AgentConfig = self.config
+        base_metadata: dict[str, AgentConfigPromptComponent] = self._base_metadata
+
+        # Determine allowed components and metadata based on data_type
+        if data_type and config.data_types and data_type in config.data_types:
+            # Extract component names from data_type configuration
+            components_list = config.data_types[data_type].components
+            if components_list:
+                allowed_components_config = {comp.component for comp in components_list}
+
+                # Merge per-component prompt overrides
+                metadata = merge_per_component_prompt_overrides(
+                    base_metadata, components_list
+                )
+            else:
+                allowed_components_config = set(base_metadata.keys())
+                metadata = base_metadata
+        else:
+            # Global selection - use selectable_components
+            allowed_components_config = (
+                set(config.selectable_components)
+                if config.selectable_components
+                else set(base_metadata.keys())
+            )
+            # Use base metadata for global selection
+            metadata = base_metadata
+
+        allowed_components = normalize_allowed_components(
+            allowed_components_config, metadata
+        )
+
+        return allowed_components, metadata
 
     def _merge_with_preconfig_if_needed(
         self, data_type: str, result: UIComponentMetadata
