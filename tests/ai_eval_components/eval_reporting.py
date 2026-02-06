@@ -288,3 +288,69 @@ def get_errors_dir():
         ]
     print(f"Writing errors into folder: {errors_dir_path}")
     return errors_dir_path
+
+
+def save_system_prompts_to_file(
+    errors_dir_path: Path,
+    system_prompts_by_datatype: dict[str | None, set[tuple[str, str]]],
+) -> None:
+    """
+    Save collected system prompts to a file in human-readable format.
+
+    Args:
+        errors_dir_path: Directory path where the file will be created
+        system_prompts_by_datatype: Dictionary mapping data_type to set of (step, system_prompt) tuples
+    """
+    if not system_prompts_by_datatype:
+        # No prompts collected, nothing to save
+        return
+
+    output_file = errors_dir_path / "agent_system_prompts.txt"
+
+    with output_file.open("w") as f:
+        # Sort data_types: None first, then alphabetically
+        data_types = sorted(
+            system_prompts_by_datatype.keys(),
+            key=lambda x: ("" if x is None else "z" + x),  # None sorts first
+        )
+
+        for idx, data_type in enumerate(data_types):
+            # Add spacing between data_type sections (except before first)
+            if idx > 0:
+                f.write("\n\n")
+
+            # Write section header
+            if data_type is None:
+                f.write("==== System Prompts for NO INPUT DATA TYPE ====\n\n")
+            else:
+                f.write(
+                    f"==== System Prompts for Input data type: {data_type} ====\n\n"
+                )
+
+            # Get prompts for this data_type
+            prompts_set = system_prompts_by_datatype[data_type]
+
+            # Convert set to sorted list for consistent ordering
+            prompts_list = sorted(prompts_set, key=lambda x: x[0])  # Sort by step name
+
+            # Determine if we need step headers (only if multiple steps)
+            show_step_headers = len(prompts_list) > 1
+
+            for prompt_idx, (step, system_prompt) in enumerate(prompts_list):
+                # Add spacing between prompts (except before first)
+                if prompt_idx > 0:
+                    f.write("\n")
+
+                if show_step_headers:
+                    # Multiple steps: show step header
+                    f.write(f"--- Step: {step} ---\n")
+                    f.write(system_prompt)
+                    if not system_prompt.endswith("\n"):
+                        f.write("\n")
+                else:
+                    # Single step: no header needed
+                    f.write(system_prompt)
+                    if not system_prompt.endswith("\n"):
+                        f.write("\n")
+
+    print(f"\nUI Agent system prompts saved to: {output_file}")

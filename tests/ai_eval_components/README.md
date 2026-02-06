@@ -92,6 +92,8 @@ python -m ai_eval_components.eval -c all -j
 
 Judges output predefined categories for consistency: `perfectly_relevant` (1.0), `relevant_with_supporting_detail` (0.85), `partially_relevant` (0.5), `irrelevant` (0.2) for field relevance; `perfect_choice` (1.0), `good_choice` (0.85), `reasonable_choice` (0.65), `wrong_choice` (0.3) for component choice.
 
+### Evaluation results
+
 If no `-c` nor `-f` argument is used, evaluation runs for all the components present in the evaluation dataset.
 If args are used, evaluation script automatically switches UI Agent to the mode with all UI components if necessary,
 message `UI Agent switched to 'all UI components' mode` is provided in this case.
@@ -115,6 +117,9 @@ Where `err_type` is one of:
 `dataset_item_id` is unique identifier of the dataset item to find it easier.
 
 Next lines contain detailed description of errors. For `AGENT` error, prompt, LLM output, Component data, and location of the data file in `dataset_src` is also provided for easier debugging.
+
+There is also `agent_system_prompts.txt` available in this directory, where you can find UI Agent LLM system promps used during evaluations. 
+System prompts can differ for individual Input data types, depending on used UI Agent config yaml file. If it is not used, then default system promp of the UI Agent is used.
 
 Results of some eval runs are stored in `/results` folder so we can compare them in time to see changes.
 Each file stored here contains description info like:

@@ -20,6 +20,7 @@ from ai_eval_components.eval_reporting import (
     report_err_sys,
     report_err_uiagent,
     report_success,
+    save_system_prompts_to_file,
 )
 from ai_eval_components.eval_utils import (
     get_dataset_files,
@@ -146,6 +147,7 @@ def evaluate_agent_for_dataset_row(
     arg_vague_component_check: bool,
     arg_selected_component_type_check_only: bool = False,
     judge_inference: InferenceBase | None = None,
+    system_prompts_collector: dict[str | None, set[tuple[str, str]]] | None = None,
 ):
     """Run agent evaluation for one dataset row"""
     errors: list[ComponentDataValidationError] = []
@@ -170,6 +172,19 @@ def evaluate_agent_for_dataset_row(
         )
     )
     report_perf_stats(time_start, round(time.time() * 1000), dsr["expected_component"])
+
+    # Collect system prompts from llm_interactions
+    if system_prompts_collector is not None:
+        if input_data_type not in system_prompts_collector:
+            system_prompts_collector[input_data_type] = set()
+
+        llm_interactions = inference_result.get("llm_interactions")
+        if llm_interactions:
+            for interaction in llm_interactions:
+                step = interaction.get("step")
+                system_prompt = interaction.get("system_prompt")
+                if step and system_prompt:
+                    system_prompts_collector[input_data_type].add((step, system_prompt))
 
     component: UIComponentMetadata | None = None
     try:
@@ -283,16 +298,14 @@ def init_component_selection_strategy(
             select_component_only=arg_selected_component_type_check_only,
         )
         print(
-            "=== Default system prompt from the TwostepLLMCallComponentSelectionStrategy ===\n"
-            + component_selection_strategy.get_system_prompt()
+            "Evaluated LLM inference strategy: TwostepLLMCallComponentSelectionStrategy"
         )
     else:
         component_selection_strategy = OnestepLLMCallComponentSelectionStrategy(
             config=config
         )
         print(
-            "=== Default system prompt from the OnestepLLMCallComponentSelectionStrategy ===\n"
-            + component_selection_strategy.get_system_prompt()
+            "Evaluated LLM inference strategy: OnestepLLMCallComponentSelectionStrategy"
         )
 
     return component_selection_strategy
@@ -486,6 +499,9 @@ if __name__ == "__main__":
         arg_selected_component_type_check_only,
     )
 
+    # Initialize system prompts collector: dict[data_type, set[(step, system_prompt)]]
+    system_prompts_collector: dict[str | None, set[tuple[str, str]]] = {}
+
     for dataset_file in dataset_files:
         dataset = load_dataset_file(dataset_file)
 
@@ -529,6 +545,7 @@ if __name__ == "__main__":
                             arg_vague_component_check,
                             arg_selected_component_type_check_only,
                             judge_inference,
+                            system_prompts_collector,
                         )
                         if len(eval_result.errors) > 0:
                             is_progress_dot = report_err_uiagent(
@@ -551,6 +568,9 @@ if __name__ == "__main__":
     print_stats()
     print("")
     print_perf_stats()
+
+    # Save system prompts to file
+    save_system_prompts_to_file(errors_dir_path, system_prompts_collector)
 
     # Save performance stats to file for report generation
     perf_stats_file = errors_dir_path / "perf_stats.json"
