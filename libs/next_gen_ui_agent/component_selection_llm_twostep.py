@@ -164,6 +164,63 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         """
         return self._get_or_build_step1select_system_prompt(data_type)
 
+    def get_debug_prompts(
+        self,
+        data_type: Optional[str] = None,
+        component_for_step2: Optional[str] = None,
+    ) -> dict[str, str]:
+        """
+        Get all system prompts for debugging/inspection.
+
+        For two-step strategy, returns step1 (component selection) prompt and
+        step2 (field configuration) prompts for specified component(s).
+
+        Args:
+            data_type: Optional data type for data-type-specific prompt customization
+            component_for_step2: Specific component name to show step2 prompt for
+                (e.g., 'table', 'chart-bar'). If None, returns step2 prompts for
+                all dynamic components that would be allowed for this data_type.
+
+        Returns:
+            Dictionary with prompt keys:
+            - 'step1_system_prompt': Step 1 component selection prompt
+            - 'step2_system_prompt_<component>': Step 2 prompts for each component
+        """
+        prompts = {}
+
+        # Get step1 prompt
+        prompts["step1_system_prompt"] = self._get_or_build_step1select_system_prompt(
+            data_type
+        )
+
+        # Get allowed components and metadata for this data_type
+        allowed_components, metadata = self._resolve_allowed_components_and_metadata(
+            data_type
+        )
+
+        # Determine which components to generate step2 prompts for
+        if component_for_step2:
+            # Only generate for specified component
+            components_for_step2 = [component_for_step2]
+        else:
+            # Generate for all dynamic components that are allowed
+            # (excluding hand-built components which don't need field configuration)
+            components_for_step2 = [
+                comp for comp in allowed_components if comp in DYNAMIC_COMPONENT_NAMES
+            ]
+            # Also include chart components
+            chart_components = allowed_components & CHART_COMPONENTS
+            components_for_step2.extend(sorted(chart_components))
+
+        # Generate step2 prompts for each component
+        for component in components_for_step2:
+            prompt_key = f"step2_system_prompt_{component}"
+            prompts[prompt_key] = self._build_step2configure_system_prompt(
+                component, metadata, data_type
+            )
+
+        return prompts
+
     def _build_step1select_system_prompt(
         self,
         data_type: Optional[str] = None,
@@ -484,6 +541,46 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
 
         return response
 
+    def _build_step2configure_system_prompt(
+        self,
+        component: str,
+        metadata: dict,
+        data_type: Optional[str] = None,
+    ) -> str:
+        """Build step2configure system prompt for a given component.
+
+        This method contains the exact prompt generation logic used at runtime.
+        Both runtime execution and debug tool use this same method to ensure
+        identical prompts.
+
+        Args:
+            component: Selected component name
+            metadata: Component metadata dictionary
+            data_type: Optional data type for data-type-specific prompt customization
+
+        Returns:
+            Complete step2 system prompt string
+        """
+        # Get initial prompt with precedence: data_type > global > default
+        initial_section_template = get_prompt_field(
+            "twostep_step2configure_system_prompt_start",
+            self.config,
+            data_type,
+            DEFAULT_STEP2CONFIGURE_SYSTEM_PROMPT_START,
+        )
+
+        # Substitute {component} placeholder if present
+        initial_section = initial_section_template.format(component=component)
+
+        sys_msg_content = f"""{initial_section}
+
+{build_twostep_step2configure_rules(component, metadata)}
+
+{build_twostep_step2configure_example(component, metadata)}
+"""
+
+        return sys_msg_content
+
     async def inference_step2configure(
         self,
         inference,
@@ -509,23 +606,10 @@ class TwostepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
             "component"
         ]
 
-        # Get initial prompt with precedence: data_type > global > default
-        initial_section_template = get_prompt_field(
-            "twostep_step2configure_system_prompt_start",
-            self.config,
-            data_type,
-            DEFAULT_STEP2CONFIGURE_SYSTEM_PROMPT_START,
+        # Build step2 system prompt using the shared method
+        sys_msg_content = self._build_step2configure_system_prompt(
+            component, metadata, data_type
         )
-
-        # Substitute {component} placeholder if present
-        initial_section = initial_section_template.format(component=component)
-
-        sys_msg_content = f"""{initial_section}
-
-{build_twostep_step2configure_rules(component, metadata)}
-
-{build_twostep_step2configure_example(component, metadata)}
-"""
 
         prompt = STEP2CONFIGURE_USER_PROMPT_TEMPLATE.format(
             user_prompt=user_prompt, json_data_for_llm=json_data_for_llm

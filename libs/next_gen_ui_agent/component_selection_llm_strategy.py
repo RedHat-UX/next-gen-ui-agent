@@ -83,6 +83,31 @@ class ComponentSelectionStrategy(ABC):
         """
         return "NOT IMPLEMENTED"
 
+    def get_debug_prompts(
+        self,
+        data_type: Optional[str] = None,
+        component_for_step2: Optional[str] = None,
+    ) -> dict[str, str]:
+        """
+        Get all system prompts for debugging/inspection.
+
+        This method returns the actual system prompts that would be used at runtime
+        for different strategies and configurations. Useful for prompt tuning and
+        understanding how the agent behaves with different settings.
+
+        Args:
+            data_type: Optional data type for data-type-specific prompt customization
+            component_for_step2: For two-step strategy: specific component name to show
+                step2 prompt for (e.g., 'table', 'chart-bar'). If None, returns prompts
+                for all dynamic components.
+
+        Returns:
+            Dictionary with prompt keys and their content. Keys depend on strategy:
+            - One-step strategy: {'system_prompt': '...'}
+            - Two-step strategy: {'step1_system_prompt': '...', 'step2_system_prompt_<component>': '...'}
+        """
+        return {}
+
     async def select_component(
         self,
         inference: InferenceBase,

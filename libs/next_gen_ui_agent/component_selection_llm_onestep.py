@@ -134,6 +134,26 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         """
         return self._get_or_build_system_prompt(data_type)
 
+    def get_debug_prompts(
+        self,
+        data_type: Optional[str] = None,
+        component_for_step2: Optional[str] = None,
+    ) -> dict[str, str]:
+        """
+        Get all system prompts for debugging/inspection.
+
+        For one-step strategy, returns a single system prompt that handles both
+        component selection and configuration.
+
+        Args:
+            data_type: Optional data type for data-type-specific prompt customization
+            component_for_step2: Not used in one-step strategy (included for interface compatibility)
+
+        Returns:
+            Dictionary with single key 'system_prompt' containing the complete prompt
+        """
+        return {"system_prompt": self._get_or_build_system_prompt(data_type)}
+
     def _build_system_prompt(
         self,
         data_type: Optional[str] = None,
