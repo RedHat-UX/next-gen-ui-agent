@@ -88,7 +88,7 @@ data_types:
 
 For agent decisions, the LLM uses system prompt to select the best component based on the user's query and data and configure it. This prompt can be customized at multiple levels with increasing specificity.
 
-This section focuses on **component-specific prompt customization** (component descriptions, chart instructions, configuration examples). For customizing the **initial system prompt sections** (rules, instructions, strategy-specific prompts), see [Prompt Tuning](../llm.md#prompt-tuning).
+This section focuses on **component-specific prompt customization** (component descriptions, chart instructions, configuration examples). For customizing the **initial system prompt sections** (rules, instructions, strategy-specific prompts), see [Prompt Tuning](../llm/prompt_tuning.md).
 
 ### Prompt Override Precedence
 
@@ -104,7 +104,7 @@ Note: Per-component overrides (level 4) only affect component-specific fields (d
 !!!warning
     Please be aware that one large system prompt is constructed by the UI Agent using these per-component overrides, but also common parts. 
     Final inference results heavily depend on used LLM type, for some change of one component system prompt may also affect other components or overal agent's performance. Mainly smaller LLMs are more sensitive on system prompt changes and interdependencies in it.
-    Always use the [evaluation tool](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ai_eval_components), and ideally your project specific evaluation dataset, to measure agent's performance when tuning system prompt this way.
+    Always use the [evaluation tool](../llm/evaluations.md), and ideally your project specific evaluation dataset, to measure agent's performance when tuning system prompt this way.
     It is always a good idea to start with default prompts fields from [`COMPONENT_METADATA`](https://github.com/RedHat-UX/next-gen-ui-agent/blob/cf80d1c49f49d1eca282fc656db4afaa6a5eeea2/libs/next_gen_ui_agent/component_selection_common.py#L127C1-L127C19) and gradually fine-tune them while measuring agent's performance.
 
 ### Configuration Example
@@ -239,7 +239,7 @@ Per-data-type prompt customization is particularly useful for:
 #### Best Practices
 
 1. **Start with Global**: Define global prompts first, then override only what's necessary per data type
-2. **Test Thoroughly**: Use the [evaluation tool](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ai_eval_components) to measure impact
+2. **Test Thoroughly**: Use the [evaluation tool](../llm/evaluations.md) to measure impact
 3. **Document Rationale**: Comment why specific data types need custom prompts
 4. **Combine with Per-Component**: Use both per-data-type AND per-component customization for fine-grained control
 5. **Monitor Performance**: Small LLMs are more sensitive to prompt changes - validate with your target LLM

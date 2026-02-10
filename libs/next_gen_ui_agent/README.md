@@ -32,58 +32,6 @@ This module contains UI Agent Core functionality and frameworks.
 pip install -U next_gen_ui_agent
 ```
 
-## System Prompt Debugging
-
-The `debug_system_prompt` tool allows you to inspect the actual system prompts used by the agent for different configurations and data types. This is useful for prompt tuning and understanding how the agent behaves with different settings.
-
-### Usage
-
-**Basic usage:**
-```bash
-./pants run libs/next_gen_ui_agent:debug_system_prompt
-```
-
-**With configuration file:**
-
-```bash
-./pants run libs/next_gen_ui_agent:debug_system_prompt -- --config-path my-config.yaml
-```
-
-### Command-line Arguments
-
-- `--config-path PATH` - Path to YAML config file (can be specified multiple times for config merging)
-- `--strategy {one_llm_call,two_llm_calls}` - Component selection strategy (defaults to config value or `one_llm_call`)
-- `--data-type TYPE` - Optional data type for data-type-specific prompt inspection
-- `--component COMPONENT` - For two-step strategy: specific component name to show step2 prompt (e.g., `table`, `chart-bar`)
-- `--selectable-components COMP1 COMP2 ...` - Override which components are selectable
-
-### Examples
-
-**Inspect one-step strategy with custom data type:**
-
-```bash
-./pants run libs/next_gen_ui_agent:debug_system_prompt -- \
-  --config-path config.yaml \
-  --data-type "k8s:deployment"
-```
-
-**Inspect two-step strategy step2 prompt for a specific component:**
-
-```bash
-./pants run libs/next_gen_ui_agent:debug_system_prompt -- \
-  --strategy two_llm_calls \
-  --component chart-bar \
-  --data-type "metrics:timeseries"
-```
-
-**Test merged configurations:**
-
-```bash
-./pants run libs/next_gen_ui_agent:debug_system_prompt -- \
-  --config-path base-config.yaml \
-  --config-path overrides.yaml
-```
-
 ### Interface usage
 
 ```py
