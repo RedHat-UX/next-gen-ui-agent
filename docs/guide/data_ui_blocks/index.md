@@ -22,7 +22,7 @@ The process goes over these steps in this order:
           - [pre-configured Dynamic Component](./dynamic_components.md) - no LLM required
       2. **Multiple components configured** - LLM selects best option:
           - LLM powered selection from configured Dynamic Components (with or without pre-configuration)
-          - HBCs can be mixed with other components (each HBC must have `prompt.description` defined)
+          - HBCs can be mixed with other components, each HBC must have `prompt.description` defined so LLM knows how to select it
           - Configuration generation for Dynamic Components is controlled by `llm_configure` flag:
               - `llm_configure=true` (default): LLM selects component AND generates configuration
               - `llm_configure=false`: LLM only selects component, uses pre-defined configuration

@@ -9,7 +9,7 @@ Or does LLM generated view not suits your needs and you want to have well-tuned 
 No problem, you can use *Hand Buil Component* and register it into *UI Agent*, together with frontend code,
 to render the view for that data piece. 
 
-AI powered component selection and configuration is NOT performed for HBC.
+AI powered component selection and configuration is even NOT performed if one HBC is configured for the input data type.
 
 ## How are HBC selected
 
@@ -44,8 +44,8 @@ Be cautious when selecting component name for your HBC, as they can be "mixed" w
 components](./dynamic_components.md) in this configuration (every name which is not known dynamic component 
 is interpreted as a HBC). Ideally add some prefix to these names, like `movies:` used in the example.
 
-When data piece is send to *UI Agent* for processing, agent consults this mapping, and if `type` is found here, HBC is selected.
-If `type` is not found in this mapping, AI powered component selection and configuration is performed for that data piece.
+When data piece is send to *UI Agent* for processing, agent consults this mapping, and if `type` is found here with one HBC, it is selected.
+If `type` is not found in this mapping, or there are multiple components defined for it (including one or more HBC), [AI powered component selection and configuration](index.md#selection-and-configuration-process) is performed for that data piece.
 
 *UI Agent*'s' LlamaStack and LanGraph AI framework bindings propagate tool name as 
 an [`InputData.type`](../input_data/index.md#inputdata-object-fields), so HBC can be mapped based 
@@ -82,6 +82,7 @@ Example of the [`ComponentDataHandBuildComponent` as JSON](../../spec/component.
 {
     "id": "4585-8554-af54-54c8",
     "component": "movies:movie-detail-view",
+    "input_data_type": "load_movie_detail",
     "data": {
         "title": "Toy Story",
         "year": 1995,
@@ -89,3 +90,6 @@ Example of the [`ComponentDataHandBuildComponent` as JSON](../../spec/component.
     }
 }
 ```
+
+Then you have to provide rendering code which is able to process and visualize given `data` structure. 
+[Renderers](../renderer/index.md) can provides support to write HBC for their technology.

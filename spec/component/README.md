@@ -26,28 +26,32 @@ Example JSON output:
         "Toy Story"
       ],
       "data_path": "movie.title",
-      "name": "Title"
+      "name": "Title",
+      "id": "movie-title"
     },
     {
       "data": [
         1995
       ],
       "data_path": "movie.year",
-      "name": "Year"
+      "name": "Year",
+      "id": "movie-year"
     },
     {
       "data": [
         8.3
       ],
       "data_path": "movie.imdbRating",
-      "name": "IMDB Rating"
+      "name": "IMDB Rating",
+      "id": "movie-imdbrating"
     },
     {
       "data": [
         "2022-11-02 00:00:00"
       ],
       "data_path": "movie.released",
-      "name": "Release Date"
+      "name": "Release Date",
+      "id": "movie-released"
     },
     {
       "data": [
@@ -57,7 +61,8 @@ Example JSON output:
         "Don Rickles"
       ],
       "data_path": "actors[*]",
-      "name": "Actors"
+      "name": "Actors",
+      "id": "movie-actors"
     }
   ]
 }
@@ -116,7 +121,8 @@ Example JSON output:
         "My Name is Khan"
       ],
       "data_path": "movie.title",
-      "name": "Title"
+      "name": "Title",
+      "id": "movie-title"
     },
     {
       "data": [
@@ -124,7 +130,8 @@ Example JSON output:
         2003
       ],
       "data_path": "movie.year",
-      "name": "Year"
+      "name": "Year",
+      "id": "movie-year"
     },
     {
       "data": [
@@ -132,7 +139,8 @@ Example JSON output:
         8.5
       ],
       "data_path": "movie.imdbRating",
-      "name": "IMDB Rating"
+      "name": "IMDB Rating",
+      "id": "movie-imdbrating"
     },
     {
       "data": [
@@ -147,7 +155,8 @@ Example JSON output:
         ]
       ],
       "data_path": "actors[*]",
-      "name": "Actors"
+      "name": "Actors",
+      "id": "movie-actors"
     }
   ]
 }
@@ -170,7 +179,8 @@ Example JSON output:
         "My Name is Khan"
       ],
       "data_path": "movie.title",
-      "name": "Title"
+      "name": "Title",
+      "id": "movie-title"
     },
     {
       "data": [
@@ -178,7 +188,8 @@ Example JSON output:
         2003
       ],
       "data_path": "movie.year",
-      "name": "Year"
+      "name": "Year",
+      "id": "movie-year"
     },
     {
       "data": [
@@ -186,7 +197,8 @@ Example JSON output:
         8.5
       ],
       "data_path": "movie.imdbRating",
-      "name": "IMDB Rating"
+      "name": "IMDB Rating",
+      "id": "movie-imdbrating"
     },
     {
       "data": [
@@ -201,7 +213,8 @@ Example JSON output:
         ]
       ],
       "data_path": "actors[*]",
-      "name": "Actors"
+      "name": "Actors",
+      "id": "movie-actors"
     }
   ]
 }
@@ -324,6 +337,7 @@ Example JSON output:
 {
   "id": "test-id",
   "component": "movies:movie-detail",
+  "input_data_type": "load_movie_detail",
   "data": {
     "movie": {
       "title": "Toy Story",
