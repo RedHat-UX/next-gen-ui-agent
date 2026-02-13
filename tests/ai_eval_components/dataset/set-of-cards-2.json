@@ -1,6 +1,6 @@
 [
   {
-    "id": "set-of-cards-000015",
+    "id": "set-of-cards-000019",
     "user_prompt": "What are my subscriptions?",
     "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
     "expected_component": "set-of-cards",
@@ -11,7 +11,7 @@
     }
   },
   {
-    "id": "set-of-cards-000016",
+    "id": "set-of-cards-000020",
     "user_prompt": "List my subscriptions.",
     "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
     "expected_component": "set-of-cards",
@@ -22,7 +22,7 @@
     }
   },
   {
-    "id": "set-of-cards-000017",
+    "id": "set-of-cards-000021",
     "user_prompt": "Show me my subscriptions.",
     "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
     "expected_component": "set-of-cards",
@@ -33,7 +33,29 @@
     }
   },
   {
-    "id": "set-of-cards-000018",
+    "id": "set-of-cards-000022",
+    "user_prompt": "Show me info about my subscriptions as cards.",
+    "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
+    "expected_component": "set-of-cards",
+    "warn_only": true,
+    "src": {
+      "data_file": "backend_data_shared/array_subscription_direct_short.json",
+      "prompt_file": "prompts_subscriptions.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000023",
+    "user_prompt": "Show me my subscriptions as set of cards.",
+    "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
+    "expected_component": "set-of-cards",
+    "warn_only": true,
+    "src": {
+      "data_file": "backend_data_shared/array_subscription_direct_short.json",
+      "prompt_file": "prompts_subscriptions.json"
+    }
+  },
+  {
+    "id": "set-of-cards-000024",
     "user_prompt": "Give me my subscriptions.",
     "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
     "expected_component": "set-of-cards",
@@ -44,7 +66,7 @@
     }
   },
   {
-    "id": "set-of-cards-000019",
+    "id": "set-of-cards-000025",
     "user_prompt": "When do I have to renew my subscriptions?",
     "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
     "expected_component": "set-of-cards",
@@ -55,7 +77,7 @@
     }
   },
   {
-    "id": "set-of-cards-000020",
+    "id": "set-of-cards-000026",
     "user_prompt": "How many runtimes is included in my subscriptions?",
     "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
     "expected_component": "set-of-cards",
@@ -66,7 +88,7 @@
     }
   },
   {
-    "id": "set-of-cards-000021",
+    "id": "set-of-cards-000027",
     "user_prompt": "How many runtimes is included in each of my subscription?",
     "backend_data": "[\n    {\n        \"id\": \"EUS-101\",\n        \"name\": \"RHEL\",\n        \"endDate\": \"2024-12-24\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrstg\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrstg\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrstg\"\n    },\n    {\n        \"id\": \"EUS-112\",\n        \"name\": \"Red Hat Developer\",\n        \"endDate\": \"2025-04-13\",\n        \"supported\": false,\n        \"numOfRuntimes\": 3,\n        \"viewLink\": \"https://access.redhat.com/sub/3ygrs\",\n        \"editLink\": \"https://access.redhat.com/sub/e/3ygrs\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/3ygrs\"\n    },\n    {\n        \"id\": \"EUS-254\",\n        \"name\": \"EAP\",\n        \"endDate\": \"2025-07-26\",\n        \"supported\": true,\n        \"numOfRuntimes\": 2,\n        \"viewLink\": \"https://access.redhat.com/sub/45wgdf\",\n        \"editLink\": \"https://access.redhat.com/sub/e/45wgdf\",\n        \"renewalLink\": \"https://access.redhat.com/sub/r/45wgdf\"\n    }\n]",
     "expected_component": "set-of-cards",

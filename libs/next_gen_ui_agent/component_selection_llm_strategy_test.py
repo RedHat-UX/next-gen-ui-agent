@@ -1,11 +1,15 @@
+import pytest
+from langchain_core.language_models import FakeMessagesListChatModel
 from next_gen_ui_agent.component_selection_llm_onestep import (
     OnestepLLMCallComponentSelectionStrategy,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import trim_to_json
+from next_gen_ui_agent.inference.langchain_inference import LangChainModelInference
 from next_gen_ui_agent.types import (
     AgentConfig,
     AgentConfigComponent,
     AgentConfigDataType,
+    InputDataInternal,
 )
 
 
@@ -412,3 +416,438 @@ class TestTrimToJson:
         text = 'Prefix </think> other text { "name": "John" } suffix'
         result = trim_to_json(text)
         assert result == '{ "name": "John" }'
+
+
+class TestResolveAllowedComponentsCaching:
+    """Test cases for _resolve_allowed_components_and_metadata caching mechanism."""
+
+    def test_cache_returns_same_result_for_same_data_type(self):
+        """Test that calling with same data_type returns cached result."""
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(component="chart-bar"),
+                        AgentConfigComponent(component="table"),
+                    ]
+                )
+            }
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # First call - should compute and cache
+        result1 = strategy._resolve_allowed_components_and_metadata("movies")
+
+        # Second call - should return cached result
+        result2 = strategy._resolve_allowed_components_and_metadata("movies")
+
+        # Results should be identical (same object reference)
+        assert result1 is result2
+        assert result1[0] == result2[0]  # allowed_components
+        assert result1[1] is result2[1]  # metadata
+
+    def test_cache_returns_same_result_for_none_data_type(self):
+        """Test that calling with None data_type returns cached result."""
+        config = AgentConfig(selectable_components={"table", "one-card", "chart-bar"})
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # First call - should compute and cache
+        result1 = strategy._resolve_allowed_components_and_metadata(None)
+
+        # Second call - should return cached result
+        result2 = strategy._resolve_allowed_components_and_metadata(None)
+
+        # Results should be identical (same object reference)
+        assert result1 is result2
+        assert result1[0] == result2[0]
+        assert result1[1] is result2[1]
+
+    def test_cache_separates_different_data_types(self):
+        """Test that different data_types don't get mixed up in cache."""
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(component="chart-bar"),
+                        AgentConfigComponent(component="chart-line"),
+                    ]
+                ),
+                "orders": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(component="table"),
+                        AgentConfigComponent(component="one-card"),
+                    ]
+                ),
+            }
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Get results for different data_types
+        movies_result = strategy._resolve_allowed_components_and_metadata("movies")
+        orders_result = strategy._resolve_allowed_components_and_metadata("orders")
+
+        # Results should be different
+        assert movies_result != orders_result
+        assert movies_result[0] != orders_result[0]  # Different allowed components
+
+        # Movies should have chart components
+        assert "chart-bar" in movies_result[0]
+        assert "chart-line" in movies_result[0]
+        assert "table" not in movies_result[0]
+        assert "one-card" not in movies_result[0]
+
+        # Orders should have table and card components
+        assert "table" in orders_result[0]
+        assert "one-card" in orders_result[0]
+        assert "chart-bar" not in orders_result[0]
+        assert "chart-line" not in orders_result[0]
+
+    def test_cache_separates_none_from_actual_data_types(self):
+        """Test that None data_type is cached separately from actual data_types."""
+        config = AgentConfig(
+            selectable_components={"table", "one-card"},
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(component="chart-bar"),
+                        AgentConfigComponent(component="chart-pie"),
+                    ]
+                )
+            },
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Get results for None and a data_type
+        none_result = strategy._resolve_allowed_components_and_metadata(None)
+        movies_result = strategy._resolve_allowed_components_and_metadata("movies")
+
+        # Results should be different
+        assert none_result != movies_result
+        assert none_result[0] != movies_result[0]
+
+        # None should use global selectable_components
+        assert none_result[0] == {"table", "one-card"}
+
+        # Movies should use data_type specific components
+        assert movies_result[0] == {"chart-bar", "chart-pie"}
+
+    def test_cache_handles_unknown_data_type_as_none(self):
+        """Test that unknown data_type uses global config and is cached separately."""
+        config = AgentConfig(
+            selectable_components={"table", "chart-bar"},
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="chart-pie")]
+                )
+            },
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Get results for unknown data_type
+        unknown1 = strategy._resolve_allowed_components_and_metadata("unknown_type")
+        unknown2 = strategy._resolve_allowed_components_and_metadata("unknown_type")
+        movies = strategy._resolve_allowed_components_and_metadata("movies")
+
+        # Unknown should be cached
+        assert unknown1 is unknown2
+
+        # Unknown should use global config (not movies config)
+        assert unknown1[0] == {"table", "chart-bar"}
+        assert movies[0] == {"chart-pie"}
+
+    def test_cache_persists_across_multiple_calls(self):
+        """Test that cache persists correctly across multiple interleaved calls."""
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="chart-bar")]
+                ),
+                "orders": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="table")]
+                ),
+            }
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Make interleaved calls
+        movies1 = strategy._resolve_allowed_components_and_metadata("movies")
+        orders1 = strategy._resolve_allowed_components_and_metadata("orders")
+        movies2 = strategy._resolve_allowed_components_and_metadata("movies")
+        orders2 = strategy._resolve_allowed_components_and_metadata("orders")
+        movies3 = strategy._resolve_allowed_components_and_metadata("movies")
+
+        # All calls for same data_type should return same cached object
+        assert movies1 is movies2
+        assert movies2 is movies3
+        assert orders1 is orders2
+
+        # Different data_types should return different objects
+        assert movies1 is not orders1
+
+    def test_cache_contains_correct_data_for_each_key(self):
+        """Test that cached data is correct for each cache key."""
+        config = AgentConfig(
+            selectable_components={"table", "one-card"},
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(component="chart-bar"),
+                        AgentConfigComponent(component="chart-line"),
+                    ]
+                ),
+                "orders": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(component="table"),
+                        AgentConfigComponent(component="set-of-cards"),
+                    ]
+                ),
+            },
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Populate cache
+        strategy._resolve_allowed_components_and_metadata(None)
+        strategy._resolve_allowed_components_and_metadata("movies")
+        strategy._resolve_allowed_components_and_metadata("orders")
+
+        # Verify cache contents
+        assert None in strategy._allowed_components_cache
+        assert "movies" in strategy._allowed_components_cache
+        assert "orders" in strategy._allowed_components_cache
+
+        # Verify each cached entry has correct components
+        none_cached = strategy._allowed_components_cache[None]
+        assert none_cached[0] == {"table", "one-card"}
+
+        movies_cached = strategy._allowed_components_cache["movies"]
+        assert movies_cached[0] == {"chart-bar", "chart-line"}
+
+        orders_cached = strategy._allowed_components_cache["orders"]
+        assert orders_cached[0] == {"table", "set-of-cards"}
+
+    def test_cache_initialization(self):
+        """Test that cache is properly initialized and populated during __init__."""
+        config = AgentConfig()
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Cache should exist and be a dict
+        assert hasattr(strategy, "_allowed_components_cache")
+        assert isinstance(strategy._allowed_components_cache, dict)
+
+        # Cache should have one entry for None (populated during __init__)
+        assert len(strategy._allowed_components_cache) == 1
+        assert None in strategy._allowed_components_cache
+
+    def test_cache_grows_as_data_types_are_accessed(self):
+        """Test that cache grows appropriately as different data_types are accessed."""
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="chart-bar")]
+                ),
+                "orders": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="table")]
+                ),
+                "products": AgentConfigDataType(
+                    components=[AgentConfigComponent(component="one-card")]
+                ),
+            }
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Initially has one entry for None (populated during __init__)
+        assert len(strategy._allowed_components_cache) == 1
+        assert None in strategy._allowed_components_cache
+
+        # Access movies
+        strategy._resolve_allowed_components_and_metadata("movies")
+        assert len(strategy._allowed_components_cache) == 2
+        assert "movies" in strategy._allowed_components_cache
+
+        # Access orders
+        strategy._resolve_allowed_components_and_metadata("orders")
+        assert len(strategy._allowed_components_cache) == 3
+        assert "orders" in strategy._allowed_components_cache
+
+        # Re-access None (should not increase size, already cached)
+        strategy._resolve_allowed_components_and_metadata(None)
+        assert len(strategy._allowed_components_cache) == 3
+
+        # Re-access movies (should not increase size)
+        strategy._resolve_allowed_components_and_metadata("movies")
+        assert len(strategy._allowed_components_cache) == 3
+
+        # Access products (should increase size)
+        strategy._resolve_allowed_components_and_metadata("products")
+        assert len(strategy._allowed_components_cache) == 4
+        assert "products" in strategy._allowed_components_cache
+
+
+class TestComponentValidation:
+    """Test cases for component validation in select_component method."""
+
+    @pytest.mark.asyncio
+    async def test_select_component_rejects_invalid_component_for_data_type(self):
+        """Test that selecting an invalid component for data_type raises ValueError."""
+        # Configure to only allow table and one-card for "movies" data_type
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(component="table"),
+                        AgentConfigComponent(component="one-card"),
+                    ]
+                )
+            }
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Mock LLM response that returns chart-bar (not allowed for movies)
+        invalid_response = """{
+            "title": "Movie Revenue",
+            "reasonForTheComponentSelection": "Chart is good for comparison",
+            "confidenceScore": "90%",
+            "component": "chart-bar",
+            "fields": [
+                {"name": "Title", "data_path": "movies[*].title"},
+                {"name": "Revenue", "data_path": "movies[*].revenue"}
+            ]
+        }"""
+
+        msg = {"type": "assistant", "content": invalid_response}
+        llm = FakeMessagesListChatModel(responses=[msg])
+        inference = LangChainModelInference(llm)
+
+        input_data = InputDataInternal(
+            {
+                "id": "1",
+                "data": '[{"title": "Movie1", "revenue": 1000}]',
+                "type": "movies",
+            }
+        )
+
+        # Should raise ValueError because chart-bar is not allowed for movies
+        with pytest.raises(ValueError) as exc_info:
+            await strategy.select_component(inference, "Show movies", input_data)
+
+        # Verify error message content
+        error_msg = str(exc_info.value)
+        assert "chart-bar" in error_msg
+        assert "not allowed" in error_msg
+        assert "movies" in error_msg
+        assert "table" in error_msg
+        assert "one-card" in error_msg
+
+    @pytest.mark.asyncio
+    async def test_select_component_accepts_valid_component_for_data_type(self):
+        """Test that selecting a valid component for data_type succeeds."""
+        # Configure to only allow table and one-card for "movies" data_type
+        config = AgentConfig(
+            data_types={
+                "movies": AgentConfigDataType(
+                    components=[
+                        AgentConfigComponent(component="table"),
+                        AgentConfigComponent(component="one-card"),
+                    ]
+                )
+            }
+        )
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Mock LLM response that returns table (allowed for movies)
+        valid_response = """{
+            "title": "Movies List",
+            "reasonForTheComponentSelection": "Table is good for multiple items",
+            "confidenceScore": "90%",
+            "component": "table",
+            "fields": [
+                {"name": "Title", "data_path": "movies[*].title"},
+                {"name": "Year", "data_path": "movies[*].year"}
+            ]
+        }"""
+
+        msg = {"type": "assistant", "content": valid_response}
+        llm = FakeMessagesListChatModel(responses=[msg])
+        inference = LangChainModelInference(llm)
+
+        input_data = InputDataInternal(
+            {
+                "id": "1",
+                "data": '[{"title": "Movie1", "year": 2020}]',
+                "type": "movies",
+            }
+        )
+
+        # Should succeed because table is allowed for movies
+        result = await strategy.select_component(inference, "Show movies", input_data)
+        assert result.component == "table"
+        assert result.input_data_type == "movies"
+
+    @pytest.mark.asyncio
+    async def test_select_component_validates_against_global_config_when_no_data_type(
+        self,
+    ):
+        """Test that component validation uses global config when data_type is None."""
+        # Configure global selection to only allow table
+        config = AgentConfig(selectable_components={"table"})
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Mock LLM response that returns chart-bar (not in global config)
+        invalid_response = """{
+            "title": "Chart",
+            "reasonForTheComponentSelection": "Chart for comparison",
+            "confidenceScore": "90%",
+            "component": "chart-bar",
+            "fields": [
+                {"name": "Item", "data_path": "items[*].name"},
+                {"name": "Value", "data_path": "items[*].value"}
+            ]
+        }"""
+
+        msg = {"type": "assistant", "content": invalid_response}
+        llm = FakeMessagesListChatModel(responses=[msg])
+        inference = LangChainModelInference(llm)
+
+        input_data = InputDataInternal(
+            {"id": "1", "data": '[{"name": "Item1", "value": 100}]'}
+        )
+
+        # Should raise ValueError because chart-bar is not in global config
+        with pytest.raises(ValueError) as exc_info:
+            await strategy.select_component(inference, "Show data", input_data)
+
+        error_msg = str(exc_info.value)
+        assert "chart-bar" in error_msg
+        assert "not allowed" in error_msg
+        assert "table" in error_msg
+
+    @pytest.mark.asyncio
+    async def test_select_component_accepts_any_default_when_no_restrictions(self):
+        """Test that any default component is accepted when no restrictions are configured."""
+        # No restrictions configured - should allow all defaults
+        config = AgentConfig()
+        strategy = OnestepLLMCallComponentSelectionStrategy(config)
+
+        # Mock LLM response with chart-bar (should be in defaults)
+        valid_response = """{
+            "title": "Chart",
+            "reasonForTheComponentSelection": "Chart for comparison",
+            "confidenceScore": "90%",
+            "component": "chart-bar",
+            "fields": [
+                {"name": "Item", "data_path": "items[*].name"},
+                {"name": "Value", "data_path": "items[*].value"}
+            ]
+        }"""
+
+        msg = {"type": "assistant", "content": valid_response}
+        llm = FakeMessagesListChatModel(responses=[msg])
+        inference = LangChainModelInference(llm)
+
+        input_data = InputDataInternal(
+            {"id": "1", "data": '[{"name": "Item1", "value": 100}]'}
+        )
+
+        # Should succeed because chart-bar is in defaults and no restrictions
+        result = await strategy.select_component(inference, "Show chart", input_data)
+        assert result.component == "chart-bar"
