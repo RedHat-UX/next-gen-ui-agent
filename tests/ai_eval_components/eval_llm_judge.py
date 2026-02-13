@@ -4,9 +4,9 @@ import asyncio
 import json
 
 from ai_eval_components.types import JudgeResult
-from next_gen_ui_agent.component_selection_common import (
-    get_all_chart_instructions,
-    get_all_components_description,
+from next_gen_ui_agent.component_selection_common import get_all_chart_instructions
+from next_gen_ui_agent.component_selection_llm_strategy import (
+    ComponentSelectionStrategy,
 )
 from next_gen_ui_agent.inference.inference_base import InferenceBase
 from next_gen_ui_agent.types import UIComponentMetadata
@@ -179,6 +179,7 @@ async def judge_component_choice(
     component: UIComponentMetadata,
     user_prompt: str,
     backend_data: dict,
+    component_selection_strategy: ComponentSelectionStrategy,
     inference: InferenceBase,
 ) -> JudgeResult:
     """
@@ -198,8 +199,7 @@ DATA STRUCTURE:
 CHOSEN COMPONENT: {component.component}
 
 Available UI Components (complete list):
-
-{get_all_components_description()}
+{component_selection_strategy.get_allowed_components_description(component.input_data_type)}
 
 {get_all_chart_instructions()}
 
@@ -270,12 +270,17 @@ async def run_llm_judges(
     component: UIComponentMetadata,
     user_prompt: str,
     backend_data: dict,
+    component_selection_strategy: ComponentSelectionStrategy,
     judge_inference: InferenceBase | None = None,
 ) -> list[JudgeResult] | None:
     """
     Run all LLM judges in parallel and return results.
 
     Parameters:
+    * component - UIComponentMetadata instance with component selection and configuration results to be judged
+    * user_prompt - User prompt for the component selection
+    * backend_data - Backend data for the component selection
+    * component_selection_strategy - ComponentSelectionStrategy instance used for component selection - system prompt parts can be taken from it
     * judge_inference - Inference instance for judges (should be pre-initialized)
 
     Returns list of JudgeResult dicts, or None if judges disabled or inference not available.
@@ -293,7 +298,11 @@ async def run_llm_judges(
                 component, user_prompt, backend_data, judge_inference
             ),
             judge_component_choice(
-                component, user_prompt, backend_data, judge_inference
+                component,
+                user_prompt,
+                backend_data,
+                component_selection_strategy,
+                judge_inference,
             ),
         )
 
