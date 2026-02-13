@@ -19,7 +19,7 @@ The best use case for auto detection is if you're uncertain of some data types t
 
 ### How it works
 
-When enabled and [default transformer was not configured for a given data type](../configuration.md#data_transformer-str-optional-1) the agent will run through detection methods provided in transformers' code trying to find one that confirms the input data structure matches particular transformer type. Whichever will match first will be used to transform the input data. In case none will be matched the [configured default data transformer](../configuration.md#data_transformer-str-optional) will be used.
+When enabled and [default transformer was not configured for a given data type](../configuration.md#data_transformer-str-optional_1) the agent will run through detection methods provided in transformers' code trying to find one that confirms the input data structure matches particular transformer type. Whichever will match first will be used to transform the input data. In case none will be matched the [configured default data transformer](../configuration.md#data_transformer-str-optional) will be used.
 
 If you disable this setting (`False`), the code will directly rely on what was configured for particular `data_type` or the default `data_transformer`.
 

@@ -71,7 +71,11 @@ nav:
         - Structures: guide/input_data/structure.md
         - Charts structures: guide/input_data/charts.md
         - Transformation: guide/input_data/transformation.md
-      - guide/llm.md
+      - LLM Inference:
+        - guide/llm/index.md
+        - guide/llm/providers.md
+        - guide/llm/evaluations.md
+        - guide/llm/prompt_tuning.md
       - Data UI Blocks:
         - guide/data_ui_blocks/index.md
         - Dynamic Components: guide/data_ui_blocks/dynamic_components.md

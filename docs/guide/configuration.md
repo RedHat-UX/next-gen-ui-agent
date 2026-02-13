@@ -145,7 +145,7 @@ Optional prompt configuration for this data type. Overrides global prompt settin
 
 All fields from `AgentConfigPromptBase` are available (system prompts, examples, chart instructions) and take precedence over global configuration. This allows different data types (typically from different tools or data sources) to use customized LLM prompts.
 
-See [Prompt Tuning](llm.md#prompt-tuning) and [Per-Data-Type Prompt Customization](data_ui_blocks/index.md#per-data-type-prompt-customization) for detailed information and examples.
+See [Prompt Tuning](llm/prompt_tuning.md) and [Per-Data-Type Prompt Customization](data_ui_blocks/index.md#per-data-type-prompt-customization) for detailed information and examples.
 
 **Available fields**: All fields from global `prompt` configuration except `components`:
 - `system_prompt_start`
@@ -207,7 +207,7 @@ Override the initial system prompt section for the one-step strategy (used when 
 
 The custom prompt should include the `AVAILABLE UI COMPONENTS:` heading at the end - the component list, examples and chart instructions will be automatically appended after this heading.
 
-If not set, uses the default hardcoded prompt. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
+If not set, uses the default hardcoded prompt. For detailed information and examples, see [Prompt Tuning](llm/prompt_tuning.md).
 
 
 #### `chart_instructions_template` [`str`, optional]
@@ -220,21 +220,21 @@ Supports placeholders that will be replaced with dynamically generated component
 - `{charts_rules}` - Component-specific rules
 - `{charts_inline_examples}` - Chart configuration examples
 
-If not set, uses the default hardcoded template. For detailed information and examples, see [Prompt Tuning](llm.md#prompt-tuning).
+If not set, uses the default hardcoded template. For detailed information and examples, see [Prompt Tuning](llm/prompt_tuning.md).
 
 
 #### `examples_normalcomponents` [`str`, optional]
 
 Override the normal component examples (table, cards, image) for one-step strategy.
 
-If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm/prompt_tuning.md).
 
 
 #### `examples_charts` [`str`, optional]
 
 Override the chart component examples for one-step strategy.
 
-If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm.md#examples-customization).
+If not set, uses default hardcoded examples. For detailed information, see [Prompt Tuning - Examples Customization](llm/prompt_tuning.md#examples-customization).
 
 
 #### `twostep_step1select_system_prompt_start` [`str`, optional]

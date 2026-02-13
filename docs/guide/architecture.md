@@ -7,7 +7,7 @@ This guide shows how to use *NextGen UI Agent* in your AI application, how it pl
 In short, *UI Agent* takes `User Prompt` and [`Structured Data`](input_data/index.md) relevant to this prompt as an input, 
 and generates UI component to visualize that piece of data to the user. We call it [`Data UI Block`](data_ui_blocks/index.md).
 
-UI Agent uses [AI (LLM)](llm.md) in this step to understand the `User Prompt` and [input data structure](./input_data/structure.md),
+UI Agent uses [AI (LLM)](./llm/index.md) in this step to understand the `User Prompt` and [input data structure](./input_data/structure.md),
 and select the best dynamic UI component and displayed data values. 
 As UI component generation is an AI narrow task, small LLMs (3B, 8B, Mini/Flash/Flash-Lite series) are typically able to provide 
 good results for this task, which saves LLM price. They also provide better processing time, which is important for good user experience.

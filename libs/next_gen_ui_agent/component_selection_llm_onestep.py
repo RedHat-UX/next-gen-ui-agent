@@ -1,18 +1,12 @@
 import logging
 from typing import Any, Optional
 
-from next_gen_ui_agent.component_metadata import (
-    get_component_metadata,
-    merge_per_component_prompt_overrides,
-)
 from next_gen_ui_agent.component_selection_common import (
     CHART_COMPONENTS,
     build_chart_instructions,
-    build_components_description,
     get_prompt_field,
     has_chart_components,
     has_non_chart_components,
-    normalize_allowed_components,
 )
 from next_gen_ui_agent.component_selection_llm_strategy import (
     ComponentSelectionStrategy,
@@ -122,23 +116,43 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         """
         super().__init__(logger, config)
 
-        # Store full config for data_type lookups
-        self.config = config
-
-        # Get merged metadata with global overrides
-        self._base_metadata = get_component_metadata(config)
-
         # Cache for system prompts by data_type (for performance)
         self._system_prompt_cache: dict[str | None, str] = {}
 
         # Build and cache default system prompt for backward compatibility
         self._system_prompt = self._get_or_build_system_prompt(data_type=None)
 
-    def get_system_prompt(self) -> str:
+    def get_system_prompt(self, data_type: Optional[str] = None) -> str:
         """
         Get the system prompt for the component selection strategy.
+
+        Args:
+            data_type: Optional data type for data-type-specific prompt customization
+
+        Returns:
+            System prompt string for the given data_type (or global prompt if None)
         """
-        return self._system_prompt
+        return self._get_or_build_system_prompt(data_type)
+
+    def get_debug_prompts(
+        self,
+        data_type: Optional[str] = None,
+        component_for_step2: Optional[str] = None,
+    ) -> dict[str, str]:
+        """
+        Get all system prompts for debugging/inspection.
+
+        For one-step strategy, returns a single system prompt that handles both
+        component selection and configuration.
+
+        Args:
+            data_type: Optional data type for data-type-specific prompt customization
+            component_for_step2: Not used in one-step strategy (included for interface compatibility)
+
+        Returns:
+            Dictionary with single key 'system_prompt' containing the complete prompt
+        """
+        return {"system_prompt": self._get_or_build_system_prompt(data_type)}
 
     def _build_system_prompt(
         self,
@@ -153,38 +167,12 @@ class OnestepLLMCallComponentSelectionStrategy(ComponentSelectionStrategy):
         Returns:
             Complete system prompt string
         """
-        # Determine allowed components and metadata based on data_type
-        if data_type and self.config.data_types and data_type in self.config.data_types:
-            # Extract component names from data_type configuration
-            components_list = self.config.data_types[data_type].components
-            if components_list:
-                allowed_components_config = {comp.component for comp in components_list}
-
-                # Merge per-component prompt overrides
-                metadata = merge_per_component_prompt_overrides(
-                    self._base_metadata, components_list
-                )
-            else:
-                allowed_components_config = set(self._base_metadata.keys())
-                metadata = self._base_metadata
-        else:
-            # Global selection - use selectable_components
-            allowed_components_config = (
-                set(self.config.selectable_components)
-                if self.config.selectable_components
-                else set(self._base_metadata.keys())
-            )
-            # Use base metadata for global selection
-            metadata = self._base_metadata
-
-        allowed_components = normalize_allowed_components(
-            allowed_components_config, metadata
-        )
-
-        # Get filtered component descriptions
-        components_description = build_components_description(
-            allowed_components, metadata
-        )
+        # Determine allowed components, metadata, and descriptions based on data_type
+        (
+            allowed_components,
+            metadata,
+            components_description,
+        ) = self._resolve_components_and_description(data_type)
 
         # Detect chart components in allowed set
         allowed_charts = allowed_components & CHART_COMPONENTS
