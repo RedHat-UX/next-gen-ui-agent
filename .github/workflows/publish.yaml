@@ -9,9 +9,12 @@ on:
 jobs:
   # Bump version, build and upload artifacts
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     name: "Build"
     steps:
+      - name: Update packages
+        run: |
+          sudo apt update
       - name: Check out
         uses: actions/checkout@v3
       - uses: actions/setup-python@v5

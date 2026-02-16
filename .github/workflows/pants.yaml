@@ -85,9 +85,12 @@ jobs:
     if: ${{!contains(github.ref, 'main')}}
     needs:
       - build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     name: "Bump version and build"
     steps:
+      - name: Update packages
+        run: |
+          sudo apt update
       - name: Check out
         uses: actions/checkout@v3
         with:
