@@ -246,7 +246,7 @@ def evaluate_agent_for_dataset_row(
             dsr,
             arg_vague_component_check,
             arg_selected_component_type_check_only,
-            not judge_inference,
+            bool(judge_inference),
         )
 
         if not arg_selected_component_type_check_only:
