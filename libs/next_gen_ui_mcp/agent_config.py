@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 
 from next_gen_ui_agent.types import AgentConfig
 from pydantic import BaseModel, Field
@@ -24,6 +24,12 @@ class MCPAgentToolConfig(BaseModel):
         default=None,
     )
     """Dictionary mapping argument names to their descriptions. Overrides default argument descriptions."""
+
+    schema_excluded_args: Optional[List[str]] = Field(
+        description="List of argument names to exclude from the MCP tool schema, so calling LLM does not see them. They can be send still to the MCP server. 'session_id' is always excluded by default. Additional arguments listed here will be added to the exclusion list.",
+        default=None,
+    )
+    """List of argument names to exclude from the MCP tool schema. 'session_id' is always excluded by default."""
 
 
 class MCPAgentToolsConfig(BaseModel):

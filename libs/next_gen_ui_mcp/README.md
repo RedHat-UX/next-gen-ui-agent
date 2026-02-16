@@ -193,6 +193,26 @@ mcp:
 
 ```
 
+#### Schema Argument Exclusion
+
+You can configure which arguments are excluded from the MCP tool schema, so that they are not visible to the calling LLM.
+You can remove unused arguments this way to make schema passed to the LLM smaller to save context/tokens.
+Excluded arguments can be sent to the NGUI MCP server still by the MCP client framework. Optimized way how to pass structured 
+data from the previous tool call to NGUI can be implemented this way, without need to pass all the data through the LLM.
+The `session_id` argument is always excluded (doesn't need to be listed), as it is send by some MCP client frameworks (LlamaStack).
+Additional arguments can be excluded using `schema_excluded_args`:
+
+```yaml
+mcp:
+  tools:
+    generate_ui_multiple_components:
+      schema_excluded_args:
+        - structured_data  # Exclude this argument from schema
+    generate_ui_component:
+      schema_excluded_args:
+        - data_type_metadata  # Exclude this argument from schema
+```
+
 #### Tool Enabling/Disabling Precedence
 
 The system supports multiple ways to control which tools are enabled, with the following precedence order (highest to lowest):

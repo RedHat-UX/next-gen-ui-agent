@@ -1196,6 +1196,134 @@ class TestAgentConfiguration:
             == "tool 'bad_tool' is no valid. Available tools are: ['generate_ui_component', 'generate_ui_multiple_components']"
         )
 
+    @pytest.mark.asyncio
+    async def test_schema_excluded_args_default(self) -> None:
+        """Test that session_id is excluded by default when no config is provided."""
+        ngui_agent = NextGenUIMCPServer(config=MCPAgentConfig(component_system="json"))
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+
+        # Test both tools have session_id excluded by default
+        for tool in tools:
+            assert "session_id" not in tool.inputSchema["properties"]
+
+    @pytest.mark.asyncio
+    async def test_schema_excluded_args_additional_exclusions_generate_ui_component(
+        self,
+    ) -> None:
+        """Test adding additional exclusions for generate_ui_component."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(
+                        schema_excluded_args=["data_type_metadata"]
+                    )
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(config=config)
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+
+        tool = next(t for t in tools if t.name == "generate_ui_component")
+        # Verify both session_id and data_type_metadata are excluded
+        assert "session_id" not in tool.inputSchema["properties"]
+        assert "data_type_metadata" not in tool.inputSchema["properties"]
+        # Verify other arguments are still present
+        assert "user_prompt" in tool.inputSchema["properties"]
+        assert "data" in tool.inputSchema["properties"]
+        assert "data_type" in tool.inputSchema["properties"]
+
+    @pytest.mark.asyncio
+    async def test_schema_excluded_args_additional_exclusions_generate_ui_multiple_components(
+        self,
+    ) -> None:
+        """Test adding additional exclusions for generate_ui_multiple_components."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_multiple_components=MCPAgentToolConfig(
+                        schema_excluded_args=["structured_data"]
+                    )
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(config=config)
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+
+        tool = next(t for t in tools if t.name == "generate_ui_multiple_components")
+        # Verify both session_id and structured_data are excluded
+        assert "session_id" not in tool.inputSchema["properties"]
+        assert "structured_data" not in tool.inputSchema["properties"]
+        # Verify other arguments are still present
+        assert "user_prompt" in tool.inputSchema["properties"]
+
+    @pytest.mark.asyncio
+    async def test_schema_excluded_args_both_tools_independently(self) -> None:
+        """Test that exclusions work independently for both tools."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(
+                        schema_excluded_args=["data_id"]
+                    ),
+                    generate_ui_multiple_components=MCPAgentToolConfig(
+                        schema_excluded_args=["structured_data"]
+                    ),
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(config=config)
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+
+        # Test generate_ui_component
+        tool1 = next(t for t in tools if t.name == "generate_ui_component")
+        assert "session_id" not in tool1.inputSchema["properties"]
+        assert "data_id" not in tool1.inputSchema["properties"]
+        assert "data_type_metadata" in tool1.inputSchema["properties"]  # Not excluded
+        assert "structured_data" not in tool1.inputSchema["properties"]  # Doesn't exist
+
+        # Test generate_ui_multiple_components
+        tool2 = next(t for t in tools if t.name == "generate_ui_multiple_components")
+        assert "session_id" not in tool2.inputSchema["properties"]
+        assert "structured_data" not in tool2.inputSchema["properties"]
+        assert "user_prompt" in tool2.inputSchema["properties"]  # Not excluded
+
+    @pytest.mark.asyncio
+    async def test_schema_excluded_args_multiple_exclusions(self) -> None:
+        """Test excluding multiple arguments from the same tool."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(
+                        schema_excluded_args=["data_id", "data_type_metadata"]
+                    )
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(config=config)
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+
+        tool = next(t for t in tools if t.name == "generate_ui_component")
+        # Verify all three are excluded (session_id + the two additional)
+        assert "session_id" not in tool.inputSchema["properties"]
+        assert "data_id" not in tool.inputSchema["properties"]
+        assert "data_type_metadata" not in tool.inputSchema["properties"]
+        # Verify required arguments are still present
+        assert "user_prompt" in tool.inputSchema["properties"]
+        assert "data" in tool.inputSchema["properties"]
+
 
 class TestSystemResources:
     """Tests for MCP system resources."""

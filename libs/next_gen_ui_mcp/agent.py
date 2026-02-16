@@ -249,6 +249,27 @@ class NextGenUIMCPServer:
             return tool_config.argument_descriptions[argument_name]
         return default
 
+    def _get_excluded_args(
+        self,
+        tool_config: Optional[MCPAgentToolConfig],
+    ) -> List[str]:
+        """Get list of arguments to exclude from MCP schema.
+
+        Args:
+            tool_config: The tool config object
+
+        Returns:
+            List of argument names to exclude (always includes 'session_id')
+        """
+        # session_id is always excluded
+        excluded = ["session_id"]
+
+        # Add any additional exclusions from config
+        if tool_config and tool_config.schema_excluded_args:
+            excluded.extend(tool_config.schema_excluded_args)
+
+        return excluded
+
     def _setup_mcp_tools(self) -> None:
         """Set up MCP tools for the agent."""
         logger.info("Registering tools")
@@ -279,8 +300,7 @@ class NextGenUIMCPServer:
                 )
             ),
             enabled="generate_ui_component" in self.enabled_tools,
-            # exclude session_id so LLM does not see it
-            exclude_args=["session_id"],
+            exclude_args=self._get_excluded_args(tool_config),
         )
         async def generate_ui_component(
             ctx: Context,
@@ -397,7 +417,7 @@ class NextGenUIMCPServer:
                 )
             ),
             enabled="generate_ui_multiple_components" in self.enabled_tools,
-            # exclude_args=["structured_data"],
+            exclude_args=self._get_excluded_args(tool_config_multiple),
         )
         async def generate_ui_multiple_components(
             ctx: Context,
