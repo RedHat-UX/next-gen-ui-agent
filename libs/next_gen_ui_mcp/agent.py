@@ -196,6 +196,7 @@ class NextGenUIMCPServer:
             mask_error_details=False,
         )
         if enabled_tools:
+            # CLI/env has highest precedence
             for t in enabled_tools:
                 if t not in MCP_ALL_TOOLS:
                     raise ValueError(
@@ -203,7 +204,21 @@ class NextGenUIMCPServer:
                     )
             self.enabled_tools = enabled_tools
         else:
-            self.enabled_tools = MCP_ALL_TOOLS
+            # Start with all tools enabled (default)
+            self.enabled_tools = list(MCP_ALL_TOOLS)
+
+            # Apply YAML config if present
+            if self.config.mcp and self.config.mcp.tools:
+                tools_config = self.config.mcp.tools
+                for tool_name in MCP_ALL_TOOLS:
+                    tool_config = getattr(tools_config, tool_name, None)
+                    if (
+                        tool_config
+                        and tool_config.enabled is False
+                        and tool_name in self.enabled_tools
+                    ):
+                        self.enabled_tools.remove(tool_name)
+
         self._setup_mcp_tools()
         self.inference = inference
         self.ngui_agent = NextGenUIAgent(config=self.config)

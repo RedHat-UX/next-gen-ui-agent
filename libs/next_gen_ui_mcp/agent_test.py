@@ -1473,3 +1473,253 @@ class TestMCPModelPreferences:
         assert captured_preferences.hints is not None
         assert captured_preferences.hints[0].name == "claude-3-sonnet"
         assert captured_preferences.intelligencePriority == 0.9
+
+
+class TestToolEnablement:
+    """Tests for tool enablement/disablement via YAML config and CLI/env."""
+
+    @pytest.mark.asyncio
+    async def test_default_all_tools_enabled(self, external_inference) -> None:
+        """Test that all tools are enabled by default."""
+        ngui_agent = NextGenUIMCPServer(
+            config=MCPAgentConfig(component_system="json"),
+            name="TestDefaultEnabled",
+            inference=external_inference,
+        )
+
+        # Verify all tools are enabled
+        assert "generate_ui_component" in ngui_agent.enabled_tools
+        assert "generate_ui_multiple_components" in ngui_agent.enabled_tools
+        assert len(ngui_agent.enabled_tools) == 2
+
+        # Verify tools are actually available in MCP server
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+            tool_names = [tool.name for tool in tools]
+            assert "generate_ui_component" in tool_names
+            assert "generate_ui_multiple_components" in tool_names
+
+    @pytest.mark.asyncio
+    async def test_yaml_config_disables_tool(self, external_inference) -> None:
+        """Test that YAML config can disable a tool."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(enabled=False)
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(
+            config=config,
+            name="TestYAMLDisabled",
+            inference=external_inference,
+        )
+
+        # Verify generate_ui_component is disabled
+        assert "generate_ui_component" not in ngui_agent.enabled_tools
+        assert "generate_ui_multiple_components" in ngui_agent.enabled_tools
+        assert len(ngui_agent.enabled_tools) == 1
+
+        # Verify disabled tool is not available in MCP server
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+            tool_names = [tool.name for tool in tools]
+            assert "generate_ui_component" not in tool_names
+            assert "generate_ui_multiple_components" in tool_names
+
+    @pytest.mark.asyncio
+    async def test_yaml_config_enables_tool_explicitly(
+        self, external_inference
+    ) -> None:
+        """Test that YAML config can explicitly enable a tool (though it's default)."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(enabled=True)
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(
+            config=config,
+            name="TestYAMLEnabled",
+            inference=external_inference,
+        )
+
+        # Verify both tools are enabled
+        assert "generate_ui_component" in ngui_agent.enabled_tools
+        assert "generate_ui_multiple_components" in ngui_agent.enabled_tools
+
+    @pytest.mark.asyncio
+    async def test_yaml_config_disables_multiple_tools(
+        self, external_inference
+    ) -> None:
+        """Test that YAML config can disable multiple tools."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(enabled=False),
+                    generate_ui_multiple_components=MCPAgentToolConfig(enabled=False),
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(
+            config=config,
+            name="TestYAMLAllDisabled",
+            inference=external_inference,
+        )
+
+        # Verify both tools are disabled
+        assert "generate_ui_component" not in ngui_agent.enabled_tools
+        assert "generate_ui_multiple_components" not in ngui_agent.enabled_tools
+        assert len(ngui_agent.enabled_tools) == 0
+
+    @pytest.mark.asyncio
+    async def test_cli_env_precedence_over_yaml(self, external_inference) -> None:
+        """Test that CLI/env parameter has precedence over YAML config."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(enabled=False)
+                )
+            ),
+        )
+
+        # CLI/env enables the tool despite YAML disabling it
+        ngui_agent = NextGenUIMCPServer(
+            config=config,
+            name="TestCLIPrecedence",
+            inference=external_inference,
+            enabled_tools=["generate_ui_component"],
+        )
+
+        # Verify CLI overrides YAML - tool is enabled
+        assert "generate_ui_component" in ngui_agent.enabled_tools
+        assert "generate_ui_multiple_components" not in ngui_agent.enabled_tools
+        assert len(ngui_agent.enabled_tools) == 1
+
+        # Verify tool is available in MCP server
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+            tool_names = [tool.name for tool in tools]
+            assert "generate_ui_component" in tool_names
+            assert "generate_ui_multiple_components" not in tool_names
+
+    @pytest.mark.asyncio
+    async def test_disabled_tool_cannot_be_called(self, external_inference) -> None:
+        """Test that a disabled tool cannot be called."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(enabled=False)
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(
+            config=config,
+            name="TestDisabledToolCall",
+            inference=external_inference,
+        )
+
+        movies_data = find_movie("Toy Story")
+
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            # Attempting to call disabled tool should raise an error
+            with pytest.raises(Exception):  # Will be a tool not found error
+                await client.call_tool(
+                    "generate_ui_component",
+                    {
+                        "user_prompt": "Tell me brief details of Toy Story",
+                        "data": json.dumps(movies_data, default=str),
+                        "data_type": "movie_detail",
+                        "data_id": "test_id",
+                    },
+                )
+
+    @pytest.mark.asyncio
+    async def test_enabled_tool_can_be_called(self, external_inference) -> None:
+        """Test that an enabled tool (via YAML) can be called successfully."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(
+                        enabled=True,
+                        description="Custom description for enabled tool",
+                    )
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(
+            config=config,
+            name="TestEnabledToolCall",
+            inference=external_inference,
+        )
+
+        movies_data = find_movie("Toy Story")
+
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            result = await client.call_tool(
+                "generate_ui_component",
+                {
+                    "user_prompt": "Tell me brief details of Toy Story",
+                    "data": json.dumps(movies_data, default=str),
+                    "data_type": "movie_detail",
+                    "data_id": "enabled_test_id",
+                },
+            )
+
+        # Verify the result
+        assert result is not None
+        output = MCPGenerateUIOutput.model_validate(result.data)
+        assert output.summary is not None
+        assert "Toy Story External" in output.summary
+
+    @pytest.mark.asyncio
+    async def test_yaml_config_with_other_tool_config(self, external_inference) -> None:
+        """Test that enabled field works alongside other tool config options."""
+        config = MCPAgentConfig(
+            component_system="json",
+            mcp=MCPConfig(
+                tools=MCPAgentToolsConfig(
+                    generate_ui_component=MCPAgentToolConfig(
+                        enabled=True,
+                        description="Custom description",
+                        argument_descriptions={
+                            "user_prompt": "Custom user prompt description"
+                        },
+                    ),
+                    generate_ui_multiple_components=MCPAgentToolConfig(enabled=False),
+                )
+            ),
+        )
+
+        ngui_agent = NextGenUIMCPServer(
+            config=config,
+            name="TestYAMLMixedConfig",
+            inference=external_inference,
+        )
+
+        # Verify correct tools are enabled/disabled
+        assert "generate_ui_component" in ngui_agent.enabled_tools
+        assert "generate_ui_multiple_components" not in ngui_agent.enabled_tools
+
+        # Verify the enabled tool has custom configuration
+        async with Client(ngui_agent.get_mcp_server()) as client:
+            tools = await client.list_tools()
+            tool_names = [tool.name for tool in tools]
+            assert "generate_ui_component" in tool_names
+
+            # Find the tool and verify custom description
+            for tool in tools:
+                if tool.name == "generate_ui_component":
+                    assert tool.description == "Custom description"

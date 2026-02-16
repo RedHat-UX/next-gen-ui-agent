@@ -93,7 +93,7 @@ Server can be configured using commandline arguments, or environment variables. 
 | `--transport`                 | `MCP_TRANSPORT`                   | `stdio`       | Transport protocol for MCP (`stdio`, `sse`, `streamable-http`).                                                                       |
 | `--host`                      | `MCP_HOST`                        | `127.0.0.1`   | Host to bind to (for `sse` and `streamable-http` transports).                                                                         |
 | `--port`                      | `MCP_PORT`                        | `8000`        | Port to bind to (for `sse` and `streamable-http` transports).                                                                         |
-| `--tools`                     | `MCP_TOOLS`                       | -             | List of enabled tools (comma separated). All are enabled by default.                                                                  |
+| `--tools`                     | `MCP_TOOLS`                       | -             | List of enabled tools (comma separated). All are enabled by default until some are disabled in yaml config.                           |
 | `--structured_output_enabled` | `MCP_STRUCTURED_OUTPUT_ENABLED`   | `true`        | Enable or disable structured output.                                                                                                  |
 | `--provider`                  | `NGUI_PROVIDER`                   | `mcp`         | LLM inference provider (`mcp`, `openai`, `anthropic-vertexai`), for details see below.                                                |
 | `--model`                     | `NGUI_MODEL`                      | -             | Model name. Required for other than `mcp` providers.                                                                                  |
@@ -173,14 +173,18 @@ Common [Next Gen UI YAML configuration files](https://redhat-ux.github.io/next-g
 
 Configuration file extension is available to provide ability to fine-tune descriptions for
 the MCP tools and their arguments, to get better performance in your AI assitant/orchestrator.
+It also allows you to enable or disable individual tools.
 For details [see `mcp` field in the Schema Definition](https://redhat-ux.github.io/next-gen-ui-agent/spec/mcp/#agent-configuration).
 
-Examle of the mcp yaml configuration extension:
+Example of the mcp yaml configuration extension:
 
 ```yaml
 mcp:
   tools:
+    generate_ui_component:
+      enabled: false  # Disable this tool (default: true)
     generate_ui_multiple_components:
+      enabled: true  # Explicitly enable (optional, default is true)
       description: Generate multiple UI components for given user_prompt and input data.\nAlways get fresh data from another tool first.
       argument_descriptions:
         user_prompt: "Original user prompt without any changes, so UI components have necessary context. Do not generate this."
@@ -188,6 +192,21 @@ mcp:
 # other UI Agent configurations
 
 ```
+
+#### Tool Enabling/Disabling Precedence
+
+The system supports multiple ways to control which tools are enabled, with the following precedence order (highest to lowest):
+
+1. **CLI/Environment** (highest): `--tools` / `MCP_TOOLS` - when specified, completely overrides YAML configuration
+2. **YAML Configuration**: `mcp.tools.<tool_name>.enabled` - controls per-tool enablement when CLI/env is not specified
+3. **Default** (lowest): All tools enabled
+
+**Examples:**
+
+- YAML disables `generate_ui_component`, no CLI arg → tool is **disabled**
+- YAML disables `generate_ui_component`, CLI `--tools generate_ui_component` → tool is **enabled** (CLI wins)
+- YAML enables `generate_ui_component`, CLI `--tools generate_ui_multiple_components` → only `generate_ui_multiple_components` is **enabled** (CLI specifies exact list)
+- No YAML, no CLI → all tools **enabled** (default)
 
 ### Running Server locally from Git Repo
 

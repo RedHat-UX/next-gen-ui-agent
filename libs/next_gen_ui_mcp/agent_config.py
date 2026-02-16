@@ -7,6 +7,12 @@ from pydantic import BaseModel, Field
 class MCPAgentToolConfig(BaseModel):
     """Information to override default values in the MCP Agent tool."""
 
+    enabled: Optional[bool] = Field(
+        description="Whether the tool is enabled. Defaults to True. If False, the tool will not be exposed from the MCP server to client.",
+        default=True,
+    )
+    """Whether the tool is enabled. Defaults to True."""
+
     description: Optional[str] = Field(
         description="Description of the MCP tool.",
         default=None,
