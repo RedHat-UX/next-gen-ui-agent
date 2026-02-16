@@ -85,7 +85,7 @@ jobs:
     if: ${{!contains(github.ref, 'main')}}
     needs:
       - build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: "Bump version and build"
     steps:
       - name: Check out

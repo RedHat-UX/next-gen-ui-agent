@@ -9,7 +9,7 @@ on:
 jobs:
   # Bump version, build and upload artifacts
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: "Build"
     steps:
       - name: Check out
