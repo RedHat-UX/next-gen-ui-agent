@@ -88,7 +88,10 @@ jobs:
     runs-on: ubuntu-latest
     name: "Bump version and build"
     steps:
-      - uses: gacts/install-podman@v1
+      - name: Update packages
+        run: |
+          sudo apt update
+          sudo apt-get -y install podman
       - name: Check out
         uses: actions/checkout@v3
         with:
