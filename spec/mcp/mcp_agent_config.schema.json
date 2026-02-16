@@ -530,6 +530,21 @@
           ],
           "default": null,
           "description": "Dictionary mapping argument names to their descriptions. Overrides default argument descriptions."
+        },
+        "schema_excluded_args": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "List of argument names to exclude from the MCP tool schema, so calling LLM does not see them. They can be send still to the MCP server. 'session_id' is always excluded by default. Additional arguments listed here will be added to the exclusion list."
         }
       },
       "title": "MCPAgentToolConfig",
