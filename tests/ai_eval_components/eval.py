@@ -91,13 +91,15 @@ def check_result_explicit(
     component: UIComponentMetadata,
     errors: list[ComponentDataValidationError],
     dsr: DatasetRow,
-    arg_vague_component_check: bool,
-    arg_selected_component_type_check_only: bool = False,
+    vague_component_check: bool,
+    selected_component_type_check_only: bool = False,
+    skip_component_type_check: bool = False,
 ):
     """
     Perform explicit checks on the LLM generated component JSON
-    * all necessary attributes in the root and in `fields` are not empty
-    * component is of the expected type
+    * all necessary attributes in the root are not empty
+    * `fields` checks - at least one field exists, all fields have all mandatory values and they are valid for the component type (valid data_path check etc). Fields are checked only if selected_component_type_check_only is False.
+    * component is of the type expected in evaluation dataset - unless skip_component_type_check is True. `table` and `set-of-cards` components can be interchanged if vague_component_check is True.
 
     Return list of errors or empty list if everything is OK.
     """
@@ -105,30 +107,32 @@ def check_result_explicit(
     componentDict = component.model_dump()
     assert_str_not_blank(componentDict, "title", "title.empty", errors)
     if assert_str_not_blank(componentDict, "component", "component.empty", errors):
-        ds_expected_component = dsr["expected_component"]
-        generated_component = component.component
-        if generated_component != ds_expected_component:
-            if arg_vague_component_check:
-                # allow `table` and `set-of-cards` components to be interchanged
-                if (
-                    generated_component == TableDataTransformer.COMPONENT_NAME
-                    and ds_expected_component
-                    == SetOfCardsDataTransformer.COMPONENT_NAME
-                ):
-                    return
-                if (
-                    generated_component == SetOfCardsDataTransformer.COMPONENT_NAME
-                    and ds_expected_component == TableDataTransformer.COMPONENT_NAME
-                ):
-                    return
+        if not skip_component_type_check:
+            ds_expected_component = dsr["expected_component"]
+            generated_component = component.component
+            if generated_component != ds_expected_component:
+                if vague_component_check:
+                    # allow `table` and `set-of-cards` components to be interchanged
+                    if (
+                        generated_component == TableDataTransformer.COMPONENT_NAME
+                        and ds_expected_component
+                        == SetOfCardsDataTransformer.COMPONENT_NAME
+                    ):
+                        return
+                    if (
+                        generated_component == SetOfCardsDataTransformer.COMPONENT_NAME
+                        and ds_expected_component == TableDataTransformer.COMPONENT_NAME
+                    ):
+                        return
 
-            errors.append(
-                ComponentDataValidationError(
-                    "component.invalid",
-                    f"{generated_component} instead of {ds_expected_component}",
+                errors.append(
+                    ComponentDataValidationError(
+                        "component.invalid",
+                        f"{generated_component} instead of {ds_expected_component}",
+                    )
                 )
-            )
-    if not arg_selected_component_type_check_only:
+
+    if not selected_component_type_check_only:
         if assert_array_not_empty(componentDict, "fields", "fields.empty", errors):
             for i, field in enumerate(component.fields):
                 fn = f"fields[{i}]."
@@ -193,6 +197,7 @@ def evaluate_agent_for_dataset_row(
         )
         component.json_data = json_data
         component.json_wrapping_field_name = field_name
+        component.input_data_type = input_data_type
     except Exception as e:
         errors.append(
             ComponentDataValidationError(
@@ -215,7 +220,11 @@ def evaluate_agent_for_dataset_row(
 
             judge_results_list = asyncio.run(
                 run_llm_judges(
-                    component, dsr["user_prompt"], json_data, judge_inference
+                    component,
+                    dsr["user_prompt"],
+                    json_data,
+                    component_selection_strategy,
+                    judge_inference,
                 )
             )
 
@@ -229,21 +238,22 @@ def evaluate_agent_for_dataset_row(
                                 f"Category: {jr['category']}, Score {jr['score']:.2f}: {jr['reasoning']}",
                             )
                         )
-        else:
-            # Deterministic mode: Traditional validation (no judges)
-            check_result_explicit(
-                component,
-                errors,
-                dsr,
-                arg_vague_component_check,
-                arg_selected_component_type_check_only,
-            )
 
-            if not arg_selected_component_type_check_only:
-                # if not any error so far, validate the component data_paths and overal structure of data for given component
-                if len(errors) == 0:
-                    data_transformer = get_data_transformer(component.component)
-                    data = data_transformer.validate(component, input_data, errors)
+        # Traditional explicit validation, selected component type check is skipped if judge is used
+        check_result_explicit(
+            component,
+            errors,
+            dsr,
+            arg_vague_component_check,
+            arg_selected_component_type_check_only,
+            not judge_inference,
+        )
+
+        if not arg_selected_component_type_check_only:
+            # if not any error so far, validate the component data_paths and overal structure of data for given component
+            if len(errors) == 0:
+                data_transformer = get_data_transformer(component.component)
+                data = data_transformer.validate(component, input_data, errors)
 
     # Capture LLM output from inference_result for reporting
     llm_output = inference_result["outputs"]
