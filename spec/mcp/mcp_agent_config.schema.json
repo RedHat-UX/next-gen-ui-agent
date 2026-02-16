@@ -492,6 +492,18 @@
     "MCPAgentToolConfig": {
       "description": "Information to override default values in the MCP Agent tool.",
       "properties": {
+        "enabled": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": true,
+          "description": "Whether the tool is enabled. Defaults to True. If False, the tool will not be exposed from the MCP server to client."
+        },
         "description": {
           "anyOf": [
             {
