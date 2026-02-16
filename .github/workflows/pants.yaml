@@ -87,6 +87,10 @@ jobs:
       - build
     runs-on: ubuntu-latest
     name: "Bump version and build"
+    permissions:
+      contents: read
+      # Required for image pushing to a registry
+      packages: write
     steps:
       - name: Update packages
         run: |

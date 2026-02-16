@@ -11,6 +11,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     name: "Build"
+    permissions:
+      contents: read
+      # Required for image pushing to a registry
+      packages: write
     steps:
       - name: Update packages
         run: |
