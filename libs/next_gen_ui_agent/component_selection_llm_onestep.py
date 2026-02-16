@@ -27,7 +27,7 @@ DEFAULT_SYSTEM_PROMPT_START = """You are a UI design assistant. Select the best 
 
 RULES:
 - Generate JSON only
-- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS, unless data structure prevents it
+- If user explicitly requests a component type ("table", "chart", "cards"), USE IT if present in the list of AVAILABLE UI COMPONENTS and if it fits Data structure. Select available component otherwise!
 - Select one component into "component" field. It MUST BE named in the AVAILABLE UI COMPONENTS!
 - Provide "title", "reasonForTheComponentSelection", "confidenceScore" (percentage)
 - Select relevant Data fields based on User query

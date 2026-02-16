@@ -55,6 +55,11 @@ class ComponentSelectionStrategy(ABC):
     _base_metadata: dict[str, AgentConfigPromptComponent]
     """Base component metadata with global overrides applied."""
 
+    _allowed_components_cache: dict[
+        Optional[str], tuple[set[str], dict[str, AgentConfigPromptComponent]]
+    ]
+    """Cache for resolved allowed components and metadata, keyed by data_type."""
+
     input_data_json_wrapping: bool
     """
     If `True`, the agent will wrap the JSON input data into data type field if necessary due to its structure.
@@ -65,6 +70,7 @@ class ComponentSelectionStrategy(ABC):
         self.logger = logger
         self.config = config
         self._base_metadata = get_component_metadata(config)
+        self._allowed_components_cache = {}
         self.input_data_json_wrapping = (
             config.input_data_json_wrapping
             if config.input_data_json_wrapping is not None
@@ -146,17 +152,17 @@ class ComponentSelectionStrategy(ABC):
         if isinstance(json_data, str):
             # wrap string as JSON - necessary for the output of the `noop` input data transformer to be processed by the LLM
             json_data_for_llm, notused = wrap_string_as_json(
-                json_data, input_data.get("type"), MAX_STRING_DATA_LENGTH_FOR_LLM
+                json_data, data_type, MAX_STRING_DATA_LENGTH_FOR_LLM
             )
             json_data, json_wrapping_field_name = wrap_string_as_json(
-                json_data, input_data.get("type")
+                json_data, data_type
             )
 
         else:
             # wrap parsed JSON data structure into data type field if allowed and necessary
             if self.input_data_json_wrapping:
                 json_data, json_wrapping_field_name = wrap_json_data(
-                    json_data, input_data.get("type")
+                    json_data, data_type
                 )
             # we have to reduce arrays size to avoid LLM context window limit
             json_data_for_llm = reduce_arrays(json_data, MAX_ARRAY_SIZE_FOR_LLM)
@@ -171,10 +177,19 @@ class ComponentSelectionStrategy(ABC):
 
         try:
             result = self.parse_infernce_output(inference_result, input_data_id)
+
+            # Validate that selected component is allowed for this data_type
+            allowed_components = self.get_allowed_components(data_type)
+            if result.component not in allowed_components:
+                raise ValueError(
+                    f"LLM selected component '{result.component}' which is not allowed "
+                    f"for data_type '{data_type}'. Allowed components: {sorted(allowed_components)}"
+                )
+
             result.json_data = json_data
             result.input_data_transformer_name = input_data_transformer_name
             result.json_wrapping_field_name = json_wrapping_field_name
-            result.input_data_type = input_data.get("type")
+            result.input_data_type = data_type
 
             # Handle llm_configure=False merging for data_type-specific components
             if data_type and not result.fields:
@@ -182,7 +197,7 @@ class ComponentSelectionStrategy(ABC):
 
             return result
         except Exception as e:
-            self.logger.exception("Cannot decode the json from LLM response")
+            self.logger.exception("Cannot decode the json from LLM response: %s", e)
             raise e
 
     def get_allowed_components(self, data_type: Optional[str] = None) -> set[str]:
@@ -255,6 +270,8 @@ class ComponentSelectionStrategy(ABC):
         - Global component selection using selectable_components
         - Fallback to all available components
 
+        Results are cached based on data_type for faster subsequent calls.
+
         Args:
             data_type: Optional data type for data-type-specific component selection
 
@@ -263,6 +280,10 @@ class ComponentSelectionStrategy(ABC):
                 - allowed_components: Set of normalized component names
                 - metadata: Dictionary mapping component names to their metadata
         """
+        # Check cache first
+        if data_type in self._allowed_components_cache:
+            return self._allowed_components_cache[data_type]
+
         config: AgentConfig = self.config
         base_metadata: dict[str, AgentConfigPromptComponent] = self._base_metadata
 
@@ -294,7 +315,11 @@ class ComponentSelectionStrategy(ABC):
             allowed_components_config, metadata
         )
 
-        return allowed_components, metadata
+        # Cache the result
+        result = (allowed_components, metadata)
+        self._allowed_components_cache[data_type] = result
+
+        return result
 
     def _merge_with_preconfig_if_needed(
         self, data_type: str, result: UIComponentMetadata
