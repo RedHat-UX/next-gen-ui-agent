@@ -113,7 +113,9 @@ jobs:
           increment: "PATCH"
           commitizen_version: "4.10.0"
       - name: Print Version
-        run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
+        run: |
+          echo "Bumped to version ${{ steps.cz.outputs.version }}"
+          docker version
       - uses: pantsbuild/actions/init-pants@v8
         with:
           gha-cache-key: v0
