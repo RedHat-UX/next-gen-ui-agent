@@ -88,14 +88,14 @@ jobs:
     runs-on: ubuntu-latest
     name: "Bump version and build"
     steps:
-      - name: Update packages
-        run: |
-          sudo apt update
-          sudo apt-get -y install podman
       - name: Check out
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v4
+        with:
+          version: 20.10   # client version from redhat-actions/push-to-registry@v2 (1.41).
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
