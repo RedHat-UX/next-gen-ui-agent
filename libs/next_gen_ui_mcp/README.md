@@ -73,6 +73,12 @@ Few examples:
 
   # Run with rhds component system via SSE transport
   python -m next_gen_ui_mcp --transport sse --component-system rhds --port 8000
+
+  # Run with custom CORS configuration
+  python -m next_gen_ui_mcp --transport sse --cors-allow-origins "http://localhost:3000,http://localhost:8080"
+
+  # Run with CORS allowing all origins (development only)
+  python -m next_gen_ui_mcp --transport streamable-http --cors-allow-origins "*"
 ```
 
 As the above examples show you can choose to configure `mcp` sampling, `openai` or `anthropic-vertexai` inference provider.
@@ -106,6 +112,11 @@ Server can be configured using commandline arguments, or environment variables. 
 | `--sampling-speed-priority`  | `NGUI_SAMPLING_SPEED_PRIORITY`    | -             | Speed priority (0.0-1.0). Higher values prefer faster models. Used by `mcp` provider.                                                   |
 | `--sampling-intelligence-priority` | `NGUI_SAMPLING_INTELLIGENCE_PRIORITY` | -         | Intelligence priority (0.0-1.0). Higher values prefer more capable models. Used by `mcp` provider.                                       |
 | `--anthropic-version`         | `NGUI_PROVIDER_ANTHROPIC_VERSION` | -             | Anthropic version value used in the API call (defaults to `vertex-2023-10-16`). Used by `anthropic-vertexai`.                         |
+| `--cors-allow-origins`        | `MCP_CORS_ALLOW_ORIGINS`          | `http://localhost:8080` | Comma-separated list of allowed origins for CORS. Use `*` to allow all origins. Only applies to `sse` and `streamable-http` transports. |
+| `--cors-allow-credentials`    | `MCP_CORS_ALLOW_CREDENTIALS`      | `true`        | Allow credentials (cookies, authorization headers) in CORS requests. Only applies to `sse` and `streamable-http` transports.            |
+| `--cors-allow-methods`        | `MCP_CORS_ALLOW_METHODS`          | `*`           | Comma-separated list of allowed HTTP methods for CORS. Use `*` to allow all methods. Only applies to `sse` and `streamable-http` transports. |
+| `--cors-allow-headers`        | `MCP_CORS_ALLOW_HEADERS`          | `*`           | Comma-separated list of allowed headers for CORS. Use `*` to allow all headers. Only applies to `sse` and `streamable-http` transports. |
+| `--cors-expose-headers`       | `MCP_CORS_EXPOSE_HEADERS`         | `mcp-session-id,mcp-protocol-version` | Comma-separated list of headers to expose to the browser. Required for MCP streamable-http transport. Only applies to `sse` and `streamable-http` transports. |
 | `--debug`                     | -                                 |               | Enable debug logging.                                                                                                                 |
 
 ### LLM Inference Providers
@@ -395,6 +406,239 @@ Returns system information about the Next Gen UI Agent including:
 - Component system being used
 - Available capabilities
 - Description
+
+### `ui://generate_ui_component/mcp-app.html`
+HTML resource for rendering UI components (single or multiple) in MCP Apps-compatible hosts.
+
+**MIME Type:** `text/html;profile=mcp-app`
+
+Returns self-contained HTML file (~1.3MB) with:
+- React application using MCP Apps SDK
+- PatternFly component rendering via `@rhngui/patternfly-react-renderer`
+- Parses tool results from both `generate_ui_component` and `generate_ui_multiple_components`
+- Renders component configurations as interactive UI
+- Automatically applies spacing when rendering multiple components
+
+## MCP Apps Integration
+
+This server supports [MCP Apps](https://spec.modelcontextprotocol.io/specification/2025-11-05/apps/) for displaying interactive UI in compatible chat clients (Claude Desktop, etc.).
+
+### How It Works
+
+```
+┌─────────────────┐       ┌──────────────────┐       ┌─────────────────────┐
+│  MCP Host       │       │  Python Server   │       │  TypeScript UI      │
+│  (Chat Client)  │       │  (This Module)   │       │  (Browser View)     │
+└─────────────────┘       └──────────────────┘       └─────────────────────┘
+        │                         │                            │
+        │  1. call_tool()        │                            │
+        │───────────────────────>│                            │
+        │                         │                            │
+        │  2. Generate UIBlock   │                            │
+        │     with component     │                            │
+        │     config             │                            │
+        │<───────────────────────│                            │
+        │                         │                            │
+        │  3. read_resource()    │                            │
+        │     ui://...html       │                            │
+        │───────────────────────>│                            │
+        │                         │                            │
+        │  4. HTML content       │                            │
+        │<───────────────────────│                            │
+        │                         │                            │
+        │  5. Load in iframe     │                            │
+        │───────────────────────────────────────────────────>│
+        │                         │                            │
+        │  6. ui/initialize      │                            │
+        │<───────────────────────────────────────────────────│
+        │                         │                            │
+        │  7. Send toolResult    │                            │
+        │───────────────────────────────────────────────────>│
+        │                         │                            │
+        │                         │  8. Parse & render        │
+        │                         │     with DynamicComponent │
+        │                         │                           │
+```
+
+### Data Flow
+
+1. **Server generates UIBlock:**
+   ```python
+   UIBlock(
+       id="data-123",
+       rendering=UIBlockRendering(
+           content='{"component":"data-view","id":"table-1","fields":[...]}'
+       )
+   )
+   ```
+
+2. **Host reads UI resource:**
+   - Requests `ui://generate_ui_component/mcp-app.html`
+   - Receives self-contained HTML with React app
+
+3. **React app processes result:**
+   ```typescript
+   // Extract from tool result
+   const output = app.toolResult.structured_content;
+   
+   // Parse component config from rendering.content
+   const config = JSON.parse(output.blocks[0].rendering.content);
+   
+   // Render with DynamicComponent
+   <DynamicComponent config={config} />
+   ```
+
+4. **DynamicComponent renders PatternFly components:**
+   - Maps `config.component` to PatternFly components
+   - Supports: `data-view`, `one-card`, `chart-bar`, `chart-line`, etc.
+
+### Building UI Resources
+
+The UI resources are built separately from a TypeScript module:
+
+```bash
+# Quick update (from project root)
+pants run libs/next_gen_ui_mcp:update-ui
+
+# Or manually:
+cd libs/next_gen_ui_mcp_apps_ui
+npm install
+npm run build
+cd ../next_gen_ui_mcp
+cp ../next_gen_ui_mcp_apps_ui/dist/*.html ui_resources/
+```
+
+**Files generated:**
+- `ui_resources/mcp-app.html` (~1.3MB)
+
+These files are self-contained and include:
+- All React code
+- All PatternFly components
+- All CSS styles
+- MCP Apps SDK
+
+### Development Workflow
+
+1. **Modify TypeScript UI:**
+   ```bash
+   cd libs/next_gen_ui_mcp_apps_ui
+   npm run watch  # Auto-rebuild on changes
+   ```
+
+2. **Update Python module:**
+   ```bash
+   # In another terminal
+   pants run libs/next_gen_ui_mcp:update-ui
+   ```
+
+3. **Run MCP server:**
+   ```bash
+   pants run libs/next_gen_ui_mcp/server_example.py
+   ```
+
+4. **Test with MCP host:**
+   - Connect Claude Desktop or another MCP Apps-compatible host
+   - Call `generate_ui_component` tool
+   - Verify UI displays in iframe
+
+### Content Security Policy (CSP)
+
+The UI tools automatically configure Content Security Policy to allow external resources. The CSP must be specified in **both** the tool metadata and the resource metadata:
+
+**Tool metadata (for documentation):**
+```python
+@mcp.tool(
+    name="my_tool",
+    meta={
+        "ui": {
+            "resourceUri": "ui://my_tool/app.html",
+            "csp": {
+                "resourceDomains": ["https://cdn.jsdelivr.net"]
+            }
+        }
+    }
+)
+```
+
+**Resource metadata (for enforcement):**
+```python
+@mcp.resource(
+    "ui://my_tool/app.html",
+    mime_type="text/html;profile=mcp-app",
+    meta={
+        "ui": {
+            "csp": {
+                "resourceDomains": [
+                    "https://image.tmdb.org",  # Allow images from TMDB
+                    "https://cdn.jsdelivr.net", # Allow CSS/JS from jsDelivr CDN
+                    "https://*.example.com",   # Allow from any example.com subdomain
+                ],
+                "connectDomains": [
+                    "https://api.example.com"  # Allow API requests
+                ]
+            }
+        }
+    }
+)
+```
+
+**CSP Fields:**
+- `resourceDomains` - Origins for images, scripts, stylesheets, fonts, media (maps to `img-src`, `script-src`, `style-src`, `font-src`, `media-src`)
+- `connectDomains` - Origins for network requests via fetch/XHR/WebSocket (maps to `connect-src`)
+- `frameDomains` - Origins for nested iframes (maps to `frame-src`)
+- `baseUriDomains` - Origins for base URI (maps to `base-uri`)
+
+Wildcard subdomains are supported: `https://*.example.com`
+
+**Current Configuration:**
+The MCP server is configured to allow:
+- Images from TMDB (`https://image.tmdb.org`, `https://*.tmdb.org`)
+- Stylesheets and fonts from jsDelivr CDN (`https://cdn.jsdelivr.net`)
+
+This enables the UI to load Red Hat Design System and PatternFly styles from CDN.
+
+**Note:** The basic-host enforces CSP via HTTP headers for security. External resources must be declared in the CSP configuration.
+
+### Troubleshooting
+
+**UI resources not found:**
+```
+FileNotFoundError: UI resource not found: .../ui_resources/mcp-app.html
+```
+
+**Solution:**
+```bash
+pants run libs/next_gen_ui_mcp:update-ui
+```
+
+**Components not rendering correctly:**
+- Verify component configs match expected format
+- Check browser console for errors
+- Ensure `rendering.content` is valid JSON
+
+**External images/resources blocked (CSP violation):**
+```
+Loading the image 'https://example.com/image.jpg' violates Content Security Policy
+```
+
+**Solution:** Add the domain to CSP configuration in tool metadata:
+```python
+meta={
+    "ui": {
+        "resourceUri": "ui://...",
+        "csp": {
+            "resourceDomains": ["https://example.com"]
+        }
+    }
+}
+```
+
+**Build fails:**
+```bash
+cd libs/next_gen_ui_mcp_apps_ui
+npm install  # Ensure dependencies are installed
+npm run build
+```
 
 ## Links
 
