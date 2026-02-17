@@ -32,6 +32,12 @@ Usage:
     # Run with streamable-http transport
     python -m next_gen_ui_mcp --transport streamable-http --host 127.0.0.1 --port 8000
 
+    # Run with custom CORS configuration
+    python -m next_gen_ui_mcp --transport sse --cors-allow-origins "http://localhost:3000,http://localhost:8080"
+
+    # Run with CORS allowing all origins (development only)
+    python -m next_gen_ui_mcp --transport streamable-http --cors-allow-origins "*"
+
     # Run with patternfly component system
     python -m next_gen_ui_mcp --component-system patternfly
 """
@@ -50,6 +56,12 @@ from next_gen_ui_mcp.agent import MCP_ALL_TOOLS
 from next_gen_ui_mcp.agent_config import MCPAgentConfig
 from next_gen_ui_mcp.main_args_handler import (
     create_argument_parser,
+    get_cors_allow_credentials_configuration,
+    get_cors_allow_headers_configuration,
+    get_cors_allow_methods_configuration,
+    get_cors_allow_origins_configuration,
+    get_cors_expose_headers_configuration,
+    get_csp_resource_domains_configuration,
     get_sampling_cost_priority_configuration,
     get_sampling_hints_configuration,
     get_sampling_intelligence_priority_configuration,
@@ -76,6 +88,7 @@ def create_server(
     debug: bool = False,
     enabled_tools=None,
     structured_output_enabled=True,
+    csp_resource_domains: list[str] | None = None,
 ) -> NextGenUIMCPServer:
     """Create NextGenUIMCPServer with optional external inference provider.
 
@@ -86,6 +99,7 @@ def create_server(
         sampling_cost_priority: Cost priority for MCP sampling (0.0-1.0)
         sampling_speed_priority: Speed priority for MCP sampling (0.0-1.0)
         sampling_intelligence_priority: Intelligence priority for MCP sampling (0.0-1.0)
+        csp_resource_domains: List of allowed domains for Content Security Policy in UI
 
     Returns:
         Configured NextGenUIMCPServer
@@ -105,6 +119,7 @@ def create_server(
         debug=debug,
         enabled_tools=enabled_tools,
         structured_output_enabled=structured_output_enabled,
+        csp_resource_domains=csp_resource_domains,
     )
 
 
@@ -172,6 +187,9 @@ def main():
             get_sampling_intelligence_priority_configuration(args)
         )
 
+        # Get CSP resource domains configuration
+        csp_resource_domains = get_csp_resource_domains_configuration(args)
+
         # Create the agent
         agent = create_server(
             config=config,
@@ -184,11 +202,28 @@ def main():
             debug=args.debug,
             enabled_tools=enabled_tools,
             structured_output_enabled=args.structured_output_enabled == "true",
+            csp_resource_domains=csp_resource_domains,
         )
 
     except (ImportError, RuntimeError) as e:
         logger.exception("Failed to initialize %s provider: %s", args.provider, e)
         sys.exit(1)
+
+    # Configure CORS middleware for HTTP transports
+    if transport in ["sse", "streamable-http"]:
+        cors_allow_origins = get_cors_allow_origins_configuration(args)
+        cors_allow_credentials = get_cors_allow_credentials_configuration(args)
+        cors_allow_methods = get_cors_allow_methods_configuration(args)
+        cors_allow_headers = get_cors_allow_headers_configuration(args)
+        cors_expose_headers = get_cors_expose_headers_configuration(args)
+
+        agent.configure_cors(
+            allow_origins=cors_allow_origins,
+            allow_credentials=cors_allow_credentials,
+            allow_methods=cors_allow_methods,
+            allow_headers=cors_allow_headers,
+            expose_headers=cors_expose_headers,
+        )
 
     # Run the server
     try:

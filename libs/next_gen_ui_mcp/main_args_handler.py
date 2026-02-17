@@ -11,6 +11,7 @@ from typing import cast
 from next_gen_ui_agent.agent_config import add_agent_config_comandline_args
 from next_gen_ui_agent.argparse_env_default_action import EnvDefault, EnvDefaultExtend
 from next_gen_ui_agent.inference.inference_builder import add_inference_comandline_args
+from next_gen_ui_mcp.agent import DEFAULT_CSP_RESOURCE_DOMAINS
 
 PROVIDER_MCP = "mcp"
 
@@ -59,6 +60,15 @@ Examples:
 
   # Run with rhds component system via SSE transport
   python -m next_gen_ui_mcp --transport sse --component-system rhds --port 8000
+
+  # Run with custom CORS configuration
+  python -m next_gen_ui_mcp --transport sse --cors-allow-origins "http://localhost:3000,http://localhost:8080"
+
+  # Run with CORS allowing all origins (development only)
+  python -m next_gen_ui_mcp --transport streamable-http --cors-allow-origins "*"
+
+  # Run with custom CSP resource domains
+  python -m next_gen_ui_mcp --csp-resource-domains "https://cdn.example.com,https://images.example.com"
         """,
     )
 
@@ -154,6 +164,68 @@ Examples:
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
+    # CORS configuration arguments
+    parser.add_argument(
+        "--cors-allow-origins",
+        help=(
+            "Comma-separated list of allowed origins for CORS (e.g., 'http://localhost:8080,http://localhost:3000'). "
+            "Use '*' to allow all origins. Env variable MCP_CORS_ALLOW_ORIGINS can be used."
+        ),
+        action=EnvDefault,
+        envvar="MCP_CORS_ALLOW_ORIGINS",
+        required=False,
+    )
+    parser.add_argument(
+        "--cors-allow-credentials",
+        choices=["true", "false"],
+        default="true",
+        help="Allow credentials (cookies, authorization headers) in CORS requests. Env variable MCP_CORS_ALLOW_CREDENTIALS can be used.",
+        action=EnvDefault,
+        envvar="MCP_CORS_ALLOW_CREDENTIALS",
+    )
+    parser.add_argument(
+        "--cors-allow-methods",
+        help=(
+            "Comma-separated list of allowed HTTP methods for CORS (e.g., 'GET,POST,PUT'). "
+            "Use '*' to allow all methods. Env variable MCP_CORS_ALLOW_METHODS can be used."
+        ),
+        action=EnvDefault,
+        envvar="MCP_CORS_ALLOW_METHODS",
+        required=False,
+    )
+    parser.add_argument(
+        "--cors-allow-headers",
+        help=(
+            "Comma-separated list of allowed headers for CORS (e.g., 'Content-Type,Authorization'). "
+            "Use '*' to allow all headers. Env variable MCP_CORS_ALLOW_HEADERS can be used."
+        ),
+        action=EnvDefault,
+        envvar="MCP_CORS_ALLOW_HEADERS",
+        required=False,
+    )
+    parser.add_argument(
+        "--cors-expose-headers",
+        help=(
+            "Comma-separated list of headers to expose to the browser (e.g., 'mcp-session-id'). "
+            "Required for MCP streamable-http transport. Env variable MCP_CORS_EXPOSE_HEADERS can be used."
+        ),
+        action=EnvDefault,
+        envvar="MCP_CORS_EXPOSE_HEADERS",
+        required=False,
+    )
+
+    # CSP (Content Security Policy) configuration arguments
+    parser.add_argument(
+        "--csp-resource-domains",
+        help=(
+            "Comma-separated list of domains allowed to load resources in the UI (e.g., 'https://cdn.jsdelivr.net,https://image.tmdb.org'). "
+            "Applies to MCP Apps UI Content Security Policy. Env variable MCP_CSP_RESOURCE_DOMAINS can be used."
+        ),
+        action=EnvDefault,
+        envvar="MCP_CSP_RESOURCE_DOMAINS",
+        required=False,
+    )
+
     return parser
 
 
@@ -244,3 +316,164 @@ def get_sampling_intelligence_priority_configuration(
     ):
         intelligence_priority = float(intelligence_priority_env)
     return intelligence_priority
+
+
+def get_cors_allow_origins_configuration(
+    args: argparse.Namespace,
+) -> list[str]:
+    """
+    Get CORS allow origins configuration from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments
+
+    Returns:
+        List of allowed origins, defaults to ["http://localhost:8080"]
+    """
+    origins_env = os.getenv("MCP_CORS_ALLOW_ORIGINS")
+    origins_str = args.cors_allow_origins
+    if not origins_str and origins_env and origins_env.strip() != "":
+        origins_str = origins_env
+    
+    # Default to localhost:8080 if not provided
+    if not origins_str:
+        return ["http://localhost:8080"]
+    
+    # Handle wildcard
+    if origins_str.strip() == "*":
+        return ["*"]
+    
+    # Parse comma-separated string and strip whitespace
+    return [origin.strip() for origin in origins_str.split(",") if origin.strip()]
+
+
+def get_cors_allow_credentials_configuration(
+    args: argparse.Namespace,
+) -> bool:
+    """
+    Get CORS allow credentials configuration from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments
+
+    Returns:
+        Boolean indicating whether to allow credentials, defaults to True
+    """
+    credentials_env = os.getenv("MCP_CORS_ALLOW_CREDENTIALS")
+    credentials_str = args.cors_allow_credentials
+    if not credentials_str and credentials_env and credentials_env.strip() != "":
+        credentials_str = credentials_env
+    
+    # Default to true
+    if not credentials_str:
+        return True
+    
+    return credentials_str.lower() == "true"
+
+
+def get_cors_allow_methods_configuration(
+    args: argparse.Namespace,
+) -> list[str]:
+    """
+    Get CORS allow methods configuration from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments
+
+    Returns:
+        List of allowed methods, defaults to ["*"]
+    """
+    methods_env = os.getenv("MCP_CORS_ALLOW_METHODS")
+    methods_str = args.cors_allow_methods
+    if not methods_str and methods_env and methods_env.strip() != "":
+        methods_str = methods_env
+    
+    # Default to all methods
+    if not methods_str:
+        return ["*"]
+    
+    # Handle wildcard
+    if methods_str.strip() == "*":
+        return ["*"]
+    
+    # Parse comma-separated string and strip whitespace
+    return [method.strip() for method in methods_str.split(",") if method.strip()]
+
+
+def get_cors_allow_headers_configuration(
+    args: argparse.Namespace,
+) -> list[str]:
+    """
+    Get CORS allow headers configuration from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments
+
+    Returns:
+        List of allowed headers, defaults to ["*"]
+    """
+    headers_env = os.getenv("MCP_CORS_ALLOW_HEADERS")
+    headers_str = args.cors_allow_headers
+    if not headers_str and headers_env and headers_env.strip() != "":
+        headers_str = headers_env
+    
+    # Default to all headers
+    if not headers_str:
+        return ["*"]
+    
+    # Handle wildcard
+    if headers_str.strip() == "*":
+        return ["*"]
+    
+    # Parse comma-separated string and strip whitespace
+    return [header.strip() for header in headers_str.split(",") if header.strip()]
+
+
+def get_cors_expose_headers_configuration(
+    args: argparse.Namespace,
+) -> list[str]:
+    """
+    Get CORS expose headers configuration from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments
+
+    Returns:
+        List of headers to expose, defaults to MCP-required headers
+    """
+    headers_env = os.getenv("MCP_CORS_EXPOSE_HEADERS")
+    headers_str = args.cors_expose_headers
+    if not headers_str and headers_env and headers_env.strip() != "":
+        headers_str = headers_env
+    
+    # Default to MCP protocol headers that need to be exposed
+    if not headers_str:
+        return ["mcp-session-id", "mcp-protocol-version"]
+    
+    # Parse comma-separated string and strip whitespace
+    return [header.strip() for header in headers_str.split(",") if header.strip()]
+
+
+def get_csp_resource_domains_configuration(
+    args: argparse.Namespace,
+) -> list[str]:
+    """
+    Get CSP (Content Security Policy) resource domains configuration from commandline argument or environment variable.
+
+    Args:
+        args: parsed commandline arguments
+
+    Returns:
+        List of allowed resource domains for UI Content Security Policy, defaults to DEFAULT_CSP_RESOURCE_DOMAINS
+    """
+    domains_env = os.getenv("MCP_CSP_RESOURCE_DOMAINS")
+    domains_str = args.csp_resource_domains
+    if not domains_str and domains_env and domains_env.strip() != "":
+        domains_str = domains_env
+    
+    # Default to standard resource domains
+    if not domains_str:
+        return DEFAULT_CSP_RESOURCE_DOMAINS
+    
+    # Parse comma-separated string and strip whitespace
+    return [domain.strip() for domain in domains_str.split(",") if domain.strip()]
