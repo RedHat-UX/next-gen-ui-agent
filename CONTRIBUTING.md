@@ -65,6 +65,41 @@ There is bunch of others for special purposes.
 
 Some parts of the project require LamaStack server to be running on your laptop for the development, for details see [LLAMASTACK_DEV.md](LLAMASTACK_DEV.md).
 
+## Build project
+
+Project is built by Pants Build. You can build all packages by `pants package ::` or only Python packages by `pants package --filter-target-type=python_distribution ::`.
+
+Build contains packaging python code into wheel packages and building docker images.
+You have to have running Podman to build docker images.
+
+
+### Useful Pants commands
+
+```sh
+# Show dependencies
+pants dependencies ::
+# Regenerate dependencies lock file - run after changing deps, do not forget to run `pants export` to refresh venv for local development then. It upgrades all dependencies to latest values matching version restrictions!
+pants generate-lockfiles
+
+# Create python virtual environment for local development, with all necessary dependencies from the lock file
+pants export
+
+# Run all tests
+pants test ::
+
+# Run given python file
+pants run libs/next_gen_ui_llama_stack/agent_test.py
+
+# Run code formatter, linter, checks
+pants fmt lint check ::
+
+# Build all packages including python and docker
+pants package ::
+
+# Build only Python packages
+pants package --filter-target-type=python_distribution ::
+```
+
 ## Developer guide
 
 ### Prerequisities
@@ -100,33 +135,6 @@ You can also use other types which are not reflected in changelog. The most usef
 * `chore` - any change not necessary in the changelog, like build/CI/CD changes etc.
 
 Example: `refactor(NGUI-123): refactoring agent tests`
-
-### Useful Pants commands
-
-```sh
-# Show dependencies
-pants dependencies ::
-# Regenerate dependencies lock file - run after changing deps, do not forget to run `pants export` to refresh venv for local development then. It upgrades all dependencies to latest values matching version restrictions!
-pants generate-lockfiles
-
-# Create python virtual environment for local development, with all necessary dependencies from the lock file
-pants export
-
-# Run all tests
-pants test ::
-
-# Run given python file
-pants run libs/next_gen_ui_llama_stack/agent_test.py
-
-# Run code formatter, linter, checks
-pants fmt lint check ::
-
-# Build all packages including python and docker
-pants package ::
-
-# Build only Python packages
-pants package --filter-target-type=python_distribution ::
-```
 
 ### Dependency Management
 
