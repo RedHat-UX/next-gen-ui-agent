@@ -22,44 +22,10 @@ Here are some things to keep in mind for all types of contributions:
 
 4. Clone [UI Agent github repository](https://github.com/RedHat-UX/next-gen-ui-agent).
 
-5. Create python virtual environment with all required dependencies - run Pants export in the cloned repo root directory. Created virtual environment is used by all Pants commands.
-
-```sh
-$ pants export
-```
-
-6. Create a symlink for the virtual environment you've just created, so that you can activate it by stable command, and our shared VS Code settings work.
-Make sure to use the right python version in the path (the path was created by the previous command).
-
-```sh
-ln -s $PWD/dist/export/python/virtualenvs/python-default/3.12.11 $PWD/dist/export/python/virtualenvs/python-default/latest
-```
-
-If you want to run project's python code out of the Pants commands or VS Code, you must activate the vitual environmet:
-
-```sh
-source dist/export/python/virtualenvs/python-default/latest/bin/activate
-```
-
-7. You can also clone other github repositories if you need. For setup follow their README.md:
+5. You can also clone other github repositories if you need. For setup follow their README.md:
 
    * https://github.com/RedHat-UX/next-gen-ui-react
    * https://github.com/RedHat-UX/next-gen-ui-examples 
-
-
-### VS Code / Cursor setup
-
-Install Python (`ms-python`) extension if not installed yet.
-
-Open project root directory in VS Code / Cursor.
-
-VS Code should automatically set the python interepreter path to `./dist/export/python/virtualenvs/python-default/latest` (virtual environment simlink created during *Setup* steps)
-thanks to the config shared in the `.vscode/settings.js`.
-If not, point your IDE interpreter to this folder - CMD+Shift+P and type 'Python: Select Interpreter' to find the setting.
-
-There are also launch configurations defined to be used in `Run and Debug` view. 
-You can run any current file requiring modules from `/libs` directory using `Python Debugger: Current File` configuration.
-There is bunch of others for special purposes.
 
 ## LlamaStack server
 
@@ -69,7 +35,7 @@ Some parts of the project require LamaStack server to be running on your laptop 
 
 Project is built by Pants Build. You can build all packages by `pants package ::` or only Python packages by `pants package --filter-target-type=python_distribution ::`.
 
-Build contains packaging python code into wheel packages and building docker images.
+Build contains packaging python code into wheel packages stored in `dist` directory and building docker images pushed in local podman registry.
 You have to have running Podman to build docker images.
 
 
@@ -104,19 +70,54 @@ pants package --filter-target-type=python_distribution ::
 
 ### Prerequisities
 
-Install dev deps
+1. Install dev deps
 
 ```sh
 pip3 install -r requirements_dev.txt
 ```
 
-Install pre commit hook to perform python code lint and checks.
+2. Install pre commit hook to perform python code lint and checks.
 
 ```sh
 pre-commit install
 ```
 
 You should run `pants fmt lint check ::` before every commit to be sure commit won't fail.
+
+3. Create python virtual environment with all required dependencies - run Pants export in the cloned repo root directory. Created virtual environment is used by all Pants commands.
+
+```sh
+$ pants export
+```
+
+4. Create a symlink for the virtual environment you've just created, so that you can activate it by stable command, and our shared VS Code settings work.
+Make sure to use the right python version in the path (the path was created by the previous command).
+
+```sh
+ln -s $PWD/dist/export/python/virtualenvs/python-default/3.12.11 $PWD/dist/export/python/virtualenvs/python-default/latest
+```
+
+If you want to run project's python code out of the Pants commands or VS Code, you must activate the vitual environmet:
+
+```sh
+source dist/export/python/virtualenvs/python-default/latest/bin/activate
+```
+
+
+### VS Code / Cursor setup
+
+Install Python (`ms-python`) extension if not installed yet.
+
+Open project root directory in VS Code / Cursor.
+
+VS Code should automatically set the python interepreter path to `./dist/export/python/virtualenvs/python-default/latest` (virtual environment simlink created during *Setup* steps)
+thanks to the config shared in the `.vscode/settings.js`.
+If not, point your IDE interpreter to this folder - CMD+Shift+P and type 'Python: Select Interpreter' to find the setting.
+
+There are also launch configurations defined to be used in `Run and Debug` view. 
+You can run any current file requiring modules from `/libs` directory using `Python Debugger: Current File` configuration.
+There is bunch of others for special purposes.
+
 
 ### Commit Message Guidelines
 
