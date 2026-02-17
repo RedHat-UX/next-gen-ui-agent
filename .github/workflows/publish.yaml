@@ -41,20 +41,20 @@ jobs:
         with:
           name: dist
           path: dist/
+      - name: Login to Quay.io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
       - name: Push MCP image to quay.io
-        id: push-mcp-to-quay
-        uses: redhat-actions/push-to-registry@v2
-        with:
-            tags: quay.io/next-gen-ui/mcp:latest quay.io/next-gen-ui/mcp:${{github.ref_name}}
-            username: ${{ secrets.QUAY_USERNAME }}
-            password: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          docker push quay.io/next-gen-ui/mcp:latest
+          docker push quay.io/next-gen-ui/mcp:${{github.ref_name}}
       - name: Push A2A image to quay.io
-        id: push-a2a-to-quay
-        uses: redhat-actions/push-to-registry@v2
-        with:
-            tags: quay.io/next-gen-ui/a2a:latest quay.io/next-gen-ui/a2a:${{github.ref_name}}
-            username: ${{ secrets.QUAY_USERNAME }}
-            password: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          docker push quay.io/next-gen-ui/a2a:latest
+          docker push quay.io/next-gen-ui/a2a:${{github.ref_name}}
   publish:
     name: "Publish to PyPI"
     needs:

@@ -109,7 +109,9 @@ jobs:
           increment: "PATCH"
           commitizen_version: "4.10.0"
       - name: Print Version
-        run: echo "Bumped to version ${{ steps.cz.outputs.version }}"
+        run: |
+          echo "Bumped to version ${{ steps.cz.outputs.version }}"
+          docker version
       - uses: pantsbuild/actions/init-pants@v8
         with:
           gha-cache-key: v0
@@ -131,20 +133,18 @@ jobs:
         with:
           name: distribution
           path: dist/
+      - name: Login to Quay.io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
       - name: Push MCP image to quay.io
-        id: push-mcp-to-quay
-        uses: redhat-actions/push-to-registry@v2
-        with:
-            tags: quay.io/next-gen-ui/mcp:dev
-            username: ${{ secrets.QUAY_USERNAME }}
-            password: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          docker push quay.io/next-gen-ui/mcp:dev
       - name: Push A2A image to quay.io
-        id: push-a2a-to-quay
-        uses: redhat-actions/push-to-registry@v2
-        with:
-            tags: quay.io/next-gen-ui/a2a:dev
-            username: ${{ secrets.QUAY_USERNAME }}
-            password: ${{ secrets.QUAY_TOKEN }}
+        run: |
+          docker push quay.io/next-gen-ui/a2a:dev
     #   - name: push README to quay.io
     #     uses: christian-korneck/update-container-description-action@v1
     #     env:
