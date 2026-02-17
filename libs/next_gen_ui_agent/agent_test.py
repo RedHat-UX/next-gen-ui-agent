@@ -127,7 +127,7 @@ class TestSelectComponent:
             component="one-card",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="movie.title")],
+            fields=[DataField(id="title", name="Title", data_path="movie.title")],
         )
         agent = NextGenUIAgent(config=AgentConfig())
         input_data = InputData(id="1", data='{"title": "Toy Story"}')
@@ -514,7 +514,7 @@ class TestSelectComponent_InputDataJsonWrapping:
             component="one-card",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="movie.title")],
+            fields=[DataField(id="title", name="Title", data_path="movie.title")],
         )
 
         component = await agent.select_component(
@@ -540,7 +540,7 @@ class TestRefreshComponent:
                 component="one-card",
                 id="1",
                 title="Toy Story",
-                fields=[DataField(name="Title", data_path="movie.title")],
+                fields=[DataField(id="title", name="Title", data_path="movie.title")],
             ),
             json_wrapping_field_name="my_type",
         )
@@ -571,7 +571,7 @@ class TestRefreshComponent:
                 component="one-card",
                 id="1",
                 title="Toy Story",
-                fields=[DataField(name="Title", data_path="$..title")],
+                fields=[DataField(id="title", name="Title", data_path="$..title")],
             ),
             input_data_transformer_name="json",
         )
@@ -596,7 +596,9 @@ class TestRefreshComponent:
                 component="one-card",
                 id="1",
                 title="Toy Story",
-                fields=[DataField(name="Title", data_path="$..my_type.title")],
+                fields=[
+                    DataField(id="title", name="Title", data_path="$..my_type.title")
+                ],
             ),
             input_data_transformer_name="json",
             json_wrapping_field_name="my_type",
@@ -630,8 +632,8 @@ class TestConstructUIBlockConfiguration:
             id="1",
             title="Toy Story",
             fields=[
-                DataField(name="Title", data_path="$..movie.title"),
-                DataField(name="Year", data_path="['movie']['year']"),
+                DataField(id="title", name="Title", data_path="$..movie.title"),
+                DataField(id="year", name="Year", data_path="['movie']['year']"),
             ],
             input_data_transformer_name="json",
             json_wrapping_field_name="my_type",
@@ -674,7 +676,7 @@ class TestConstructUIBlockConfiguration:
             component="one-card",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="movie.title")],
+            fields=[DataField(id="title", name="Title", data_path="movie.title")],
             input_data_transformer_name="yaml",
             json_wrapping_field_name=None,
             json_data=[{"title": "Toy Story"}],
@@ -710,7 +712,7 @@ class TestConstructUIBlockConfiguration:
             component="table",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="my_type[*].title")],
+            fields=[DataField(id="title", name="Title", data_path="my_type[*].title")],
             json_data={"my_type": [{"title": "Toy Story", "year": 2024}]},
         )
         configuration = agent.construct_UIBlockConfiguration(
@@ -748,7 +750,7 @@ class TestConstructUIBlockConfiguration:
             component="table",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="my_type[*].title")],
+            fields=[DataField(id="title", name="Title", data_path="my_type[*].title")],
             json_data={"my_type": [{"title": "Toy Story", "year": 2024}]},
         )
         configuration = agent.construct_UIBlockConfiguration(
@@ -807,7 +809,7 @@ class TestConstructUIBlockConfiguration:
             component="table",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="my_type[*].title")],
+            fields=[DataField(id="title", name="Title", data_path="my_type[*].title")],
             json_data={"my_type": [{"title": "Toy Story", "year": 2024}]},
         )
         configuration = agent.construct_UIBlockConfiguration(
@@ -850,7 +852,7 @@ class TestConstructUIBlockConfiguration:
             component="table",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="my_type[*].title")],
+            fields=[DataField(id="title", name="Title", data_path="my_type[*].title")],
             json_data={"my_type": [{"title": "Toy Story", "year": 2024}]},
         )
         configuration = agent.construct_UIBlockConfiguration(
@@ -906,7 +908,7 @@ class TestConstructUIBlockConfiguration:
             component="one-card",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="title")],
+            fields=[DataField(id="title", name="Title", data_path="title")],
             input_data_transformer_name="json",
             json_wrapping_field_name=None,
             json_data={"title": "Toy Story"},
@@ -935,7 +937,7 @@ class TestConstructUIBlockConfiguration:
             component="one-card",
             id="1",
             title="Toy Story",
-            fields=[DataField(name="Title", data_path="title")],
+            fields=[DataField(id="title", name="Title", data_path="title")],
             input_data_transformer_name="json",
             json_wrapping_field_name=None,
             json_data={"title": "Toy Story"},

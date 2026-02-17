@@ -1,8 +1,7 @@
 from abc import ABC
 from typing import Any, Literal, Optional
-from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing_extensions import NotRequired, TypedDict
 
 CONFIG_OPTIONS_DATA_TRANSFORMER = Optional[
@@ -38,7 +37,6 @@ class DataField(BaseModel):
 
     id: str = Field(
         description="Unique field ID. Can be used in CSS selectors to target the field, eg. to set its style, or during live refresh of the shown data from the backend.",
-        default_factory=lambda: uuid4().hex,
     )
     """Unique field ID. Can be used for frontend customizations, eg. using it in CSS class names to target the field and set its style. Or as a field id during live refresh of the shown data from the backend."""
 
@@ -49,6 +47,14 @@ class DataField(BaseModel):
         description="JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI."
     )
     """JSON Path pointing to the input data structure (after input data transformation and JSON wrapping, if applied). It is used to pickup values to be shown in the UI."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def set_default_id(cls, data: Any) -> Any:
+        """Set empty string as default for id field when missing. It is generated later by code that processes the data."""
+        if isinstance(data, dict) and "id" not in data:
+            data["id"] = ""
+        return data
 
 
 class AgentConfigDynamicComponentConfiguration(BaseModel):
