@@ -14,10 +14,6 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v3
-      - name: Set up Docker
-        uses: docker/setup-docker-action@v4
-        with:
-          version: "20.10.24"   # NGUI-588: docker version to work with redhat-actions/push-to-registry@v2 (1.41).
       - uses: actions/setup-python@v5
         with:
           python-version: 3.12
