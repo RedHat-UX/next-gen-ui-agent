@@ -23,6 +23,7 @@ jobs:
       - name: Build site
         run: |
           python3 -m pip install mkdocs-material mkdocs-include-markdown-plugin
+          python3 scripts/update_patternfly_npm_content.py
           mkdocs build
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3
