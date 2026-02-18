@@ -126,6 +126,9 @@ Health check endpoint.
 ### `GET /api/v1/wdyk`
 Test LLM connectivity.
 
+### `GET /model-info`
+Returns the active LLM model name and base URL (used by the client’s debug Model Info tab).
+
 ## Available Movies
 
 - Toy Story (1995)
@@ -188,7 +191,7 @@ The server includes an optional **intelligent data filtering** feature that uses
 
 ### Implementation
 
-Located in `data_sources/filtering.py`, the `generic_data_filter_agent()` function:
+Located in `app/data_sources/filtering.py`, the `generic_data_filter_agent()` function:
 - Works with any JSON data structure (movies, cost data, RBAC permissions, etc.)
 - Uses LLM to make intelligent filtering decisions
 - Returns filtered data or all data if query is general
@@ -302,9 +305,9 @@ curl -X POST http://localhost:8080/generate \
 ## Development
 
 **Add movies:** Edit `app/data/movies_data.json`  
-**Modify search:** Update data sources in `data_sources/` directory  
-**Add data sources:** Create new modules in `data_sources/`  
-**Add routes:** Create new endpoints in `routes/` directory
+**Modify search:** Update data sources in `app/data_sources/`  
+**Add data sources:** Create new modules in `app/data_sources/`  
+**Add routes:** Create new endpoints in `app/routes/`
 
 ## Links
 

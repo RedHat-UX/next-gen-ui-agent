@@ -32,14 +32,14 @@ npm install
 
 ## Configuration
 
-The client is configured to connect to the backend server running on `localhost:8080`. This can be modified in the API configuration if needed.
+The client connects to the backend server at **`http://localhost:8080`** by default. To use a different base URL (e.g. another host or port), copy `client/.env.sample` to `client/.env` and set `VITE_API_ENDPOINT` (e.g. `http://localhost:8080/generate`). The dev server and build use this for `/generate` and health/model-info calls.
 
 ### Vite Configuration
 
 The application uses Vite for development and building. Configuration is in `vite.config.ts`:
 
 - Development server runs on port `5173`
-- Proxy configuration for API calls to backend
+- API base URL is set via `VITE_API_ENDPOINT` (see above); no proxy is used
 - TypeScript support enabled
 
 ## Running
@@ -78,8 +78,10 @@ http://localhost:5173/?debug=true
 When debug mode is enabled, you get access to:
 
 - **Test Panel**: A resizable left sidebar with testing tools
+- **Quick Prompts**: Pre-configured prompts for rapid testing (disabled when Mock Mode is on)
 - **Mock Mode**: Test UI components with predefined mock data without connecting to the backend
-- **Quick Prompts**: Pre-configured prompts for rapid testing
+- **Model Info**: Tab showing the connected LLM name and base URL (from the server’s `GET /model-info`)
+- **Pipeline Viewer**: Debug view of the request pipeline (e.g. data input → NGUI Agent)
 - **JSON Viewer**: "View component JSON" button to inspect the raw component configuration
 - **Custom JSON**: Ability to send custom JSON configurations directly to test specific scenarios
 
@@ -90,6 +92,9 @@ src/
 ├── components/
 │   ├── ChatBot.tsx          # Main chat interface component
 │   ├── DynamicComponent.tsx # Dynamic UI component renderer
+│   ├── DebugSection.tsx     # Debug info, pipeline viewer, dataset/JSON tools
+│   ├── PipelineViewer.tsx   # Pipeline stage visualization (debug mode)
+│   ├── TestPanel.tsx        # Test & debug panel (quick prompts, mock, model info)
 │   └── ErrorBoundary.tsx    # Error handling component
 ├── hooks/
 │   └── useFetch.tsx         # Custom hook for API calls
@@ -149,6 +154,8 @@ curl -I http://localhost:8080/docs
 
 ## Links
 
+* [Parent E2E App README](../README.md)
+* [Server README](../server/README.md)
 * [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/)
 * [Source Codes](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/tests/ngui-e2e/client)
 * [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
