@@ -38,6 +38,7 @@
         }
       },
       "required": [
+        "id",
         "name",
         "data_path"
       ],

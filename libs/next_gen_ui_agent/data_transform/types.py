@@ -1,7 +1,6 @@
 from typing import Annotated, Any, Literal, Optional, Union
-from uuid import uuid4
 
-from pydantic import BaseModel, Discriminator, Field
+from pydantic import BaseModel, Discriminator, Field, model_validator
 
 
 class ComponentDataBase(BaseModel):
@@ -24,10 +23,18 @@ class ComponentDataBaseWithTitle(ComponentDataBase):
 class DataFieldBase(BaseModel):
     """Base of the Component Data Field model"""
 
-    id: str = Field(description="Field ID", default_factory=lambda: uuid4().hex)
+    id: str = Field(description="Field ID")
     name: str = Field(description="Field name")
     data_path: str = Field(description="JSON Path to input data")
     data: Any
+
+    @model_validator(mode="before")
+    @classmethod
+    def set_default_id(cls, data: Any) -> Any:
+        """Set empty string as default for id field when missing. It is generated later by code that processes the data."""
+        if isinstance(data, dict) and "id" not in data:
+            data["id"] = ""
+        return data
 
 
 DataFieldBasicDataType = Union[str | int | float | bool]
