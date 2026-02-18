@@ -13,7 +13,9 @@ from pathlib import Path
 
 README_URL = "https://raw.githubusercontent.com/RedHat-UX/next-gen-ui-react/refs/heads/main/README.md"
 BASE_URL = "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/"
-OUTPUT_PATH = Path(__file__).resolve().parent.parent / "docs/guide/renderer/patternfly_npm.md"
+OUTPUT_PATH = (
+    Path(__file__).resolve().parent.parent / "docs/guide/renderer/patternfly_npm.md"
+)
 
 
 def main() -> None:
