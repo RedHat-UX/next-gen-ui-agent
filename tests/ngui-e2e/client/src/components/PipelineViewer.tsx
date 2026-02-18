@@ -43,15 +43,15 @@ export function PipelineViewer({
         </div>
       </CardTitle>
       <CardBody className="pipeline-viewer-body">
-        {/* Movies Agent Stage */}
+        {/* Stage 1: Data input (or legacy Movies Agent messages) */}
         {agentMessages && agentMessages.length > 0 && (
         <Card className="pipeline-stage-card-movies">
           <CardTitle className="pipeline-stage-title">
             <div className="pipeline-viewer-title-wrapper">
-              <span className="pipeline-viewer-emoji">🎬</span>
-              <strong>Stage 1: Movies Agent</strong>
+              <span className="pipeline-viewer-emoji">📥</span>
+              <strong>Stage 1: Data input</strong>
               <span className="pipeline-stage-description">
-                (Agentic LLM fetching data from database)
+                (Data source and agent events)
               </span>
             </div>
           </CardTitle>
@@ -68,8 +68,9 @@ export function PipelineViewer({
                   style={{ marginBottom: idx < agentMessages.length - 1 ? '8px' : '0' }}
                 >
                   <div className={`pipeline-message-type-badge ${
-                    msg.type === 'HumanMessage' ? 'pipeline-message-type-human' : 
+                    msg.type === 'HumanMessage' ? 'pipeline-message-type-human' :
                     msg.type === 'AIMessage' ? 'pipeline-message-type-ai' :
+                    msg.type === 'DataSource' ? 'pipeline-message-type-datasource' :
                     'pipeline-message-type-tool'
                   }`}>
                     {msg.type}

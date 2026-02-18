@@ -28,6 +28,12 @@ import { DebugSection } from "./DebugSection";
 import type { QuickPrompt } from "../quickPrompts";
 import { INLINE_DATASETS } from "../data/inlineDatasets";
 
+/** API base URL for the e2e server. Set VITE_API_ENDPOINT in .env (e.g. http://localhost:8080/generate). */
+function getApiEndpoint(): string {
+  const env = import.meta.env.VITE_API_ENDPOINT;
+  return typeof env === "string" && env.length > 0 ? env : "http://localhost:8080/generate";
+}
+
 export default function ChatBotPage() {
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const [announcement] = useState<string>();
@@ -70,14 +76,17 @@ export default function ChatBotPage() {
 
   // Fetch model info on mount if in debug mode
   React.useEffect(() => {
-    if (isDebugMode) {
-      fetch(
-        `${import.meta.env.VITE_API_ENDPOINT.replace("/generate", "")}/model-info`,
-      )
-        .then((res) => res.json())
-        .then((data) => setModelInfo(data))
-        .catch((err) => console.error("Failed to fetch model info:", err));
-    }
+    if (!isDebugMode) return;
+    const baseUrl = getApiEndpoint().replace(/\/generate\/?$/, "");
+    const modelInfoUrl = `${baseUrl}/model-info`;
+    if (!modelInfoUrl.startsWith("http")) return;
+    fetch(modelInfoUrl)
+      .then((res) => {
+        if (!res.ok) throw new Error(`model-info ${res.status}`);
+        return res.json();
+      })
+      .then((data) => setModelInfo(data))
+      .catch((err) => console.error("Failed to fetch model info:", err));
   }, [isDebugMode]);
 
   // Resizable panel state
@@ -304,7 +313,7 @@ export default function ChatBotPage() {
         ? datasetTypeOverride
         : inlineDatasetType;
 
-    const res = await fetchData(import.meta.env.VITE_API_ENDPOINT, {
+    const res = await fetchData(getApiEndpoint(), {
       method: "POST",
       body: {
         prompt: message,

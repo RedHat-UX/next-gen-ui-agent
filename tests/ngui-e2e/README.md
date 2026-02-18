@@ -6,9 +6,9 @@ This directory contains a complete end-to-end testing application for the Next G
 
 ### Server
 - **Framework**: FastAPI
-- **AI Integration**: LlamaStack (via `next-gen-ui-llama-stack` 0.3.0+)
-- **Deployment**: Lightrail (Red Hat's AI platform)
-- **Model**: Llama 3.3 70B Instruct (FP8 dynamic)
+- **AI Integration**: The server supports **two modes**:
+  - **Lightrail / LlamaStack** — LlamaStack (via `next-gen-ui-llama-stack` 0.3.0+), e.g. Red Hat's Lightrail platform; model such as Llama 3.3 70B Instruct.
+  - **Local / direct LLM** — Any OpenAI-compatible API (Ollama, Gemini, Red Hat models.corp, etc.) via LangGraph + ChatOpenAI; no Lightrail required.
 - **Language**: Python 3.12+
 
 ### Client
@@ -21,13 +21,13 @@ This directory contains a complete end-to-end testing application for the Next G
 
 ```
 ngui-e2e/
-├── server/           # FastAPI backend with NGUI agent (LlamaStack for LLM inference)
+├── server/           # FastAPI backend with NGUI agent (Lightrail/LlamaStack or local/direct LLM)
 └── client/           # React frontend application
 ```
 
 ## Components
 
-- **`server/`** - FastAPI backend that provides AI-powered UI generation APIs using **LlamaStack** integration (deployed via **Lightrail**)
+- **`server/`** - FastAPI backend that provides AI-powered UI generation APIs. Supports **Lightrail/LlamaStack** (deployed) or **local/direct LLM** (Ollama, Gemini, models.corp, etc.); see Quick Start below.
 - **`client/`** - React frontend application that consumes the backend APIs and renders dynamic UI components
 
 ## Architecture
@@ -36,8 +36,9 @@ ngui-e2e/
 
 The server uses a **modular architecture** with the following components:
 
-- **LlamaStack Integration**: Uses `next-gen-ui-llama-stack` adapter (version 0.3.0+) for AI inference
-- **Lightrail Deployment**: Containerized deployment using Red Hat's Lightrail platform
+- **LLM modes**: Either **LlamaStack** (e.g. Lightrail deployment) or **local/direct LLM** (OpenAI-compatible API). Mode is chosen via environment variables; see [server/README.md](server/README.md).
+- **LlamaStack**: Uses `next-gen-ui-llama-stack` adapter (0.3.0+) when `LLAMA_STACK_BASE_URL` is set.
+- **Lightrail**: Optional containerized deployment using Red Hat's Lightrail platform.
 - **Modular Structure**:
   - `agents/` - NGUI agent configuration
   - `data_sources/` - Data handling (inline, default, filtering)
@@ -45,7 +46,7 @@ The server uses a **modular architecture** with the following components:
   - `utils/` - Helper functions (validation, logging, response formatting)
   - `models.py` - Pydantic models for request/response
   - `config.py` - Configuration and environment setup
-  - `llm.py` - LlamaStack client initialization
+  - `llm.py` - LLM client (LlamaStack or local/direct)
 
 ### Key Features
 
@@ -75,6 +76,12 @@ lightrail-local-cli start
 
 The server will be available at `http://localhost:8080`
 
+### Server (direct LLM)
+
+You can run the server against a direct LLM (Ollama, Gemini, or any OpenAI-compatible API) instead of Lightrail. Configure `LLM_MODEL`, `LLM_BASE_URL`, and optionally `LLM_API_KEY` in the server’s `.env` (see [server/README.md](server/README.md)).
+
+**Option: Red Hat model access** — For direct access to Red Hat-hosted models (e.g. for development or demos), you can use [developer.models.corp.redhat.com](https://developer.models.corp.redhat.com/). **VPN is required** to reach models.corp. You can request **21 days of access** by submitting a ticket in Red Hat Hub: [Request access](https://redhathub.service-now.com/hub?id=sc_cat_item&sys_id=882ad1b71bebd610b6ccea45624bcb3d). Use the provided base URL and API key in the server’s `.env` for `LLM_BASE_URL` and `LLM_API_KEY`.
+
 ### Client
 
 ```bash
@@ -93,7 +100,7 @@ The client will be available at `http://localhost:5173`
 
 ## Purpose
 
-This application serves as a comprehensive testing and demonstration platform for the NGUI system, allowing contributors to understand the complete workflow from AI model inference to dynamic UI component rendering in a production-like environment using Lightrail.
+This application serves as a comprehensive testing and demonstration platform for the NGUI system, allowing contributors to understand the complete workflow from AI model inference to dynamic UI component rendering. Run it with **Lightrail** (production-like) or with a **local/direct LLM** (Ollama, Gemini, models.corp, etc.) for development.
 
 ## Version Compatibility
 

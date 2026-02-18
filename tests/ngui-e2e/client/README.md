@@ -32,7 +32,7 @@ npm install
 
 ## Configuration
 
-The client is configured to connect to the backend server running on `localhost:8000`. This can be modified in the API configuration if needed.
+The client is configured to connect to the backend server running on `localhost:8080`. This can be modified in the API configuration if needed.
 
 ### Vite Configuration
 
@@ -114,11 +114,11 @@ src/
 
 **2. API Connection Errors**
 - **Cause**: Backend server is not running or not accessible
-- **Solution**: Ensure the backend server is running on `localhost:8000`
+- **Solution**: Ensure the backend server is running on `localhost:8080`
 
 **3. Port Conflicts**
 - **Frontend runs on**: `localhost:5173` (default Vite dev server)
-- **Backend runs on**: `localhost:8000`
+- **Backend runs on**: `localhost:8080`
 
 ### Verification Steps
 
@@ -127,7 +127,7 @@ src/
 curl -I http://localhost:5173
 
 # Check if backend is accessible from frontend
-curl -I http://localhost:8000/docs
+curl -I http://localhost:8080/docs
 ```
 
 ## Development

@@ -1,20 +1,21 @@
 """Data filtering utilities using LLM."""
 
 import json
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from app.models import DataFilterResult
 from app.prompts import get_data_filter_analysis_prompt
-from llama_stack_client import AsyncLlamaStackClient
-from llama_stack_client.types import UserMessage
 
 
 async def generic_data_filter_agent(
-    prompt: str, data: Any, client: AsyncLlamaStackClient, model_id: str
+    prompt: str,
+    data: Any,
+    filter_llm_callable: Callable[[str], Any],
 ) -> Optional[Any]:
     """
     Generic intelligent data filtering agent that works with ANY data type.
     Analyzes user query and filters data accordingly.
+    Uses filter_llm_callable(prompt_str) for LLM calls (works with local LLM or LlamaStack).
 
     Works for:
     - Movies data
@@ -37,14 +38,12 @@ async def generic_data_filter_agent(
     analysis_prompt = get_data_filter_analysis_prompt(data_sample, data_count, prompt)
 
     try:
-        # Call LLM to analyze the query
-        user_message = UserMessage(role="user", content=analysis_prompt)
-        response = await client.inference.chat_completion(
-            model_id=model_id,
-            messages=[user_message],
-        )
-
-        response_content = response.completion_message.content
+        # Call LLM to analyze the query (local or LlamaStack via callable)
+        response_content = await filter_llm_callable(analysis_prompt)
+        if hasattr(response_content, "completion_message"):
+            response_content = response_content.completion_message.content
+        elif not isinstance(response_content, str):
+            response_content = str(response_content)
         print(f"Filter Agent LLM response: {response_content[:200]}...")
 
         # Parse JSON response
@@ -86,13 +85,11 @@ Return ONLY the filtered data as valid JSON (array or object). Do not include an
 If no items match, return an empty array [].
 """
 
-        user_message = UserMessage(role="user", content=filter_prompt)
-        filter_response = await client.inference.chat_completion(
-            model_id=model_id,
-            messages=[user_message],
-        )
-
-        filtered_content = filter_response.completion_message.content
+        filtered_content = await filter_llm_callable(filter_prompt)
+        if hasattr(filtered_content, "completion_message"):
+            filtered_content = filtered_content.completion_message.content
+        elif not isinstance(filtered_content, str):
+            filtered_content = str(filtered_content)
 
         # Parse filtered data
         if "```json" in filtered_content:
