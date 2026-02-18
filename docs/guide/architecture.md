@@ -56,7 +56,7 @@ They can be rendered using pluggable GUI component system renderers, and integra
 We provide renderers for several UI component systems, either Server-Side or Client-Side, see [Binding into UI](renderer/index.md).
 
 Output of the *UI Agent* does not contain the `Data UI Block` rendering only, but also [structured UI component configuration](../spec/output.md). 
-It can be used to implement advanced UI features, like live data updates from backend, manual selection of visualized table columns etc.
+It can be used to implement [advanced UI features](renderer/advanced_ui_features.md), like live data updates from backend, manual selection of visualized table columns etc.
 
 ## How to integrate *UI Agent*
 

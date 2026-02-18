@@ -100,6 +100,7 @@ nav:
         - RHDS/Web Components: guide/renderer/rhds.md
       - Client-Side renderer:
         - PatternFly/React NPM: guide/renderer/patternfly_npm.md
+      - guide/renderer/advanced_ui_features.md
     - Development:
       - Contributing: development/contributing.md
       - Running Llama Stack: development/llama_stack.md
