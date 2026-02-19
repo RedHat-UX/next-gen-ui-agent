@@ -17,7 +17,7 @@ pants_ignore = [
 
 [source]
 # The Python source root is the rinterpreter_constraints = ["CPython>=3.12,<3.14"]epo root. See https://www.pantsbuild.org/docs/source-roots.
-root_patterns = ["/libs", "/tests", "/spec"]
+root_patterns = ["/libs", "/tests", "/spec", "/scripts"]
 
 [python]
 # Project supported versions.
