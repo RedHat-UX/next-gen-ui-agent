@@ -24,7 +24,7 @@ def main() -> None:
 
     # Rewrite relative links to the repo (same directory as README) to absolute GitHub URLs.
     # Match ](filename) or ](filename#anchor) without matching already-absolute http(s) links.
-    def replace_link(m: re.Match) -> str:
+    def replace_link(m: re.Match[str]) -> str:
         target = m.group(1)
         if target.startswith(("http://", "https://", "#", "mailto:")):
             return m.group(0)
