@@ -11,6 +11,7 @@ requires-python = ">=3.12,<3.14"
 dependencies = [
     "uvicorn (>=0.35.0,<0.36.0)",
     "fastapi (>=0.116.2,<0.117.0)",
+    "python-dotenv (>=1.0.0)",
 
     "llama-stack-client (>=0.2.15,<0.3.0)",
     # requests and fire are required for llama-stack-client but are not in its dependencies list.
@@ -21,6 +22,9 @@ dependencies = [
     # Next Gen UI Agent dependencies
     "next-gen-ui-llama-stack (>=0.4.0)",
     "next-gen-ui-agent (>=0.4.0)",
+    "next-gen-ui-langgraph (>=0.4.0)",
+    "langchain-openai (>=0.2.0)",
+    "langchain-core (>=0.3.0)",
     "pydantic (>=2.0.0)",
 ]
 
