@@ -368,7 +368,7 @@ def get_cors_allow_credentials_configuration(
     if not credentials_str:
         return True
 
-    return credentials_str.lower() == "true"
+    return bool(credentials_str.lower() == "true")
 
 
 def get_cors_allow_methods_configuration(

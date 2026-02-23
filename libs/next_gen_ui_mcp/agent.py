@@ -2,7 +2,7 @@ import asyncio
 import logging
 import uuid
 from pathlib import Path
-from typing import Annotated, Any, List, Literal, Optional
+from typing import Annotated, Any, List, Literal, Optional, TypedDict
 
 from fastmcp import Context, FastMCP
 from fastmcp.tools.tool import ToolResult
@@ -37,6 +37,14 @@ def _ui_filename_for_component_system(component_system: str) -> str:
     if component_system == "rhds":
         return "rhds-mcp-app.html"
     return "patternfly-mcp-app.html"
+
+
+class _CORSConfigDict(TypedDict):
+    allow_origins: List[str]
+    allow_credentials: bool
+    allow_methods: List[str]
+    allow_headers: List[str]
+    expose_headers: List[str]
 
 
 class MCPSamplingInference(InferenceBase):
@@ -586,7 +594,9 @@ class NextGenUIMCPServer:
         )
         def get_component_ui() -> str:
             """Get the unified UI for component generation (handles single and multiple components)."""
-            filename = _ui_filename_for_component_system(self.config.component_system)
+            filename = _ui_filename_for_component_system(
+                self.config.component_system or "json"
+            )
             html_file = UI_RESOURCES_DIR / filename
             if not html_file.exists():
                 raise FileNotFoundError(
@@ -706,7 +716,7 @@ class NextGenUIMCPServer:
             expose_headers = ["mcp-session-id", "mcp-protocol-version"]
 
         # Store CORS configuration
-        self._cors_config = {
+        self._cors_config: _CORSConfigDict = {
             "allow_origins": allow_origins,
             "allow_credentials": allow_credentials,
             "allow_methods": allow_methods,
