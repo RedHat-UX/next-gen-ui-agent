@@ -26,6 +26,8 @@ tests/ai_eval_components/llamastack-m*
 
 # Docs
 site/
+# Generated from next-gen-ui-react README (run scripts/update_patternfly_npm_content.py)
+docs/guide/renderer/patternfly_npm.md
 
 # Custom .gitmessage template
 .gitmessage
