@@ -1,5 +1,5 @@
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import type { MCPGenerateUIOutput } from "./types.js";
+import type { MCPGenerateUIOutput } from "./types.ts";
 
 export interface ToolResultParserResult {
   /** HTML content strings from blocks with mime_type text/html (RHDS renderer). */

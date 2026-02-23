@@ -4,6 +4,20 @@
   box-sizing: border-box;
 }
 
-.ngui-render-root .ngui-block {
+.ngui-render-root {
   box-sizing: border-box;
+  padding: var(--rh-space-lg, 24px);
+}
+
+.ngui-error {
+  padding: var(--rh-space-lg, 24px);
+  color: var(--rh-color-text-danger-on-light, #c00);
+}
+
+.ngui-loading {
+  padding: var(--rh-space-lg, 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rh-space-md, 16px);
 }

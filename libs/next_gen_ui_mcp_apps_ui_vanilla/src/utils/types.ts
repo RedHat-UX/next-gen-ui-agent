@@ -13,3 +13,8 @@ export interface MCPGenerateUIOutput {
   blocks: UIBlock[];
   summary: string;
 }
+
+export interface TrustedHtml {
+  trusted: boolean;
+  value: string;
+}
