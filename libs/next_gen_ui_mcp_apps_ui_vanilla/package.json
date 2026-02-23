@@ -1,0 +1,21 @@
+{
+  "name": "next-gen-ui-mcp-apps-ui-vanilla",
+  "version": "1.0.1",
+  "type": "module",
+  "description": "Basic MCP Apps example using vanilla js rendering RHDS components",
+  "scripts": {
+    "build": "cross-env INPUT=mcp-app.html vite build",
+    "watch": "cross-env INPUT=mcp-app.html vite build --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.0",
+    "cross-env": "^10.1.0",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.0",
+    "vite-plugin-singlefile": "^2.3.0"
+  }
+}

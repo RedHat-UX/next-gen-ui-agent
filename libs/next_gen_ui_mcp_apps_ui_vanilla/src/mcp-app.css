@@ -1,0 +1,9 @@
+/* Next Gen UI MCP App (vanilla, RHDS) */
+
+#root {
+  box-sizing: border-box;
+}
+
+.ngui-render-root .ngui-block {
+  box-sizing: border-box;
+}

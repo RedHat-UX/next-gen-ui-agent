@@ -1,0 +1,108 @@
+/*
+ * Base styles using Red Hat Design System (RHDS) tokens.
+ * RHDS global.css is loaded in mcp-app.html; these rules use --rh-* tokens
+ * with fallbacks for when the token stylesheet is not yet loaded.
+ */
+:root {
+  color-scheme: light dark;
+
+  /* Optional: map app/semantic names to RHDS tokens so host or tests can override */
+  --color-text-primary: var(--rh-color-text-primary, #151515);
+  --color-text-inverse: var(--rh-color-text-on-light, #ffffff);
+  --color-text-info: var(--rh-color-interactive-default, #0066cc);
+  --color-background-primary: var(--rh-color-surface-lightest, #ffffff);
+  --color-background-inverse: var(--rh-color-surface-darkest, #151515);
+  --color-background-info: var(--rh-color-surface-lighter, #f5f5f5);
+  --color-ring-primary: var(--rh-color-interactive-default, #0066cc);
+  --border-radius-md: var(--rh-border-radius-md, 6px);
+  --border-width-regular: var(--rh-border-width-default, 1px);
+  --font-sans: var(--rh-font-family-body-text, system-ui, sans-serif);
+  --font-mono: var(--rh-font-family-code, ui-monospace, monospace);
+  --font-weight-normal: var(--rh-font-weight-regular, 400);
+  --font-weight-bold: var(--rh-font-weight-bold, 700);
+
+  /* Typography: RHDS type tokens */
+  --font-text-md-size: var(--rh-font-size-body-md, 1rem);
+  --font-text-md-line-height: var(--rh-line-height-body-md, 1.5);
+  --font-heading-3xl-size: var(--rh-font-size-heading-3xl, 2.25rem);
+  --font-heading-3xl-line-height: var(--rh-line-height-heading-3xl, 1.1);
+  --font-heading-2xl-size: var(--rh-font-size-heading-2xl, 1.875rem);
+  --font-heading-2xl-line-height: var(--rh-line-height-heading-2xl, 1.2);
+  --font-heading-xl-size: var(--rh-font-size-heading-xl, 1.5rem);
+  --font-heading-xl-line-height: var(--rh-line-height-heading-xl, 1.25);
+  --font-heading-lg-size: var(--rh-font-size-heading-lg, 1.25rem);
+  --font-heading-lg-line-height: var(--rh-line-height-heading-lg, 1.3);
+  --font-heading-md-size: var(--rh-font-size-heading-md, 1rem);
+  --font-heading-md-line-height: var(--rh-line-height-heading-md, 1.4);
+  --font-heading-sm-size: var(--rh-font-size-heading-sm, 0.875rem);
+  --font-heading-sm-line-height: var(--rh-line-height-heading-sm, 1.4);
+
+  /* Spacing: RHDS space tokens */
+  --spacing-unit: var(--rh-space-md, 16px);
+  --spacing-xs: var(--rh-space-xs, 4px);
+  --spacing-sm: var(--rh-space-sm, 8px);
+  --spacing-md: var(--rh-space-md, 16px);
+  --spacing-lg: var(--rh-space-lg, 24px);
+
+  /* Accent: use RHDS interactive color */
+  --color-accent: var(--rh-color-interactive-default, #0066cc);
+  --color-text-on-accent: var(--rh-color-text-on-dark, #ffffff);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: var(--rh-font-family-body-text, var(--font-sans));
+  font-size: var(--rh-font-size-body-md, var(--font-text-md-size));
+  font-weight: var(--rh-font-weight-regular, var(--font-weight-normal));
+  line-height: var(--rh-line-height-body-md, var(--font-text-md-line-height));
+  color: var(--rh-color-text-primary, var(--color-text-primary));
+  background-color: var(--rh-color-surface-lightest, var(--color-background-primary));
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--rh-font-family-heading, var(--font-sans));
+  color: var(--rh-color-text-primary, var(--color-text-primary));
+}
+
+h1 {
+  font-size: var(--rh-font-size-heading-3xl, var(--font-heading-3xl-size));
+  line-height: var(--rh-line-height-heading-3xl, var(--font-heading-3xl-line-height));
+}
+
+h2 {
+  font-size: var(--rh-font-size-heading-2xl, var(--font-heading-2xl-size));
+  line-height: var(--rh-line-height-heading-2xl, var(--font-heading-2xl-line-height));
+}
+
+h3 {
+  font-size: var(--rh-font-size-heading-xl, var(--font-heading-xl-size));
+  line-height: var(--rh-line-height-heading-xl, var(--font-heading-xl-line-height));
+}
+
+h4 {
+  font-size: var(--rh-font-size-heading-lg, var(--font-heading-lg-size));
+  line-height: var(--rh-line-height-heading-lg, var(--font-heading-lg-line-height));
+}
+
+h5 {
+  font-size: var(--rh-font-size-heading-md, var(--font-heading-md-size));
+  line-height: var(--rh-line-height-heading-md, var(--font-heading-md-line-height));
+}
+
+h6 {
+  font-size: var(--rh-font-size-heading-sm, var(--font-heading-sm-size));
+  line-height: var(--rh-line-height-heading-sm, var(--font-heading-sm-line-height));
+}
+
+code, pre, kbd {
+  font-family: var(--rh-font-family-code, var(--font-mono));
+  font-size: 1em;
+}
+
+b, strong {
+  font-weight: var(--rh-font-weight-bold, var(--font-weight-bold));
+}
