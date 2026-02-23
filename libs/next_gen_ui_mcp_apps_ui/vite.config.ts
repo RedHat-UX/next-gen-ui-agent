@@ -10,10 +10,15 @@ if (!INPUT) {
 export default defineConfig({
   plugins: [react(), viteSingleFile()],
   build: {
+    target: "es2020",
     cssMinify: true,
     minify: true,
+    reportCompressedSize: false,
     rollupOptions: {
       input: INPUT,
+      output: {
+        compact: true,
+      },
     },
     outDir: "dist",
     emptyOutDir: false,

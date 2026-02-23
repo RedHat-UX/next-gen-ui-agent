@@ -62,44 +62,36 @@ libs/next_gen_ui_mcp_apps_ui/
 ├── vite.config.ts            # Vite bundler configuration
 ├── mcp-app.html             # HTML entry point
 ├── src/
-│   ├── shared/
-│   │   ├── types.ts         # TypeScript interfaces (UIBlock, MCPGenerateUIOutput, etc.)
-│   │   ├── hooks.ts         # useToolResultParser() custom React hook
-│   │   ├── components.tsx   # Shared components (ErrorDisplay, LoadingDisplay, ComponentRenderer)
-│   │   └── App.tsx          # Main unified App component with auto-spacing logic
-│   └── mcp-app.tsx          # Main entry point (~5 lines)
+│   ├── mcp-app.tsx          # Entry point: App component + mount
+│   └── utils/
+│       ├── component-renderer.tsx  # ErrorDisplay, LoadingDisplay, ComponentRenderer
+│       ├── useToolResultParser.ts   # useToolResultParser() hook
+│       ├── types.ts                 # UIBlock, MCPGenerateUIOutput, etc.
+│       └── patternfly-react-renderer.d.ts
 └── dist/                     # Build output (gitignored)
     └── mcp-app.html         # Self-contained ~1.3MB HTML file
 ```
 
-## Shared Modules
+## Source layout
 
-### `src/shared/types.ts`
-Defines TypeScript interfaces for:
-- `UIBlock` - Server-generated UI block structure
-- `MCPGenerateUIOutput` - Tool result format
-- `ToolResult` - MCP tool result wrapper
-
-### `src/shared/hooks.ts`
-**`useToolResultParser()`** - Custom React hook that:
-1. Receives `app.toolResult` from MCP Apps SDK
-2. Parses `structured_content` or JSON text content
-3. Extracts component configs from `UIBlock.rendering.content`
-4. Returns `{ componentConfigs, error, isLoading }`
-
-### `src/shared/components.tsx`
-Reusable React components:
-- **`ErrorDisplay`** - Shows error messages
-- **`LoadingDisplay`** - Shows loading states
-- **`ComponentRenderer`** - Maps configs to `DynamicComponent` instances
-
-### `src/shared/App.tsx`
-Main unified component that:
-1. Uses `useApp()` hook to connect to MCP Apps SDK
+### `src/mcp-app.tsx`
+Single entry point: defines the `App` component and mounts it. The App:
+1. Uses `useApp()` to connect to MCP Apps SDK
 2. Parses tool results via `useToolResultParser()`
 3. Handles loading, error, and success states
-4. **Auto-enables spacing** when rendering multiple components (`componentConfigs.length > 1`)
+4. Auto-enables spacing when rendering multiple components
 5. Triggers resize detection after content renders
+
+### `src/utils/types.ts`
+TypeScript interfaces: `UIBlock`, `MCPGenerateUIOutput`, `ToolResult`, etc.
+
+### `src/utils/useToolResultParser.ts`
+**`useToolResultParser()`** – parses `app.toolResult`, extracts component configs from `UIBlock.rendering.content`, returns `{ componentConfigs, error, isLoading }`.
+
+### `src/utils/component-renderer.tsx`
+- **`ErrorDisplay`** – error messages
+- **`LoadingDisplay`** – loading state
+- **`ComponentRenderer`** – maps configs to `DynamicComponent`
 
 ## Building
 
@@ -185,16 +177,7 @@ This file can be served directly by the MCP server as a resource.
 
 ### Main Entry Point (`mcp-app.tsx`)
 
-Single unified entry point that handles both single and multiple component rendering:
-
-```tsx
-import ReactDOM from "react-dom/client";
-import { App } from "./shared/App";
-
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <App appName="Next Gen UI" />
-);
-```
+Single file: the `App` component and its mount. Handles both single and multiple component rendering.
 
 ### Auto-Spacing Logic
 

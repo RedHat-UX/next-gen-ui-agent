@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Next Gen UI - MCP App</title>
   
-  <!-- Red Hat Design System Tokens -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@rhds/tokens@3.0.2/css/global.css" />
-  
-  <!-- PatternFly CSS -->
+  <!-- PatternFly CSS (design tokens and components) -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@patternfly/patternfly@6/patternfly.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@patternfly/patternfly@6/patternfly-addons.css" />
   
@@ -25,9 +22,9 @@
     body {
       margin: 0;
       padding: var(--pf-t--global--spacer--lg, 24px);
-      font-family: var(--rh-font-family-body-text, var(--pf-t--global--font--family--body, 'Red Hat Text', 'Helvetica Neue', Helvetica, Arial, sans-serif));
-      background: var(--rh-color-surface-lightest, var(--pf-t--global--color--background--default, #ffffff));
-      color: var(--rh-color-text-primary, var(--pf-t--global--color--text--default, #151515));
+      font-family: var(--pf-t--global--font--family--body, 'Red Hat Text', 'Helvetica Neue', Helvetica, Arial, sans-serif);
+      background: var(--pf-t--global--color--background--default, #ffffff);
+      color: var(--pf-t--global--color--text--default, #151515);
       overflow: visible;
     }
     
