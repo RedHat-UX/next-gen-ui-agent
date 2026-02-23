@@ -408,7 +408,7 @@ Returns system information about the Next Gen UI Agent including:
 - Description
 
 ### `ui://generate_ui_component/mcp-app.html`
-HTML resource for rendering UI components (single or multiple) in MCP Apps-compatible hosts.
+HTML resource for rendering UI components (single or multiple) in MCP Apps-compatible hosts. The server serves the appropriate file based on `--component-system`: `patternfly-mcp-app.html` for `patternfly` or `json`, `rhds-mcp-app.html` for `rhds`.
 
 **MIME Type:** `text/html;profile=mcp-app`
 
@@ -501,27 +501,32 @@ The UI resources are built separately from a TypeScript module:
 pants run libs/next_gen_ui_mcp:update-ui
 
 # Or manually:
-cd libs/next_gen_ui_mcp_apps_ui
+cd libs/next_gen_ui_mcp_apps_ui_patternfly
+npm install
+npm run build
+cd ../next_gen_ui_mcp_apps_ui_rhds
 npm install
 npm run build
 cd ../next_gen_ui_mcp
-cp ../next_gen_ui_mcp_apps_ui/dist/*.html ui_resources/
+mkdir -p ui_resources
+cp ../next_gen_ui_mcp_apps_ui_patternfly/dist/patternfly-mcp-app.html ui_resources/
+cp ../next_gen_ui_mcp_apps_ui_rhds/dist/rhds-mcp-app.html ui_resources/
 ```
 
 **Files generated:**
-- `ui_resources/mcp-app.html` (~1.3MB)
+- `ui_resources/patternfly-mcp-app.html` (~1.3MB) — used when `--component-system` is `patternfly` or `json`
+- `ui_resources/rhds-mcp-app.html` — used when `--component-system` is `rhds`
 
 These files are self-contained and include:
-- All React code
-- All PatternFly components
-- All CSS styles
+- All React code (PatternFly app) or vanilla JS + RHDS (RHDS app)
+- All PatternFly or RHDS components and CSS
 - MCP Apps SDK
 
 ### Development Workflow
 
-1. **Modify TypeScript UI:**
+1. **Modify TypeScript UI (PatternFly or RHDS):**
    ```bash
-   cd libs/next_gen_ui_mcp_apps_ui
+   cd libs/next_gen_ui_mcp_apps_ui_patternfly   # or next_gen_ui_mcp_apps_ui_rhds
    npm run watch  # Auto-rebuild on changes
    ```
 
@@ -603,8 +608,9 @@ This enables the UI to load Red Hat Design System and PatternFly styles from CDN
 
 **UI resources not found:**
 ```
-FileNotFoundError: UI resource not found: .../ui_resources/mcp-app.html
+FileNotFoundError: UI resource not found: .../ui_resources/patternfly-mcp-app.html
 ```
+(or `rhds-mcp-app.html` when using `--component-system rhds`)
 
 **Solution:**
 ```bash
@@ -635,7 +641,7 @@ meta={
 
 **Build fails:**
 ```bash
-cd libs/next_gen_ui_mcp_apps_ui
+cd libs/next_gen_ui_mcp_apps_ui_patternfly   # or next_gen_ui_mcp_apps_ui_rhds
 npm install  # Ensure dependencies are installed
 npm run build
 ```

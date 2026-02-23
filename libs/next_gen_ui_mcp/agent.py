@@ -27,6 +27,18 @@ DEFAULT_CSP_RESOURCE_DOMAINS = [
 ]
 
 
+def _ui_filename_for_component_system(component_system: str) -> str:
+    """Return the UI HTML filename for the given component system.
+
+    json and patternfly both use the PatternFly app (compatible). rhds uses the RHDS app.
+    """
+    if component_system in ("patternfly", "json"):
+        return "patternfly-mcp-app.html"
+    if component_system == "rhds":
+        return "rhds-mcp-app.html"
+    return "patternfly-mcp-app.html"
+
+
 class MCPSamplingInference(InferenceBase):
     """Inference implementation that uses MCP sampling for LLM calls."""
 
@@ -320,7 +332,7 @@ class NextGenUIMCPServer:
                     "csp": {
                         # Allow images and resources from configured domains
                         "resourceDomains": self.csp_resource_domains
-                    }
+                    },
                 }
             },
         )
@@ -392,11 +404,13 @@ class NextGenUIMCPServer:
 
             await ctx.info("Starting UI generation...")
             logger.debug("generate_ui_component invoked with session_id=%s", session_id)
-            logger.debug("Tool parameters: user_prompt=%s, data_type=%s, data_id=%s, data length=%d", 
-                        user_prompt[:50] if user_prompt else None, 
-                        data_type, 
-                        data_id, 
-                        len(data) if data else 0)
+            logger.debug(
+                "Tool parameters: user_prompt=%s, data_type=%s, data_id=%s, data length=%d",
+                user_prompt[:50] if user_prompt else None,
+                data_type,
+                data_id,
+                len(data) if data else 0,
+            )
             try:
                 input_data = InputData(
                     data=data,
@@ -416,11 +430,7 @@ class NextGenUIMCPServer:
             except Exception as e:
                 logger.exception("Error during UI generation: %s", str(e))
                 await ctx.error(f"UI generation failed: {e}")
-                # Return a proper error response instead of raising
-                return self.create_mcp_output(
-                    blocks=[],
-                    summary=f"Error: {str(e)}"
-                )
+                raise
 
         tool_config_multiple = (
             self.config.mcp.tools.generate_ui_multiple_components
@@ -455,7 +465,7 @@ class NextGenUIMCPServer:
                     "csp": {
                         # Allow images and resources from configured domains
                         "resourceDomains": self.csp_resource_domains
-                    }
+                    },
                 }
             },
         )
@@ -576,7 +586,8 @@ class NextGenUIMCPServer:
         )
         def get_component_ui() -> str:
             """Get the unified UI for component generation (handles single and multiple components)."""
-            html_file = UI_RESOURCES_DIR / "mcp-app.html"
+            filename = _ui_filename_for_component_system(self.config.component_system)
+            html_file = UI_RESOURCES_DIR / filename
             if not html_file.exists():
                 raise FileNotFoundError(
                     f"UI resource not found: {html_file}. "
@@ -687,9 +698,6 @@ class NextGenUIMCPServer:
             allow_headers: List of allowed headers (defaults to ["*"])
             expose_headers: List of headers to expose to the browser (defaults to MCP headers)
         """
-        from starlette.middleware import Middleware  # pants: no-infer-dep
-        from starlette.middleware.cors import CORSMiddleware  # pants: no-infer-dep
-
         if allow_methods is None:
             allow_methods = ["*"]
         if allow_headers is None:
@@ -734,7 +742,9 @@ class NextGenUIMCPServer:
             if hasattr(self, "_cors_config"):
                 import uvicorn  # pants: no-infer-dep
                 from starlette.middleware import Middleware  # pants: no-infer-dep
-                from starlette.middleware.cors import CORSMiddleware  # pants: no-infer-dep
+                from starlette.middleware.cors import (  # pants: no-infer-dep
+                    CORSMiddleware,
+                )
 
                 # Create middleware list with CORS configuration
                 middleware = [

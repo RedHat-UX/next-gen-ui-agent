@@ -1,4 +1,4 @@
-# Next Gen UI MCP Apps UI
+# Next Gen UI MCP Apps UI (PatternFly)
 
 TypeScript/React UI module for rendering MCP tool results using PatternFly components via the MCP Apps SDK.
 
@@ -45,7 +45,7 @@ pants run libs/next_gen_ui_mcp:update-ui
 
 ```bash
 # From project root
-cd libs/next_gen_ui_mcp_apps_ui
+cd libs/next_gen_ui_mcp_apps_ui_patternfly
 npm install
 npm run build
 
@@ -56,11 +56,11 @@ cp dist/*.html ../next_gen_ui_mcp/ui_resources/
 ## Project Structure
 
 ```
-libs/next_gen_ui_mcp_apps_ui/
+libs/next_gen_ui_mcp_apps_ui_patternfly/
 ├── package.json              # Dependencies and build scripts
 ├── tsconfig.json             # TypeScript configuration
 ├── vite.config.ts            # Vite bundler configuration
-├── mcp-app.html             # HTML entry point
+├── patternfly-mcp-app.html   # HTML entry point
 ├── src/
 │   ├── mcp-app.tsx          # Entry point: App component + mount
 │   └── utils/
@@ -69,7 +69,7 @@ libs/next_gen_ui_mcp_apps_ui/
 │       ├── types.ts                 # UIBlock, MCPGenerateUIOutput, etc.
 │       └── patternfly-react-renderer.d.ts
 └── dist/                     # Build output (gitignored)
-    └── mcp-app.html         # Self-contained ~1.3MB HTML file
+    └── patternfly-mcp-app.html  # Self-contained ~1.3MB HTML file
 ```
 
 ## Source layout
@@ -117,7 +117,7 @@ npm run watch
 ```bash
 # Build via Pants (from project root)
 cd /path/to/next-gen-ui-agent
-pants run libs/next_gen_ui_mcp_apps_ui:build
+pants run libs/next_gen_ui_mcp_apps_ui_patternfly:build
 ```
 
 ## Development
@@ -128,7 +128,7 @@ Run these commands in separate terminals for live development:
 
 ```bash
 # Terminal 1: Watch UI changes (auto-rebuild)
-cd libs/next_gen_ui_mcp_apps_ui
+cd libs/next_gen_ui_mcp_apps_ui_patternfly
 npm run watch
 
 # Terminal 2: Run MCP server

@@ -3,7 +3,7 @@
 Vanilla JavaScript MCP App that **displays UI produced by the server-side [next_gen_ui_rhds_renderer](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs/next_gen_ui_rhds_renderer)**. The renderer runs in the Next Gen UI MCP server (`--component-system rhds`) and returns HTML (RHDS web components); this app injects that HTML and loads the RHDS element scripts so `<rh-card>`, `<rh-table>`, etc. render.
 
 > [!TIP]
-> For PatternFly React rendering (JSON config → React components), use [next_gen_ui_mcp_apps_ui](../next_gen_ui_mcp_apps_ui) instead.
+> For PatternFly React rendering (JSON config → React components), use [next_gen_ui_mcp_apps_ui_patternfly](../next_gen_ui_mcp_apps_ui_patternfly) instead.
 
 ## MCP Client Configuration
 
@@ -54,7 +54,7 @@ To test local modifications, use this configuration (replace `~/code/ext-apps` w
 ## Key Files
 
 - [`server.ts`](server.ts) - MCP server with tool and resource registration
-- [`mcp-app.html`](mcp-app.html) / [`src/mcp-app.ts`](src/mcp-app.ts) - Vanilla JS UI using `App` class
+- [`rhds-mcp-app.html`](rhds-mcp-app.html) / [`src/mcp-app.ts`](src/mcp-app.ts) - Vanilla JS UI using `App` class
 
 ## Getting Started
 
@@ -91,7 +91,7 @@ So the client never receives JSON component configs; it receives **ready-made HT
 
 ### 2. App shell pre-loads RHDS element definitions
 
-In **mcp-app.html** we:
+In **rhds-mcp-app.html** we:
 
 - Define an **import map** so bare specifiers like `@rhds/elements/rh-card/rh-card.js` resolve to the CDN.
 - Run a **preload script** (before the app script) that imports the RHDS element modules:
@@ -119,7 +119,7 @@ Because the RHDS custom elements were **already defined** in step 2, the browser
 | Step | Where | What happens |
 |------|--------|----------------|
 | 1 | MCP server (Python) | next_gen_ui_rhds_renderer turns component data into HTML strings with `<rh-card>`, `<rh-table>`, etc. |
-| 2 | mcp-app.html (browser) | Import map + preload script load RHDS JS from CDN; each module calls `customElements.define(...)`. |
+| 2 | rhds-mcp-app.html (browser) | Import map + preload script load RHDS JS from CDN; each module calls `customElements.define(...)`. |
 | 3 | mcp-app.ts + components.ts | Parse tool result → get `htmlContents` → set `innerHTML` on a div → browser upgrades the custom elements and they render. |
 
 ## Using with next_gen_ui_rhds_renderer
@@ -131,13 +131,14 @@ Because the RHDS custom elements were **already defined** in step 2, the browser
 
 2. **Deploy this app as the MCP UI resource** (from repo root):
    ```bash
-   pants run libs/next_gen_ui_mcp:update-ui-vanilla
+   pants run libs/next_gen_ui_mcp:update-ui
    ```
-   Or manually:
+   Or manually (build both PatternFly and RHDS apps, then copy):
    ```bash
-   cd libs/next_gen_ui_mcp_apps_ui_vanilla && npm run build
-   cp dist/mcp-app.html ../next_gen_ui_mcp/ui_resources/
+   cd libs/next_gen_ui_mcp_apps_ui_rhds && npm run build
+   cp dist/rhds-mcp-app.html ../next_gen_ui_mcp/ui_resources/
    ```
+   See [next_gen_ui_mcp README](../next_gen_ui_mcp/README.md) for full steps including the PatternFly app.
 
 3. **CSP:** When running the MCP apps host, allow the CDN so RHDS scripts load, e.g.:
    `--csp-resource-domains "https://cdn.jsdelivr.net,https://image.tmdb.org"`  

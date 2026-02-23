@@ -334,15 +334,15 @@ def get_cors_allow_origins_configuration(
     origins_str = args.cors_allow_origins
     if not origins_str and origins_env and origins_env.strip() != "":
         origins_str = origins_env
-    
+
     # Default to localhost:8080 if not provided
     if not origins_str:
         return ["http://localhost:8080"]
-    
+
     # Handle wildcard
     if origins_str.strip() == "*":
         return ["*"]
-    
+
     # Parse comma-separated string and strip whitespace
     return [origin.strip() for origin in origins_str.split(",") if origin.strip()]
 
@@ -363,11 +363,11 @@ def get_cors_allow_credentials_configuration(
     credentials_str = args.cors_allow_credentials
     if not credentials_str and credentials_env and credentials_env.strip() != "":
         credentials_str = credentials_env
-    
+
     # Default to true
     if not credentials_str:
         return True
-    
+
     return credentials_str.lower() == "true"
 
 
@@ -387,15 +387,15 @@ def get_cors_allow_methods_configuration(
     methods_str = args.cors_allow_methods
     if not methods_str and methods_env and methods_env.strip() != "":
         methods_str = methods_env
-    
+
     # Default to all methods
     if not methods_str:
         return ["*"]
-    
+
     # Handle wildcard
     if methods_str.strip() == "*":
         return ["*"]
-    
+
     # Parse comma-separated string and strip whitespace
     return [method.strip() for method in methods_str.split(",") if method.strip()]
 
@@ -416,15 +416,15 @@ def get_cors_allow_headers_configuration(
     headers_str = args.cors_allow_headers
     if not headers_str and headers_env and headers_env.strip() != "":
         headers_str = headers_env
-    
+
     # Default to all headers
     if not headers_str:
         return ["*"]
-    
+
     # Handle wildcard
     if headers_str.strip() == "*":
         return ["*"]
-    
+
     # Parse comma-separated string and strip whitespace
     return [header.strip() for header in headers_str.split(",") if header.strip()]
 
@@ -445,11 +445,11 @@ def get_cors_expose_headers_configuration(
     headers_str = args.cors_expose_headers
     if not headers_str and headers_env and headers_env.strip() != "":
         headers_str = headers_env
-    
+
     # Default to MCP protocol headers that need to be exposed
     if not headers_str:
         return ["mcp-session-id", "mcp-protocol-version"]
-    
+
     # Parse comma-separated string and strip whitespace
     return [header.strip() for header in headers_str.split(",") if header.strip()]
 
@@ -470,10 +470,10 @@ def get_csp_resource_domains_configuration(
     domains_str = args.csp_resource_domains
     if not domains_str and domains_env and domains_env.strip() != "":
         domains_str = domains_env
-    
+
     # Default to standard resource domains
     if not domains_str:
         return DEFAULT_CSP_RESOURCE_DOMAINS
-    
+
     # Parse comma-separated string and strip whitespace
     return [domain.strip() for domain in domains_str.split(",") if domain.strip()]

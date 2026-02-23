@@ -2,8 +2,16 @@
 # This automatically runs when building the :lib target
 run_shell_command(
     name="copy_ui_resources",
-    command="mkdir -p ui_resources && cp -f ../next_gen_ui_mcp_apps_ui/dist/*.html ui_resources/ && echo 'UI resources copied successfully'",
-    execution_dependencies=["libs/next_gen_ui_mcp_apps_ui:build"],
+    command=(
+        "mkdir -p ui_resources && "
+        "cp -f ../next_gen_ui_mcp_apps_ui_patternfly/dist/patternfly-mcp-app.html ui_resources/ && "
+        "cp -f ../next_gen_ui_mcp_apps_ui_rhds/dist/rhds-mcp-app.html ui_resources/ && "
+        "echo 'UI resources copied successfully'"
+    ),
+    execution_dependencies=[
+        "libs/next_gen_ui_mcp_apps_ui_patternfly:build",
+        "libs/next_gen_ui_mcp_apps_ui_rhds:build",
+    ],
     workdir=".",
 )
 
@@ -19,12 +27,16 @@ resources(
 run_shell_command(
     name="update-ui",
     command=(
-        "cd ../next_gen_ui_mcp_apps_ui && "
+        "cd ../next_gen_ui_mcp_apps_ui_patternfly && "
+        "npm install && "
+        "npm run build && "
+        "cd ../next_gen_ui_mcp_apps_ui_rhds && "
         "npm install && "
         "npm run build && "
         "cd ../next_gen_ui_mcp && "
         "mkdir -p ui_resources && "
-        "cp -f ../next_gen_ui_mcp_apps_ui/dist/*.html ui_resources/ && "
+        "cp -f ../next_gen_ui_mcp_apps_ui_patternfly/dist/patternfly-mcp-app.html ui_resources/ && "
+        "cp -f ../next_gen_ui_mcp_apps_ui_rhds/dist/rhds-mcp-app.html ui_resources/ && "
         "echo '✓ UI resources updated successfully' && "
         "ls -lh ui_resources/*.html"
     ),
