@@ -2,3 +2,7 @@
 # `python_requirement_library` target. Refer to
 # https://www.pantsbuild.org/docs/python-third-party-dependencies.
 python_requirements(name="reqs")
+
+shell_sources(
+    name="root",
+)
