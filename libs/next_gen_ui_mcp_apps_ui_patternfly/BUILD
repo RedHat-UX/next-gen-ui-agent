@@ -22,6 +22,7 @@ shell_command(
         ":html_entries",
     ],
     output_directories=["dist"],
+    timeout=300,  # CI can be slow; npm install + build often exceeds default 30s
     workdir=".",
 )
 
