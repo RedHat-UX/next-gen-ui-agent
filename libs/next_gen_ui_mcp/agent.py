@@ -30,13 +30,15 @@ DEFAULT_CSP_RESOURCE_DOMAINS = [
 def _ui_filename_for_component_system(component_system: str) -> str:
     """Return the UI HTML filename for the given component system.
 
-    json and patternfly both use the PatternFly app (compatible). rhds uses the RHDS app.
+    Uses component_system as the filename prefix (e.g. rhds -> rhds-mcp-app.html).
+    json and unknown values default to the patternfly app.
     """
-    if component_system in ("patternfly", "json"):
-        return "patternfly-mcp-app.html"
-    if component_system == "rhds":
-        return "rhds-mcp-app.html"
-    return "patternfly-mcp-app.html"
+    prefix = (
+        "patternfly"
+        if component_system in ("patternfly", "json") or not component_system
+        else component_system
+    )
+    return f"{prefix}-mcp-app.html"
 
 
 class _CORSConfigDict(TypedDict):

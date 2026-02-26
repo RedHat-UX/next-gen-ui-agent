@@ -79,6 +79,9 @@ Few examples:
 
   # Run with CORS allowing all origins (development only)
   python -m next_gen_ui_mcp --transport streamable-http --cors-allow-origins "*"
+
+  # Run with custom CSP resource domains (for UI images, scripts, styles)
+  python -m next_gen_ui_mcp --csp-resource-domains "https://cdn.jsdelivr.net,https://image.tmdb.org"
 ```
 
 As the above examples show you can choose to configure `mcp` sampling, `openai` or `anthropic-vertexai` inference provider.
@@ -117,6 +120,7 @@ Server can be configured using commandline arguments, or environment variables. 
 | `--cors-allow-methods`        | `MCP_CORS_ALLOW_METHODS`          | `*`           | Comma-separated list of allowed HTTP methods for CORS. Use `*` to allow all methods. Only applies to `sse` and `streamable-http` transports. |
 | `--cors-allow-headers`        | `MCP_CORS_ALLOW_HEADERS`          | `*`           | Comma-separated list of allowed headers for CORS. Use `*` to allow all headers. Only applies to `sse` and `streamable-http` transports. |
 | `--cors-expose-headers`       | `MCP_CORS_EXPOSE_HEADERS`         | `mcp-session-id,mcp-protocol-version` | Comma-separated list of headers to expose to the browser. Required for MCP streamable-http transport. Only applies to `sse` and `streamable-http` transports. |
+| `--csp-resource-domains`      | `MCP_CSP_RESOURCE_DOMAINS`        | `https://cdn.jsdelivr.net`             | Comma-separated list of domains allowed to load resources in the UI (images, scripts, styles). Used for MCP Apps UI Content Security Policy.                  |
 | `--debug`                     | -                                 |               | Enable debug logging.                                                                                                                 |
 
 ### LLM Inference Providers
@@ -408,16 +412,9 @@ Returns system information about the Next Gen UI Agent including:
 - Description
 
 ### `ui://generate_ui_component/mcp-app.html`
-HTML resource for rendering UI components (single or multiple) in MCP Apps-compatible hosts. The server serves the appropriate file based on `--component-system`: `patternfly-mcp-app.html` for `patternfly` or `json`, `rhds-mcp-app.html` for `rhds`.
+HTML resource for rendering UI components (single or multiple) in MCP Apps-compatible hosts. The server serves the appropriate file based on `--component-system`: `patternfly-mcp-app.html` for `patternfly` or `json`, for every other component system it'll look for the file following naming convention `{component-system}-mcp-app.html`.
 
 **MIME Type:** `text/html;profile=mcp-app`
-
-Returns self-contained HTML file (~1.3MB) with:
-- React application using MCP Apps SDK
-- PatternFly component rendering via `@rhngui/patternfly-react-renderer`
-- Parses tool results from both `generate_ui_component` and `generate_ui_multiple_components`
-- Renders component configurations as interactive UI
-- Automatically applies spacing when rendering multiple components
 
 ## MCP Apps Integration
 
@@ -524,15 +521,17 @@ These files are self-contained and include:
 
 ### Development Workflow
 
+Use this workflow when iterating on the UI locally. (For packaging the wheel or Docker image, the UI apps are built automatically by `pants package`; you do not need to run `update-ui`.)
+
 1. **Modify TypeScript UI (PatternFly or RHDS):**
    ```bash
    cd libs/next_gen_ui_mcp_apps_ui_patternfly   # or next_gen_ui_mcp_apps_ui_rhds
    npm run watch  # Auto-rebuild on changes
    ```
 
-2. **Update Python module:**
+2. **Copy built UI into the module** (so the server can serve it from `ui_resources/`):
    ```bash
-   # In another terminal
+   # In another terminal, after the watch build has produced dist/*.html
    pants run libs/next_gen_ui_mcp:update-ui
    ```
 
@@ -540,6 +539,7 @@ These files are self-contained and include:
    ```bash
    pants run libs/next_gen_ui_mcp/server_example.py
    ```
+   Or with options: `pants run libs/next_gen_ui_mcp/server_example.py:extended --run-args="--transport streamable-http --component-system rhds"`
 
 4. **Test with MCP host:**
    - Connect Claude Desktop or another MCP Apps-compatible host
@@ -548,61 +548,26 @@ These files are self-contained and include:
 
 ### Content Security Policy (CSP)
 
-The UI tools automatically configure Content Security Policy to allow external resources. The CSP must be specified in **both** the tool metadata and the resource metadata:
+The UI tools use Content Security Policy to allow external resources (images, scripts, styles). **CSP resource domains are configurable at runtime** via `--csp-resource-domains` or the `MCP_CSP_RESOURCE_DOMAINS` environment variable. The server injects these domains into both tool metadata and resource metadata automatically.
 
-**Tool metadata (for documentation):**
-```python
-@mcp.tool(
-    name="my_tool",
-    meta={
-        "ui": {
-            "resourceUri": "ui://my_tool/app.html",
-            "csp": {
-                "resourceDomains": ["https://cdn.jsdelivr.net"]
-            }
-        }
-    }
-)
+**Runtime configuration (recommended):**
+```bash
+# Add domains for images, CDN, etc. (comma-separated)
+python -m next_gen_ui_mcp --csp-resource-domains "https://cdn.jsdelivr.net,https://image.tmdb.org"
+
+# Or set the environment variable
+export MCP_CSP_RESOURCE_DOMAINS="https://cdn.jsdelivr.net,https://image.tmdb.org"
+python -m next_gen_ui_mcp
 ```
 
-**Resource metadata (for enforcement):**
-```python
-@mcp.resource(
-    "ui://my_tool/app.html",
-    mime_type="text/html;profile=mcp-app",
-    meta={
-        "ui": {
-            "csp": {
-                "resourceDomains": [
-                    "https://image.tmdb.org",  # Allow images from TMDB
-                    "https://cdn.jsdelivr.net", # Allow CSS/JS from jsDelivr CDN
-                    "https://*.example.com",   # Allow from any example.com subdomain
-                ],
-                "connectDomains": [
-                    "https://api.example.com"  # Allow API requests
-                ]
-            }
-        }
-    }
-)
-```
+**Default:** If not set, the server uses `https://cdn.jsdelivr.net` (for Red Hat Design System and PatternFly CSS from CDN).
 
-**CSP Fields:**
-- `resourceDomains` - Origins for images, scripts, stylesheets, fonts, media (maps to `img-src`, `script-src`, `style-src`, `font-src`, `media-src`)
-- `connectDomains` - Origins for network requests via fetch/XHR/WebSocket (maps to `connect-src`)
-- `frameDomains` - Origins for nested iframes (maps to `frame-src`)
-- `baseUriDomains` - Origins for base URI (maps to `base-uri`)
+**CSP field used by the server:**
+- `resourceDomains` — Origins for images, scripts, stylesheets, fonts, media (maps to `img-src`, `script-src`, `style-src`, `font-src`, `media-src`). This is the only field configurable via the runtime parameter; the server sets it from `--csp-resource-domains` / `MCP_CSP_RESOURCE_DOMAINS`.
 
-Wildcard subdomains are supported: `https://*.example.com`
+**Other CSP fields** (from the MCP Apps UI spec; not currently configurable at runtime): `connectDomains`, `frameDomains`, `baseUriDomains`. Wildcard subdomains are supported in values, e.g. `https://*.example.com`.
 
-**Current Configuration:**
-The MCP server is configured to allow:
-- Images from TMDB (`https://image.tmdb.org`, `https://*.tmdb.org`)
-- Stylesheets and fonts from jsDelivr CDN (`https://cdn.jsdelivr.net`)
-
-This enables the UI to load Red Hat Design System and PatternFly styles from CDN.
-
-**Note:** The basic-host enforces CSP via HTTP headers for security. External resources must be declared in the CSP configuration.
+**Note:** The MCP host enforces CSP via HTTP headers for security. External resources must be allowed by the configured resource domains.
 
 ### Troubleshooting
 
@@ -627,16 +592,10 @@ pants run libs/next_gen_ui_mcp:update-ui
 Loading the image 'https://example.com/image.jpg' violates Content Security Policy
 ```
 
-**Solution:** Add the domain to CSP configuration in tool metadata:
-```python
-meta={
-    "ui": {
-        "resourceUri": "ui://...",
-        "csp": {
-            "resourceDomains": ["https://example.com"]
-        }
-    }
-}
+**Solution:** Add the domain to the runtime CSP configuration (recommended):
+```bash
+python -m next_gen_ui_mcp --csp-resource-domains "https://cdn.jsdelivr.net,https://example.com"
+# Or: export MCP_CSP_RESOURCE_DOMAINS="https://cdn.jsdelivr.net,https://example.com"
 ```
 
 **Build fails:**

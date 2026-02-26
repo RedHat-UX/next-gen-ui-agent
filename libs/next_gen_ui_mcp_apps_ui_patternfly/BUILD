@@ -6,18 +6,22 @@ run_shell_command(
     workdir=".",
 )
 
-# Build the UI (produces dist/*.html files)
-run_shell_command(
+# Build the UI (produces dist/*.html files).
+# shell_command (not run_shell_command) so this runs during `pants package` when
+# depended on by the MCP docker image / distribution. Runs npm install in-sandbox
+# so node_modules exists before build.
+shell_command(
     name="build",
-    command="npm run build",
+    command="npm install && npm run build",
+    tools=["node", "npm", "npx", "bash", "sh"],
     execution_dependencies=[
-        ":npm_install",
         ":package_json",
         ":vite_config",
         ":tsconfig",
         ":sources",
         ":html_entries",
     ],
+    output_directories=["dist"],
     workdir=".",
 )
 
