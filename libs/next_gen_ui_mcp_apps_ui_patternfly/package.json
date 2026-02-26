@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "@modelcontextprotocol/ext-apps": "^1.0.1",
-        "@rhngui/patternfly-react-renderer": "^1.1.1",
+        "@rhngui/patternfly-react-renderer": "^1.2.0",
         "react": "^19.2.0",
         "react-dom": "^19.2.0",
         "victory-legend": "^37.3.6"
