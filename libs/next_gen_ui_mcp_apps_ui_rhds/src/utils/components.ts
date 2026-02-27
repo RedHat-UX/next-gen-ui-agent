@@ -46,18 +46,22 @@ export function html(
   return template.content.cloneNode(true) as DocumentFragment;
 }
 
-export function renderLoadingDisplay(message = "Loading..."): HTMLElement {
-  const div = document.createElement("div");
-  div.className = "ngui-loading";
-  div.textContent = message;
-  return div;
+export function renderLoadingDisplay(message: string): DocumentFragment {
+  return html`
+    <div class="ngui-loading">
+      <rh-spinner>
+        <p>${message}</p>
+      </rh-spinner>
+    </div>
+  `;
 }
 
-export function renderErrorDisplay(error: string): HTMLElement {
-  const div = document.createElement("div");
-  div.className = "ngui-error";
-  div.textContent = `Error: ${error}`;
-  return div;
+export function renderErrorDisplay(error: string): DocumentFragment {
+  return html`
+    <div class="ngui-error">
+        ${error}
+    </div>
+  `;
 }
 
 /**
@@ -66,22 +70,23 @@ export function renderErrorDisplay(error: string): HTMLElement {
  * the template parses the string and we append its .content clone. RHDS elements
  * are pre-loaded so they upgrade.
  */
-export function renderHtmlContents(htmlContents: string[], spacing: boolean): HTMLElement {
+export function renderHtmlContents(htmlContents: string[]): HTMLElement {
   const wrap = document.createElement("div");
   wrap.setAttribute("class", "ngui-render-root");
-  const fragment = document.createDocumentFragment();
 
-  htmlContents.forEach((content, i) => {
-    const margin = spacing && i > 0
-      ? "margin-top: var(--rh-space-xl, 24px);"
-      : "";
-
-    fragment.appendChild(html`
-      <div class="ngui-block" style="${margin}">
-        ${trustedHtml(content)}
-      </div>
-    `);
-  });
+  const fragment = htmlContents.reduce(
+    (frag, content) => {
+      frag.appendChild(
+        html`
+          <div class="ngui-block">
+            ${trustedHtml(content)}
+          </div>
+        `,
+      );
+      return frag;
+    },
+    document.createDocumentFragment(),
+  );
 
   wrap.appendChild(fragment);
   return wrap;

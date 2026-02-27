@@ -92,8 +92,7 @@ function render(
     return;
   }
 
-  const spacing = htmlContents.length > 1;
-  root.replaceChildren(renderHtmlContents(htmlContents, spacing));
+  root.replaceChildren(renderHtmlContents(htmlContents));
 
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {

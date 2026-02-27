@@ -9,6 +9,11 @@
   padding: var(--rh-space-lg, 24px);
 }
 
+/* Add spacing between multiple blocks */
+.ngui-block + .ngui-block {
+  margin-top: var(--rh-space-xl, 24px);
+}
+
 .ngui-error {
   padding: var(--rh-space-lg, 24px);
   color: var(--rh-color-text-danger-on-light, #c00);
