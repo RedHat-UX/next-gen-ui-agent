@@ -62,8 +62,8 @@ libs/next_gen_ui_mcp_apps_ui_patternfly/
 ├── vite.config.ts            # Vite bundler configuration
 ├── patternfly-mcp-app.html   # HTML entry point
 ├── src/
-│   ├── mcp-app.tsx          # Entry point: App component + mount
-│   ├── AppContext.tsx       # MCP app context
+│   ├── mcp-app.tsx          # Entry point: mounts McpAppProvider
+│   ├── AppContext.tsx       # McpAppContext, McpAppProvider, useMcpApp
 │   ├── component-renderer.tsx  # ErrorDisplay, LoadingDisplay, ComponentRenderer
 │   ├── global.css           # Global and PatternFly styles
 │   ├── mcp-app.css          # Component-specific styles
@@ -78,18 +78,26 @@ libs/next_gen_ui_mcp_apps_ui_patternfly/
 ## Source layout
 
 ### `src/mcp-app.tsx`
-Single entry point: defines the `App` component and mounts it. The App:
-1. Uses `useApp()` to connect to MCP Apps SDK
-2. Parses tool results via `useToolResultParser()`
-3. Handles loading, error, and success states
-4. Auto-enables spacing when rendering multiple components
-5. Triggers resize detection after content renders
+Single entry point: mounts `McpAppProvider` and loads CSS.
+
+### `src/AppContext.tsx`
+**`McpAppProvider`** – owns the MCP app lifecycle. It:
+1. Calls `useApp()` to connect to MCP Apps SDK
+2. Sets `app` in state via `onAppCreated` and provides it through `McpAppContext`
+3. Parses tool results via `useToolResultParser()`
+4. Handles loading, error, and success states
+5. Auto-enables spacing when rendering multiple components
+6. Triggers resize detection after content renders
+
+**`useMcpApp()`** – hook for consuming the MCP app from context. Use inside components rendered within `McpAppProvider`.
+
+**App lifecycle & context:** `McpAppProvider` owns the MCP app lifecycle: it calls `useApp()`, stores the app in state via `onAppCreated`, and exposes it through `McpAppContext`. Consumers use `useMcpApp()` to access the app. The app is never passed in as a prop.
 
 ### `src/utils/types.ts`
 TypeScript interfaces: `UIBlock`, `MCPGenerateUIOutput`, `ToolResult`, etc.
 
 ### `src/utils/useToolResultParser.ts`
-**`useToolResultParser()`** – parses `app.toolResult`, extracts component configs from `UIBlock.rendering.content`, returns `{ componentConfigs, error, isLoading }`.
+**`useToolResultParser()`** – parses tool results received via the MCP app's tool result callback, extracts component configs from `UIBlock.rendering.content`, returns `{ componentConfigs, error, isLoading }`.
 
 ### `src/component-renderer.tsx`
 - **`ErrorDisplay`** – error messages
@@ -180,11 +188,11 @@ This file can be served directly by the MCP server as a resource.
 
 ### Main Entry Point (`mcp-app.tsx`)
 
-Single file: the `App` component and its mount. Handles both single and multiple component rendering.
+Single file: mounts `McpAppProvider`. The provider handles MCP connection, tool result parsing, and single/multiple component rendering.
 
 ### Auto-Spacing Logic
 
-The `App` component automatically enables spacing between components when rendering more than one:
+The `McpAppProvider` automatically enables spacing between components when rendering more than one:
 ```tsx
 <ComponentRenderer 
   configs={componentConfigs} 
@@ -201,7 +209,7 @@ This means the same UI can handle any number of components - whether you have 1 
 2. Python returns MCPGenerateUIOutput with blocks: [UIBlock, ...]
 3. MCP Host reads ui://generate_ui_component/mcp-app.html resource and loads HTML in iframe
 4. React app initializes with MCP Apps SDK
-5. useToolResultParser() parses app.toolResult
+5. useToolResultParser() parses tool results from the MCP app callback
 6. Extracts component configs from blocks[].rendering.content
 7. ComponentRenderer passes each config to DynamicComponent
 8. DynamicComponent renders PatternFly components (with auto-spacing if multiple)
