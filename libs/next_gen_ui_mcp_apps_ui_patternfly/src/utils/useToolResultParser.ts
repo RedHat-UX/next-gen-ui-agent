@@ -15,6 +15,9 @@ export function useToolResultParser(toolResult: CallToolResult | null): UseToolR
 
   useEffect(() => {
     if (!toolResult) {
+      setComponentConfigs([]);
+      setError(null);
+      setIsLoading(true);
       return;
     }
 

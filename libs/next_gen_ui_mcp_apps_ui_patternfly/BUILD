@@ -50,5 +50,5 @@ files(
 # Source files for TypeScript/React
 files(
     name="sources",
-    sources=["src/**/*.tsx", "src/**/*.ts"],
+    sources=["src/**/*.tsx", "src/**/*.ts", "src/**/*.css", "src/**/*.d.ts"],
 )

@@ -1,0 +1,22 @@
+/* Component-specific styles */
+
+.ngui-error {
+  padding: 20px;
+  color: #c00;
+}
+
+.ngui-loading {
+  padding: 20px;
+}
+
+.ngui-render-root {
+  padding: 20px;
+}
+
+.ngui-block {
+  /* base block */
+}
+
+.ngui-block--spaced {
+  margin-bottom: 20px;
+}

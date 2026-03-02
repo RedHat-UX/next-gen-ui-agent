@@ -6,7 +6,7 @@ interface ErrorDisplayProps {
 
 export function ErrorDisplay({ error }: ErrorDisplayProps) {
   return (
-    <div style={{ padding: "20px", color: "red" }}>
+    <div className="ngui-error">
       <h1>Error</h1>
       <p>{error}</p>
     </div>
@@ -19,7 +19,7 @@ interface LoadingDisplayProps {
 
 export function LoadingDisplay({ message = "Loading..." }: LoadingDisplayProps) {
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="ngui-loading">
       <p>{message}</p>
     </div>
   );
@@ -32,11 +32,11 @@ interface ComponentRendererProps {
 
 export function ComponentRenderer({ configs, spacing = false }: ComponentRendererProps) {
   return (
-    <div style={{ padding: "20px" }}>
+    <div className="ngui-render-root">
       {configs.map((config, index) => (
         <div
           key={config.id || index}
-          style={spacing ? { marginBottom: "20px" } : undefined}
+          className={spacing ? "ngui-block ngui-block--spaced" : "ngui-block"}
         >
           <DynamicComponent config={config} />
         </div>

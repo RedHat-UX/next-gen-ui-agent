@@ -63,10 +63,13 @@ libs/next_gen_ui_mcp_apps_ui_patternfly/
 ├── patternfly-mcp-app.html   # HTML entry point
 ├── src/
 │   ├── mcp-app.tsx          # Entry point: App component + mount
+│   ├── AppContext.tsx       # MCP app context
+│   ├── component-renderer.tsx  # ErrorDisplay, LoadingDisplay, ComponentRenderer
+│   ├── global.css           # Global and PatternFly styles
+│   ├── mcp-app.css          # Component-specific styles
 │   └── utils/
-│       ├── component-renderer.tsx  # ErrorDisplay, LoadingDisplay, ComponentRenderer
-│       ├── useToolResultParser.ts   # useToolResultParser() hook
-│       ├── types.ts                 # UIBlock, MCPGenerateUIOutput, etc.
+│       ├── useToolResultParser.ts
+│       ├── types.ts
 │       └── patternfly-react-renderer.d.ts
 └── dist/                     # Build output (gitignored)
     └── patternfly-mcp-app.html  # Self-contained ~1.3MB HTML file
@@ -88,7 +91,7 @@ TypeScript interfaces: `UIBlock`, `MCPGenerateUIOutput`, `ToolResult`, etc.
 ### `src/utils/useToolResultParser.ts`
 **`useToolResultParser()`** – parses `app.toolResult`, extracts component configs from `UIBlock.rendering.content`, returns `{ componentConfigs, error, isLoading }`.
 
-### `src/utils/component-renderer.tsx`
+### `src/component-renderer.tsx`
 - **`ErrorDisplay`** – error messages
 - **`LoadingDisplay`** – loading state
 - **`ComponentRenderer`** – maps configs to `DynamicComponent`
