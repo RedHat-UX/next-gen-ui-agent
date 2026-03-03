@@ -1,6 +1,7 @@
 import DynamicComponent from "@rhngui/patternfly-react-renderer";
-import {useComponentHandlerRegistry} from '@rhngui/patternfly-react-renderer';
+import { useComponentHandlerRegistry } from "@rhngui/patternfly-react-renderer";
 import type { App } from "@modelcontextprotocol/ext-apps/react";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
 interface ErrorDisplayProps {
   error: string;
@@ -31,9 +32,15 @@ interface ComponentRendererProps {
   app: App | null;
   configs: any[];
   spacing?: boolean;
+  onToolResultUpdate?: (result: CallToolResult) => void;
 }
 
-export function ComponentRenderer({ app, configs, spacing = false }: ComponentRendererProps) {
+export function ComponentRenderer({
+  app,
+  configs,
+  spacing = false,
+  onToolResultUpdate,
+}: ComponentRendererProps) {
 
   console.log("Initializing component renderer ...");
   // # TODO PoC code: allows to add action handlers by consuments of this MCP Apps renderer, through dedicated section in the NGUI `config` UI component json
@@ -44,20 +51,29 @@ export function ComponentRenderer({ app, configs, spacing = false }: ComponentRe
       console.log("Registering item click handler for component type:", config.input_data_type);
       const action = config.actions.item_click;
       if (action.type === "tool_call") {
-        registry.registerItemClick(config.input_data_type, (event, payload) => {
+        registry.registerItemClick(config.input_data_type, (_event: unknown, payload: { fields?: Record<string, { value?: unknown }> }) => {
           console.log("Item click handler for component type ", config.input_data_type, " – full payload:", payload);
           
           const args: Record<string, any> = {};
           if (action.arguments) {
-            for(const argumentKey of Object.keys(action.arguments)) {
-              args[argumentKey] = payload.fields[action.arguments[argumentKey]]?.value;
+            for (const argumentKey of Object.keys(action.arguments)) {
+              args[argumentKey] = payload.fields?.[action.arguments[argumentKey]]?.value;
             }
           }
           console.log("Calling tool:", action.tool, " with arguments:", args);
-          app?.callServerTool({
-            name: action.tool,
-            arguments: args,
-          });  
+          app
+            ?.callServerTool({
+              name: action.tool,
+              arguments: args,
+            })
+            .then((result) => {
+              console.log("Tool result:", result);
+              onToolResultUpdate?.(result);
+            })
+            .catch((error) => {
+              // TODO  better way to inform the user about the error in UI
+              console.error("Error calling tool:", error);
+            });
         });
       } else {
         // TODO support other item click types like "message" to generate LLM message, "update-model-context" to update LLM context, or "open-link" to open an URL

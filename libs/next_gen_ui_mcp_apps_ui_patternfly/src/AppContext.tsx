@@ -62,6 +62,16 @@ export function McpAppProvider({ appName }: McpAppProviderProps) {
     return <LoadingDisplay message="Loading components..." />;
   }
 
+  /**
+   * Callback to update the tool result from user action handlers in the ComponentRenderer.
+   * 
+   * @param result 
+   */
+  const handleToolResultUpdate = (result: CallToolResult) => {
+    setToolResult(result);
+    setToolResultKey((k) => k + 1);
+  };
+
   return (
     <McpAppContext.Provider value={app}>
       <ComponentHandlerRegistryProvider>
@@ -70,6 +80,7 @@ export function McpAppProvider({ appName }: McpAppProviderProps) {
           key={toolResultKey}
           configs={componentConfigs}
           spacing={componentConfigs.length > 1}
+          onToolResultUpdate={handleToolResultUpdate}
         />
       </ComponentHandlerRegistryProvider>
     </McpAppContext.Provider>
