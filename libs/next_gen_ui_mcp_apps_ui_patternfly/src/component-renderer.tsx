@@ -69,14 +69,37 @@ export function ComponentRenderer({
             .then((result) => {
               console.log("Tool result:", result);
               onToolResultUpdate?.(result);
+              console.log("Going to update LLM context ...");
+              app?.updateModelContext({
+                content: [
+                  { type: "text", text: "User viewed UI for result of tool call: " + action.tool + " with arguments: " + JSON.stringify(args)},
+                ],
+              });
             })
             .catch((error) => {
               // TODO  better way to inform the user about the error in UI
               console.error("Error calling tool:", error);
             });
+
+          
+        });
+      } else if (action.type === "message") {
+        registry.registerItemClick(config.input_data_type, (_event: unknown, payload: { fields?: Record<string, { value?: unknown }> }) => {
+          console.log("Item click handler for component type:", config.input_data_type, " – full payload:", payload);
+          let text = action.message;
+          if (action.fieldValue) {
+            text += payload.fields?.[action.fieldValue]?.value;
+          }
+          console.log("Sending user message with text:", text);
+          app?.sendMessage({
+            role: "user",
+            content: [
+              { type: "text", text: text },
+            ],
+          });
         });
       } else {
-        // TODO support other item click types like "message" to generate LLM message, "update-model-context" to update LLM context, or "open-link" to open an URL
+        // TODO support other item click types like "update-model-context" to update LLM context, or "open-link" to open an URL
         console.error("Item click handler for component type:", config.input_data_type, " – unsupported action type:", action.type);
       }
     } else {
