@@ -19,3 +19,5 @@ python_requirements(
     name="reqs",
     source="pyproject.toml",
 )
+
+shell_sources()
