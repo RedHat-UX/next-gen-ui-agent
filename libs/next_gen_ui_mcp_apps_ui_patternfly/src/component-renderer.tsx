@@ -1,4 +1,7 @@
 import DynamicComponent from "@rhngui/patternfly-react-renderer";
+import { useComponentHandlerRegistry } from "@rhngui/patternfly-react-renderer";
+import type { App } from "@modelcontextprotocol/ext-apps/react";
+import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 
 interface ErrorDisplayProps {
   error: string;
@@ -26,14 +29,89 @@ export function LoadingDisplay({ message = "Loading..." }: LoadingDisplayProps) 
 }
 
 interface ComponentRendererProps {
+  app: App | null;
   configs: any[];
   spacing?: boolean;
+  onToolResultUpdate?: (result: CallToolResult) => void;
 }
 
-export function ComponentRenderer({ configs, spacing = false }: ComponentRendererProps) {
+export function ComponentRenderer({
+  app,
+  configs,
+  spacing = false,
+  onToolResultUpdate,
+}: ComponentRendererProps) {
+
+  console.log("Initializing component renderer ...");
+  // # TODO PoC code: allows to add action handlers by consuments of this MCP Apps renderer, through dedicated section in the NGUI `config` UI component json
+  const registry = useComponentHandlerRegistry();
+  for (const config of configs) {
+    // TODO add all the config structure validations ...
+    if (config.actions?.item_click) {
+      console.log("Registering item click handler for component type:", config.input_data_type);
+      const action = config.actions.item_click;
+      if (action.type === "tool_call") {
+        registry.registerItemClick(config.input_data_type, (_event: unknown, payload: { fields?: Record<string, { value?: unknown }> }) => {
+          console.log("Item click handler for component type ", config.input_data_type, " – full payload:", payload);
+          
+          const args: Record<string, any> = {};
+          if (action.arguments) {
+            for (const argumentKey of Object.keys(action.arguments)) {
+              args[argumentKey] = payload.fields?.[action.arguments[argumentKey]]?.value;
+            }
+          }
+          console.log("Calling tool:", action.tool, " with arguments:", args);
+          app
+            ?.callServerTool({
+              name: action.tool,
+              arguments: args,
+            })
+            .then((result) => {
+              console.log("Tool result:", result);
+              onToolResultUpdate?.(result);
+              console.log("Going to update LLM context ...");
+              app?.updateModelContext({
+                content: [
+                  { type: "text", text: "User viewed UI for result of tool call: " + action.tool + " with arguments: " + JSON.stringify(args)},
+                ],
+              });
+            })
+            .catch((error) => {
+              // TODO  better way to inform the user about the error in UI
+              console.error("Error calling tool:", error);
+            });
+
+          
+        });
+      } else if (action.type === "message") {
+        registry.registerItemClick(config.input_data_type, (_event: unknown, payload: { fields?: Record<string, { value?: unknown }> }) => {
+          console.log("Item click handler for component type:", config.input_data_type, " – full payload:", payload);
+          let text = action.message;
+          if (action.fieldValue) {
+            text += payload.fields?.[action.fieldValue]?.value;
+          }
+          console.log("Sending user message with text:", text);
+          app?.sendMessage({
+            role: "user",
+            content: [
+              { type: "text", text: text },
+            ],
+          });
+        });
+      } else {
+        // TODO support other item click types like "update-model-context" to update LLM context, or "open-link" to open an URL
+        console.error("Item click handler for component type:", config.input_data_type, " – unsupported action type:", action.type);
+      }
+    } else {
+      // TODO support other UI component user action types like "componet_actions", "item_actions", "item_field_clicks", "item_field_actions", see https://docs.google.com/document/d/1-3ZZfd-K2kK4CjerVn6SpqUa3CGWh6WBKrvOPM_EzOU
+      console.error("User action handler for component type:", config.input_data_type, " – unsupported user action");
+    }
+  }
+  
   return (
     <div className="ngui-render-root">
       {configs.map((config, index) => (
+        
         <div
           key={config.id || index}
           className={spacing ? "ngui-block ngui-block--spaced" : "ngui-block"}
