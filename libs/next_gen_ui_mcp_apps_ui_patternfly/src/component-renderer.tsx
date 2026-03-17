@@ -88,7 +88,7 @@ export function ComponentRenderer({
           console.log("Item click handler for component type:", config.input_data_type, " – full payload:", payload);
           let text = action.message;
           if (action.fieldValue) {
-            text += payload.fields?.[action.fieldValue]?.value;
+            text += " " + payload.fields?.[action.fieldValue]?.value;
           }
           console.log("Sending user message with text:", text);
           app?.sendMessage({
