@@ -37,6 +37,10 @@ class GenerateRequest(BaseModel):
         default=False,
         description="Skip intelligent data filtering if True",
     )
+    strategy: Optional[str] = Field(
+        default="one-step",
+        description="Component selection strategy (e.g. one-step, two-step); used in debug metadata.",
+    )
 
 
 class ErrorResponse(BaseModel):

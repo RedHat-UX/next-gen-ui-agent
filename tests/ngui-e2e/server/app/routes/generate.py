@@ -1,16 +1,15 @@
 """Main generate endpoint for creating UI components."""
 
 import json
-from typing import Any
 
-from app.agents import get_ngui_agent
-from app.config import LLAMA_STACK_BASE_URL, MAX_DATA_SIZE_MB, NGUI_MODEL
+from app.agents import invoke_ngui_agent
+from app.config import MAX_DATA_SIZE_MB, get_llm_display_info
 from app.data_sources import (
     DEFAULT_DATA,
     generic_data_filter_agent,
     process_inline_data,
 )
-from app.llm import get_llm_client
+from app.llm import complete_for_filtering
 from app.models import ErrorCode, GenerateRequest
 from app.utils import (
     create_error_response,
@@ -55,8 +54,6 @@ async def generate_response(request: GenerateRequest):
             and request.data != ""
         )
 
-        client = get_llm_client()
-
         if not has_data:
             # Use default data
             if DEFAULT_DATA is None:
@@ -76,7 +73,7 @@ async def generate_response(request: GenerateRequest):
             if not request.skip_filtering:
                 log_info("Applying intelligent filtering to default data")
                 filtered_data = await generic_data_filter_agent(
-                    prompt, source_data, client, NGUI_MODEL
+                    prompt, source_data, filter_llm_callable=complete_for_filtering
                 )
                 if filtered_data:
                     source_data = filtered_data
@@ -90,7 +87,7 @@ async def generate_response(request: GenerateRequest):
             if not request.skip_filtering:
                 log_info("Applying intelligent filtering to user-provided data")
                 filtered_data = await generic_data_filter_agent(
-                    prompt, source_data, client, NGUI_MODEL
+                    prompt, source_data, filter_llm_callable=complete_for_filtering
                 )
                 if filtered_data:
                     source_data = filtered_data
@@ -125,79 +122,22 @@ async def generate_response(request: GenerateRequest):
         if error:
             return error
 
-        # Step 3: Invoke NGUI agent
+        # Step 3: Invoke NGUI agent (single entry point: LangGraph or LlamaStack)
         log_section("STEP 2: INVOKING NGUI AGENT")
         try:
-            ngui_agent = await get_ngui_agent()
-
-            log_info("Calling NGUI agent to generate UI")
-            renditions = []
-            agent_events: list[dict[str, Any]] = []
-
-            async for event in ngui_agent.create_turn(
-                user_prompt=prompt.strip(), steps=[tool_step], component_system="json"
-            ):
-                event_type = event.get("event_type")
-                log_info(f"Event type: {event_type}")
-
-                # Track all events for metadata
-                agent_events.append(event)
-
-                # Handle 'rendering' event type (newer API)
-                if event_type == "rendering":
-                    payload = event.get("payload")
-                    log_info(f"Rendering payload type: {type(payload)}")
-
-                    if payload:
-                        # Payload can be a list of renditions
-                        if isinstance(payload, list):
-                            for item in payload:
-                                if isinstance(item, dict):
-                                    renditions.append(item)
-                                    log_info("Added rendition from dict in list")
-                                elif hasattr(item, "content"):
-                                    renditions.append(item)
-                                    log_info("Added rendition object from list")
-                        # Payload can be a single dict
-                        elif isinstance(payload, dict):
-                            renditions.append(payload)
-                            log_info("Added rendition from dict payload")
-                        # Payload can be a single Rendition object
-                        elif hasattr(payload, "content"):
-                            renditions.append(payload)
-                            log_info("Added rendition object")
-                        else:
-                            log_info(f"Payload: {payload}")
-
-                # Handle 'success' event type (older API compatibility)
-                elif event_type == "success":
-                    ui_blocks = event.get("payload", [])
-                    if isinstance(ui_blocks, list):
-                        for ui_block in ui_blocks:
-                            if isinstance(ui_block, dict):
-                                rendering = ui_block.get("rendering")
-                            else:
-                                rendering = getattr(ui_block, "rendering", None)
-                            if rendering:
-                                renditions.append(rendering)
-                    else:
-                        if isinstance(ui_blocks, dict):
-                            rendering = ui_blocks.get("rendering")
-                        else:
-                            rendering = getattr(ui_blocks, "rendering", None)
-                        if rendering:
-                            renditions.append(rendering)
-
-                # Handle error events
-                elif event_type == "error":
-                    error_payload = event.get("payload", {})
-                    log_error(f"Error event: {error_payload}")
-                    raise Exception(f"NGUI agent error: {error_payload}")
-
-            ngui_response = {"renditions": renditions}
-            log_info(f"Generated {len(renditions)} rendition(s)")
-            log_info(f"Tracked {len(agent_events)} agent events")
-
+            ngui_response, agent_events, agent_error_detail, components = (
+                await invoke_ngui_agent(
+                    prompt, source_data, source_tool_name, tool_step
+                )
+            )
+            if agent_error_detail is not None:
+                return create_error_response(
+                    error_code=ErrorCode.LLM_CONNECTION_ERROR,
+                    message="LLM request failed; no components generated",
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    details=agent_error_detail,
+                    suggestion="Check LLM_API_KEY, LLM_BASE_URL, and network access (e.g. Gemini 403 = auth failed).",
+                )
         except Exception as e:
             error_msg = str(e)
             log_error(f"ERROR: NGUI agent failed: {error_msg}")
@@ -225,14 +165,17 @@ async def generate_response(request: GenerateRequest):
                 f"Generated component: {parsed_response.get('component')} - {parsed_response.get('title')}"
             )
 
-            # Step 6: Extract metadata
+            # Step 6: Extract metadata (including client debug panel fields)
             log_section("STEP 4: EXTRACTING METADATA")
+            info = get_llm_display_info()
             metadata = extract_component_metadata(
                 ngui_response=ngui_response,
-                model_id=NGUI_MODEL or "unknown",
-                base_url=LLAMA_STACK_BASE_URL or "unknown",
+                model_id=info["model_id"],
+                base_url=info["base_url"],
                 tool_step=tool_step,
                 events=agent_events,
+                components=components,
+                strategy=request.strategy or "one-step",
             )
             log_info(f"Extracted metadata: {len(metadata)} keys")
 

@@ -34,22 +34,19 @@ export function useFetch<T = any>() {
         signal: controller.signal,
       });
       
-      // Handle HTTP errors
+      // Handle HTTP errors (server returns { message, details?, error_code? })
       if (!res.ok) {
         let errorMessage = `HTTP ${res.status}: ${res.statusText}`;
-        
         try {
           const errorData = await res.json();
-          if (errorData.error) {
-            errorMessage = errorData.error;
-            if (errorData.details) {
-              errorMessage += ` - ${errorData.details}`;
-            }
+          const msg = errorData.message ?? errorData.error;
+          if (msg) {
+            errorMessage = msg;
+            if (errorData.details) errorMessage += ` — ${errorData.details}`;
           }
         } catch {
-          // If response is not JSON, use the default error message
+          // response not JSON, keep status text
         }
-        
         throw new Error(errorMessage);
       }
       

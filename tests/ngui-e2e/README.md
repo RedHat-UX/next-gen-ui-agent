@@ -6,9 +6,9 @@ This directory contains a complete end-to-end testing application for the Next G
 
 ### Server
 - **Framework**: FastAPI
-- **AI Integration**: LlamaStack (via `next-gen-ui-llama-stack` 0.3.0+)
-- **Deployment**: Lightrail (Red Hat's AI platform)
-- **Model**: Llama 3.3 70B Instruct (FP8 dynamic)
+- **AI Integration**: The server supports **two modes**:
+  - **Lightrail / LlamaStack** — LlamaStack (via `next-gen-ui-llama-stack` 0.3.0+), e.g. Red Hat's Lightrail platform; model such as Llama 3.3 70B Instruct.
+  - **Local / direct LLM** — Any OpenAI-compatible API (Ollama, Gemini, Red Hat models.corp, etc.) via LangGraph + ChatOpenAI; no Lightrail required.
 - **Language**: Python 3.12+
 
 ### Client
@@ -21,13 +21,13 @@ This directory contains a complete end-to-end testing application for the Next G
 
 ```
 ngui-e2e/
-├── server/           # FastAPI backend with NGUI agent (LlamaStack for LLM inference)
+├── server/           # FastAPI backend with NGUI agent (Lightrail/LlamaStack or local/direct LLM)
 └── client/           # React frontend application
 ```
 
 ## Components
 
-- **`server/`** - FastAPI backend that provides AI-powered UI generation APIs using **LlamaStack** integration (deployed via **Lightrail**)
+- **`server/`** - FastAPI backend that provides AI-powered UI generation APIs. Supports **Lightrail/LlamaStack** (deployed) or **local/direct LLM** (Ollama, Gemini, models.corp, etc.); see Quick Start below.
 - **`client/`** - React frontend application that consumes the backend APIs and renders dynamic UI components
 
 ## Architecture
@@ -36,16 +36,16 @@ ngui-e2e/
 
 The server uses a **modular architecture** with the following components:
 
-- **LlamaStack Integration**: Uses `next-gen-ui-llama-stack` adapter (version 0.3.0+) for AI inference
-- **Lightrail Deployment**: Containerized deployment using Red Hat's Lightrail platform
-- **Modular Structure**:
-  - `agents/` - NGUI agent configuration
+- **LLM modes**: Either **LlamaStack** (e.g. Lightrail deployment) or **local/direct LLM** (OpenAI-compatible API). Mode is chosen via environment variables; see [server/README.md](server/README.md).
+- **LlamaStack**: Uses `next-gen-ui-llama-stack` adapter (0.3.0+) when `LLAMA_STACK_BASE_URL` is set.
+- **Lightrail**: Optional containerized deployment using Red Hat's Lightrail platform.
+- **Modular Structure** (under `server/app/`):
+  - `agents/` - NGUI agent (LlamaStack or LangGraph)
   - `data_sources/` - Data handling (inline, default, filtering)
-  - `routes/` - API endpoints (`/generate`, `/health`, `/wdyk`)
-  - `utils/` - Helper functions (validation, logging, response formatting)
-  - `models.py` - Pydantic models for request/response
-  - `config.py` - Configuration and environment setup
-  - `llm.py` - LlamaStack client initialization
+  - `routes/` - API endpoints (`/generate`, `/model-info`, `/api/v1/health`, `/api/v1/wdyk`)
+  - `utils/` - Validation, logging, response formatting
+  - `config.py` - Configuration and environment
+  - `llm.py` - LLM client (LlamaStack or local/direct)
 
 ### Key Features
 
@@ -75,7 +75,15 @@ lightrail-local-cli start
 
 The server will be available at `http://localhost:8080`
 
+### Server (direct LLM)
+
+You can run the server against a direct LLM (Ollama, Gemini, or any OpenAI-compatible API) instead of Lightrail. Copy `server/.env.sample` to `server/.env`, then set `LLM_MODEL`, `LLM_BASE_URL`, and optionally `LLM_API_KEY`. Do not set `LLAMA_STACK_BASE_URL` when using direct LLM. See [server/README.md](server/README.md) for details. From the repo root you can use `./tests/ngui-e2e/server/start_server.sh` after `pants export` (requires Pants).
+
+**Option: Red Hat model access** — For direct access to Red Hat-hosted models (e.g. for development or demos), you can use [developer.models.corp.redhat.com](https://developer.models.corp.redhat.com/). **VPN is required** to reach models.corp. You can request **21 days of access** by submitting a ticket in Red Hat Hub: [Request access](https://redhathub.service-now.com/hub?id=sc_cat_item&sys_id=882ad1b71bebd610b6ccea45624bcb3d). Use the provided base URL and API key in the server’s `.env` for `LLM_BASE_URL` and `LLM_API_KEY`.
+
 ### Client
+
+The client expects the server at **port 8080** by default. Optionally copy `client/.env.sample` to `client/.env` and set `VITE_API_ENDPOINT` if your server runs elsewhere.
 
 ```bash
 cd client
@@ -83,23 +91,25 @@ npm install
 npm run dev
 ```
 
-The client will be available at `http://localhost:5173`
+The client will be available at `http://localhost:5173`. Use `?debug=true` in the URL to enable the Debug panel and Model Info tab.
 
 ## API Endpoints
 
 - `POST /generate` - Generate UI components from prompts
+- `GET /model-info` - Model name and base URL (for client Model Info tab)
 - `GET /api/v1/health` - Health check
-- `GET /api/v1/wdyk` - What Do You Know (available data sources)
+- `GET /api/v1/wdyk` - What Do You Know (LLM connectivity test)
 
 ## Purpose
 
-This application serves as a comprehensive testing and demonstration platform for the NGUI system, allowing contributors to understand the complete workflow from AI model inference to dynamic UI component rendering in a production-like environment using Lightrail.
+This application serves as a comprehensive testing and demonstration platform for the NGUI system, allowing contributors to understand the complete workflow from AI model inference to dynamic UI component rendering. Run it with **Lightrail** (production-like) or with a **local/direct LLM** (Ollama, Gemini, models.corp, etc.) for development.
 
 ## Version Compatibility
 
 **Important**: This server requires:
 - `next-gen-ui-agent` >= 0.3.0
-- `next-gen-ui-llama-stack` >= 0.3.0
-- `llama-stack-client` >= 0.2.15, < 0.3.0
+- `next-gen-ui-llama-stack` >= 0.3.0 (LlamaStack mode)
+- `next-gen-ui-langgraph` (local/direct LLM mode)
+- `llama-stack-client` >= 0.2.15, < 0.3.0 (LlamaStack mode)
 
 Version 0.2.x had issues with empty data arrays in generated components. Always use 0.3.0+.

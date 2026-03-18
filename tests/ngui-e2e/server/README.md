@@ -3,7 +3,7 @@
 [![Module Category](https://img.shields.io/badge/Module%20Category-Testing/Evaluation-darkmagenta)](https://github.com/RedHat-UX/next-gen-ui-agent)
 [![Module Status](https://img.shields.io/badge/Module%20Status-Tech%20Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
 
-FastAPI server with **Next Gen UI Agent** integration for AI-powered UI component generation using LlamaStack.
+FastAPI server with **Next Gen UI Agent** integration for AI-powered UI component generation. Supports **local/direct LLM** (Ollama, Gemini via OpenAI-compatible API) and **LlamaStack** (deployed/Lightrail).
 
 This testing application demonstrates the full capabilities of the Next Gen UI Agent with a RESTful API, supporting both default movie data and custom inline data with various UI component types.
 
@@ -11,13 +11,40 @@ This testing application demonstrates the full capabilities of the Next Gen UI A
 
 * REST API endpoints for UI component generation (`/generate`)
 * Health check and LLM connectivity testing endpoints
-* LlamaStack integration with SSL certificate support
+* **Local LLM mode**: Ollama, Gemini, or any OpenAI-compatible API (LangGraph + ChatOpenAI)
+* **LlamaStack mode**: SSL certificate support for deployed environments
 * Movie search functionality with JSON-based data
 * Support for inline data with custom data types
 * Intelligent data filtering
 * CORS-enabled for frontend integration
 
 ## Quick Start
+
+### Option A: Local LLM (Ollama, Gemini, etc.)
+
+Run the server against a local or direct LLM (e.g. Ollama, or Gemini via an OpenAI-compatible endpoint):
+
+```bash
+# 1. Copy env sample and set your LLM (do not set LLAMA_STACK_BASE_URL)
+cp .env.sample .env
+# Edit .env: LLM_MODEL, LLM_BASE_URL, and optionally LLM_API_KEY (e.g. for Gemini)
+
+# 2a. Using Pants (from repo root: pants export, then)
+./start_server.sh
+
+# 2b. Or using Poetry
+poetry install
+poetry run uvicorn app.main:app --reload --port 8080
+
+# 3. Test it
+curl -X POST http://localhost:8080/generate \
+  -H "Content-Type: application/json" \
+  -d '{"prompt": "Show me all movies in a table"}'
+```
+
+When `LLM_BASE_URL` is set and `LLAMA_STACK_BASE_URL` is not set, the server uses **local mode** (LangGraph + direct LLM). Use `LLM_API_KEY` for Gemini or other authenticated providers.
+
+### Option B: LlamaStack (deployed / Lightrail)
 
 ```bash
 # 1. Install dependencies
@@ -99,6 +126,9 @@ Health check endpoint.
 ### `GET /api/v1/wdyk`
 Test LLM connectivity.
 
+### `GET /model-info`
+Returns the active LLM model name and base URL (used by the client’s debug Model Info tab).
+
 ## Available Movies
 
 - Toy Story (1995)
@@ -134,9 +164,9 @@ User Prompt → Movie Search → NGUI Agent + LLM → UI Component JSON
 ```
 
 **Key Components:**
-- `search_movies()` - Simple JSON-based search
-- `NextGenUILlamaStackAgent` - LLM-powered component selection
-- Manual `ToolStep` creation - Simulates agent tool execution
+- **Local mode**: `NextGenUILangGraphAgent` + LangChain ChatOpenAI (Ollama, Gemini, etc.)
+- **LlamaStack mode**: `NextGenUILlamaStackAgent` - LLM-powered component selection
+- Manual `ToolStep` / `InputData` creation - Simulates agent tool execution
 
 ## Intelligent Data Filtering
 
@@ -161,7 +191,7 @@ The server includes an optional **intelligent data filtering** feature that uses
 
 ### Implementation
 
-Located in `data_sources/filtering.py`, the `generic_data_filter_agent()` function:
+Located in `app/data_sources/filtering.py`, the `generic_data_filter_agent()` function:
 - Works with any JSON data structure (movies, cost data, RBAC permissions, etc.)
 - Uses LLM to make intelligent filtering decisions
 - Returns filtered data or all data if query is general
@@ -187,6 +217,18 @@ NGUI_CONFIG = AgentConfig(unsupported_components=True)
 
 ## Environment Variables
 
+**Local / direct LLM mode** (use when running against Ollama, Gemini, or any OpenAI-compatible API):
+
+| Variable | Description |
+|----------|-------------|
+| `LLM_MODEL` | Model name (e.g. `llama3.2:3b`, or Gemini model id) |
+| `LLM_BASE_URL` | API base URL (e.g. `http://localhost:11434/v1` for Ollama, or Gemini OpenAI-compatible URL) |
+| `LLM_API_KEY` | Optional; required for Gemini and other authenticated providers. Leave empty for Ollama. |
+
+If `LLM_BASE_URL` is set and `LLAMA_STACK_BASE_URL` is not set, the server runs in **local mode** (LangGraph).
+
+**LlamaStack mode** (deployed / Lightrail):
+
 | Variable | Description |
 |----------|-------------|
 | `LLAMA_STACK_BASE_URL` | LlamaStack server URL (primary, works for any deployment) |
@@ -194,6 +236,8 @@ NGUI_CONFIG = AgentConfig(unsupported_components=True)
 | `LLAMA_STACK_TLS_CA_CERT_PATH` | SSL certificate path (primary) |
 | `LIGHTRAIL_LLAMA_STACK_TLS_SERVICE_CA_CERT_PATH` | SSL certificate path (fallback, for Lightrail) |
 | `NGUI_MODEL` | Model identifier (matches MCP and A2A naming convention) |
+
+Copy `.env.sample` to `.env` and adjust for your environment.
 
 ## Example Prompts
 
@@ -261,9 +305,9 @@ curl -X POST http://localhost:8080/generate \
 ## Development
 
 **Add movies:** Edit `app/data/movies_data.json`  
-**Modify search:** Update data sources in `data_sources/` directory  
-**Add data sources:** Create new modules in `data_sources/`  
-**Add routes:** Create new endpoints in `routes/` directory
+**Modify search:** Update data sources in `app/data_sources/`  
+**Add data sources:** Create new modules in `app/data_sources/`  
+**Add routes:** Create new endpoints in `app/routes/`
 
 ## Links
 

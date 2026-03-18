@@ -154,22 +154,14 @@ def extract_component_metadata(
     base_url: str,
     tool_step: Optional[Any] = None,
     events: Optional[list] = None,
+    components: Optional[list] = None,
+    strategy: str = "one-step",
 ) -> dict:
     """
-    Extract metadata from NGUI response for debugging and analysis.
+    Extract metadata from NGUI response for debugging and the E2E client Debug panel.
 
-    This function extracts useful metadata from the NGUI agent response,
-    adapted for LlamaStack (vs LangGraph in the source version).
-
-    Args:
-        ngui_response: The full NGUI agent response dict
-        model_id: The LLM model identifier
-        base_url: The LlamaStack base URL
-        tool_step: Optional ToolExecutionStep for data context
-        events: Optional list of agent events for debugging
-
-    Returns:
-        Dictionary containing extracted metadata
+    Populates both server-internal keys and client-facing keys (componentType, reason,
+    confidence, strategy, llmInteractions, agentMessages) so the Debug Information panel works.
     """
     from app.utils.agent_messages import (
         extract_tool_data_summary,
@@ -178,35 +170,71 @@ def extract_component_metadata(
 
     metadata: dict[str, Any] = {}
 
-    # Add model information
+    # Model info: client expects { name, baseUrl } for model-info display
     metadata["model"] = {
+        "name": model_id,
+        "baseUrl": base_url,
         "model_id": model_id,
         "base_url": base_url,
     }
 
-    # Extract rendition info
+    # From agent components (LangGraph path) – for Debug panel: reason, confidence, llm_interactions
+    first_component = None
+    if components and len(components) > 0:
+        first_component = components[0]
+
+    if first_component is not None:
+        comp = first_component
+        if getattr(comp, "component", None):
+            metadata["componentType"] = getattr(comp, "component", None)
+        if getattr(comp, "reasonForTheComponentSelection", None):
+            metadata["reason"] = comp.reasonForTheComponentSelection
+        if getattr(comp, "confidenceScore", None):
+            metadata["confidence"] = comp.confidenceScore
+        if getattr(comp, "llm_interactions", None):
+            metadata["llmInteractions"] = comp.llm_interactions
+        # dataTransform for client DataTransformationViewer
+        data_transform: dict[str, Any] = {}
+        if getattr(comp, "input_data_transformer_name", None):
+            data_transform["transformerName"] = comp.input_data_transformer_name
+        if getattr(comp, "json_wrapping_field_name", None):
+            data_transform["jsonWrappingField"] = comp.json_wrapping_field_name
+        if getattr(comp, "fields", None) and comp.fields:
+            data_transform["fieldCount"] = len(comp.fields)
+            data_transform["fields"] = [
+                {
+                    "name": getattr(f, "name", ""),
+                    "dataPath": getattr(f, "data_path", getattr(f, "dataPath", "")),
+                }
+                for f in comp.fields
+            ]
+        if data_transform:
+            metadata["dataTransform"] = data_transform
+
+    metadata["strategy"] = strategy
+
+    # Rendition/component_type fallback when no components (e.g. LlamaStack)
     renditions = ngui_response.get("renditions", [])
     if renditions:
         metadata["rendition_count"] = len(renditions)
+        if metadata.get("componentType") is None:
+            try:
+                first_rendition = renditions[0]
+                content = (
+                    first_rendition.get("content", "")
+                    if isinstance(first_rendition, dict)
+                    else getattr(first_rendition, "content", "")
+                )
+                if content:
+                    parsed = json.loads(content)
+                    if "component" in parsed:
+                        metadata["componentType"] = parsed["component"]
+                    if "title" in parsed:
+                        metadata["component_title"] = parsed["title"]
+            except Exception as e:
+                log_error(f"Could not extract component info from rendition: {e}")
 
-        # Try to extract component type from first rendition content
-        try:
-            first_rendition = renditions[0]
-            if isinstance(first_rendition, dict):
-                content = first_rendition.get("content", "")
-            else:
-                content = getattr(first_rendition, "content", "")
-
-            if content:
-                parsed_content = json.loads(content)
-                if "component" in parsed_content:
-                    metadata["component_type"] = parsed_content["component"]
-                if "title" in parsed_content:
-                    metadata["component_title"] = parsed_content["title"]
-        except Exception as e:
-            log_error(f"Could not extract component info from rendition: {e}")
-
-    # Add data source information
+    # Data source
     if tool_step:
         data_summary = extract_tool_data_summary(tool_step)
         if data_summary["has_data"]:
@@ -215,9 +243,30 @@ def extract_component_metadata(
                 "data_size_bytes": data_summary["data_size"],
             }
 
-    # Add agent events for debugging
+    # Agent events → client-facing agentMessages for PipelineViewer
+    agent_messages: list[dict[str, Any]] = []
+    if tool_step:
+        data_summary = extract_tool_data_summary(tool_step)
+        if data_summary.get("has_data"):
+            # Prepend Stage 1: Data input so the pipeline starts with Stage 1, then Stage 2 (NGUI)
+            agent_messages.append(
+                {
+                    "type": "DataSource",
+                    "content": f"Data source: {data_summary.get('tool_name', 'unknown')} ({data_summary.get('data_size', 0)} bytes)",
+                }
+            )
     if events:
         metadata["agent_events"] = serialize_agent_events(events)
         metadata["event_count"] = len(events)
+        for ev in events:
+            msg = {
+                "type": ev.get("event_type", "unknown"),
+                "content": json.dumps(ev.get("payload", {}), default=str)[:2000],
+            }
+            if ev.get("payload") and isinstance(ev["payload"], dict):
+                msg["payload_keys"] = list(ev["payload"].keys())
+            agent_messages.append(msg)
+    if agent_messages:
+        metadata["agentMessages"] = agent_messages
 
     return metadata

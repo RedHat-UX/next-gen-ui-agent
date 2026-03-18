@@ -10,7 +10,9 @@ python_sources(
 python_tests(
     name="tests",
     dependencies=[
+        ":lib",
         "libs/3rdparty/python:a2a",
+        "libs/3rdparty/python:langchain",
         "libs/3rdparty/python:pytest",
     ],
 )

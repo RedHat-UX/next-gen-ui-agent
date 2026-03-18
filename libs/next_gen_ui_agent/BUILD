@@ -19,6 +19,7 @@ python_tests(
     dependencies=[
         ":lib",
         ":test_resources",
+        "libs/3rdparty/python:langchain",
         "libs/3rdparty/python:pytest",
     ],
 )

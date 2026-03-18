@@ -553,6 +553,10 @@
   background-color: #ffe082;
 }
 
+.pipeline-message-type-datasource {
+  background-color: #e3f2fd;
+}
+
 .pipeline-tool-calls-section {
   margin-bottom: 8px;
 }
