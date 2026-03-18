@@ -20,6 +20,90 @@ Python MCP Server → UIBlock (component config) → MCP Host → HTML View (thi
 The views receive tool results containing `UIBlock[]` where each block has:
 - `rendering.content` - JSON string of component configuration
 - Component configs are parsed and passed to `DynamicComponent`
+- JSON with component configuration can contain defionition of the User actions for the UI component
+
+### User actions in UI Component JSON
+
+This is basic preview feature, lacking some features!
+
+MCP Apps Patternfly renderer supports extension of the NGUI UI Component JSON, which allows to define user action in the MCP App UI, using MCP Apps supported actions. 
+
+The only hadler available at this moment is `onItemClick` (row click) for `table` component, more can be added in the future.
+
+User action can invoke next types of actions for now, based on MCP Apps specification. Other user action types may be added in the future (eg. `ui/open-link` or `ui/update-model-context`).
+
+#### MCP Tool call
+
+User action invokes MCP tool call via `tools/call` (MCP Apps spec allows calls to the same MCP server only, tool call must be marked as `app`). 
+Input arguments can be any data from the component fields.
+It is expected that this tool call also returns NGUI component JSON, the current component in the view is replaced by the new component coming from that tool call.
+No any navigation is implemented currently, so user has no way to go back to the previous UI component.
+
+Not any view state management is implemented currently, view can be re-rendered by the host at any time to the initial state, where the first component from the initial tool call is shown!
+
+On success, LLM context is updated by call to the `ui/update-model-context` so host LLM knows about this action and can react to it in future conversation. 
+Text sent to the context is like `"User viewed UI for result of tool call: " + action.tool + " with arguments: " + JSON.stringify(args)`
+
+Example of the UI component JSON with this action: 
+
+```json
+
+{
+  "id": "4545-dfd-5458d-656",
+  "component": "table",
+  "title": "Movies",
+  "fields": [ 
+    {
+      "id": "title",
+      "data":["Toy Story", "My name is Khan"]
+    }
+    ... 
+  ],
+  "actions": {
+    {
+      "item_click": {
+        "type": "tool_call",
+        "tool": "movie-detail",
+        "arguments": {
+          "title": "title", // value here is `id` of the field to get data from and put them as an argument value when calling the tool.
+        },
+      },
+    }
+  }
+}
+
+```
+
+#### Message to the host
+
+User action initiates `user` message sent to the host LLM via `ui/message`, which typically results into next conversation turn.
+
+Example of the UI component JSON with this action: 
+
+```json
+
+{
+  "id": "4545-dfd-5458d-656",
+  "component": "table",
+  "title": "Movies",
+  "fields": [ 
+    {
+      "id": "title",
+      "data":["Toy Story", "My name is Khan"]
+    }
+    ... 
+  ],
+  "actions": {
+    {
+      "item_click": {
+        "type": "message",
+        "message": "Show me detail for the movie",
+        "fieldValue": "title", // optional `id` of the field to append its data to the `message` text.
+      },
+    }
+  }
+}
+
 
 ## Quick Start
 
@@ -211,7 +295,7 @@ This means the same UI can handle any number of components - whether you have 1 
 4. React app initializes with MCP Apps SDK
 5. useToolResultParser() parses tool results from the MCP app callback
 6. Extracts component configs from blocks[].rendering.content
-7. ComponentRenderer passes each config to DynamicComponent
+7. ComponentRenderer passes each config to DynamicComponent and creates handlers for defined user actions
 8. DynamicComponent renders PatternFly components (with auto-spacing if multiple)
 ```
 

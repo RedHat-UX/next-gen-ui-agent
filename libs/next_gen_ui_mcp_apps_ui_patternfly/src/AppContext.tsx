@@ -4,6 +4,7 @@ import type { App } from "@modelcontextprotocol/ext-apps";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { useToolResultParser } from "./utils/useToolResultParser";
 import { ErrorDisplay, LoadingDisplay, ComponentRenderer } from "./component-renderer";
+import { ComponentHandlerRegistryProvider } from '@rhngui/patternfly-react-renderer';
 
 const McpAppContext = createContext<App | null>(null);
 
@@ -61,13 +62,27 @@ export function McpAppProvider({ appName }: McpAppProviderProps) {
     return <LoadingDisplay message="Loading components..." />;
   }
 
+  /**
+   * Callback to update the tool result from user action handlers in the ComponentRenderer.
+   * 
+   * @param result 
+   */
+  const handleToolResultUpdate = (result: CallToolResult) => {
+    setToolResult(result);
+    setToolResultKey((k) => k + 1);
+  };
+
   return (
     <McpAppContext.Provider value={app}>
-      <ComponentRenderer
-        key={toolResultKey}
-        configs={componentConfigs}
-        spacing={componentConfigs.length > 1}
-      />
+      <ComponentHandlerRegistryProvider>
+        <ComponentRenderer
+          app={app}
+          key={toolResultKey}
+          configs={componentConfigs}
+          spacing={componentConfigs.length > 1}
+          onToolResultUpdate={handleToolResultUpdate}
+        />
+      </ComponentHandlerRegistryProvider>
     </McpAppContext.Provider>
   );
 }
